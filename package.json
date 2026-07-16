@@ -1,0 +1,26 @@
+{
+  "name": "market-brief-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "validate:brief": "node scripts/validate-brief.mjs",
+    "check": "pnpm validate:brief && pnpm typecheck && pnpm build"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.9.3"
+  },
+  "packageManager": "pnpm@11.9.0"
+}

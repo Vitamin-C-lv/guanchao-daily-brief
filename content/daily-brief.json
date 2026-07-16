@@ -1,0 +1,434 @@
+{
+  "meta": {
+    "editionDate": "2026-07-17",
+    "generatedAt": "2026-07-17T07:30:00+08:00",
+    "dataThrough": "2026-07-16",
+    "title": "全球市场晨间简报",
+    "subtitle": "先看政策，再看三地市场分化",
+    "status": "来源已核验",
+    "curationNote": "AI 仅做检索、去重和摘要；政策结论优先引用官方原文，市场数据采用各地最新完整交易日。"
+  },
+  "pulse": {
+    "score": 58,
+    "label": "中性偏谨慎",
+    "explanation": "规则分数：综合美联储政策取向、三地主指数方向与本期风险事件，仅用于排列阅读优先级，不构成投资信号。",
+    "signals": [
+      { "label": "美联储", "value": "维持利率", "tone": "warning" },
+      { "label": "A 股", "value": "主要指数回调", "tone": "negative" },
+      { "label": "港股", "value": "恒指重返 25,000", "tone": "positive" },
+      { "label": "美股", "value": "通胀后温和上行", "tone": "positive" }
+    ]
+  },
+  "federalReserve": {
+    "targetRange": "3.50%–3.75%",
+    "stance": "中性偏鹰",
+    "stanceTone": "warning",
+    "lastDecision": "维持目标利率区间不变",
+    "lastDecisionDate": "2026-06-17",
+    "nextMeeting": "2026-07-28 / 29",
+    "countdownDays": 11,
+    "takeaway": "利率已连续维持，但委员会仍把通胀高于 2% 目标视为核心约束；本月更重要的是通胀、就业与能源价格是否继续改善。",
+    "path": [
+      { "label": "24.09", "lower": 4.75, "upper": 5.00 },
+      { "label": "24.11", "lower": 4.50, "upper": 4.75 },
+      { "label": "24.12", "lower": 4.25, "upper": 4.50 },
+      { "label": "25.09", "lower": 4.00, "upper": 4.25 },
+      { "label": "25.10", "lower": 3.75, "upper": 4.00 },
+      { "label": "25.12", "lower": 3.50, "upper": 3.75 },
+      { "label": "26.06", "lower": 3.50, "upper": 3.75 }
+    ],
+    "articles": [
+      {
+        "id": "fed-june-decision",
+        "title": "6 月会议维持 3.50%–3.75%，通胀仍是首要约束",
+        "summary": "FOMC 在 6 月 17 日一致决定维持联邦基金利率目标区间，声明认为经济活动保持稳健，但通胀仍高于 2% 目标。",
+        "impact": "短期政策更依赖数据，7 月会议前的通胀、就业和能源价格将决定风险定价。",
+        "publishedAt": "2026-06-17",
+        "tags": ["FOMC", "利率", "通胀"],
+        "sources": [
+          {
+            "name": "FOMC 声明",
+            "publisher": "Federal Reserve",
+            "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+            "tier": "official"
+          },
+          {
+            "name": "6 月会议纪要",
+            "publisher": "Federal Reserve",
+            "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm",
+            "tier": "official"
+          }
+        ]
+      },
+      {
+        "id": "fed-july-report",
+        "title": "7 月货币政策报告延续“控制通胀”主线",
+        "summary": "美联储向国会提交的最新报告重申，年初以来目标利率区间保持不变，委员会继续强调恢复价格稳定。",
+        "impact": "如果通胀降温缺乏连续性，降息预期仍可能反复。",
+        "publishedAt": "2026-07-10",
+        "tags": ["政策报告", "国会", "价格稳定"],
+        "sources": [
+          {
+            "name": "货币政策报告摘要",
+            "publisher": "Federal Reserve",
+            "url": "https://www.federalreserve.gov/monetarypolicy/2026-07-mpr-summary.htm",
+            "tier": "official"
+          },
+          {
+            "name": "2026 FOMC 日历",
+            "publisher": "Federal Reserve",
+            "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+            "tier": "official"
+          }
+        ]
+      }
+    ]
+  },
+  "markets": [
+    {
+      "id": "a-share",
+      "name": "A 股市场",
+      "shortName": "A股",
+      "sessionDate": "2026-07-16",
+      "status": "已收盘",
+      "summary": "主要指数继续调整，创业板与科创方向跌幅居前；成交额缩至约 2.4 万亿元，短线风险偏好回落。",
+      "leadIndex": "上证指数",
+      "indices": [
+        { "name": "上证指数", "value": "3,882.41", "change": -1.85, "date": "2026-07-16" },
+        { "name": "深证成指", "value": "14,488.65", "change": -1.97, "date": "2026-07-16" },
+        { "name": "创业板指", "value": "3,692.46", "change": -2.95, "date": "2026-07-16" }
+      ],
+      "sparkline": [4031.34, 4041.24, 3990.24, 3970.88, 4036.59, 3996.16, 3913.79, 3967.13, 3955.58, 3882.41],
+      "tone": "negative",
+      "sources": [
+        {
+          "name": "7 月 16 日收评",
+          "publisher": "新华财经",
+          "url": "https://www.cnfin.com/yw-lb/detail/20260716/4441431_1.html",
+          "tier": "authoritative"
+        },
+        {
+          "name": "上交所市场数据",
+          "publisher": "上海证券交易所",
+          "url": "https://www.sse.com.cn/market/stockdata/overview/day/",
+          "tier": "official"
+        }
+      ],
+      "articles": [
+        {
+          "id": "a-share-close-0716",
+          "title": "主要指数继续调整，成交额降至不足 2.5 万亿元",
+          "summary": "上证指数跌 1.85%，深证成指跌 1.97%，创业板指跌 2.95%；医药相对活跃，科技成长方向承压。",
+          "impact": "观察后续是否出现放量修复，以及成长板块能否恢复持续性。",
+          "publishedAt": "2026-07-16",
+          "tags": ["收盘", "成交额", "成长股"],
+          "sources": [
+            {
+              "name": "主要指数继续调整",
+              "publisher": "新华财经",
+              "url": "https://www.cnfin.com/yw-lb/detail/20260716/4441431_1.html",
+              "tier": "authoritative"
+            },
+            {
+              "name": "A 股午后跌幅扩大",
+              "publisher": "澎湃新闻 / 新浪财经",
+              "url": "https://finance.sina.com.cn/jjxw/2026-07-16/doc-inihyuqe1263055.shtml",
+              "tier": "major-media"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hk",
+      "name": "香港市场",
+      "shortName": "港股",
+      "sessionDate": "2026-07-16",
+      "status": "已收盘",
+      "summary": "恒指连续第五个交易日上行并重返 25,000 点，互联网与新消费走强，科技板块内部仍有明显分化。",
+      "leadIndex": "恒生指数",
+      "indices": [
+        { "name": "恒生指数", "value": "25,008.60", "change": 1.33, "date": "2026-07-16" },
+        { "name": "恒生科技", "value": "4,834.44", "change": 1.98, "date": "2026-07-16" },
+        { "name": "国企指数", "value": "8,318.14", "change": 1.63, "date": "2026-07-16" }
+      ],
+      "sparkline": [23350.03, 23616.32, 23496.89, 24199.46, 24030.18, 24175.12, 24213.72, 24340.73, 24681.10, 25008.60],
+      "tone": "positive",
+      "sources": [
+        {
+          "name": "港股 7 月 16 日收盘",
+          "publisher": "新华社 / 新浪财经",
+          "url": "https://finance.sina.com.cn/roll/2026-07-16/doc-inihyywc8177911.shtml",
+          "tier": "authoritative"
+        },
+        {
+          "name": "HKEX 市场数据",
+          "publisher": "香港交易所",
+          "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
+          "tier": "official"
+        }
+      ],
+      "articles": [
+        {
+          "id": "hk-close-0716",
+          "title": "恒指涨 1.33% 重返 25,000 点，科技指数涨 1.98%",
+          "summary": "香港三大指数集体上涨，互联网、新消费与影视方向表现较强；存储芯片相关个股波动放大。",
+          "impact": "指数动能改善，但科技板块内部轮动较快，需继续观察成交与南向资金。",
+          "publishedAt": "2026-07-16",
+          "tags": ["恒生指数", "互联网", "科技股"],
+          "sources": [
+            {
+              "name": "恒指收报 25,008.6 点",
+              "publisher": "新华社 / 新浪财经",
+              "url": "https://finance.sina.com.cn/roll/2026-07-16/doc-inihyywc8177911.shtml",
+              "tier": "authoritative"
+            },
+            {
+              "name": "港股收盘数据",
+              "publisher": "东方财富",
+              "url": "https://finance.eastmoney.com/a/202607163809057859.html",
+              "tier": "major-media"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "us",
+      "name": "美国市场",
+      "shortName": "美股",
+      "sessionDate": "2026-07-15",
+      "status": "最新完整交易日",
+      "summary": "美股主要指数温和收高，批发端通胀降温带动债券收益率回落；资金从半导体向大型科技与银行轮动。",
+      "leadIndex": "标普 500",
+      "indices": [
+        { "name": "标普 500", "value": "7,572.40", "change": 0.38, "date": "2026-07-15" },
+        { "name": "纳斯达克", "value": "26,269.23", "change": 0.62, "date": "2026-07-15" },
+        { "name": "道琼斯", "value": "52,658.64", "change": 0.29, "date": "2026-07-15" }
+      ],
+      "sparkline": [7483.24, 7537.43, 7503.85, 7482.71, 7543.64, 7575.39, 7515.34, 7543.59, 7572.40],
+      "tone": "positive",
+      "sources": [
+        {
+          "name": "美股 7 月 15 日收盘",
+          "publisher": "Associated Press",
+          "url": "https://apnews.com/article/a4f50a9a19d14802cb94b51db7bafba1",
+          "tier": "major-media"
+        },
+        {
+          "name": "SEC 市场与公司披露",
+          "publisher": "U.S. SEC",
+          "url": "https://www.sec.gov/search-filings",
+          "tier": "official"
+        }
+      ],
+      "articles": [
+        {
+          "id": "us-close-0715",
+          "title": "通胀数据降温，美股主要指数温和上行",
+          "summary": "标普 500 约涨 0.4%，道指约涨 0.3%，纳指约涨 0.6%；债券收益率回落为权益市场提供支撑。",
+          "impact": "市场对短期加息风险的担忧缓和，但高估值科技板块的内部轮动仍快。",
+          "publishedAt": "2026-07-15",
+          "tags": ["PPI", "美债收益率", "科技股"],
+          "sources": [
+            {
+              "name": "主要股指表现",
+              "publisher": "Associated Press",
+              "url": "https://apnews.com/article/a4f50a9a19d14802cb94b51db7bafba1",
+              "tier": "major-media"
+            },
+            {
+              "name": "亚洲市场与通胀预期",
+              "publisher": "Reuters / Investing.com",
+              "url": "https://au.investing.com/news/economy-news/asian-shares-slump-on-chipmaker-drag-bonds-cheer-cooler-inflation-4535724",
+              "tier": "major-media"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "hotspots": [
+    {
+      "id": "hot-inflation",
+      "priority": 94,
+      "title": "美国通胀读数降温，短期加息担忧回落",
+      "summary": "消费者与生产者价格数据先后释放降温信号，债券收益率随之回落；市场对 7 月会议立即加息的预期明显降低。",
+      "impact": "利率敏感资产获得喘息，但能源价格与地缘风险仍可能重新推高通胀波动。",
+      "publishedAt": "2026-07-16",
+      "tags": ["美国通胀", "利率预期"],
+      "affectedMarkets": ["美股", "港股"],
+      "sources": [
+        {
+          "name": "通胀后市场表现",
+          "publisher": "Associated Press",
+          "url": "https://apnews.com/article/a4f50a9a19d14802cb94b51db7bafba1",
+          "tier": "major-media"
+        },
+        {
+          "name": "亚洲市场与利率预期",
+          "publisher": "Reuters / Investing.com",
+          "url": "https://au.investing.com/news/economy-news/asian-shares-slump-on-chipmaker-drag-bonds-cheer-cooler-inflation-4535724",
+          "tier": "major-media"
+        }
+      ]
+    },
+    {
+      "id": "hot-ai-rotation",
+      "priority": 88,
+      "title": "AI 主线延续，但半导体内部波动显著放大",
+      "summary": "资金仍愿意为 AI 龙头支付溢价，但芯片板块在高估值、业绩验证与资金轮动之间出现更大分化。",
+      "impact": "A/H/美三地科技板块的联动增强，单日波动可能跨市场传导。",
+      "publishedAt": "2026-07-16",
+      "tags": ["AI", "半导体", "资金轮动"],
+      "affectedMarkets": ["A股", "港股", "美股"],
+      "sources": [
+        {
+          "name": "亚洲芯片股波动",
+          "publisher": "Reuters / Investing.com",
+          "url": "https://au.investing.com/news/economy-news/asian-shares-slump-on-chipmaker-drag-bonds-cheer-cooler-inflation-4535724",
+          "tier": "major-media"
+        },
+        {
+          "name": "AI 赢家推动美股",
+          "publisher": "Associated Press",
+          "url": "https://apnews.com/article/45e2da56e466900ff8def70ab931387d",
+          "tier": "major-media"
+        }
+      ]
+    },
+    {
+      "id": "hot-cross-market",
+      "priority": 83,
+      "title": "A/H 股出现方向分化：内地回调，港股延续反弹",
+      "summary": "A 股成长方向承压，而恒指连续第五日上涨并收复 25,000 点；区域资金偏好与行业结构差异成为观察重点。",
+      "impact": "同一宏观叙事在两地市场可能产生不同定价，比较资金流和行业权重比只看指数更重要。",
+      "publishedAt": "2026-07-16",
+      "tags": ["跨市场", "风险偏好"],
+      "affectedMarkets": ["A股", "港股"],
+      "sources": [
+        {
+          "name": "A 股收评",
+          "publisher": "新华财经",
+          "url": "https://www.cnfin.com/yw-lb/detail/20260716/4441431_1.html",
+          "tier": "authoritative"
+        },
+        {
+          "name": "港股收盘",
+          "publisher": "东方财富",
+          "url": "https://finance.eastmoney.com/a/202607163809057859.html",
+          "tier": "major-media"
+        }
+      ]
+    },
+    {
+      "id": "hot-fomc-window",
+      "priority": 78,
+      "title": "下一次 FOMC 会议进入两周观察窗口",
+      "summary": "7 月 28–29 日会议临近，最新会议纪要与货币政策报告都显示委员会仍以通胀控制为中心。",
+      "impact": "会议前数据和官员表态可能提高利率、美元与成长股的波动。",
+      "publishedAt": "2026-07-17",
+      "tags": ["FOMC", "事件日历"],
+      "affectedMarkets": ["美股", "港股", "A股"],
+      "sources": [
+        {
+          "name": "FOMC 会议日历",
+          "publisher": "Federal Reserve",
+          "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+          "tier": "official"
+        },
+        {
+          "name": "7 月货币政策报告",
+          "publisher": "Federal Reserve",
+          "url": "https://www.federalreserve.gov/monetarypolicy/2026-07-mpr-summary.htm",
+          "tier": "official"
+        }
+      ]
+    }
+  ],
+  "watchlist": [
+    {
+      "time": "07.17",
+      "title": "核对美国市场最终收盘与公司财报",
+      "note": "晨间版只采用已经完成的交易日；如美股前一交易日数据尚未完全核验，则顺延一日。",
+      "tone": "neutral"
+    },
+    {
+      "time": "07.28–29",
+      "title": "FOMC 利率决议",
+      "note": "重点观察声明措辞、通胀判断和政策实施说明。",
+      "tone": "warning"
+    },
+    {
+      "time": "每日",
+      "title": "能源价格与中东局势",
+      "note": "仅在获得主流媒体或官方信息交叉确认后写入热点。",
+      "tone": "warning"
+    }
+  ],
+  "sourceDirectory": [
+    {
+      "name": "美联储官网",
+      "category": "政策与利率",
+      "description": "FOMC 声明、会议纪要、政策报告与会议日历的第一来源。",
+      "url": "https://www.federalreserve.gov/monetarypolicy.htm",
+      "tier": "official"
+    },
+    {
+      "name": "中国证监会",
+      "category": "A 股监管",
+      "description": "监管政策、新闻发布与公开文件。",
+      "url": "https://www.csrc.gov.cn/csrc/xwfb/index.shtml",
+      "tier": "official"
+    },
+    {
+      "name": "上交所 / 深交所",
+      "category": "A 股市场",
+      "description": "交易所公告、市场数据与业务规则。",
+      "url": "https://www.sse.com.cn/",
+      "tier": "official"
+    },
+    {
+      "name": "香港交易所",
+      "category": "港股市场",
+      "description": "市场数据、监管公告、新闻稿与市场通讯。",
+      "url": "https://www.hkex.com.hk/?sc_lang=zh-HK",
+      "tier": "official"
+    },
+    {
+      "name": "美国 SEC",
+      "category": "美股披露",
+      "description": "上市公司文件、监管公告和 EDGAR 披露。",
+      "url": "https://www.sec.gov/search-filings",
+      "tier": "official"
+    },
+    {
+      "name": "新华财经",
+      "category": "市场收评",
+      "description": "三地市场收盘、宏观数据和政策信息的权威中文摘要。",
+      "url": "https://www.cnfin.com/",
+      "tier": "authoritative"
+    },
+    {
+      "name": "同花顺财经",
+      "category": "资讯发现",
+      "description": "用于发现 A 股公司与行业动态；重要结论仍回查公告或官方来源。",
+      "url": "https://news.10jqka.com.cn/",
+      "tier": "major-media"
+    },
+    {
+      "name": "东方财富",
+      "category": "市场资讯",
+      "description": "用于收盘数据和市场新闻的交叉核验。",
+      "url": "https://finance.eastmoney.com/",
+      "tier": "major-media"
+    }
+  ],
+  "methodology": [
+    "政策内容优先引用央行、监管机构、交易所和公司公告原文。",
+    "市场数字只采用最新完整交易日，并在每个市场卡片标明各自截止日期。",
+    "重要判断至少使用两个独立来源交叉核验；单一来源信息会明确标注。",
+    "只保留原创摘要与影响提示，不复制受版权保护的新闻全文。",
+    "页面内容用于信息整理，不构成投资建议或收益承诺。"
+  ]
+}
