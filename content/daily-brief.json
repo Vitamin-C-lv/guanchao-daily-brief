@@ -1,22 +1,22 @@
 {
   "meta": {
     "editionDate": "2026-07-17",
-    "generatedAt": "2026-07-17T07:30:00+08:00",
+    "generatedAt": "2026-07-17T07:40:00+08:00",
     "dataThrough": "2026-07-16",
-    "title": "全球市场晨间简报",
-    "subtitle": "先看政策，再看三地市场分化",
+    "title": "每日早报",
+    "subtitle": "美联储政策与三地市场重点",
     "status": "来源已核验",
     "curationNote": "AI 仅做检索、去重和摘要；政策结论优先引用官方原文，市场数据采用各地最新完整交易日。"
   },
   "pulse": {
-    "score": 58,
+    "score": 64,
     "label": "中性偏谨慎",
     "explanation": "规则分数：综合美联储政策取向、三地主指数方向与本期风险事件，仅用于排列阅读优先级，不构成投资信号。",
     "signals": [
-      { "label": "美联储", "value": "维持利率", "tone": "warning" },
+      { "label": "美联储", "value": "鹰鸽分歧扩大", "tone": "warning" },
       { "label": "A 股", "value": "主要指数回调", "tone": "negative" },
       { "label": "港股", "value": "恒指重返 25,000", "tone": "positive" },
-      { "label": "美股", "value": "通胀后温和上行", "tone": "positive" }
+      { "label": "美股", "value": "芯片拖累纳指", "tone": "negative" }
     ]
   },
   "federalReserve": {
@@ -27,7 +27,7 @@
     "lastDecisionDate": "2026-06-17",
     "nextMeeting": "2026-07-28 / 29",
     "countdownDays": 11,
-    "takeaway": "利率已连续维持，但委员会仍把通胀高于 2% 目标视为核心约束；本月更重要的是通胀、就业与能源价格是否继续改善。",
+    "takeaway": "利率维持不变，但 6 月纪要显示年内路径分歧明显：部分官员仍看到加息理由。7 月会议前，应同时观察通胀、就业、能源价格和收益率。",
     "path": [
       { "label": "24.09", "lower": 4.75, "upper": 5.00 },
       { "label": "24.11", "lower": 4.50, "upper": 4.75 },
@@ -62,9 +62,9 @@
       },
       {
         "id": "fed-july-report",
-        "title": "7 月货币政策报告延续“控制通胀”主线",
-        "summary": "美联储向国会提交的最新报告重申，年初以来目标利率区间保持不变，委员会继续强调恢复价格稳定。",
-        "impact": "如果通胀降温缺乏连续性，降息预期仍可能反复。",
+        "title": "最新政策报告上调通胀与年末利率预测",
+        "summary": "报告显示截至 5 月总 PCE 同比 4.1%、核心 PCE 3.4%；6 月 SEP 将 2026 年 PCE 中值上调至 3.6%，年末政策利率中值上调至 3.8%。",
+        "impact": "增长仍有韧性，但通胀上修意味着高利率可能维持更久，单月降温数据不足以确认政策转向。",
         "publishedAt": "2026-07-10",
         "tags": ["政策报告", "国会", "价格稳定"],
         "sources": [
@@ -81,6 +81,28 @@
             "tier": "official"
           }
         ]
+      },
+      {
+        "id": "fed-june-minutes-split",
+        "title": "6 月纪要显示年内利率路径分歧显著",
+        "summary": "少数与会者认为已有加息理由；许多人预计年末利率在当前区间内或略低，另有许多人预计会高于当前区间。最新有效联邦基金利率为 3.62%。",
+        "impact": "年内降息并非共识，能源价格、通胀与就业数据都可能改变 7 月后的利率路径。",
+        "publishedAt": "2026-07-08",
+        "tags": ["会议纪要", "利率分歧", "有效利率"],
+        "sources": [
+          {
+            "name": "6 月 FOMC 会议纪要",
+            "publisher": "Federal Reserve",
+            "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm",
+            "tier": "official"
+          },
+          {
+            "name": "有效联邦基金利率",
+            "publisher": "FRED",
+            "url": "https://fred.stlouisfed.org/series/DFF",
+            "tier": "official"
+          }
+        ]
       }
     ]
   },
@@ -91,7 +113,7 @@
       "shortName": "A股",
       "sessionDate": "2026-07-16",
       "status": "已收盘",
-      "summary": "主要指数继续调整，创业板与科创方向跌幅居前；成交额缩至约 2.4 万亿元，短线风险偏好回落。",
+      "summary": "主要指数继续调整，沪深成交约 2.4036 万亿元、较前日缩量约 1676 亿元；传媒、医美相对较强，半导体与先进封装明显回落。",
       "leadIndex": "上证指数",
       "indices": [
         { "name": "上证指数", "value": "3,882.41", "change": -1.85, "date": "2026-07-16" },
@@ -112,14 +134,20 @@
           "publisher": "上海证券交易所",
           "url": "https://www.sse.com.cn/market/stockdata/overview/day/",
           "tier": "official"
+        },
+        {
+          "name": "市场宽度与成交核验",
+          "publisher": "澎湃新闻",
+          "url": "https://www.thepaper.cn/newsDetail_forward_33597602",
+          "tier": "major-media"
         }
       ],
       "articles": [
         {
           "id": "a-share-close-0716",
           "title": "主要指数继续调整，成交额降至不足 2.5 万亿元",
-          "summary": "上证指数跌 1.85%，深证成指跌 1.97%，创业板指跌 2.95%；医药相对活跃，科技成长方向承压。",
-          "impact": "观察后续是否出现放量修复，以及成长板块能否恢复持续性。",
+          "summary": "上证指数跌 1.85%，深证成指跌 1.97%，创业板指跌 2.95%；沪深成交约 2.4036 万亿元。影视、医美和广告相对活跃，半导体、HBM 与先进封装回撤。",
+          "impact": "缩量表明风险偏好仍弱；观察后续能否出现放量修复，以及成长板块拥挤度是否充分消化。",
           "publishedAt": "2026-07-16",
           "tags": ["收盘", "成交额", "成长股"],
           "sources": [
@@ -145,7 +173,7 @@
       "shortName": "港股",
       "sessionDate": "2026-07-16",
       "status": "已收盘",
-      "summary": "恒指连续第五个交易日上行并重返 25,000 点，互联网与新消费走强，科技板块内部仍有明显分化。",
+      "summary": "恒指连续第五个交易日上涨并重返 25,000 点，主板成交 3228.92 亿港元；科网、新消费和汽车走强，存储芯片明显回撤。",
       "leadIndex": "恒生指数",
       "indices": [
         { "name": "恒生指数", "value": "25,008.60", "change": 1.33, "date": "2026-07-16" },
@@ -156,10 +184,10 @@
       "tone": "positive",
       "sources": [
         {
-          "name": "港股 7 月 16 日收盘",
-          "publisher": "新华社 / 新浪财经",
-          "url": "https://finance.sina.com.cn/roll/2026-07-16/doc-inihyywc8177911.shtml",
-          "tier": "authoritative"
+          "name": "7 月 16 日官方日报",
+          "publisher": "香港交易所",
+          "url": "https://www.hkex.com.hk/eng/stat/smstat/dayquot/d260716e.htm",
+          "tier": "official"
         },
         {
           "name": "HKEX 市场数据",
@@ -172,8 +200,8 @@
         {
           "id": "hk-close-0716",
           "title": "恒指涨 1.33% 重返 25,000 点，科技指数涨 1.98%",
-          "summary": "香港三大指数集体上涨，互联网、新消费与影视方向表现较强；存储芯片相关个股波动放大。",
-          "impact": "指数动能改善，但科技板块内部轮动较快，需继续观察成交与南向资金。",
+          "summary": "恒指涨 1.33%，恒生科技涨 1.98%，国企指数涨 1.63%，主板成交 3228.92 亿港元；互联网、新消费、汽车与影视方向较强。",
+          "impact": "指数动能改善且南向资金净买入，但存储芯片大幅回撤，说明科技板块内部轮动仍快。",
           "publishedAt": "2026-07-16",
           "tags": ["恒生指数", "互联网", "科技股"],
           "sources": [
@@ -188,6 +216,12 @@
               "publisher": "东方财富",
               "url": "https://finance.eastmoney.com/a/202607163809057859.html",
               "tier": "major-media"
+            },
+            {
+              "name": "板块与南向资金",
+              "publisher": "中国基金报",
+              "url": "https://www.chnfund.com/article/ARc7a336fb-c1ab-601e-93bf-3a227c5da868",
+              "tier": "major-media"
             }
           ]
         }
@@ -197,51 +231,51 @@
       "id": "us",
       "name": "美国市场",
       "shortName": "美股",
-      "sessionDate": "2026-07-15",
+      "sessionDate": "2026-07-16",
       "status": "最新完整交易日",
-      "summary": "美股主要指数温和收高，批发端通胀降温带动债券收益率回落；资金从半导体向大型科技与银行轮动。",
+      "summary": "多数标普成分股上涨，但芯片权重回撤拖累指数；纳指跌 1.5%，美债收益率温和回升，市场呈现明显结构性分化。",
       "leadIndex": "标普 500",
       "indices": [
-        { "name": "标普 500", "value": "7,572.40", "change": 0.38, "date": "2026-07-15" },
-        { "name": "纳斯达克", "value": "26,269.23", "change": 0.62, "date": "2026-07-15" },
-        { "name": "道琼斯", "value": "52,658.64", "change": 0.29, "date": "2026-07-15" }
+        { "name": "标普 500", "value": "7,533.77", "change": -0.51, "date": "2026-07-16" },
+        { "name": "纳斯达克", "value": "25,881.95", "change": -1.47, "date": "2026-07-16" },
+        { "name": "道琼斯", "value": "52,552.97", "change": -0.20, "date": "2026-07-16" }
       ],
-      "sparkline": [7483.24, 7537.43, 7503.85, 7482.71, 7543.64, 7575.39, 7515.34, 7543.59, 7572.40],
-      "tone": "positive",
+      "sparkline": [7537.43, 7503.85, 7482.71, 7543.64, 7575.39, 7515.34, 7543.59, 7572.40, 7533.77],
+      "tone": "negative",
       "sources": [
         {
-          "name": "美股 7 月 15 日收盘",
+          "name": "美股 7 月 16 日收盘",
           "publisher": "Associated Press",
-          "url": "https://apnews.com/article/a4f50a9a19d14802cb94b51db7bafba1",
+          "url": "https://apnews.com/article/stock-markets-iran-inflation-oil-e1c646be279423406586c67c79e738e4",
           "tier": "major-media"
         },
         {
-          "name": "SEC 市场与公司披露",
-          "publisher": "U.S. SEC",
-          "url": "https://www.sec.gov/search-filings",
+          "name": "美国国债收益率",
+          "publisher": "U.S. Treasury",
+          "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve",
           "tier": "official"
         }
       ],
       "articles": [
         {
-          "id": "us-close-0715",
-          "title": "通胀数据降温，美股主要指数温和上行",
-          "summary": "标普 500 约涨 0.4%，道指约涨 0.3%，纳指约涨 0.6%；债券收益率回落为权益市场提供支撑。",
-          "impact": "市场对短期加息风险的担忧缓和，但高估值科技板块的内部轮动仍快。",
-          "publishedAt": "2026-07-15",
-          "tags": ["PPI", "美债收益率", "科技股"],
+          "id": "us-close-0716",
+          "title": "多数个股上涨，芯片权重拖累纳指收跌 1.5%",
+          "summary": "标普 500 跌 0.5%，道指跌 0.2%，纳指跌 1.5%；约四分之三标普成分股上涨，但 Nvidia、Micron、Sandisk 等芯片权重明显回撤。",
+          "impact": "广度与指数背离说明抛压集中在高估值科技权重，需结合收益率和后续业绩判断，而非简单理解为全面风险退潮。",
+          "publishedAt": "2026-07-16",
+          "tags": ["半导体", "市场广度", "美债收益率"],
           "sources": [
             {
-              "name": "主要股指表现",
+              "name": "7 月 16 日美股收盘",
               "publisher": "Associated Press",
-              "url": "https://apnews.com/article/a4f50a9a19d14802cb94b51db7bafba1",
+              "url": "https://apnews.com/article/stock-markets-iran-inflation-oil-e1c646be279423406586c67c79e738e4",
               "tier": "major-media"
             },
             {
-              "name": "亚洲市场与通胀预期",
-              "publisher": "Reuters / Investing.com",
-              "url": "https://au.investing.com/news/economy-news/asian-shares-slump-on-chipmaker-drag-bonds-cheer-cooler-inflation-4535724",
-              "tier": "major-media"
+              "name": "台积电第二季业绩",
+              "publisher": "TSMC",
+              "url": "https://investor.tsmc.com/english/quarterly-results/2026/q2",
+              "tier": "official"
             }
           ]
         }
@@ -251,84 +285,84 @@
   "hotspots": [
     {
       "id": "hot-inflation",
-      "priority": 94,
-      "title": "美国通胀读数降温，短期加息担忧回落",
-      "summary": "消费者与生产者价格数据先后释放降温信号，债券收益率随之回落；市场对 7 月会议立即加息的预期明显降低。",
-      "impact": "利率敏感资产获得喘息，但能源价格与地缘风险仍可能重新推高通胀波动。",
+      "priority": 96,
+      "title": "CPI 与 PPI 降温，但收益率回升限制估值修复",
+      "summary": "6 月 CPI 环比下降 0.4%、同比上涨 3.5%，核心 CPI 环比持平；PPI 环比下降 0.3%。7 月 16 日两年与十年期美债收益率分别回升 3bp 和 2bp。",
+      "impact": "降温主要受能源回落贡献，近期油价反弹意味着不能把单月数据直接外推为持续通胀下行。",
       "publishedAt": "2026-07-16",
-      "tags": ["美国通胀", "利率预期"],
-      "affectedMarkets": ["美股", "港股"],
+      "tags": ["CPI", "PPI", "美债收益率"],
+      "affectedMarkets": ["美股", "港股", "A股"],
       "sources": [
         {
-          "name": "通胀后市场表现",
-          "publisher": "Associated Press",
-          "url": "https://apnews.com/article/a4f50a9a19d14802cb94b51db7bafba1",
+          "name": "6 月 CPI",
+          "publisher": "U.S. Bureau of Labor Statistics",
+          "url": "https://www.bls.gov/news.release/archives/cpi_07142026.htm",
+          "tier": "official"
+        },
+        {
+          "name": "6 月 PPI",
+          "publisher": "U.S. Bureau of Labor Statistics",
+          "url": "https://www.bls.gov/news.release/archives/ppi_07152026.htm",
+          "tier": "official"
+        }
+      ]
+    },
+    {
+      "id": "hot-oil-risk",
+      "priority": 91,
+      "title": "油价维持高位，中东航运仍是通胀尾部风险",
+      "summary": "7 月 16 日 Brent 收于每桶 84.23 美元、WTI 收于 78.95 美元，盘中一度上涨超过 1%；霍尔木兹与红海航运风险仍给能源价格提供溢价。",
+      "impact": "若运输受扰扩大，能源价格可能重新推高通胀预期，并同时影响利率、制造成本与风险偏好。",
+      "publishedAt": "2026-07-16",
+      "tags": ["原油", "中东局势", "供应链"],
+      "affectedMarkets": ["A股", "港股", "美股"],
+      "sources": [
+        {
+          "name": "油价与供应风险",
+          "publisher": "Reuters / EnergyNow",
+          "url": "https://energynow.ca/2026/07/oil-settles-lower-remains-near-one-month-high-on-u-s-iran-tension/",
           "tier": "major-media"
         },
         {
-          "name": "亚洲市场与利率预期",
-          "publisher": "Reuters / Investing.com",
-          "url": "https://au.investing.com/news/economy-news/asian-shares-slump-on-chipmaker-drag-bonds-cheer-cooler-inflation-4535724",
+          "name": "中东局势进展",
+          "publisher": "Associated Press",
+          "url": "https://apnews.com/article/iran-us-hormuz-strait-war-july-16-2026-f98ff56554de2336f0e85bb5fdcae769",
           "tier": "major-media"
         }
       ]
     },
     {
       "id": "hot-ai-rotation",
-      "priority": 88,
-      "title": "AI 主线延续，但半导体内部波动显著放大",
-      "summary": "资金仍愿意为 AI 龙头支付溢价，但芯片板块在高估值、业绩验证与资金轮动之间出现更大分化。",
-      "impact": "A/H/美三地科技板块的联动增强，单日波动可能跨市场传导。",
+      "priority": 89,
+      "title": "台积电业绩强劲，芯片股仍因高预期出现回撤",
+      "summary": "台积电第二季净利润 7066 亿新台币、同比增长 77%，美元营收 402 亿美元；但其 ADR 仍跌 2.3%，Micron、Sandisk 等同步回撤。",
+      "impact": "AI 需求长期逻辑未被单日交易证伪，但高估值与高预期正在放大 A/H/美三地半导体波动。",
       "publishedAt": "2026-07-16",
-      "tags": ["AI", "半导体", "资金轮动"],
+      "tags": ["AI", "半导体", "台积电"],
       "affectedMarkets": ["A股", "港股", "美股"],
       "sources": [
         {
-          "name": "亚洲芯片股波动",
-          "publisher": "Reuters / Investing.com",
-          "url": "https://au.investing.com/news/economy-news/asian-shares-slump-on-chipmaker-drag-bonds-cheer-cooler-inflation-4535724",
-          "tier": "major-media"
+          "name": "第二季财务结果",
+          "publisher": "TSMC",
+          "url": "https://investor.tsmc.com/english/quarterly-results/2026/q2",
+          "tier": "official"
         },
         {
-          "name": "AI 赢家推动美股",
+          "name": "芯片股拖累美股",
           "publisher": "Associated Press",
-          "url": "https://apnews.com/article/45e2da56e466900ff8def70ab931387d",
-          "tier": "major-media"
-        }
-      ]
-    },
-    {
-      "id": "hot-cross-market",
-      "priority": 83,
-      "title": "A/H 股出现方向分化：内地回调，港股延续反弹",
-      "summary": "A 股成长方向承压，而恒指连续第五日上涨并收复 25,000 点；区域资金偏好与行业结构差异成为观察重点。",
-      "impact": "同一宏观叙事在两地市场可能产生不同定价，比较资金流和行业权重比只看指数更重要。",
-      "publishedAt": "2026-07-16",
-      "tags": ["跨市场", "风险偏好"],
-      "affectedMarkets": ["A股", "港股"],
-      "sources": [
-        {
-          "name": "A 股收评",
-          "publisher": "新华财经",
-          "url": "https://www.cnfin.com/yw-lb/detail/20260716/4441431_1.html",
-          "tier": "authoritative"
-        },
-        {
-          "name": "港股收盘",
-          "publisher": "东方财富",
-          "url": "https://finance.eastmoney.com/a/202607163809057859.html",
+          "url": "https://apnews.com/article/stock-markets-iran-inflation-oil-e1c646be279423406586c67c79e738e4",
           "tier": "major-media"
         }
       ]
     },
     {
       "id": "hot-fomc-window",
-      "priority": 78,
-      "title": "下一次 FOMC 会议进入两周观察窗口",
-      "summary": "7 月 28–29 日会议临近，最新会议纪要与货币政策报告都显示委员会仍以通胀控制为中心。",
-      "impact": "会议前数据和官员表态可能提高利率、美元与成长股的波动。",
+      "priority": 86,
+      "title": "FOMC 进入观察窗口，官员对年内路径分歧明显",
+      "summary": "下一次会议为 7 月 28–29 日。6 月纪要显示，部分官员认为已有加息理由，而对年末利率高于、等于或略低于当前区间的判断均有支持者。",
+      "impact": "会议前数据和官员表态可能提高利率、美元与成长股波动；7 月会议不公布新版 SEP。",
       "publishedAt": "2026-07-17",
-      "tags": ["FOMC", "事件日历"],
+      "tags": ["FOMC", "会议纪要", "事件日历"],
       "affectedMarkets": ["美股", "港股", "A股"],
       "sources": [
         {
@@ -338,9 +372,57 @@
           "tier": "official"
         },
         {
-          "name": "7 月货币政策报告",
+          "name": "6 月会议纪要",
           "publisher": "Federal Reserve",
-          "url": "https://www.federalreserve.gov/monetarypolicy/2026-07-mpr-summary.htm",
+          "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm",
+          "tier": "official"
+        }
+      ]
+    },
+    {
+      "id": "hot-cross-market",
+      "priority": 84,
+      "title": "A/H 股方向分化：内地缩量回调，港股延续反弹",
+      "summary": "A 股成长科技承压且沪深成交缩量，恒指则连续第五日上涨并重返 25,000 点；行业权重与资金偏好造成不同定价。",
+      "impact": "比较成交、南向资金和行业结构比只看两地指数更重要，单日分化不能直接外推为长期趋势。",
+      "publishedAt": "2026-07-16",
+      "tags": ["跨市场", "成交", "资金偏好"],
+      "affectedMarkets": ["A股", "港股"],
+      "sources": [
+        {
+          "name": "A 股收评",
+          "publisher": "新华财经",
+          "url": "https://www.cnfin.com/yw-lb/detail/20260716/4441431_1.html",
+          "tier": "authoritative"
+        },
+        {
+          "name": "港股官方日报",
+          "publisher": "香港交易所",
+          "url": "https://www.hkex.com.hk/eng/stat/smstat/dayquot/d260716e.htm",
+          "tier": "official"
+        }
+      ]
+    },
+    {
+      "id": "hot-china-consumption",
+      "priority": 81,
+      "title": "扩大消费规划提供中期政策锚",
+      "summary": "扩大消费“十五五”规划围绕服务消费、商品消费、新场景、消费能力、环境与制度机制六方面部署 28 项任务。",
+      "impact": "政策与 A/H 股消费、汽车、文旅和医疗方向形成映射，但短线股价表现不代表政策效果已经兑现。",
+      "publishedAt": "2026-07-13",
+      "tags": ["扩大消费", "十五五", "政策"],
+      "affectedMarkets": ["A股", "港股"],
+      "sources": [
+        {
+          "name": "扩大消费规划解读",
+          "publisher": "国家发展改革委",
+          "url": "https://www.ndrc.gov.cn/xxgk/jd/jd/202607/t20260713_1406478.html",
+          "tier": "official"
+        },
+        {
+          "name": "规划与国务院批复",
+          "publisher": "商务部",
+          "url": "https://www.mofcom.gov.cn/zfxxgk/fdzdgknr/ztfl/gnmygl/art/2026/art_c9b4c4851de94b18809007ff90d9cce0.html",
           "tier": "official"
         }
       ]
@@ -349,9 +431,9 @@
   "watchlist": [
     {
       "time": "07.17",
-      "title": "核对美国市场最终收盘与公司财报",
-      "note": "晨间版只采用已经完成的交易日；如美股前一交易日数据尚未完全核验，则顺延一日。",
-      "tone": "neutral"
+      "title": "观察 A/H 股分化是否收敛",
+      "note": "重点看 A 股成交能否回升、港股科技内部轮动以及南向资金延续性。",
+      "tone": "warning"
     },
     {
       "time": "07.28–29",
@@ -400,6 +482,27 @@
       "category": "美股披露",
       "description": "上市公司文件、监管公告和 EDGAR 披露。",
       "url": "https://www.sec.gov/search-filings",
+      "tier": "official"
+    },
+    {
+      "name": "美国劳工统计局",
+      "category": "通胀与就业",
+      "description": "CPI、PPI、就业和工资数据的官方发布源。",
+      "url": "https://www.bls.gov/bls/newsrels.htm",
+      "tier": "official"
+    },
+    {
+      "name": "美国财政部",
+      "category": "国债收益率",
+      "description": "每日美国国债收益率曲线与官方终值。",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
+      "tier": "official"
+    },
+    {
+      "name": "国家发展改革委",
+      "category": "中国宏观政策",
+      "description": "扩大内需、产业政策与重要规划的官方解读。",
+      "url": "https://www.ndrc.gov.cn/xwdt/",
       "tier": "official"
     },
     {

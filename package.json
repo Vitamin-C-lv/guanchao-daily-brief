@@ -8,6 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "validate:brief": "node scripts/validate-brief.mjs",
+    "archive:brief": "node scripts/archive-brief.mjs",
     "check": "pnpm validate:brief && pnpm typecheck && pnpm build"
   },
   "dependencies": {

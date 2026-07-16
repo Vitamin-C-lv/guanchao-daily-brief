@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "观潮 · 全球市场简报",
+  title: "观潮 · 每日早报",
   description: "每日 AI 精选的美联储政策、A 股、港股、美股与财经热点。",
   manifest: "/manifest.webmanifest",
   icons: [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }],

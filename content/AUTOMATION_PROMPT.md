@@ -36,9 +36,10 @@
 完成编辑后依次运行：
 
 1. `pnpm validate:brief`
-2. `pnpm typecheck`
-3. `pnpm build`
+2. `pnpm archive:brief`
+3. `pnpm typecheck`
+4. `pnpm build`
 
-只有三项全部通过才算更新成功。如果项目已经配置 Git 远端，则提交 `content/daily-brief.json`，提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发网站部署；未配置远端时只更新本地文件并在任务结果中说明。
+只有四项全部通过才算更新成功。`data/archive/` 是仅保存在本机项目目录的轻量压缩备份，不要把归档文件加入 Git；归档脚本会自动去重并限制为最多 400 份、总计不超过 50 MB。如果项目已经配置 Git 远端，则提交 `content/daily-brief.json`，提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发网站部署；未配置远端时只更新本地文件并在任务结果中说明。
 
 任务结果需汇报：版本日期、三地数据截止日、更新条目数、引用数、构建结果，以及任何沿用旧数据或无法核验的项目。

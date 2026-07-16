@@ -303,7 +303,7 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
           <div className="mobile-brand"><span><Sparkles size={17} /></span><b>观潮</b></div>
           <div className="title-lockup">
             <span className="eyebrow">DAILY MARKET INTELLIGENCE</span>
-            <strong>观潮 · 每日市场情报</strong>
+            <strong>观潮 · 每日早报</strong>
           </div>
           <label className="search-box">
             <Search size={17} />
