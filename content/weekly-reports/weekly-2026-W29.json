@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "report": {
+    "id": "weekly-2026-W29",
+    "revision": 1,
+    "weekStart": "2026-07-13",
+    "weekEnd": "2026-07-17",
+    "generatedAt": "2026-07-17T20:03:30+08:00",
+    "timezone": "Asia/Shanghai",
+    "model": "gpt-5.6-terra",
+    "title": "观潮市场周报｜AI估值重估撞上增长分化",
+    "subtitle": "2026年7月13日至17日：中美宏观数据落地，芯片链波动扩散",
+    "status": "complete",
+    "coverage": [
+      { "scope": "fed", "dataThrough": "2026-07-17", "status": "complete", "note": "已覆盖本周官方通胀、褐皮书与7月FOMC日历。" },
+      { "scope": "a-share", "dataThrough": "2026-07-17", "status": "complete", "note": "使用周五最新完整收盘方向；行业成交序列不足已披露。" },
+      { "scope": "hk", "dataThrough": "2026-07-17", "status": "complete", "note": "使用周五最新完整收盘方向；行业成交序列不足已披露。" },
+      { "scope": "us", "dataThrough": "2026-07-16", "status": "partial-by-schedule", "note": "北京时间周五20时美股未收盘，严格截止周四完整收盘。" }
+    ]
+  },
+  "executiveSummary": {
+    "editorialScore": 78,
+    "weekVerdict": "本周三条定价线交叉：美国通胀环比回落但能源风险仍在，中国增长保持韧性但二季度放缓，AI硬件在强业绩背景下被重新估值。下周看成交与广度能否扩散。",
+    "keyTakeaways": [
+      { "id": "takeaway-ai", "title": "AI链进入盈利验证阶段", "summary": "台积电业绩未证伪需求，但全球芯片股仍回撤；市场对资本开支、利润率与订单持续性的容错率下降。", "importance": 92, "sourceIds": ["tsmc-q2", "reuters-chip"] },
+      { "id": "takeaway-china", "title": "中国增长仍在扩张，但边际速度放缓", "summary": "国家统计局公布上半年GDP同比增长4.7%，二季度同比增长4.3%、低于一季度。A股与港股对政策节奏、内需改善和盈利预期的敏感度因而上升。", "importance": 88, "sourceIds": ["nbs-h1", "xinhua-gdp"] },
+      { "id": "takeaway-rates", "title": "美国通胀降温仍受油价约束", "summary": "6月CPI和PPI环比走弱，但航运风险使市场不能把单月读数线性外推为宽松路径。", "importance": 84, "sourceIds": ["bls-cpi", "bls-ppi", "fed-beige"] },
+      { "id": "takeaway-us", "title": "美股出现广度与指数背离", "summary": "周四标普多数成分股上涨，但芯片权重拖累纳指，显示拥挤交易正在再定价。", "importance": 80, "sourceIds": ["ap-us-close", "reuters-chip"] }
+    ]
+  },
+  "majorEvents": [
+    {
+      "id": "china-h1-growth",
+      "date": "2026-07-15",
+      "title": "中国上半年GDP同比增长4.7%，二季度同比增长4.3%",
+      "categories": ["中国宏观", "政策预期", "盈利"],
+      "affectedMarkets": ["a-share", "hk"],
+      "importance": 88,
+      "facts": [
+        { "text": "国家统计局公布，上半年国内生产总值按不变价格计算同比增长4.7%；二季度同比增长4.3%，一季度为5.0%。", "sourceIds": ["nbs-h1"] },
+        { "text": "官方解读同时强调生产供给较快增长、就业总体稳定、物价温和上涨与新动能成长，但增长节奏的季度放缓需要后续数据验证。", "sourceIds": ["nbs-h1", "xinhua-gdp"] }
+      ],
+      "whyItMatters": "数据同时给出总量韧性与边际放缓：A股更看内需和行业盈利，港股还会叠加离岸风险偏好。",
+      "confidence": "medium-high",
+      "basisSourceIds": ["nbs-h1", "xinhua-gdp"]
+    },
+    {
+      "id": "us-june-inflation",
+      "date": "2026-07-14",
+      "title": "美国6月CPI环比下降，PPI同步走弱",
+      "categories": ["美联储", "美国宏观", "利率"],
+      "affectedMarkets": ["us", "hk", "a-share"],
+      "importance": 87,
+      "facts": [
+        { "text": "BLS公布的6月CPI显示总体CPI季调后环比下降0.4%；7月CPI将于8月12日发布。", "sourceIds": ["bls-cpi"] },
+        { "text": "BLS公布的6月PPI显示最终需求PPI环比下降0.3%，其中商品下降、服务上升。", "sourceIds": ["bls-ppi"] }
+      ],
+      "whyItMatters": "数据缓冲了利率敏感资产压力，却不足以确认政策转向；油价持续上行会削弱单月降温的意义。",
+      "confidence": "medium-high",
+      "basisSourceIds": ["bls-cpi", "bls-ppi"]
+    },
+    {
+      "id": "tsmc-q2",
+      "date": "2026-07-16",
+      "title": "台积电二季度业绩强劲，扩产信息反而放大估值分歧",
+      "categories": ["半导体", "AI", "企业盈利"],
+      "affectedMarkets": ["us", "hk", "a-share"],
+      "importance": 86,
+      "facts": [
+        { "text": "台积电于7月16日举行2026年第二季法说会，披露季度业绩与经营展望。", "sourceIds": ["tsmc-q2"] },
+        { "text": "AP与Reuters周内市场报道均显示，芯片及其他AI受益资产的回撤已对亚洲和美国科技指数构成显著拖累。", "sourceIds": ["ap-us-close", "reuters-chip"] }
+      ],
+      "whyItMatters": "焦点已从“有没有需求”转到资本开支能否转成持续现金流，A/H/美半导体估值联动性因而上升。",
+      "confidence": "medium-high",
+      "basisSourceIds": ["tsmc-q2", "reuters-chip"]
+    },
+    {
+      "id": "global-chip-rout",
+      "date": "2026-07-17",
+      "title": "周五AI与芯片减仓扩散至亚太，A/H科技股承压",
+      "categories": ["跨市场", "半导体", "风险偏好"],
+      "affectedMarkets": ["a-share", "hk", "us"],
+      "importance": 90,
+      "facts": [
+        { "text": "Reuters报道周五芯片股抛售扩散，台湾市场跌幅尤深，中国蓝筹与香港科技股均承压。", "sourceIds": ["reuters-chip"] },
+        { "text": "AP同日市场报道指出，香港恒生与上证综指在亚洲交易时段走低，背景是投资者重新评估AI硬件需求和盈利可持续性。", "sourceIds": ["ap-asia"] }
+      ],
+      "whyItMatters": "AI链条共同受盈利不确定性和估值压缩影响。A/H已完整收盘；美股周五未收盘，本报告不使用盘中或期货作为周度结果。",
+      "confidence": "medium-high",
+      "basisSourceIds": ["reuters-chip", "ap-asia"]
+    },
+    {
+      "id": "us-market-breadth",
+      "date": "2026-07-16",
+      "title": "美股周四呈现市场广度与科技权重背离",
+      "categories": ["美股", "市场结构", "AI"],
+      "affectedMarkets": ["us", "hk"],
+      "importance": 76,
+      "facts": [
+        { "text": "AP统计，周四标普500指数下跌0.5%，但约四分之三的成分股上涨；道指跌0.2%，纳指跌1.5%。", "sourceIds": ["ap-us-close"] },
+        { "text": "该报道将指数压力主要归因于英伟达、存储与其他AI受益权重的回撤。", "sourceIds": ["ap-us-close"] }
+      ],
+      "whyItMatters": "指数走弱但多数股票上涨，提示风险并非均匀撤离；若广度转弱，才需更警惕全面去风险。",
+      "confidence": "medium-high",
+      "basisSourceIds": ["ap-us-close"]
+    }
+  ],
+  "highValueInsights": [
+    {
+      "id": "insight-good-results-not-enough",
+      "title": "强业绩不再自动等于强股价",
+      "insight": "台积电业绩节点与芯片股回撤同时发生，说明市场正把“需求强”与“回报足以匹配估值”拆开定价。资本开支、利润率、订单可见度和客户变现比单一营收增速更关键。",
+      "evidence": [{ "text": "台积电7月16日举行第二季法说会；同期Reuters和AP均报道全球芯片股、尤其AI受益资产遭遇明显抛售。", "sourceIds": ["tsmc-q2", "reuters-chip", "ap-us-close"] }],
+      "whyHighValue": "它避免把行业调整简单解释为需求崩塌，也避免把强财报误读为估值风险已经消失。",
+      "counterEvidence": [{ "text": "若后续企业指引继续上修、订单交付和利润率同步改善，当前回撤可能主要是仓位与估值的短期再平衡。", "sourceIds": ["tsmc-q2", "ap-us-close"] }],
+      "watchNext": "观察下周美国大型科技公司的业绩指引、资本开支措辞和芯片股相对大盘的市场广度。",
+      "confidence": "medium-high",
+      "basisSourceIds": ["tsmc-q2", "reuters-chip"]
+    },
+    {
+      "id": "insight-china-speed",
+      "title": "增长水平与增长斜率给出不同的政策信号",
+      "insight": "上半年4.7%意味着经济未失速，但二季度4.3%低于一季度。对A/H而言，政策落地、消费与地产链改善可能比总量更影响行业收益。",
+      "evidence": [{ "text": "国家统计局公布上半年GDP同比增长4.7%，一季度和二季度同比分别为5.0%和4.3%。", "sourceIds": ["nbs-h1", "xinhua-gdp"] }],
+      "whyHighValue": "它把总量韧性与边际减速并置，减少“数据好所以无需政策”或“增速放缓所以立即强刺激”的二元化判断。",
+      "counterEvidence": [{ "text": "若生产、出口和新动能继续改善并带动就业与居民收入，季度放缓未必会演变成盈利预期的持续下修。", "sourceIds": ["nbs-h1"] }],
+      "watchNext": "观察高频消费、地产销售、社融信贷及政策执行细节，确认增长动能是否从供给端向需求端扩散。",
+      "confidence": "medium-high",
+      "basisSourceIds": ["nbs-h1", "xinhua-gdp"]
+    },
+    {
+      "id": "insight-inflation-oil",
+      "title": "通胀数据的利好仍受油价路径约束",
+      "insight": "6月CPI、PPI环比回落缓和利率压力，但航运风险意味着能源冲击未出清。油价上行会令市场更重视未来通胀与企业成本。",
+      "evidence": [{ "text": "BLS发布的6月CPI与PPI均为环比下降；AP和Reuters同期报道油价受中东局势与航运担忧扰动。", "sourceIds": ["bls-cpi", "bls-ppi", "ap-asia", "reuters-chip"] }],
+      "whyHighValue": "它说明“数据已降温”和“未来风险已消失”是两件事，尤其对久期较长的成长股估值影响不同。",
+      "counterEvidence": [{ "text": "若航运风险缓和且后续核心通胀继续回落，能源扰动可能被视为短期噪音，收益率压力随之下降。", "sourceIds": ["bls-cpi", "fed-beige"] }],
+      "watchNext": "跟踪原油、运费、通胀预期与美债收益率是否同向上行，以及7月FOMC对风险平衡的描述。",
+      "confidence": "medium",
+      "basisSourceIds": ["bls-cpi", "bls-ppi"]
+    }
+  ],
+  "markets": [
+    {
+      "id": "a-share",
+      "label": "A股",
+      "sessionStart": "2026-07-13",
+      "sessionEnd": "2026-07-17",
+      "coverageStatus": "complete",
+      "summary": "本周A股在宏观数据落地与AI硬件回撤之间震荡，周五随亚太芯片链走弱而承压。",
+      "weeklyPerformance": "截至7月17日完整收盘，本周后半周科技硬件调整加深。因本地日报仅沉淀1个交易日、未取得同口径周初周末序列，本期不编造精确周涨跌幅。",
+      "rotation": "中证全指二级行业5日/20日成交额与占比序列不足，结论为insufficient。半导体、存储和AI硬件承压，不能据此认定持续资金流。",
+      "capitalFlow": "缺少可交叉核验的行业资金流序列。算法资金统计仅作线索，不表述为真实机构持仓。",
+      "nextWeekScenario": "若成交与广度修复，超跌科技与低位消费可能轮动；反之或维持防御。",
+      "trigger": "至少两个非同源行业的成交与广度连续改善，并有官方或两类数据佐证。",
+      "invalidation": "指数反弹但成交和上涨宽度未改善，或海外芯片链继续大幅下跌并向国内高估值板块传导。",
+      "confidence": "low",
+      "sourceIds": ["nbs-h1", "reuters-chip", "sse-market"]
+    },
+    {
+      "id": "hk",
+      "label": "港股",
+      "sessionStart": "2026-07-13",
+      "sessionEnd": "2026-07-17",
+      "coverageStatus": "complete",
+      "summary": "港股前期反弹，周五在全球AI交易重新定价中回落，受中国增长、美元利率和离岸科技估值共同影响。",
+      "weeklyPerformance": "截至7月17日完整收盘，本周由前期反弹转为周五科技权重拖累；无同口径周初周末序列，不写精确周涨跌幅。",
+      "rotation": "恒生一级行业5日/20日成交与占比数据不完整，volumeStatus为insufficient，不能称“明显放量”。科技权重最敏感，其他行业能否接力待下周成交验证。",
+      "capitalFlow": "未取得可复核的每日南向净买入序列。ETF与南向线索仅为代理，不推断机构持仓或趋势。",
+      "nextWeekScenario": "若美元利率回落、南向与成交改善，互联网及低估值板块可能修复；反之恒科权重仍承压。",
+      "trigger": "恒生一级行业中科技以外的行业广度和成交占比同步改善，且南向、ETF或现货成交至少两类信号同向。",
+      "invalidation": "反弹仅集中于少数权重，或海外半导体下跌、美元走强与油价上行同时发生。",
+      "confidence": "low",
+      "sourceIds": ["reuters-chip", "ap-asia", "hkex-market"]
+    },
+    {
+      "id": "us",
+      "label": "美股",
+      "sessionStart": "2026-07-13",
+      "sessionEnd": "2026-07-16",
+      "coverageStatus": "partial-by-schedule",
+      "summary": "美股严格截至7月16日周四完整收盘。周四标普500跌0.5%、道指跌0.2%、纳指跌1.5%，但约四分之三标普成分股上涨。",
+      "weeklyPerformance": "按AP截至周四的周度统计，标普500本周累计下跌0.5%，道指下跌0.2%，纳指下跌1.5%。北京时间周五20时美股仍未收盘，周五任何期货、盘中价格和新闻均不计入完整周数据。",
+      "rotation": "科技与芯片权重是主要压力来源，非科技成分股相对韧性构成反向证据；若广度转弱，则需重估为全面去风险。",
+      "capitalFlow": "未采用资金流数据库估算，只使用广度、指数与公司事件作公开代理，不能推断机构资金方向。",
+      "nextWeekScenario": "若财报指引支撑AI需求且收益率回落，芯片链可能修复；反之纳指相对弱势可能扩大。",
+      "trigger": "大型科技公司对订单、资本开支和利润率给出指引，且等权市场广度稳定。",
+      "invalidation": "收益率与油价上行、市场广度转弱，或企业指引下调AI回报预期。",
+      "confidence": "medium",
+      "sourceIds": ["ap-us-close", "bls-cpi", "tsmc-q2"]
+    }
+  ],
+  "crossMarketThemes": [
+    {
+      "id": "theme-ai-valuation",
+      "title": "AI硬件从跨市场共振上涨转入跨市场估值检验",
+      "thesis": "三地AI硬件共享资本开支、订单兑现与折现率变量。本周强业绩未阻止芯片股回撤，市场已转向回报率验证。",
+      "causalChain": ["AI资产累积较高估值和拥挤度", "业绩节点令资本开支与利润持续性成为焦点", "美股芯片权重下跌影响风险偏好", "卖压扩散至亚太科技和A/H相关板块"],
+      "counterEvidence": "若订单、云厂商变现和利润率继续超预期，调整可主要是估值消化。",
+      "nextSignal": "看后续财报中的资本开支、订单能见度及芯片股相对等权指数表现。",
+      "confidence": "medium-high",
+      "sourceIds": ["tsmc-q2", "ap-us-close", "reuters-chip"]
+    },
+    {
+      "id": "theme-inflation-rate-oil",
+      "title": "通胀回落、油价风险与利率定价相互拉扯",
+      "thesis": "美国价格数据环比回落有利于成长资产，但航运风险推高油价，可能通过通胀预期和收益率压缩估值。",
+      "causalChain": ["CPI与PPI环比下降", "航运担忧抬升能源与运输成本风险", "油价改变后续通胀和利率判断", "收益率和美元再传导至A/H风险偏好"],
+      "counterEvidence": "若冲突缓和、油价回落且核心价格继续降温，利率预期改善可提供缓冲。",
+      "nextSignal": "关注油价、通胀预期、美债收益率及FOMC对风险平衡的表述。",
+      "confidence": "medium",
+      "sourceIds": ["bls-cpi", "bls-ppi", "ap-asia", "fed-beige"]
+    }
+  ],
+  "nextWeekCalendar": [
+    { "id": "us-existing-home", "startsAt": "2026-07-22T22:00:00+08:00", "title": "美国6月成屋销售", "markets": ["us", "hk"], "importance": "medium", "whyWatch": "住房与利率敏感需求是判断金融条件传导的重要补充，结果会影响对增长韧性和政策路径的讨论。", "sourceIds": ["bea-schedule"] },
+    { "id": "us-gdp-advance", "startsAt": "2026-07-30T20:30:00+08:00", "title": "美国二季度GDP初值与6月个人收入支出", "markets": ["us", "hk", "a-share"], "importance": "high", "whyWatch": "BEA安排同日发布二季度GDP初值及6月个人收入支出，将同时影响增长、消费和通胀定价。", "sourceIds": ["bea-schedule", "bea-gdp"] },
+    { "id": "fomc-july", "startsAt": "2026-07-29T02:00:00+08:00", "title": "美联储7月FOMC会议与新闻发布会", "markets": ["us", "hk", "a-share", "fed"], "importance": "high", "whyWatch": "会议在7月28日至29日举行；市场将聚焦政策声明如何权衡通胀、增长、能源与金融条件。", "sourceIds": ["fed-calendar", "fed-fomc"] },
+    { "id": "us-eci", "startsAt": "2026-07-31T20:30:00+08:00", "title": "美国二季度就业成本指数", "markets": ["us", "hk"], "importance": "medium", "whyWatch": "工资和雇主成本是核心服务通胀与政策路径的重要输入，适合与CPI、PPI共同观察。", "sourceIds": ["bls-eci"] }
+  ],
+  "localSynthesis": {
+    "editionDates": ["2026-07-17"],
+    "archiveSnapshots": 0,
+    "continuities": ["当前日报已识别美联储路径分歧、A/H与美股科技结构性波动，本周报告以全网原始来源回查并将其提升为跨市场主题。"],
+    "coverageGaps": ["本周本地日报仅1个独立日期，低于3日的沉淀阈值。", "本周未取得中证全指二级行业与恒生一级行业完整5日/20日成交额及成交占比序列，因此不认定“明显放量”。", "美股在北京时间周五20时尚未收盘，严格截至7月16日完整收盘。"],
+    "note": "本地沉淀用于发现主线、去重和核对既有表述；所有重要宏观、市场和日历事实均回查为顶层来源。未下载或归档网页全文、图片、PDF、视频或检索缓存。"
+  },
+  "sources": [
+    { "id": "nbs-h1", "name": "2026年上半年国民经济运行情况", "publisher": "国家统计局", "url": "https://www.stats.gov.cn/sj/xwfbh/fbhwd/202607/t20260715_1964121.html", "tier": "official", "publishedAt": "2026-07-15T10:00:00+08:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "xinhua-gdp", "name": "上半年经济运行在合理区间 新动能快速成长", "publisher": "新华社", "url": "https://www.news.cn/20260715/3ea430cb530f4355bcec91d681e34c1f/c.html", "tier": "authoritative", "publishedAt": "2026-07-15T15:00:00+08:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "bls-cpi", "name": "Consumer Price Index, June 2026", "publisher": "U.S. Bureau of Labor Statistics", "url": "https://www.bls.gov/news.release/cpi.htm", "tier": "official", "publishedAt": "2026-07-14T20:30:00+08:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "bls-ppi", "name": "Producer Price Index, June 2026", "publisher": "U.S. Bureau of Labor Statistics", "url": "https://www.bls.gov/ppi/home.htm", "tier": "official", "publishedAt": "2026-07-16T20:30:00+08:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "fed-beige", "name": "Beige Book", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/monetarypolicy/publications/beige-book-default.htm", "tier": "official", "publishedAt": "2026-07-15T14:00:00-04:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "fed-calendar", "name": "Federal Reserve Calendar: July 2026", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/newsevents/2026-july.htm", "tier": "official", "publishedAt": "2026-06-24T00:00:00-04:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "fed-fomc", "name": "FOMC Meeting Calendars and Information", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm", "tier": "official", "publishedAt": "2026-07-08T14:00:00-04:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "ap-us-close", "name": "How major US stock indexes fared Thursday 7/16/2026", "publisher": "Associated Press", "url": "https://apnews.com/article/b2a85bf17cbb4653ba83bb7c655366c0", "tier": "major-media", "publishedAt": "2026-07-17T04:17:20+08:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "ap-asia", "name": "Asian shares sink as slumping AI stocks drag world markets lower", "publisher": "Associated Press", "url": "https://apnews.com/article/65449e9565fba441a617f9517e097f5a", "tier": "major-media", "publishedAt": "2026-07-17T12:34:03+08:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "reuters-chip", "name": "Stocks sink as chip rout deepens, oil set for weekly gain", "publisher": "Reuters", "url": "https://live.euronext.com/en/financial-news/stocks-sink-chip-rout-deepens-oil-set-weekly-gain", "tier": "major-media", "publishedAt": "2026-07-17T16:00:00+08:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "tsmc-q2", "name": "TSMC Second Quarter 2026 Earnings Conference Call", "publisher": "TSMC", "url": "https://investor.tsmc.com/english/quarterly-results/2026/q2", "tier": "official", "publishedAt": "2026-07-16T14:00:00+08:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "bea-schedule", "name": "BEA Release Schedule", "publisher": "U.S. Bureau of Economic Analysis", "url": "https://www.bea.gov/news/schedule/", "tier": "official", "publishedAt": "2026-06-23T08:30:00-04:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "bea-gdp", "name": "GDP, First Quarter 2026 Third Estimate", "publisher": "U.S. Bureau of Economic Analysis", "url": "https://www.bea.gov/news/2026/gdp-third-estimate-industries-corporate-profits-state-gdp-and-state-personal-income-1st", "tier": "official", "publishedAt": "2026-06-25T08:30:00-04:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "bls-eci", "name": "Employment Cost Index Release Schedule", "publisher": "U.S. Bureau of Labor Statistics", "url": "https://www.bls.gov/schedule/news_release/eci.htm", "tier": "official", "publishedAt": "2026-07-17T08:30:00-04:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "sse-market", "name": "上海证券交易所市场数据", "publisher": "上海证券交易所", "url": "https://www.sse.com.cn/market/", "tier": "official", "publishedAt": "2026-07-17T15:00:00+08:00", "accessedAt": "2026-07-17T20:03:30+08:00" },
+    { "id": "hkex-market", "name": "香港交易所市场数据", "publisher": "香港交易及结算所有限公司", "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK", "tier": "official", "publishedAt": "2026-07-17T16:10:00+08:00", "accessedAt": "2026-07-17T20:03:30+08:00" }
+  ],
+  "methodology": {
+    "selection": "优先收录会改变政策预期、风险偏好、盈利判断或行业定价的事件；相同通讯社转载按一个发布方处理。",
+    "deduplication": "本地日报按日期去重后只用于发现主线；外部事实按原始发布方、发布时间和事实主体复核，避免将同一新闻重复计数。",
+    "sourcePolicy": "宏观与日历优先官方来源；市场方向以AP、Reuters等主流媒体交叉核对；企业事件引用公司正式投资者关系页面。",
+    "limitations": ["本周本地日报只有1个独立日期，无法替代完整日频市场数据库。", "A股和港股的行业成交序列不完整，未使用“明显放量”措辞。", "美股周五尚未收盘，所有美股周度数字均截止7月16日。", "本报告为信息整理与条件情景分析，不构成投资建议。"]
+  }
+}

@@ -1,5 +1,21 @@
 {
   "schemaVersion": 1,
   "daily": null,
-  "weekly": null
+  "weekly": {
+    "noticeId": "weekly-2026-W29-r1",
+    "kind": "weekly",
+    "importance": 100,
+    "publishedAt": "2026-07-17T20:03:30+08:00",
+    "expiresAt": null,
+    "title": "观潮本周市场周报已更新",
+    "summary": "聚焦中国增长、美国通胀与AI芯片链的跨市场重估。",
+    "selectionReason": "这是固定周报发布提醒，汇总本周经核验的重要变化。",
+    "highlights": [
+      "中国上半年GDP同比增长4.7%，二季度增速放缓。",
+      "AI芯片链在强业绩背景下仍出现跨市场估值重估。",
+      "美股数据严格截止周四，避免将周五盘中写成完整周报。"
+    ],
+    "href": "/weekly/weekly-2026-W29/",
+    "ctaLabel": "查看本周周报"
+  }
 }

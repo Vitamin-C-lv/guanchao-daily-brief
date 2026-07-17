@@ -1,5 +1,15 @@
 {
   "schemaVersion": 1,
-  "latestReportId": null,
-  "reports": []
+  "latestReportId": "weekly-2026-W29",
+  "reports": [
+    {
+      "id": "weekly-2026-W29",
+      "weekStart": "2026-07-13",
+      "weekEnd": "2026-07-17",
+      "publishedAt": "2026-07-17T20:03:30+08:00",
+      "title": "观潮市场周报｜AI估值重估撞上增长分化",
+      "summary": "中美宏观数据落地与AI芯片链重估交织；A/H截至周五，美股严格截至周四完整收盘。",
+      "revision": 1
+    }
+  ]
 }
