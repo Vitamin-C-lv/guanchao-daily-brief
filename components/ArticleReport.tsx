@@ -1,4 +1,5 @@
 import {
+  Activity,
   ArrowLeft,
   ArrowRight,
   BarChart3,
@@ -6,7 +7,10 @@ import {
   Clock3,
   ExternalLink,
   FileText,
+  Gauge,
   Link as LinkIcon,
+  Route,
+  ShieldAlert,
 } from "lucide-react";
 import Link from "next/link";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
@@ -66,6 +70,117 @@ function DetailChart({ article }: { article: BriefArticle }) {
   );
 }
 
+const rotationStageLabel = {
+  early: "早期扩散",
+  accelerating: "加速",
+  diverging: "高位分歧",
+  fading: "退潮",
+  rebound: "修复",
+} as const;
+
+const flowDirectionLabel = {
+  inflow: "流入线索",
+  outflow: "流出线索",
+  mixed: "方向分化",
+} as const;
+
+const evidenceClassLabel = {
+  official: "官方披露",
+  "vendor-estimate": "数据商估算",
+  proxy: "价格/资金代理",
+} as const;
+
+const rotationBiasLabel = {
+  strengthening: "偏强情景",
+  range: "震荡情景",
+  weakening: "转弱情景",
+} as const;
+
+const confidenceLabel = {
+  low: "低置信度",
+  medium: "中置信度",
+  "medium-high": "中高置信度",
+} as const;
+
+function RotationRadar({ article }: { article: BriefArticle }) {
+  const rotation = article.detail.rotationAnalysis;
+  if (!rotation) return null;
+
+  return (
+    <section className="rotation-radar" aria-labelledby="rotation-radar-title">
+      <header className="rotation-radar-heading">
+        <div><span className="eyebrow">ROTATION RADAR</span><h2 id="rotation-radar-title">板块轮动与资金路径</h2></div>
+        <span>{rotation.window === "5d_vs_20d" ? "近5日 vs 前20日" : rotation.window}</span>
+      </header>
+
+      <div className="rotation-regime">
+        <Activity size={17} />
+        <div><span>当前轮动阶段 · 截至 {rotation.asOf}</span><p>{rotation.regime}</p></div>
+      </div>
+
+      <div className="rotation-evidence-grid">
+        <section className="rotation-subpanel">
+          <h3><Gauge size={15} />近期明显放量</h3>
+          {rotation.volumeStatus === "verified" && rotation.volumeLeaders.length ? (
+            <div className="rotation-volume-list">
+              {rotation.volumeLeaders.map((item) => (
+                <div key={item.sector} className="rotation-volume-item">
+                  <div><strong>{item.sector}</strong><span>{rotationStageLabel[item.stage]}</span></div>
+                  <dl>
+                    <div><dt>20日量比</dt><dd>{item.turnoverRatio20d.toFixed(2)}×</dd></div>
+                    <div><dt>成交占比</dt><dd>{item.turnoverShareRatio20d.toFixed(2)}×</dd></div>
+                    <div><dt>上涨广度</dt><dd>{item.breadthPct.toFixed(0)}%</dd></div>
+                    <div><dt>5日相对收益</dt><dd>{item.relativeReturn5d >= 0 ? "+" : ""}{item.relativeReturn5d.toFixed(1)}%</dd></div>
+                    <div><dt>前三成交集中度</dt><dd>{item.top3ConcentrationPct.toFixed(0)}%</dd></div>
+                  </dl>
+                  <SourceRefs indexes={item.sourceIndexes} sources={article.sources} />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rotation-data-gap">
+              <ShieldAlert size={16} />
+              <p>{rotation.volumeStatus === "none" ? "按统一口径，近期未发现达到阈值的明显放量板块。" : "缺少可比的板块成交历史序列，本期不强行认定“明显放量”。"}</p>
+            </div>
+          )}
+        </section>
+
+        <section className="rotation-subpanel">
+          <h3><Route size={15} />可观察资金线索</h3>
+          <div className="rotation-flow-list">
+            {rotation.flowSignals.map((signal) => (
+              <div key={`${signal.sector}-${signal.direction}`}>
+                <div><strong>{signal.sector}</strong><span className={`flow-${signal.direction}`}>{flowDirectionLabel[signal.direction]}</span></div>
+                <p>{signal.evidence}<SourceRefs indexes={signal.sourceIndexes} sources={article.sources} /></p>
+                <small>{evidenceClassLabel[signal.evidenceClass]}</small>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      <div className="rotation-outlooks">
+        {rotation.outlooks.map((outlook) => (
+          <article key={outlook.horizon}>
+            <div className="rotation-outlook-topline">
+              <span>{outlook.horizon === "1_5d" ? "未来 1–5 个交易日" : "未来 2–4 周"}</span>
+              <div><b>{rotationBiasLabel[outlook.bias]}</b><em>{confidenceLabel[outlook.confidence]}</em></div>
+            </div>
+            <div className="rotation-sector-chips">{outlook.candidateSectors.map((sector) => <span key={sector}>{sector}</span>)}</div>
+            <p>{outlook.flowPath}<SourceRefs indexes={outlook.sourceIndexes} sources={article.sources} /></p>
+            <dl>
+              <div><dt>触发条件</dt><dd>{outlook.trigger}</dd></div>
+              <div><dt>失效条件</dt><dd>{outlook.invalidation}</dd></div>
+            </dl>
+          </article>
+        ))}
+      </div>
+
+      <p className="rotation-risk-note"><ShieldAlert size={14} />{rotation.riskNote}</p>
+    </section>
+  );
+}
+
 export default function ArticleReport({ record }: { record: ArticleRecord }) {
   const { article } = record;
   const characterCount = countArticleCharacters(article);
@@ -108,6 +223,8 @@ export default function ArticleReport({ record }: { record: ArticleRecord }) {
           </section>
 
           <DetailChart article={article} />
+
+          <RotationRadar article={article} />
 
           <div className="article-body">
             {article.detail.sections.map((section) => (

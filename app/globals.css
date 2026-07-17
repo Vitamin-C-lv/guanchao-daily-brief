@@ -2028,6 +2028,314 @@ footer p {
   outline: none;
 }
 
+.rotation-radar {
+  margin: 36px clamp(32px, 7vw, 74px) 0;
+  border: 1px solid #ddd7e2;
+  border-radius: 11px;
+  background: #fff;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(41, 31, 47, 0.045);
+}
+
+.rotation-radar-heading,
+.rotation-radar-heading > div,
+.rotation-outlook-topline,
+.rotation-outlook-topline > div,
+.rotation-flow-list > div > div,
+.rotation-volume-item > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rotation-radar-heading > div {
+  align-items: flex-end;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.rotation-radar-heading .eyebrow {
+  margin-bottom: 3px;
+}
+
+.rotation-radar-heading h2 {
+  margin: 0;
+  font-size: 21px;
+  letter-spacing: -0.035em;
+}
+
+.rotation-radar-heading > span {
+  color: #6d6670;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.rotation-regime {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 10px;
+  margin-top: 20px;
+  border-left: 3px solid #8d72a1;
+  background: #f8f5fa;
+  padding: 14px 16px;
+}
+
+.rotation-regime svg {
+  margin-top: 2px;
+  color: #76598a;
+}
+
+.rotation-regime span {
+  color: #675d6d;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+
+.rotation-regime p {
+  margin: 5px 0 0;
+  color: #4d4650;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.65;
+}
+
+.rotation-evidence-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.rotation-subpanel {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fcfbfd;
+  padding: 16px;
+}
+
+.rotation-subpanel h3 {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 13px;
+  font-size: 13px;
+  letter-spacing: -0.015em;
+}
+
+.rotation-data-gap {
+  display: grid;
+  min-height: 90px;
+  grid-template-columns: 18px 1fr;
+  align-content: center;
+  align-items: start;
+  gap: 8px;
+  color: #68616b;
+}
+
+.rotation-data-gap p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.rotation-volume-list,
+.rotation-flow-list {
+  display: grid;
+  gap: 10px;
+}
+
+.rotation-volume-item,
+.rotation-flow-list > div {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+.rotation-volume-item:first-child,
+.rotation-flow-list > div:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.rotation-volume-item > div strong,
+.rotation-flow-list strong {
+  font-size: 12px;
+}
+
+.rotation-volume-item > div span,
+.rotation-flow-list > div > div span {
+  color: #7d6b86;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.rotation-volume-item dl {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin: 9px 0 0;
+}
+
+.rotation-volume-item dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 7px;
+  border-bottom: 1px dashed #e5e0e8;
+  padding-bottom: 4px;
+}
+
+.rotation-volume-item dt,
+.rotation-volume-item dd {
+  margin: 0;
+  font-size: 10.5px;
+}
+
+.rotation-volume-item dt {
+  color: #6e6771;
+}
+
+.rotation-flow-list p {
+  margin: 6px 0 5px;
+  color: #625b65;
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.rotation-flow-list small {
+  color: #625b65;
+  font-size: 11px;
+}
+
+.rotation-flow-list .flow-inflow { color: #b84747; }
+.rotation-flow-list .flow-outflow { color: #27855a; }
+.rotation-flow-list .flow-mixed { color: #9a701f; }
+
+.rotation-outlooks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.rotation-outlooks > article {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+@media (hover: hover) {
+  .rotation-outlooks > article:hover {
+    border-color: #cfc2d7;
+    box-shadow: var(--shadow-small);
+    transform: translateY(-1px);
+  }
+}
+
+.rotation-outlook-topline > span {
+  color: #4a424e;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.rotation-outlook-topline {
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+.rotation-outlook-topline > div {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px;
+}
+
+.rotation-outlook-topline b,
+.rotation-outlook-topline em {
+  border-radius: 5px;
+  padding: 4px 6px;
+  font-size: 9.5px;
+  font-style: normal;
+}
+
+.rotation-outlook-topline b {
+  color: #6f577e;
+  background: #f2ebf6;
+}
+
+.rotation-outlook-topline em {
+  color: #5f5862;
+  background: #f3f1f4;
+}
+
+.rotation-sector-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 12px;
+}
+
+.rotation-sector-chips span {
+  border: 1px solid #e4dee7;
+  border-radius: 5px;
+  color: #544b58;
+  background: #faf9fb;
+  padding: 4px 7px;
+  font-size: 10.5px;
+  font-weight: 750;
+}
+
+.rotation-outlooks article > p {
+  margin: 11px 0;
+  color: #554e57;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.rotation-outlooks article > dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.rotation-outlooks article > dl div {
+  display: grid;
+  grid-template-columns: 54px 1fr;
+  gap: 7px;
+}
+
+.rotation-outlooks dt,
+.rotation-outlooks dd {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.rotation-outlooks dt {
+  color: #6e6771;
+}
+
+.rotation-outlooks dd {
+  color: #625b65;
+}
+
+.rotation-risk-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin: 14px 0 0;
+  color: #68616b;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+.rotation-risk-note svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
 .article-body {
   padding: 12px clamp(32px, 7vw, 74px) 2px;
 }
@@ -2782,6 +3090,44 @@ footer p {
   .article-bar-row > span,
   .article-bar-row > strong {
     font-size: 8.5px;
+  }
+
+  .rotation-radar {
+    margin: 24px 14px 0;
+    padding: 17px 14px;
+  }
+
+  .rotation-radar-heading {
+    align-items: flex-start;
+  }
+
+  .rotation-radar-heading > div {
+    display: block;
+  }
+
+  .rotation-radar-heading .eyebrow {
+    margin-bottom: 5px;
+  }
+
+  .rotation-radar-heading h2 {
+    font-size: 18px;
+  }
+
+  .rotation-regime {
+    padding: 13px;
+  }
+
+  .rotation-evidence-grid,
+  .rotation-outlooks {
+    grid-template-columns: 1fr;
+  }
+
+  .rotation-data-gap {
+    min-height: 64px;
+  }
+
+  .rotation-outlooks > article {
+    padding: 15px;
   }
 
   .article-body {

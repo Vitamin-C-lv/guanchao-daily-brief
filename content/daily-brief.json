@@ -1,12 +1,12 @@
 {
   "meta": {
     "editionDate": "2026-07-17",
-    "generatedAt": "2026-07-17T08:14:25+08:00",
+    "generatedAt": "2026-07-17T12:19:46+08:00",
     "dataThrough": "2026-07-16",
     "title": "每日早报",
     "subtitle": "美联储政策与三地市场重点",
     "status": "来源已核验",
-    "curationNote": "AI 仅做检索、去重和摘要；政策结论优先引用官方原文，市场数据采用各地最新完整交易日。"
+    "curationNote": "AI 仅做检索、去重和摘要；政策结论优先引用官方原文，市场数据采用各地最新完整交易日；板块轮动前瞻只按可观察证据给出条件情景。"
   },
   "pulse": {
     "score": 64,
@@ -269,6 +269,12 @@
               "publisher": "上海证券交易所",
               "url": "https://english.sse.com.cn/",
               "tier": "official"
+            },
+            {
+              "name": "7月16日影视院线资金流",
+              "publisher": "证券时报·数据宝",
+              "url": "https://stcn.com/article/detail/4024307.html",
+              "tier": "authoritative"
             }
           ],
           "detail": {
@@ -304,6 +310,52 @@
                 { "label": "创业板指", "value": -2.95, "display": "-2.95%", "tone": "negative" }
               ],
               "sourceIndexes": [0]
+            },
+            "rotationAnalysis": {
+              "asOf": "2026-07-16",
+              "window": "5d_vs_20d",
+              "regime": "低位传媒消费逆势走强，高位半导体硬件回撤；当前属于缩量环境中的试探性轮动，尚非全面扩散。",
+              "volumeStatus": "insufficient",
+              "volumeLeaders": [],
+              "flowSignals": [
+                {
+                  "sector": "影视院线",
+                  "direction": "inflow",
+                  "evidenceClass": "vendor-estimate",
+                  "evidence": "数据宝统计11只影视院线股获“主力资金”净流入；该口径属于算法估算。",
+                  "sourceIndexes": [2]
+                },
+                {
+                  "sector": "半导体硬件",
+                  "direction": "outflow",
+                  "evidenceClass": "proxy",
+                  "evidence": "HBM、中芯概念与电子化学品回撤；缺少同口径净流出额，仅作价格代理。",
+                  "sourceIndexes": [0]
+                }
+              ],
+              "outlooks": [
+                {
+                  "horizon": "1_5d",
+                  "candidateSectors": ["影视院线", "传媒"],
+                  "bias": "strengthening",
+                  "confidence": "low",
+                  "flowPath": "若总成交回升，增量资金可能继续向低位传媒消费扩散。",
+                  "trigger": "成交占比与上涨家数连续改善",
+                  "invalidation": "冲高回落并转为资金净流出",
+                  "sourceIndexes": [0, 2]
+                },
+                {
+                  "horizon": "2_4w",
+                  "candidateSectors": ["消费电子", "传媒应用"],
+                  "bias": "range",
+                  "confidence": "low",
+                  "flowPath": "若科技抛压缓和，资金或在低位科技与消费交集中轮动。",
+                  "trigger": "ETF、融资与量能至少两类信号同向",
+                  "invalidation": "市场持续缩量且领涨宽度收窄",
+                  "sourceIndexes": [0, 2]
+                }
+              ],
+              "riskNote": "缺少固定行业口径的5日与20日成交序列，本期不标记“明显放量”；预测仅为条件情景。"
             }
           }
         }
@@ -358,6 +410,12 @@
               "publisher": "香港交易所",
               "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
               "tier": "official"
+            },
+            {
+              "name": "南向与港股科技ETF资金回流",
+              "publisher": "新华社",
+              "url": "https://www.news.cn/20260713/9efd48fde56c4ff49ca5e04e15249e14/c.html",
+              "tier": "authoritative"
             }
           ],
           "detail": {
@@ -375,12 +433,12 @@
               },
               {
                 "heading": "权重股表现",
-                "body": "蓝筹股中，腾讯控股涨2.11%，香港交易所涨0.71%，中国移动涨0.76%，汇丰控股涨1.03%。香港本地地产股大多收涨，长实、新鸿基、恒基分别涨0.42%、0.82%、1.64%；中资金融股多数上涨，但中国人寿跌1.07%。石油石化板块并非齐涨，中石化升2.42%，中石油与中海油分别跌0.73%和0.09%，显示内部轮动仍明显。",
+                "body": "蓝筹股中，腾讯控股涨2.11%，香港交易所涨0.71%，中国移动涨0.76%，汇丰控股涨1.03%。本地地产股大多收涨；中资金融股多数上涨，但中国人寿跌1.07%。石油石化并非齐涨，中石化升2.42%，中石油与中海油分别跌0.73%和0.09%，显示内部轮动。",
                 "sourceIndexes": [0]
               },
               {
                 "heading": "后续观察",
-                "body": "指数重返25000点改善了短线价格表现，但单日收盘点位不能独立证明趋势已经稳固。后续可继续核对成交是否维持、科技与金融权重能否轮流承接，以及上涨是否从少数蓝筹扩展到更多成分股。若成交回落且上涨继续集中在权重，点位信号应打折；若量价和广度同步改善，参考价值才会提高。上述内容是基于当日行情的观察框架，不构成对下一交易日方向的预测。",
+                "body": "指数重返25000点改善了短线价格表现，但单日点位不能证明趋势稳固。后续核对成交能否维持、科技与金融权重能否轮流承接，以及上涨是否扩展到更多成分股。若成交回落且涨势仍集中在权重，点位信号应打折；若量价与广度同步改善，参考价值才会提高。",
                 "sourceIndexes": [0]
               }
             ],
@@ -393,6 +451,52 @@
                 { "label": "国企指数", "value": 1.63, "display": "+1.63%", "tone": "positive" }
               ],
               "sourceIndexes": [0]
+            },
+            "rotationAnalysis": {
+              "asOf": "2026-07-16",
+              "window": "5d_vs_20d",
+              "regime": "南向与ETF资金回流科技和创新药，恒生科技领涨；当前更像估值修复向行业扩散。",
+              "volumeStatus": "insufficient",
+              "volumeLeaders": [],
+              "flowSignals": [
+                {
+                  "sector": "互联网科技",
+                  "direction": "inflow",
+                  "evidenceClass": "proxy",
+                  "evidence": "7月前六个交易日南向净买入超476亿港元，相关科技ETF规模增长。",
+                  "sourceIndexes": [2]
+                },
+                {
+                  "sector": "创新药",
+                  "direction": "inflow",
+                  "evidenceClass": "proxy",
+                  "evidence": "创新药ETF近期规模增长，显示主题资金回流，不等同机构持仓变化。",
+                  "sourceIndexes": [2]
+                }
+              ],
+              "outlooks": [
+                {
+                  "horizon": "1_5d",
+                  "candidateSectors": ["互联网平台", "AI应用"],
+                  "bias": "strengthening",
+                  "confidence": "low",
+                  "flowPath": "若南向净买入延续，资金或继续向互联网应用扩散。",
+                  "trigger": "南向、ETF与板块广度至少两类同向",
+                  "invalidation": "恒科冲高回落且南向净买入降温",
+                  "sourceIndexes": [0, 2]
+                },
+                {
+                  "horizon": "2_4w",
+                  "candidateSectors": ["互联网平台", "创新药"],
+                  "bias": "range",
+                  "confidence": "low",
+                  "flowPath": "若业绩与政策催化配合，资金可能在互联网与创新药间轮动。",
+                  "trigger": "ETF份额与盈利预期持续改善",
+                  "invalidation": "成交集中于少数权重且ETF转为净流出",
+                  "sourceIndexes": [0, 2]
+                }
+              ],
+              "riskNote": "缺少固定行业口径的5日与20日成交序列，本期不认定明显放量；南向和ETF仅作资金代理。"
             }
           }
         }
@@ -825,10 +929,24 @@
       "tier": "official"
     },
     {
+      "name": "上交所融资融券",
+      "category": "A 股杠杆资金",
+      "description": "市场融资买入额、融资余额和融券数据的官方汇总。",
+      "url": "https://www.sse.com.cn/market/othersdata/margin/sum/",
+      "tier": "official"
+    },
+    {
       "name": "香港交易所",
       "category": "港股市场",
       "description": "市场数据、监管公告、新闻稿与市场通讯。",
       "url": "https://www.hkex.com.hk/?sc_lang=zh-HK",
+      "tier": "official"
+    },
+    {
+      "name": "港交所互联互通统计",
+      "category": "南向资金",
+      "description": "南向日度成交、活跃股与历史统计的官方入口。",
+      "url": "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Statistics/Historical-Daily?sc_lang=zh-HK",
       "tier": "official"
     },
     {
@@ -893,6 +1011,7 @@
     "市场数字只采用最新完整交易日，并在每个市场卡片标明各自截止日期。",
     "重要判断至少使用两个独立来源交叉核验；单一来源信息会明确标注。",
     "只保留原创摘要与影响提示，不复制受版权保护的新闻全文。",
+    "A股与港股板块轮动按固定行业口径比较近5日和此前20日；数据不足时不认定明显放量。",
     "页面内容用于信息整理，不构成投资建议或收益承诺。"
   ]
 }

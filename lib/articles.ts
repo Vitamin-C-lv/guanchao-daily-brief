@@ -50,9 +50,17 @@ export function findArticleRecord(data: DailyBrief, id: string): ArticleRecord |
 
 export function countArticleCharacters(article: BriefArticle): number {
   const detail = article.detail;
+  const rotation = detail.rotationAnalysis;
   return [
     detail.lead,
     ...detail.keyPoints,
     ...detail.sections.flatMap((section) => [section.heading, section.body]),
+    ...(rotation ? [
+      rotation.regime,
+      ...rotation.volumeLeaders.map((item) => item.sector),
+      ...rotation.flowSignals.flatMap((item) => [item.sector, item.evidence]),
+      ...rotation.outlooks.flatMap((item) => [item.horizon, ...item.candidateSectors, item.flowPath, item.trigger, item.invalidation]),
+      rotation.riskNote,
+    ] : []),
   ].join("").replace(/\s/g, "").length;
 }

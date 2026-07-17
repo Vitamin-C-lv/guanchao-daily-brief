@@ -20,6 +20,45 @@ export interface ArticleChartItem {
   tone: Tone;
 }
 
+export type RotationStage = "early" | "accelerating" | "diverging" | "fading" | "rebound";
+export type RotationBias = "strengthening" | "range" | "weakening";
+export type RotationConfidence = "low" | "medium" | "medium-high";
+
+export interface RotationAnalysis {
+  asOf: string;
+  window: "5d_vs_20d";
+  regime: string;
+  volumeStatus: "verified" | "none" | "insufficient";
+  volumeLeaders: Array<{
+    sector: string;
+    stage: RotationStage;
+    turnoverRatio20d: number;
+    turnoverShareRatio20d: number;
+    breadthPct: number;
+    relativeReturn5d: number;
+    top3ConcentrationPct: number;
+    sourceIndexes: number[];
+  }>;
+  flowSignals: Array<{
+    sector: string;
+    direction: "inflow" | "outflow" | "mixed";
+    evidenceClass: "official" | "vendor-estimate" | "proxy";
+    evidence: string;
+    sourceIndexes: number[];
+  }>;
+  outlooks: Array<{
+    horizon: "1_5d" | "2_4w";
+    candidateSectors: string[];
+    bias: RotationBias;
+    confidence: RotationConfidence;
+    flowPath: string;
+    trigger: string;
+    invalidation: string;
+    sourceIndexes: number[];
+  }>;
+  riskNote: string;
+}
+
 export interface ArticleDetail {
   lead: string;
   keyPoints: string[];
@@ -30,6 +69,7 @@ export interface ArticleDetail {
     items: ArticleChartItem[];
     sourceIndexes: number[];
   };
+  rotationAnalysis?: RotationAnalysis;
 }
 
 export interface BriefArticle {
