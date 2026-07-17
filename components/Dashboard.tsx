@@ -283,11 +283,13 @@ export default function Dashboard({ data, view }: { data: DailyBrief; view: Dash
       ...data.markets.flatMap((market) => market.articles.map((article) => ({ article, label: market.shortName, market: market.id }))),
     ];
     const normalizedQuery = query.trim().toLowerCase();
-    return combined.filter(({ article, market }) => {
-      const matchesMarket = selectedMarket === "all" || selectedMarket === market;
-      const haystack = `${article.title} ${article.summary} ${article.impact} ${article.tags.join(" ")}`.toLowerCase();
-      return matchesMarket && (!normalizedQuery || haystack.includes(normalizedQuery));
-    });
+    return combined
+      .filter(({ article, market }) => {
+        const matchesMarket = selectedMarket === "all" || selectedMarket === market;
+        const haystack = `${article.title} ${article.summary} ${article.impact} ${article.tags.join(" ")}`.toLowerCase();
+        return matchesMarket && (!normalizedQuery || haystack.includes(normalizedQuery));
+      })
+      .sort((left, right) => right.article.publishedAt.localeCompare(left.article.publishedAt));
   }, [data, query, selectedMarket]);
 
   const filteredHotspots = useMemo(() => {
