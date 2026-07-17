@@ -8,8 +8,11 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "validate:brief": "node scripts/validate-brief.mjs",
+    "validate:weekly": "node scripts/validate-weekly.mjs",
     "archive:brief": "node scripts/archive-brief.mjs",
-    "check": "pnpm validate:brief && pnpm typecheck && pnpm build"
+    "archive:weekly": "node scripts/archive-weekly-report.mjs",
+    "context:weekly": "node scripts/collect-week-context.mjs",
+    "check": "pnpm validate:brief && pnpm validate:weekly && pnpm typecheck && pnpm build"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

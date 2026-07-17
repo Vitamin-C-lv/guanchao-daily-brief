@@ -13,7 +13,6 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import Link from "next/link";
-import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
 import MobileBottomNav, { type MobileNavView } from "@/components/MobileBottomNav";
 import { countArticleCharacters, type ArticleRecord } from "@/lib/articles";
 import type { BriefArticle, SourceLink } from "@/lib/types";
@@ -189,7 +188,6 @@ export default function ArticleReport({ record }: { record: ArticleRecord }) {
 
   return (
     <div className="article-shell">
-      <ServiceWorkerRegister />
       <div className="page-orb page-orb-one" />
       <div className="page-orb page-orb-two" />
 

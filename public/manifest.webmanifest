@@ -1,7 +1,7 @@
 {
-  "name": "观潮 · 每日市场情报",
+  "name": "观潮 · 每日与每周市场情报",
   "short_name": "观潮简报",
-  "description": "每日 AI 精选的美联储政策、三地股市与财经热点。",
+  "description": "每日精选与每周深度整理的美联储政策、三地股市与财经热点。",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f1edf5",

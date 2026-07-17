@@ -152,3 +152,147 @@ export interface DailyBrief {
   }>;
   methodology: string[];
 }
+
+export type WeeklyScope = "fed" | "a-share" | "hk" | "us";
+export type WeeklyConfidence = "low" | "medium" | "medium-high";
+
+export interface WeeklyReportIndexEntry {
+  id: string;
+  weekStart: string;
+  weekEnd: string;
+  publishedAt: string;
+  title: string;
+  summary: string;
+  revision: number;
+}
+
+export interface WeeklyReportIndex {
+  schemaVersion: 1;
+  latestReportId: string | null;
+  reports: WeeklyReportIndexEntry[];
+}
+
+export interface WeeklyReport {
+  schemaVersion: 1;
+  report: {
+    id: string;
+    revision: number;
+    weekStart: string;
+    weekEnd: string;
+    generatedAt: string;
+    timezone: "Asia/Shanghai";
+    model: "gpt-5.6-terra";
+    title: string;
+    subtitle: string;
+    status: "complete";
+    coverage: Array<{
+      scope: WeeklyScope;
+      dataThrough: string;
+      status: "complete" | "partial-by-schedule" | "insufficient";
+      note: string;
+    }>;
+  };
+  executiveSummary: {
+    editorialScore: number;
+    weekVerdict: string;
+    keyTakeaways: Array<{
+      id: string;
+      title: string;
+      summary: string;
+      importance: number;
+      sourceIds: string[];
+    }>;
+  };
+  majorEvents: Array<{
+    id: string;
+    date: string;
+    title: string;
+    categories: string[];
+    affectedMarkets: WeeklyScope[];
+    importance: number;
+    facts: Array<{ text: string; sourceIds: string[] }>;
+    whyItMatters: string;
+    confidence: WeeklyConfidence;
+    basisSourceIds: string[];
+  }>;
+  highValueInsights: Array<{
+    id: string;
+    title: string;
+    insight: string;
+    evidence: Array<{ text: string; sourceIds: string[] }>;
+    whyHighValue: string;
+    counterEvidence: Array<{ text: string; sourceIds: string[] }>;
+    watchNext: string;
+    confidence: WeeklyConfidence;
+    basisSourceIds: string[];
+  }>;
+  markets: Array<{
+    id: "a-share" | "hk" | "us";
+    label: string;
+    sessionStart: string;
+    sessionEnd: string;
+    coverageStatus: "complete" | "partial-by-schedule" | "insufficient";
+    summary: string;
+    weeklyPerformance: string;
+    rotation: string;
+    capitalFlow: string;
+    nextWeekScenario: string;
+    trigger: string;
+    invalidation: string;
+    confidence: WeeklyConfidence;
+    sourceIds: string[];
+  }>;
+  crossMarketThemes: Array<{
+    id: string;
+    title: string;
+    thesis: string;
+    causalChain: string[];
+    counterEvidence: string;
+    nextSignal: string;
+    confidence: WeeklyConfidence;
+    sourceIds: string[];
+  }>;
+  nextWeekCalendar: Array<{
+    id: string;
+    startsAt: string;
+    title: string;
+    markets: WeeklyScope[];
+    importance: "high" | "medium";
+    whyWatch: string;
+    sourceIds: string[];
+  }>;
+  localSynthesis: {
+    editionDates: string[];
+    archiveSnapshots: number;
+    continuities: string[];
+    coverageGaps: string[];
+    note: string;
+  };
+  sources: Array<SourceLink & { id: string; publishedAt: string; accessedAt: string }>;
+  methodology: {
+    selection: string;
+    deduplication: string;
+    sourcePolicy: string;
+    limitations: string[];
+  };
+}
+
+export interface UpdateNoticeItem {
+  noticeId: string;
+  kind: "daily" | "weekly";
+  importance: number;
+  publishedAt: string;
+  expiresAt: string | null;
+  title: string;
+  summary: string;
+  selectionReason: string;
+  highlights: string[];
+  href: string;
+  ctaLabel: string;
+}
+
+export interface UpdateNotices {
+  schemaVersion: 1;
+  daily: UpdateNoticeItem | null;
+  weekly: UpdateNoticeItem | null;
+}

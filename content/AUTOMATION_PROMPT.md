@@ -79,15 +79,26 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 - 任一窗口缺少完成判断所需的数据时，该窗口必须写 `insufficient`，同时列出缺少的数据；不得复用另一窗口结论或沿用旧预测冒充当日结果。
 - 板块轮动模块属于文章正文的一部分，`detail` 全文仍以 600–900 字为目标，并严格遵守**最多 1000 字**的总上限，不能因新增模块突破限制。
 
+## 日报重大新闻弹窗
+
+每天仍要从全部日报内容中选出“当日最有意义的一篇”，但**只有达到重大新闻阈值才允许弹窗**。读取 `public/update-notices.json`，只更新 `daily` 字段并保留 `weekly`：
+
+- 满足以下任一条件才可进入候选：意外改变美联储或监管政策预期；经核验的重大宏观数据显著改变跨市场定价；影响两个以上市场的系统性风险；会明显改变重要行业盈利或估值框架的正式事实。
+- 候选必须有重要度 90–100、清晰的 `selectionReason`，并由至少两个独立发布方支撑；同一通讯社的转载不算独立来源。
+- 若当天没有内容达到阈值，将 `daily` 精确写为 `null`，页面完全不弹窗。禁止为了提醒频率而提高普通市场波动、传闻、单一个股异动或重复旧闻的等级。
+- 若达到阈值，只能选择一篇：`noticeId` 为 `daily-YYYY-MM-DD-<article-id>`，`kind` 为 `daily`，`publishedAt` 使用生成时间，`expiresAt` 设置为下一次日报自动化运行前，标题不超过42字，摘要不超过180字，`highlights` 1–3条，`href` 必须指向 `/articles/<article-id>/`，`ctaLabel` 使用“阅读重点文章”。
+- 日报和周报的已读/关闭状态彼此独立；不要清空或覆盖 `weekly` 字段。
+
 ## 交付检查
 
 完成编辑后依次运行：
 
 1. `pnpm validate:brief`
-2. `pnpm archive:brief`
-3. `pnpm typecheck`
-4. `pnpm build`
+2. `pnpm validate:weekly`
+3. `pnpm archive:brief`
+4. `pnpm typecheck`
+5. `pnpm build`
 
-只有四项全部通过才算更新成功。`data/archive/` 是仅保存在本机项目目录的轻量压缩备份，不要把归档文件加入 Git；归档脚本会自动去重并限制为最多 400 份、总计不超过 50 MB。如果项目已经配置 Git 远端，则提交 `content/daily-brief.json`，提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发 Vercel Git 生产部署。推送后验证 `https://guanchao-daily-brief.vercel.app/` 能返回 HTTP 200 和“每日早报”；如果 Vercel 尚在构建，可以短暂重试，部署失败要保留已经通过校验的本地数据和 Git 提交，并在任务结果中明确报错。未配置远端时只更新本地文件并在任务结果中说明。
+只有五项全部通过才算更新成功。`data/archive/` 是仅保存在本机项目目录的轻量压缩备份，不要把归档文件加入 Git；归档脚本会自动去重并限制为最多 400 份、总计不超过 50 MB。如果项目已经配置 Git 远端，则提交 `content/daily-brief.json` 和本次更新的 `public/update-notices.json`，提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发 Vercel Git 生产部署。推送后验证 `https://guanchao-daily-brief.vercel.app/` 能返回 HTTP 200 和“每日早报”；如果 Vercel 尚在构建，可以短暂重试，部署失败要保留已经通过校验的本地数据和 Git 提交，并在任务结果中明确报错。未配置远端时只更新本地文件并在任务结果中说明。
 
 任务结果需汇报：版本日期、三地数据截止日、更新条目数、每篇详情字数、引用数、构建结果、Git 推送结果、Vercel 生产网址验证结果，以及任何沿用旧数据或无法核验的项目。

@@ -1,43 +1,19 @@
-const CACHE_NAME = "guanchao-shell-v4";
+const CACHE_NAME = "guanchao-shell-v6";
 const SHELL = [
   "/",
-  "/index.txt",
   "/fed/",
-  "/fed/index.txt",
   "/markets/",
-  "/markets/index.txt",
   "/briefs/",
-  "/briefs/index.txt",
   "/hotspots/",
-  "/hotspots/index.txt",
-  "/articles/fed-june-decision/",
-  "/articles/fed-june-decision/index.txt",
-  "/articles/fed-july-report/",
-  "/articles/fed-july-report/index.txt",
-  "/articles/fed-june-minutes-split/",
-  "/articles/fed-june-minutes-split/index.txt",
-  "/articles/a-share-close-0716/",
-  "/articles/a-share-close-0716/index.txt",
-  "/articles/hk-close-0716/",
-  "/articles/hk-close-0716/index.txt",
-  "/articles/us-close-0716/",
-  "/articles/us-close-0716/index.txt",
-  "/articles/hot-inflation/",
-  "/articles/hot-inflation/index.txt",
-  "/articles/hot-china-gdp/",
-  "/articles/hot-china-gdp/index.txt",
-  "/articles/hot-ai-rotation/",
-  "/articles/hot-ai-rotation/index.txt",
-  "/articles/hot-fomc-window/",
-  "/articles/hot-fomc-window/index.txt",
-  "/articles/hot-cross-market/",
-  "/articles/hot-cross-market/index.txt",
+  "/weekly/",
   "/manifest.webmanifest",
   "/favicon.svg",
 ];
 
 self.addEventListener("install", (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)));
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => Promise.allSettled(SHELL.map((url) => cache.add(url))))
+  );
   self.skipWaiting();
 });
 
@@ -50,17 +26,39 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+
+  if (url.origin === self.location.origin && url.pathname === "/update-notices.json") {
+    const cacheKey = new Request(`${url.origin}/update-notices.json`);
+    event.respondWith(
+      fetch(event.request, { cache: "no-store" })
+        .then((response) => {
+          if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(cacheKey, response.clone()));
+          return response;
+        })
+        .catch(() => caches.match(cacheKey))
+    );
+    return;
+  }
+
   if (event.request.mode === "navigate") {
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
           return response;
         })
         .catch(() => caches.match(event.request).then((response) => response || caches.match("/")))
     );
     return;
   }
-  event.respondWith(caches.match(event.request).then((cached) => cached || fetch(event.request)));
+
+  if (url.origin === self.location.origin && ["style", "script", "font", "image"].includes(event.request.destination)) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => cached || fetch(event.request).then((response) => {
+        if (response.ok) caches.open(CACHE_NAME).then((cache) => cache.put(event.request, response.clone()));
+        return response;
+      }))
+    );
+  }
 });

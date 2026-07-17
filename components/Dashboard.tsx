@@ -26,14 +26,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { TouchEvent } from "react";
-import ServiceWorkerRegister from "./ServiceWorkerRegister";
 import MobileBottomNav from "./MobileBottomNav";
+import WeeklyTeaser from "./WeeklyTeaser";
 import type {
   BriefArticle,
   DailyBrief,
   MarketSection,
   SourceLink,
   Tone,
+  WeeklyReportIndex,
 } from "@/lib/types";
 
 export type DashboardView = "overview" | "fed" | "markets" | "briefs" | "hotspots";
@@ -275,7 +276,7 @@ function HotspotCard({ item, rank }: { item: DailyBrief["hotspots"][number]; ran
   );
 }
 
-export default function Dashboard({ data, view }: { data: DailyBrief; view: DashboardView }) {
+export default function Dashboard({ data, view, weeklyIndex }: { data: DailyBrief; view: DashboardView; weeklyIndex?: WeeklyReportIndex }) {
   const pathname = usePathname();
   const normalizedPathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
   const [query, setQuery] = useState("");
@@ -400,7 +401,6 @@ export default function Dashboard({ data, view }: { data: DailyBrief; view: Dash
 
   return (
     <>
-      <ServiceWorkerRegister />
       <div className="page-orb page-orb-one" />
       <div className="page-orb page-orb-two" />
       <aside className="sidebar" aria-label="主导航">
@@ -542,6 +542,7 @@ export default function Dashboard({ data, view }: { data: DailyBrief; view: Dash
             {showBriefs ? (
             <section id="briefs" className="briefs-panel">
               <SectionHeading eyebrow="CURATED BRIEFS" title="今日精选简报" description="只保留会改变政策预期、风险偏好或行业定价的信息。" />
+              {weeklyIndex ? <WeeklyTeaser index={weeklyIndex} /> : null}
               <div className="filter-row" role="tablist" aria-label="简报市场筛选">
                 {[
                   ["all", "全部"],
