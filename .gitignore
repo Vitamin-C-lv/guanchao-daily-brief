@@ -11,3 +11,5 @@ data/archive/**/*.json.gz
 *.tsbuildinfo
 .env*
 !.env.example
+
+.vercel
