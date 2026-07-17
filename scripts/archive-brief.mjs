@@ -36,7 +36,7 @@ async function readIndex() {
   }
   return {
     schemaVersion: 1,
-    policy: { maxFiles: MAX_FILES, maxBytes: MAX_BYTES, content: "structured-summary-only" },
+    policy: { maxFiles: MAX_FILES, maxBytes: MAX_BYTES, content: "structured-brief-only" },
     snapshots: [],
   };
 }
@@ -73,7 +73,7 @@ const snapshot = {
   archivedAt,
   contentSha256,
   storagePolicy: {
-    mode: "structured-summary-only",
+    mode: "structured-brief-only",
     copiedArticles: false,
     downloadedMedia: false,
   },
@@ -108,7 +108,7 @@ const temporaryArchive = `${archivePath}.tmp`;
 await writeFile(temporaryArchive, compressed);
 await rename(temporaryArchive, archivePath);
 
-index.policy = { maxFiles: MAX_FILES, maxBytes: MAX_BYTES, content: "structured-summary-only" };
+index.policy = { maxFiles: MAX_FILES, maxBytes: MAX_BYTES, content: "structured-brief-only" };
 index.snapshots.push({
   file: relativeFile,
   editionDate,

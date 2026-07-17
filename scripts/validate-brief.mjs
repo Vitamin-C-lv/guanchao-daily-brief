@@ -4,6 +4,7 @@ import process from "node:process";
 
 const briefPath = path.resolve(process.cwd(), "content", "daily-brief.json");
 const errors = [];
+const articleIds = new Set();
 
 function fail(message) {
   errors.push(message);
@@ -50,12 +51,87 @@ function validateSource(source, label) {
   }
 }
 
+function validateSourceIndexes(indexes, sourceCount, label) {
+  if (!Array.isArray(indexes) || indexes.length < 1) {
+    fail(`${label} 至少需要 1 个引用编号`);
+    return;
+  }
+  indexes.forEach((index) => {
+    if (!Number.isInteger(index) || index < 0 || index >= sourceCount) {
+      fail(`${label} 含有越界引用编号 ${index}`);
+    }
+  });
+}
+
+function validateArticleDetail(detail, sourceCount, label) {
+  if (!isObject(detail)) {
+    fail(`${label} 必须是对象`);
+    return;
+  }
+  requireString(detail.lead, `${label}.lead`, { max: 220 });
+  if (!Array.isArray(detail.keyPoints) || detail.keyPoints.length !== 3) {
+    fail(`${label}.keyPoints 必须正好有 3 条`);
+  } else {
+    detail.keyPoints.forEach((point, index) => requireString(point, `${label}.keyPoints[${index}]`, { max: 80 }));
+  }
+  if (!Array.isArray(detail.sections) || detail.sections.length !== 3) {
+    fail(`${label}.sections 必须正好有 3 段`);
+  } else {
+    detail.sections.forEach((section, index) => {
+      const sectionLabel = `${label}.sections[${index}]`;
+      if (!isObject(section)) {
+        fail(`${sectionLabel} 必须是对象`);
+        return;
+      }
+      requireString(section.heading, `${sectionLabel}.heading`, { max: 30 });
+      requireString(section.body, `${sectionLabel}.body`, { max: 420 });
+      validateSourceIndexes(section.sourceIndexes, sourceCount, `${sectionLabel}.sourceIndexes`);
+    });
+  }
+  if (detail.chart !== undefined) {
+    if (!isObject(detail.chart)) {
+      fail(`${label}.chart 必须是对象`);
+    } else {
+      requireString(detail.chart.title, `${label}.chart.title`, { max: 50 });
+      requireString(detail.chart.unit, `${label}.chart.unit`, { max: 20 });
+      if (!Array.isArray(detail.chart.items) || detail.chart.items.length < 3 || detail.chart.items.length > 6) {
+        fail(`${label}.chart.items 必须包含 3–6 项`);
+      } else {
+        detail.chart.items.forEach((item, index) => {
+          const itemLabel = `${label}.chart.items[${index}]`;
+          if (!isObject(item)) {
+            fail(`${itemLabel} 必须是对象`);
+            return;
+          }
+          requireString(item.label, `${itemLabel}.label`, { max: 30 });
+          requireString(item.display, `${itemLabel}.display`, { max: 20 });
+          if (!Number.isFinite(item.value)) fail(`${itemLabel}.value 必须是数值`);
+          if (!["positive", "negative", "neutral", "warning"].includes(item.tone)) fail(`${itemLabel}.tone 非法`);
+        });
+      }
+      validateSourceIndexes(detail.chart.sourceIndexes, sourceCount, `${label}.chart.sourceIndexes`);
+    }
+  }
+
+  const characterCount = [
+    detail.lead ?? "",
+    ...(Array.isArray(detail.keyPoints) ? detail.keyPoints : []),
+    ...(Array.isArray(detail.sections) ? detail.sections.flatMap((section) => [section?.heading ?? "", section?.body ?? ""]) : []),
+  ].join("").replace(/\s/g, "").length;
+  if (characterCount < 450) fail(`${label} 正文仅 ${characterCount} 字，低于 450 字`);
+  if (characterCount > 1000) fail(`${label} 正文 ${characterCount} 字，超过 1000 字硬上限`);
+}
+
 function validateArticle(article, label) {
   if (!isObject(article)) {
     fail(`${label} 必须是对象`);
     return;
   }
   requireString(article.id, `${label}.id`, { max: 80 });
+  if (typeof article.id === "string") {
+    if (articleIds.has(article.id)) fail(`${label}.id 与其他文章重复`);
+    articleIds.add(article.id);
+  }
   requireString(article.title, `${label}.title`, { max: 70 });
   requireString(article.summary, `${label}.summary`, { max: 260 });
   requireString(article.impact, `${label}.impact`, { max: 180 });
@@ -70,6 +146,7 @@ function validateArticle(article, label) {
     const urls = article.sources.map((source) => source?.url).filter(Boolean);
     if (new Set(urls).size !== urls.length) fail(`${label}.sources 含重复链接`);
   }
+  validateArticleDetail(article.detail, Array.isArray(article.sources) ? article.sources.length : 0, `${label}.detail`);
 }
 
 let data;

@@ -24,8 +24,10 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { TouchEvent } from "react";
 import ServiceWorkerRegister from "./ServiceWorkerRegister";
+import MobileBottomNav from "./MobileBottomNav";
 import type {
   BriefArticle,
   DailyBrief,
@@ -182,6 +184,7 @@ function SectionHeading({ eyebrow, title, description, action }: { eyebrow: stri
 
 function MarketCard({ market }: { market: MarketSection }) {
   const lead = market.indices[0];
+  const detailArticle = market.articles[0];
   const isUp = lead.change >= 0;
   return (
     <article className={`market-card tone-${market.tone}`}>
@@ -213,21 +216,24 @@ function MarketCard({ market }: { market: MarketSection }) {
         ))}
       </div>
       <p className="market-summary">{market.summary}</p>
+      {detailArticle ? <Link className="market-detail-link" href={`/articles/${detailArticle.id}/`}>查看收盘详报 <ChevronRight size={14} /></Link> : null}
       <SourceLinks sources={market.sources} compact />
     </article>
   );
 }
 
-function ArticleCard({ article, label }: { article: BriefArticle; label: string }) {
+function ArticleCard({ article, label, featured = false }: { article: BriefArticle; label: string; featured?: boolean }) {
   return (
-    <article className="brief-card">
+    <article className={`brief-card ${featured ? "brief-card-featured" : ""}`}>
       <div className="brief-date">
         <span>{formatCompactDate(article.publishedAt).slice(5)}</span>
         <small>{label}</small>
       </div>
       <div className="brief-content">
         <div className="brief-title-row">
-          <h3>{article.title}</h3>
+          <Link className="brief-title-link" href={`/articles/${article.id}/`}>
+            <h3>{article.title}</h3><ChevronRight size={17} aria-hidden="true" />
+          </Link>
           <span className="source-count">{article.sources.length} 个来源</span>
         </div>
         <p>{article.summary}</p>
@@ -238,6 +244,7 @@ function ArticleCard({ article, label }: { article: BriefArticle; label: string 
         <div className="tag-row">
           {article.tags.map((tag) => <span key={tag}>#{tag}</span>)}
         </div>
+        <Link className="article-read-link" href={`/articles/${article.id}/`}>阅读全文 <ChevronRight size={14} /></Link>
         <SourceLinks sources={article.sources} />
       </div>
     </article>
@@ -254,11 +261,14 @@ function HotspotCard({ item, rank }: { item: DailyBrief["hotspots"][number]; ran
           <div className="priority-track"><i style={{ width: `${item.priority}%` }} /></div>
           <strong>{item.priority}</strong>
         </div>
-        <h3>{item.title}</h3>
+        <Link className="hotspot-title-link" href={`/articles/${item.id}/`}>
+          <h3>{item.title}</h3><ChevronRight size={17} aria-hidden="true" />
+        </Link>
         <p>{item.summary}</p>
         <div className="affected-markets">
           {item.affectedMarkets.map((market) => <span key={market}>{market}</span>)}
         </div>
+        <Link className="article-read-link" href={`/articles/${item.id}/`}>阅读全文 <ChevronRight size={14} /></Link>
         <SourceLinks sources={item.sources} compact />
       </div>
     </article>
@@ -270,12 +280,102 @@ export default function Dashboard({ data, view }: { data: DailyBrief; view: Dash
   const normalizedPathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
   const [query, setQuery] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("all");
+  const [activeMarketCard, setActiveMarketCard] = useState(0);
+  const marketGridRef = useRef<HTMLDivElement>(null);
+  const marketSwipeStartRef = useRef({ x: 0, y: 0, index: 0 });
+  const marketScrollTargetRef = useRef<number | null>(null);
+  const marketScrollFrameRef = useRef<number | null>(null);
   const isOverview = view === "overview";
   const showFed = isOverview || view === "fed";
   const showMarkets = isOverview || view === "markets";
   const showBriefs = isOverview || view === "briefs";
   const showHotspots = isOverview || view === "hotspots";
   const showSearch = isOverview || view === "briefs" || view === "hotspots";
+
+  const scrollToMarket = (index: number) => {
+    const scroller = marketGridRef.current;
+    const card = scroller?.children[index] as HTMLElement | undefined;
+    if (!scroller || !card) return;
+    const left = card.getBoundingClientRect().left - scroller.getBoundingClientRect().left + scroller.scrollLeft;
+    if (Math.abs(card.getBoundingClientRect().left - scroller.getBoundingClientRect().left) <= 2) {
+      marketScrollTargetRef.current = null;
+      setActiveMarketCard(index);
+      return;
+    }
+    marketScrollTargetRef.current = index;
+    scroller.scrollTo({ left, behavior: "smooth" });
+    setActiveMarketCard(index);
+  };
+
+  const syncActiveMarket = () => {
+    if (marketScrollFrameRef.current !== null) return;
+    marketScrollFrameRef.current = window.requestAnimationFrame(() => {
+      marketScrollFrameRef.current = null;
+      const scroller = marketGridRef.current;
+      if (!scroller) return;
+      const scrollerLeft = scroller.getBoundingClientRect().left;
+      const cards = Array.from(scroller.children) as HTMLElement[];
+      const target = marketScrollTargetRef.current;
+      if (target !== null) {
+        const targetCard = cards[target];
+        if (targetCard && Math.abs(targetCard.getBoundingClientRect().left - scrollerLeft) <= 2) {
+          setActiveMarketCard(target);
+          marketScrollTargetRef.current = null;
+        }
+        return;
+      }
+      const nearest = cards.reduce((best, card, index) => {
+        const distance = Math.abs(card.getBoundingClientRect().left - scrollerLeft);
+        return distance < best.distance ? { index, distance } : best;
+      }, { index: 0, distance: Number.POSITIVE_INFINITY });
+      setActiveMarketCard(nearest.index);
+    });
+  };
+
+  const startMarketSwipe = (event: TouchEvent<HTMLDivElement>) => {
+    marketScrollTargetRef.current = null;
+    const scroller = marketGridRef.current;
+    const scrollerLeft = scroller?.getBoundingClientRect().left ?? 0;
+    const cards = scroller ? Array.from(scroller.children) as HTMLElement[] : [];
+    const nearest = cards.reduce((best, card, index) => {
+      const distance = Math.abs(card.getBoundingClientRect().left - scrollerLeft);
+      return distance < best.distance ? { index, distance } : best;
+    }, { index: activeMarketCard, distance: Number.POSITIVE_INFINITY });
+    marketSwipeStartRef.current = {
+      x: event.touches[0]?.clientX ?? 0,
+      y: event.touches[0]?.clientY ?? 0,
+      index: nearest.index,
+    };
+  };
+
+  const finishMarketSwipe = (event: TouchEvent<HTMLDivElement>) => {
+    const endX = event.changedTouches[0]?.clientX ?? marketSwipeStartRef.current.x;
+    const endY = event.changedTouches[0]?.clientY ?? marketSwipeStartRef.current.y;
+    const distanceX = endX - marketSwipeStartRef.current.x;
+    const distanceY = endY - marketSwipeStartRef.current.y;
+    if (Math.abs(distanceX) < 38 || Math.abs(distanceX) <= Math.abs(distanceY)) return;
+    const direction = distanceX < 0 ? 1 : -1;
+    const target = Math.max(0, Math.min(data.markets.length - 1, marketSwipeStartRef.current.index + direction));
+    scrollToMarket(target);
+  };
+
+  useEffect(() => {
+    const realignMarketCard = () => {
+      const scroller = marketGridRef.current;
+      const card = scroller?.children[activeMarketCard] as HTMLElement | undefined;
+      if (!scroller || !card) return;
+      const left = card.getBoundingClientRect().left - scroller.getBoundingClientRect().left + scroller.scrollLeft;
+      scroller.scrollTo({ left, behavior: "auto" });
+    };
+    window.addEventListener("resize", realignMarketCard);
+    return () => {
+      window.removeEventListener("resize", realignMarketCard);
+      if (marketScrollFrameRef.current !== null) {
+        window.cancelAnimationFrame(marketScrollFrameRef.current);
+        marketScrollFrameRef.current = null;
+      }
+    };
+  }, [activeMarketCard]);
 
   const articles = useMemo(() => {
     const combined = [
@@ -304,9 +404,6 @@ export default function Dashboard({ data, view }: { data: DailyBrief; view: Dash
       <div className="page-orb page-orb-one" />
       <div className="page-orb page-orb-two" />
       <aside className="sidebar" aria-label="主导航">
-        <Link className="brand-mark" href="/" aria-label="观潮首页">
-          <Sparkles size={20} />
-        </Link>
         <nav>
           {sidebarNavItems.map((item) => {
             const Icon = item.icon;
@@ -319,7 +416,7 @@ export default function Dashboard({ data, view }: { data: DailyBrief; view: Dash
 
       <main className="dashboard">
         <header className="topbar">
-          <div className="mobile-brand"><span><Sparkles size={17} /></span><b>观潮</b></div>
+          <Link className="mobile-brand" href="/" aria-label="观潮首页"><b>观潮</b></Link>
           <div className="title-lockup">
             <span className="eyebrow">DAILY MARKET INTELLIGENCE</span>
             <strong>观潮 · 每日早报</strong>
@@ -410,7 +507,7 @@ export default function Dashboard({ data, view }: { data: DailyBrief; view: Dash
                 {data.federalReserve.articles.map((article, index) => (
                   <div key={article.id}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
-                    <div><strong>{article.title}</strong><p>{article.impact}</p></div>
+                    <div><strong><Link href={`/articles/${article.id}/`}>{article.title}</Link></strong><p>{article.impact}</p></div>
                   </div>
                 ))}
               </div>
@@ -422,7 +519,19 @@ export default function Dashboard({ data, view }: { data: DailyBrief; view: Dash
           {showMarkets ? (
           <section id="markets" className={`section-block ${isOverview ? "" : "route-section"}`}>
             <SectionHeading eyebrow="THREE MARKETS" title="三地股市简报" description="每个市场使用各自最新完整交易日，避免盘中与收盘数据混用。" action={<span className="updated-label"><RefreshCw size={13} /> 数据截至 {formatCompactDate(data.meta.dataThrough)}</span>} />
-            <div className="market-grid">
+            <div className="market-mobile-tabs" role="tablist" aria-label="切换市场卡片">
+              {data.markets.map((market, index) => (
+                <button key={market.id} id={`market-tab-${market.id}`} type="button" role="tab" aria-controls="market-carousel" aria-selected={activeMarketCard === index} className={activeMarketCard === index ? "active" : ""} onClick={() => scrollToMarket(index)}>{market.shortName}</button>
+              ))}
+            </div>
+            <div
+              className="market-grid"
+              id="market-carousel"
+              ref={marketGridRef}
+              onScroll={syncActiveMarket}
+              onTouchStart={startMarketSwipe}
+              onTouchEnd={finishMarketSwipe}
+            >
               {data.markets.map((market) => <MarketCard key={market.id} market={market} />)}
             </div>
           </section>
@@ -445,7 +554,7 @@ export default function Dashboard({ data, view }: { data: DailyBrief; view: Dash
                 ))}
               </div>
               <div className="brief-list">
-                {articles.length ? articles.map(({ article, label }) => <ArticleCard key={article.id} article={article} label={label} />) : <div className="empty-state"><Search size={22} /><strong>没有找到相关简报</strong><p>换一个关键词或清除筛选条件。</p></div>}
+                {articles.length ? articles.map(({ article, label }, index) => <ArticleCard key={article.id} article={article} label={label} featured={index === 0} />) : <div className="empty-state"><Search size={22} /><strong>没有找到相关简报</strong><p>换一个关键词或清除筛选条件。</p></div>}
               </div>
             </section>
             ) : null}
@@ -503,13 +612,7 @@ export default function Dashboard({ data, view }: { data: DailyBrief; view: Dash
         </div>
       </main>
 
-      <nav className="mobile-bottom-nav" aria-label="手机导航">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = item.href === "/" ? normalizedPathname === "/" : normalizedPathname === item.href;
-          return <Link key={item.href} href={item.href} aria-current={isActive ? "page" : undefined}><Icon size={19} /><span>{item.label === "三地市场" ? "市场" : item.label}</span></Link>;
-        })}
-      </nav>
+      <MobileBottomNav active={view} />
     </>
   );
 }

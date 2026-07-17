@@ -7,6 +7,31 @@ export interface SourceLink {
   tier: "official" | "authoritative" | "major-media";
 }
 
+export interface ArticleDetailSection {
+  heading: string;
+  body: string;
+  sourceIndexes: number[];
+}
+
+export interface ArticleChartItem {
+  label: string;
+  value: number;
+  display: string;
+  tone: Tone;
+}
+
+export interface ArticleDetail {
+  lead: string;
+  keyPoints: string[];
+  sections: ArticleDetailSection[];
+  chart?: {
+    title: string;
+    unit: string;
+    items: ArticleChartItem[];
+    sourceIndexes: number[];
+  };
+}
+
 export interface BriefArticle {
   id: string;
   title: string;
@@ -15,6 +40,7 @@ export interface BriefArticle {
   publishedAt: string;
   tags: string[];
   sources: SourceLink[];
+  detail: ArticleDetail;
 }
 
 export interface MarketIndex {
