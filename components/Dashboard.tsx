@@ -22,6 +22,8 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 import ServiceWorkerRegister from "./ServiceWorkerRegister";
 import type {
@@ -32,14 +34,20 @@ import type {
   Tone,
 } from "@/lib/types";
 
+export type DashboardView = "overview" | "fed" | "markets" | "briefs" | "hotspots";
+
 const navItems = [
-  { href: "#overview", label: "总览", icon: Home },
-  { href: "#fed", label: "美联储", icon: Landmark },
-  { href: "#markets", label: "三地市场", icon: Activity },
-  { href: "#briefs", label: "简报", icon: Newspaper },
-  { href: "#hotspots", label: "热点", icon: Flame },
-  { href: "#sources", label: "来源", icon: LinkIcon },
-];
+  { href: "/", label: "总览", icon: Home, view: "overview" },
+  { href: "/fed", label: "美联储", icon: Landmark, view: "fed" },
+  { href: "/markets", label: "三地市场", icon: Activity, view: "markets" },
+  { href: "/briefs", label: "简报", icon: Newspaper, view: "briefs" },
+  { href: "/hotspots", label: "热点", icon: Flame, view: "hotspots" },
+] as const;
+
+const sidebarNavItems = [
+  ...navItems,
+  { href: "/#sources", label: "来源", icon: LinkIcon, view: "sources" },
+] as const;
 
 const toneText: Record<Tone, string> = {
   positive: "偏积极",
@@ -257,9 +265,17 @@ function HotspotCard({ item, rank }: { item: DailyBrief["hotspots"][number]; ran
   );
 }
 
-export default function Dashboard({ data }: { data: DailyBrief }) {
+export default function Dashboard({ data, view }: { data: DailyBrief; view: DashboardView }) {
+  const pathname = usePathname();
+  const normalizedPathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
   const [query, setQuery] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("all");
+  const isOverview = view === "overview";
+  const showFed = isOverview || view === "fed";
+  const showMarkets = isOverview || view === "markets";
+  const showBriefs = isOverview || view === "briefs";
+  const showHotspots = isOverview || view === "hotspots";
+  const showSearch = isOverview || view === "briefs" || view === "hotspots";
 
   const articles = useMemo(() => {
     const combined = [
@@ -286,13 +302,14 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
       <div className="page-orb page-orb-one" />
       <div className="page-orb page-orb-two" />
       <aside className="sidebar" aria-label="主导航">
-        <a className="brand-mark" href="#overview" aria-label="观潮首页">
+        <Link className="brand-mark" href="/" aria-label="观潮首页">
           <Sparkles size={20} />
-        </a>
+        </Link>
         <nav>
-          {navItems.map((item) => {
+          {sidebarNavItems.map((item) => {
             const Icon = item.icon;
-            return <a key={item.href} href={item.href} aria-label={item.label} data-tooltip={item.label}><Icon size={19} /></a>;
+            const isActive = item.href === "/" ? normalizedPathname === "/" : normalizedPathname === item.href;
+            return <Link key={item.href} href={item.href} aria-label={item.label} aria-current={isActive ? "page" : undefined} data-tooltip={item.label}><Icon size={19} /></Link>;
           })}
         </nav>
         <div className="sidebar-foot"><ShieldCheck size={18} /><span>来源可追溯</span></div>
@@ -305,11 +322,13 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
             <span className="eyebrow">DAILY MARKET INTELLIGENCE</span>
             <strong>观潮 · 每日早报</strong>
           </div>
-          <label className="search-box">
-            <Search size={17} />
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索政策、市场或热点…" aria-label="搜索简报" />
-            {query ? <button type="button" onClick={() => setQuery("")} aria-label="清空搜索">×</button> : <kbd>⌘ K</kbd>}
-          </label>
+          {showSearch ? (
+            <label className="search-box">
+              <Search size={17} />
+              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索政策、市场或热点…" aria-label="搜索简报" />
+              {query ? <button type="button" onClick={() => setQuery("")} aria-label="清空搜索">×</button> : <kbd>⌘ K</kbd>}
+            </label>
+          ) : <div className="route-title">{navItems.find((item) => item.view === view)?.label}</div>}
           <div className="topbar-actions">
             <span className="verified-pill"><i />{data.meta.status}</span>
             <button type="button" className="icon-button" onClick={() => window.location.reload()} aria-label="刷新页面"><RefreshCw size={17} /></button>
@@ -320,7 +339,9 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
         </header>
 
         <div className="dashboard-content">
-          <section className="hero-grid" id="overview">
+          {showFed ? (
+          <section className={`hero-grid ${isOverview ? "" : "focused-view"}`} id={isOverview ? "overview" : undefined}>
+            {isOverview ? (
             <article className="hero-card">
               <div className="hero-orbit" aria-hidden="true"><span /><span /></div>
               <div className="hero-copy">
@@ -348,6 +369,7 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
                 ))}
               </div>
             </article>
+            ) : null}
 
             <article className="fed-summary-card" id="fed">
               <div className="card-topline">
@@ -374,7 +396,9 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
               <SourceLinks sources={data.federalReserve.articles[0].sources} compact />
             </article>
           </section>
+          ) : null}
 
+          {showFed ? (
           <section className="policy-card">
             <PolicyPathChart path={data.federalReserve.path} />
             <div className="policy-side">
@@ -391,15 +415,20 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
               <a className="primary-link" href={data.federalReserve.articles[0].sources[0].url} target="_blank" rel="noreferrer">查看美联储原文 <ExternalLink size={14} /></a>
             </div>
           </section>
+          ) : null}
 
-          <section id="markets" className="section-block">
+          {showMarkets ? (
+          <section id="markets" className={`section-block ${isOverview ? "" : "route-section"}`}>
             <SectionHeading eyebrow="THREE MARKETS" title="三地股市简报" description="每个市场使用各自最新完整交易日，避免盘中与收盘数据混用。" action={<span className="updated-label"><RefreshCw size={13} /> 数据截至 {formatCompactDate(data.meta.dataThrough)}</span>} />
             <div className="market-grid">
               {data.markets.map((market) => <MarketCard key={market.id} market={market} />)}
             </div>
           </section>
+          ) : null}
 
-          <div className="content-grid">
+          {showBriefs || showHotspots ? (
+          <div className={`content-grid ${isOverview ? "" : "single-panel"}`}>
+            {showBriefs ? (
             <section id="briefs" className="briefs-panel">
               <SectionHeading eyebrow="CURATED BRIEFS" title="今日精选简报" description="只保留会改变政策预期、风险偏好或行业定价的信息。" />
               <div className="filter-row" role="tablist" aria-label="简报市场筛选">
@@ -417,7 +446,9 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
                 {articles.length ? articles.map(({ article, label }) => <ArticleCard key={article.id} article={article} label={label} />) : <div className="empty-state"><Search size={22} /><strong>没有找到相关简报</strong><p>换一个关键词或清除筛选条件。</p></div>}
               </div>
             </section>
+            ) : null}
 
+            {showHotspots ? (
             <aside className="right-rail">
               <section id="hotspots" className="hotspots-panel">
                 <SectionHeading eyebrow="HOT TOPICS" title="近期热点" description="按对三地市场的潜在影响排序。" />
@@ -439,8 +470,11 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
                 </div>
               </section>
             </aside>
+            ) : null}
           </div>
+          ) : null}
 
+          {isOverview ? (
           <section id="sources" className="sources-panel">
             <SectionHeading eyebrow="SOURCE LIBRARY" title="可信信息源" description="每日自动化从这里开始检索；重要结论仍需回到原始公告或官方文件。" action={<span className="source-standard"><ShieldCheck size={14} /> 可追溯引用</span>} />
             <div className="source-directory">
@@ -457,6 +491,7 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
               <ol>{data.methodology.map((rule) => <li key={rule}>{rule}</li>)}</ol>
             </div>
           </section>
+          ) : null}
 
           <footer>
             <div><span className="footer-mark"><Sparkles size={15} /></span><strong>观潮</strong><span>个人市场信息工作台</span></div>
@@ -467,9 +502,10 @@ export default function Dashboard({ data }: { data: DailyBrief }) {
       </main>
 
       <nav className="mobile-bottom-nav" aria-label="手机导航">
-        {navItems.slice(0, 5).map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon;
-          return <a key={item.href} href={item.href}><Icon size={19} /><span>{item.label === "三地市场" ? "市场" : item.label}</span></a>;
+          const isActive = item.href === "/" ? normalizedPathname === "/" : normalizedPathname === item.href;
+          return <Link key={item.href} href={item.href} aria-current={isActive ? "page" : undefined}><Icon size={19} /><span>{item.label === "三地市场" ? "市场" : item.label}</span></Link>;
         })}
       </nav>
     </>

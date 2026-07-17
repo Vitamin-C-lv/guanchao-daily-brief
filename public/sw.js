@@ -1,5 +1,18 @@
-const CACHE_NAME = "guanchao-shell-v1";
-const SHELL = ["/", "/manifest.webmanifest", "/favicon.svg"];
+const CACHE_NAME = "guanchao-shell-v2";
+const SHELL = [
+  "/",
+  "/index.txt",
+  "/fed/",
+  "/fed/index.txt",
+  "/markets/",
+  "/markets/index.txt",
+  "/briefs/",
+  "/briefs/index.txt",
+  "/hotspots/",
+  "/hotspots/index.txt",
+  "/manifest.webmanifest",
+  "/favicon.svg",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(SHELL)));

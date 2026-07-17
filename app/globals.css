@@ -148,7 +148,7 @@ button {
   transition: 160ms ease;
 }
 
-.sidebar nav a:first-child,
+.sidebar nav a[aria-current="page"],
 .sidebar nav a:hover,
 .sidebar nav a:focus-visible {
   color: #18161a;
@@ -213,6 +213,13 @@ button {
   display: block;
   font-size: 17px;
   letter-spacing: -0.02em;
+}
+
+.route-title {
+  justify-self: center;
+  font-size: 15px;
+  font-weight: 850;
+  letter-spacing: -0.025em;
 }
 
 .search-box {
@@ -365,6 +372,10 @@ button {
   grid-template-columns: minmax(0, 1.7fr) minmax(330px, 0.72fr);
   gap: 18px;
   scroll-margin-top: 98px;
+}
+
+.hero-grid.focused-view {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .hero-card,
@@ -918,6 +929,10 @@ button {
   scroll-margin-top: 98px;
 }
 
+.section-block.route-section {
+  margin-top: 0;
+}
+
 .section-heading {
   display: flex;
   align-items: end;
@@ -1082,6 +1097,16 @@ button {
   align-items: start;
   gap: 18px;
   margin-top: 46px;
+}
+
+.content-grid.single-panel {
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 0;
+}
+
+.content-grid.single-panel .right-rail {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
 }
 
 .briefs-panel,
@@ -1705,7 +1730,7 @@ footer p {
   }
 
   .content-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .right-rail {
@@ -1972,6 +1997,8 @@ footer p {
   .briefs-panel,
   .hotspots-panel,
   .watchlist-panel {
+    min-width: 0;
+    max-width: 100%;
     padding: 21px 18px;
   }
 
@@ -2039,6 +2066,11 @@ footer p {
     display: flex;
   }
 
+  .content-grid.single-panel .right-rail {
+    display: flex;
+    flex-direction: column;
+  }
+
   .hotspot-card {
     grid-template-columns: 30px 1fr;
   }
@@ -2091,10 +2123,11 @@ footer p {
   .mobile-bottom-nav {
     position: fixed;
     z-index: 30;
-    right: 10px;
+    right: auto;
     bottom: max(10px, env(safe-area-inset-bottom));
     left: 10px;
     display: grid;
+    width: calc(100vw - 20px);
     height: 60px;
     grid-template-columns: repeat(5, 1fr);
     border: 1px solid rgba(226, 220, 230, 0.9);
@@ -2119,7 +2152,7 @@ footer p {
     font-weight: 700;
   }
 
-  .mobile-bottom-nav a:first-child {
+  .mobile-bottom-nav a[aria-current="page"] {
     color: #fff;
     background: #1b191c;
   }
