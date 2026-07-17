@@ -2,6 +2,7 @@ node_modules/
 .next/
 out/
 .visual-check/
+.codex-remote-attachments/
 outputs/
 data/archive/index.json
 data/archive/**/*.json.gz

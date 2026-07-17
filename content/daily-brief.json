@@ -1,7 +1,7 @@
 {
   "meta": {
     "editionDate": "2026-07-17",
-    "generatedAt": "2026-07-17T07:40:00+08:00",
+    "generatedAt": "2026-07-17T08:14:25+08:00",
     "dataThrough": "2026-07-16",
     "title": "每日早报",
     "subtitle": "美联储政策与三地市场重点",
@@ -14,8 +14,8 @@
     "explanation": "规则分数：综合美联储政策取向、三地主指数方向与本期风险事件，仅用于排列阅读优先级，不构成投资信号。",
     "signals": [
       { "label": "美联储", "value": "鹰鸽分歧扩大", "tone": "warning" },
-      { "label": "A 股", "value": "主要指数回调", "tone": "negative" },
-      { "label": "港股", "value": "恒指重返 25,000", "tone": "positive" },
+      { "label": "A 股", "value": "缩量回调", "tone": "negative" },
+      { "label": "港股", "value": "恒指站上 25,000", "tone": "positive" },
       { "label": "美股", "value": "芯片拖累纳指", "tone": "negative" }
     ]
   },
@@ -62,22 +62,22 @@
       },
       {
         "id": "fed-july-report",
-        "title": "最新政策报告上调通胀与年末利率预测",
-        "summary": "报告显示截至 5 月总 PCE 同比 4.1%、核心 PCE 3.4%；6 月 SEP 将 2026 年 PCE 中值上调至 3.6%，年末政策利率中值上调至 3.8%。",
-        "impact": "增长仍有韧性，但通胀上修意味着高利率可能维持更久，单月降温数据不足以确认政策转向。",
+        "title": "7 月政策报告称信贷总体可得，但小企业与住户仍偏紧",
+        "summary": "美联储 7 月货币政策报告称，上半年银行贷款增长可能反映更宽松的放贷标准和更强需求；多数非金融企业、住户和市政主体融资总体可得，但小企业和部分住户信贷条件仍偏紧。",
+        "impact": "经济和融资环境仍有韧性，高利率尚未全面压制需求；若就业与通胀继续偏稳，7 月会议更可能维持谨慎表态。",
         "publishedAt": "2026-07-10",
-        "tags": ["政策报告", "国会", "价格稳定"],
+        "tags": ["政策报告", "信贷", "金融条件"],
         "sources": [
           {
-            "name": "货币政策报告摘要",
+            "name": "Monetary Policy Report",
             "publisher": "Federal Reserve",
-            "url": "https://www.federalreserve.gov/monetarypolicy/2026-07-mpr-summary.htm",
+            "url": "https://www.federalreserve.gov/monetarypolicy/files/20260710_mprfullreport.pdf",
             "tier": "official"
           },
           {
-            "name": "2026 FOMC 日历",
+            "name": "Monetary Policy Report 页面",
             "publisher": "Federal Reserve",
-            "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+            "url": "https://www.federalreserve.gov/monetarypolicy/2026-07-mpr-statement.htm",
             "tier": "official"
           }
         ]
@@ -85,10 +85,10 @@
       {
         "id": "fed-june-minutes-split",
         "title": "6 月纪要显示年内利率路径分歧显著",
-        "summary": "少数与会者认为已有加息理由；许多人预计年末利率在当前区间内或略低，另有许多人预计会高于当前区间。最新有效联邦基金利率为 3.62%。",
-        "impact": "年内降息并非共识，能源价格、通胀与就业数据都可能改变 7 月后的利率路径。",
+        "summary": "纪要显示，几乎所有与会者都认为若通胀更顽固，进一步收紧仍可能需要；许多人认为年末利率应在当前区间内或略低，另有许多人认为应高于当前区间。",
+        "impact": "7 月会议前仍需重点看通胀、就业和能源价格，单次温和数据不足以消除市场对更久高利率的担忧。",
         "publishedAt": "2026-07-08",
-        "tags": ["会议纪要", "利率分歧", "有效利率"],
+        "tags": ["会议纪要", "利率分歧", "7月会议"],
         "sources": [
           {
             "name": "6 月 FOMC 会议纪要",
@@ -97,9 +97,9 @@
             "tier": "official"
           },
           {
-            "name": "有效联邦基金利率",
-            "publisher": "FRED",
-            "url": "https://fred.stlouisfed.org/series/DFF",
+            "name": "2026 FOMC 会议日历",
+            "publisher": "Federal Reserve",
+            "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
             "tier": "official"
           }
         ]
@@ -113,7 +113,7 @@
       "shortName": "A股",
       "sessionDate": "2026-07-16",
       "status": "已收盘",
-      "summary": "主要指数继续调整，沪深成交约 2.4036 万亿元、较前日缩量约 1676 亿元；传媒、医美相对较强，半导体与先进封装明显回落。",
+      "summary": "主要指数继续调整，沪深京三市成交总额 24191 亿元、较前日缩量约 1685 亿元；影视院线、医美与广告营销相对较强，HBM 和中芯概念明显回落。",
       "leadIndex": "上证指数",
       "indices": [
         { "name": "上证指数", "value": "3,882.41", "change": -1.85, "date": "2026-07-16" },
@@ -126,19 +126,19 @@
         {
           "name": "7 月 16 日收评",
           "publisher": "新华财经",
-          "url": "https://www.cnfin.com/yw-lb/detail/20260716/4441431_1.html",
+          "url": "https://m.cnfin.com/yw-lb//zixun/20260716/4441431_1.html",
           "tier": "authoritative"
         },
         {
-          "name": "上交所市场数据",
+          "name": "上交所英文首页市场概览",
           "publisher": "上海证券交易所",
-          "url": "https://www.sse.com.cn/market/stockdata/overview/day/",
+          "url": "https://english.sse.com.cn/",
           "tier": "official"
         },
         {
-          "name": "市场宽度与成交核验",
-          "publisher": "澎湃新闻",
-          "url": "https://www.thepaper.cn/newsDetail_forward_33597602",
+          "name": "股市频道",
+          "publisher": "中国金融信息网",
+          "url": "https://www.cnfin.com/stock/",
           "tier": "major-media"
         }
       ],
@@ -146,7 +146,7 @@
         {
           "id": "a-share-close-0716",
           "title": "主要指数继续调整，成交额降至不足 2.5 万亿元",
-          "summary": "上证指数跌 1.85%，深证成指跌 1.97%，创业板指跌 2.95%；沪深成交约 2.4036 万亿元。影视、医美和广告相对活跃，半导体、HBM 与先进封装回撤。",
+          "summary": "上证指数跌 1.85%，深证成指跌 1.97%，创业板指跌 2.95%；沪深京三市成交总额 24191 亿元。影视院线、医美和广告营销相对活跃，HBM、中芯概念和电子化学品回撤。",
           "impact": "缩量表明风险偏好仍弱；观察后续能否出现放量修复，以及成长板块拥挤度是否充分消化。",
           "publishedAt": "2026-07-16",
           "tags": ["收盘", "成交额", "成长股"],
@@ -154,14 +154,14 @@
             {
               "name": "主要指数继续调整",
               "publisher": "新华财经",
-              "url": "https://www.cnfin.com/yw-lb/detail/20260716/4441431_1.html",
+              "url": "https://m.cnfin.com/yw-lb//zixun/20260716/4441431_1.html",
               "tier": "authoritative"
             },
             {
-              "name": "A 股午后跌幅扩大",
-              "publisher": "澎湃新闻 / 新浪财经",
-              "url": "https://finance.sina.com.cn/jjxw/2026-07-16/doc-inihyuqe1263055.shtml",
-              "tier": "major-media"
+              "name": "上交所英文首页市场概览",
+              "publisher": "上海证券交易所",
+              "url": "https://english.sse.com.cn/",
+              "tier": "official"
             }
           ]
         }
@@ -184,16 +184,16 @@
       "tone": "positive",
       "sources": [
         {
-          "name": "7 月 16 日官方日报",
-          "publisher": "香港交易所",
-          "url": "https://www.hkex.com.hk/eng/stat/smstat/dayquot/d260716e.htm",
-          "tier": "official"
-        },
-        {
           "name": "HKEX 市场数据",
           "publisher": "香港交易所",
           "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
           "tier": "official"
+        },
+        {
+          "name": "港股 16 日涨 1.33%",
+          "publisher": "新华社 / 新浪财经",
+          "url": "https://finance.sina.com.cn/roll/2026-07-16/doc-inihyywc8177911.shtml",
+          "tier": "authoritative"
         }
       ],
       "articles": [
@@ -212,16 +212,10 @@
               "tier": "authoritative"
             },
             {
-              "name": "港股收盘数据",
-              "publisher": "东方财富",
-              "url": "https://finance.eastmoney.com/a/202607163809057859.html",
-              "tier": "major-media"
-            },
-            {
-              "name": "板块与南向资金",
-              "publisher": "中国基金报",
-              "url": "https://www.chnfund.com/article/ARc7a336fb-c1ab-601e-93bf-3a227c5da868",
-              "tier": "major-media"
+              "name": "HKEX 市场数据",
+              "publisher": "香港交易所",
+              "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
+              "tier": "official"
             }
           ]
         }
@@ -233,7 +227,7 @@
       "shortName": "美股",
       "sessionDate": "2026-07-16",
       "status": "最新完整交易日",
-      "summary": "多数标普成分股上涨，但芯片权重回撤拖累指数；纳指跌 1.5%，美债收益率温和回升，市场呈现明显结构性分化。",
+      "summary": "多数标普成分股上涨，但芯片权重回撤拖累指数；纳指跌 1.5%，2 年和 10 年美债收益率分别升至 4.16% 与 4.57%，市场呈现明显结构性分化。",
       "leadIndex": "标普 500",
       "indices": [
         { "name": "标普 500", "value": "7,533.77", "change": -0.51, "date": "2026-07-16" },
@@ -287,8 +281,8 @@
       "id": "hot-inflation",
       "priority": 96,
       "title": "CPI 与 PPI 降温，但收益率回升限制估值修复",
-      "summary": "6 月 CPI 环比下降 0.4%、同比上涨 3.5%，核心 CPI 环比持平；PPI 环比下降 0.3%。7 月 16 日两年与十年期美债收益率分别回升 3bp 和 2bp。",
-      "impact": "降温主要受能源回落贡献，近期油价反弹意味着不能把单月数据直接外推为持续通胀下行。",
+      "summary": "美国 6 月 CPI 季调环比下降 0.4%、同比上涨 3.5%，核心 CPI 环比持平、同比上涨 2.6%；PPI 环比下降 0.3%、同比上涨 5.5%。",
+      "impact": "通胀读数较 5 月回落，但能源仍是关键扰动项；若后续油价重新走强，市场对年内利率路径的定价仍可能反复。",
       "publishedAt": "2026-07-16",
       "tags": ["CPI", "PPI", "美债收益率"],
       "affectedMarkets": ["美股", "港股", "A股"],
@@ -296,38 +290,38 @@
         {
           "name": "6 月 CPI",
           "publisher": "U.S. Bureau of Labor Statistics",
-          "url": "https://www.bls.gov/news.release/archives/cpi_07142026.htm",
+          "url": "https://www.bls.gov/news.release/cpi.htm",
           "tier": "official"
         },
         {
           "name": "6 月 PPI",
           "publisher": "U.S. Bureau of Labor Statistics",
-          "url": "https://www.bls.gov/news.release/archives/ppi_07152026.htm",
+          "url": "https://www.bls.gov/news.release/ppi.nr0.htm",
           "tier": "official"
         }
       ]
     },
     {
-      "id": "hot-oil-risk",
+      "id": "hot-china-gdp",
       "priority": 91,
-      "title": "油价维持高位，中东航运仍是通胀尾部风险",
-      "summary": "7 月 16 日 Brent 收于每桶 84.23 美元、WTI 收于 78.95 美元，盘中一度上涨超过 1%；霍尔木兹与红海航运风险仍给能源价格提供溢价。",
-      "impact": "若运输受扰扩大，能源价格可能重新推高通胀预期，并同时影响利率、制造成本与风险偏好。",
-      "publishedAt": "2026-07-16",
-      "tags": ["原油", "中东局势", "供应链"],
-      "affectedMarkets": ["A股", "港股", "美股"],
+      "title": "中国上半年 GDP 同比增 4.7%，二季度增速放缓至 4.3%",
+      "summary": "国家统计局公布，2026 年上半年 GDP 为 695704 亿元、同比增长 4.7%；分季度看，一季度同比增长 5.0%，二季度增长 4.3%，环比增长 0.9%。",
+      "impact": "内地基本面仍在扩张，但二季度增速较一季度回落，后续政策发力节奏和需求修复强度将继续影响 A/H 股定价。",
+      "publishedAt": "2026-07-17",
+      "tags": ["中国经济", "GDP", "宏观数据"],
+      "affectedMarkets": ["A股", "港股"],
       "sources": [
         {
-          "name": "油价与供应风险",
-          "publisher": "Reuters / EnergyNow",
-          "url": "https://energynow.ca/2026/07/oil-settles-lower-remains-near-one-month-high-on-u-s-iran-tension/",
-          "tier": "major-media"
+          "name": "二季度和上半年 GDP 初步核算",
+          "publisher": "国家统计局",
+          "url": "https://www.stats.gov.cn/sj/zxfb/202607/t20260716_1964142.html",
+          "tier": "official"
         },
         {
-          "name": "中东局势进展",
-          "publisher": "Associated Press",
-          "url": "https://apnews.com/article/iran-us-hormuz-strait-war-july-16-2026-f98ff56554de2336f0e85bb5fdcae769",
-          "tier": "major-media"
+          "name": "上半年经济运行情况",
+          "publisher": "国家统计局",
+          "url": "https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964121.html",
+          "tier": "official"
         }
       ]
     },
@@ -335,7 +329,7 @@
       "id": "hot-ai-rotation",
       "priority": 89,
       "title": "台积电业绩强劲，芯片股仍因高预期出现回撤",
-      "summary": "台积电第二季净利润 7066 亿新台币、同比增长 77%，美元营收 402 亿美元；但其 ADR 仍跌 2.3%，Micron、Sandisk 等同步回撤。",
+      "summary": "台积电 2026 年第二季美元营收 402 亿、毛利率 67.7%，第三季营收指引上修至 446 亿至 458 亿美元；但美股盘面仍由芯片权重回撤拖累纳指。",
       "impact": "AI 需求长期逻辑未被单日交易证伪，但高估值与高预期正在放大 A/H/美三地半导体波动。",
       "publishedAt": "2026-07-16",
       "tags": ["AI", "半导体", "台积电"],
@@ -359,7 +353,7 @@
       "id": "hot-fomc-window",
       "priority": 86,
       "title": "FOMC 进入观察窗口，官员对年内路径分歧明显",
-      "summary": "下一次会议为 7 月 28–29 日。6 月纪要显示，部分官员认为已有加息理由，而对年末利率高于、等于或略低于当前区间的判断均有支持者。",
+      "summary": "下一次会议为 7 月 28–29 日。6 月纪要显示，若通胀更顽固几乎所有与会者都认为进一步收紧仍可能需要，而对年末利率位于当前区间附近或高于当前区间的判断均有支持者。",
       "impact": "会议前数据和官员表态可能提高利率、美元与成长股波动；7 月会议不公布新版 SEP。",
       "publishedAt": "2026-07-17",
       "tags": ["FOMC", "会议纪要", "事件日历"],
@@ -381,9 +375,9 @@
     },
     {
       "id": "hot-cross-market",
-      "priority": 84,
+      "priority": 83,
       "title": "A/H 股方向分化：内地缩量回调，港股延续反弹",
-      "summary": "A 股成长科技承压且沪深成交缩量，恒指则连续第五日上涨并重返 25,000 点；行业权重与资金偏好造成不同定价。",
+      "summary": "A 股主要指数继续回调且沪深京三市成交缩量至 24191 亿元，恒指则连续第五日上涨并站上 25,000 点；行业权重和资金偏好导致两地定价继续分化。",
       "impact": "比较成交、南向资金和行业结构比只看两地指数更重要，单日分化不能直接外推为长期趋势。",
       "publishedAt": "2026-07-16",
       "tags": ["跨市场", "成交", "资金偏好"],
@@ -392,37 +386,13 @@
         {
           "name": "A 股收评",
           "publisher": "新华财经",
-          "url": "https://www.cnfin.com/yw-lb/detail/20260716/4441431_1.html",
+          "url": "https://m.cnfin.com/yw-lb//zixun/20260716/4441431_1.html",
           "tier": "authoritative"
         },
         {
-          "name": "港股官方日报",
+          "name": "HKEX 市场数据",
           "publisher": "香港交易所",
-          "url": "https://www.hkex.com.hk/eng/stat/smstat/dayquot/d260716e.htm",
-          "tier": "official"
-        }
-      ]
-    },
-    {
-      "id": "hot-china-consumption",
-      "priority": 81,
-      "title": "扩大消费规划提供中期政策锚",
-      "summary": "扩大消费“十五五”规划围绕服务消费、商品消费、新场景、消费能力、环境与制度机制六方面部署 28 项任务。",
-      "impact": "政策与 A/H 股消费、汽车、文旅和医疗方向形成映射，但短线股价表现不代表政策效果已经兑现。",
-      "publishedAt": "2026-07-13",
-      "tags": ["扩大消费", "十五五", "政策"],
-      "affectedMarkets": ["A股", "港股"],
-      "sources": [
-        {
-          "name": "扩大消费规划解读",
-          "publisher": "国家发展改革委",
-          "url": "https://www.ndrc.gov.cn/xxgk/jd/jd/202607/t20260713_1406478.html",
-          "tier": "official"
-        },
-        {
-          "name": "规划与国务院批复",
-          "publisher": "商务部",
-          "url": "https://www.mofcom.gov.cn/zfxxgk/fdzdgknr/ztfl/gnmygl/art/2026/art_c9b4c4851de94b18809007ff90d9cce0.html",
+          "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
           "tier": "official"
         }
       ]
@@ -496,6 +466,13 @@
       "category": "国债收益率",
       "description": "每日美国国债收益率曲线与官方终值。",
       "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
+      "tier": "official"
+    },
+    {
+      "name": "国家统计局",
+      "category": "中国宏观数据",
+      "description": "GDP、工业、消费、投资等宏观数据与新闻发布的第一来源。",
+      "url": "https://www.stats.gov.cn/sj/zxfb/",
       "tier": "official"
     },
     {
