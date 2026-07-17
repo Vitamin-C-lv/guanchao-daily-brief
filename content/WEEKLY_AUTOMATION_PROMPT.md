@@ -13,7 +13,7 @@
 
 1. 先检查 `git status --short` 必须为空，避免与20:00收盘晚报并发写入；若工作树不干净，立即停止，不写文件、不构建、不提交，并明确汇报冲突文件。
 2. 完整读取本提示词、`lib/types.ts` 中的 `WeeklyReport`、现有 `content/weekly-reports/index.json`、`public/update-notices.json` 和当前 `content/daily-brief.json`。
-3. 检查当前日报 `meta.editionDate` 必须等于当周周五；A股、港股 `sessionDate` 必须是当天完整收盘日，或 `status` 明确说明当日休市及沿用日期。不满足说明20:00收盘晚报尚未完成，立即停止并汇报，不得用不完整的周五数据继续生成周报。
+3. 检查当前日报 `meta.editionDate` 必须等于当周周五，`meta.generatedAt` 换算为 Asia/Shanghai 后必须不早于当日20:00，并且 `meta.subtitle` 或 `meta.status` 明确包含“收盘更新”；A股、港股 `sessionDate` 必须是当天完整收盘日，或 `status` 明确说明当日休市及沿用日期。不满足说明20:00收盘晚报尚未完成，立即停止并汇报，不得用早间、盘中或不完整的周五数据继续生成周报。
 4. 运行 `pnpm context:weekly`，再读取生成的 `data/weekly-context.json`。它已经按日期去重本周日报归档，并只保留结构化摘要、上游来源 URL 和必要哈希。
 5. 如有上一期周报，比较哪些主线延续、增强、减弱或被证伪。不得把旧周报或本地日报当作外部事实的唯一来源，所有重要事实仍需回查本周原始网页。
 6. 首次运行若本地沉淀不足，必须写入 `localSynthesis.coverageGaps` 并主要依靠全网原始来源补齐，不得假装本地已有完整一周。
