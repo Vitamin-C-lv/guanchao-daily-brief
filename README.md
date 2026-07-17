@@ -41,7 +41,7 @@ pnpm typecheck
 pnpm build
 ```
 
-`next build` 会在 `out/` 生成可静态部署的网站。可将 GitHub 仓库连接到 Vercel、Netlify 或 Cloudflare Pages；每次自动化提交新的简报数据后，托管平台会自动重建并发布，手机和电脑使用同一个网址访问。
+`next build` 会在 `out/` 生成可静态部署的网站。当前生产站点发布到 `https://guanchao-daily-brief.vercel.app/`，Vercel 已连接 GitHub 私人仓库；每次 `main` 分支推送都会自动生成新的生产部署。
 
 ## 自动化链路
 
@@ -53,10 +53,11 @@ pnpm build
   → 内容校验 + 本机压缩归档
   → 类型检查 + 静态构建
   → Git 提交与推送
-  → 托管平台自动发布
+  → Vercel Git 自动生产发布
+  → 固定网址 HTTP 与页面内容验证
 ```
 
-在 Codex 自动化中使用 `content/AUTOMATION_PROMPT.md` 作为任务说明。首次上线前需配置 GitHub 远端和托管平台；本地未配置远端时，自动化只会更新本机文件。
+在 Codex 自动化中使用 `content/AUTOMATION_PROMPT.md` 作为任务说明。首次上线前需配置 GitHub 远端并在 Vercel 连接该仓库；本地未配置远端时，自动化只会更新本机文件。
 
 ## 重要说明
 
