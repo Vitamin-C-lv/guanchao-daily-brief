@@ -1,0 +1,756 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-18T18:02:59+08:00",
+  "model": {
+    "id": "guanchao-a-share-sector-rotation",
+    "version": "2026.07.18-v1",
+    "trainedAt": "2026-07-18T18:02:58+08:00",
+    "trainingStart": "2022-04-13",
+    "trainingEnd": "2025-12-31",
+    "method": "冻结的流式标准化岭回归；每日只取最新输入并推理，不自动重训。",
+    "features": [
+      "当日行业横截面标准化：5个交易日价格动量",
+      "当日行业横截面标准化：20个交易日价格动量",
+      "当日行业横截面标准化：60个交易日价格动量",
+      "当日行业横截面标准化：前一交易日收益率的反向值",
+      "当日行业横截面标准化：20个交易日日收益波动率",
+      "当日行业横截面标准化：相对60日最高收盘的回撤",
+      "当日行业横截面标准化：近5日平均成交额/此前20日平均成交额的对数",
+      "当日行业横截面标准化：近5日平均成交量/此前20日平均成交量的对数",
+      "当日行业横截面标准化：5日动量与成交额相对放量的交互项"
+    ],
+    "backtest": {
+      "status": "insufficient",
+      "summary": "5日 insufficient（IC -0.002，头尾差 0.12%）；20日 insufficient（IC 0.035，头尾差 0.60%）。score是横截面排名分，不是概率。"
+    }
+  },
+  "markets": [
+    {
+      "id": "a-share",
+      "label": "A股",
+      "mode": "industry",
+      "asOf": "2025-12-31",
+      "status": "insufficient",
+      "taxonomy": {
+        "owner": "中证指数有限公司",
+        "name": "中证全指二级行业（V1.7附录32个可验证指数）",
+        "version": "V1.7",
+        "effectiveDate": "2023-10-01"
+      },
+      "note": "当前层是量价观察；一周/月仅在walk-forward门禁通过时发布条件排序。正文35与附录32的口径差异已保留。",
+      "reason": "最新横截面覆盖19/32个行业，数据截至2025-12-31，页面完整交易日为2026-07-17；当前与预测均降级。",
+      "sources": [
+        {
+          "name": "中证全指行业指数编制方案V1.7",
+          "publisher": "中证指数有限公司",
+          "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/H30199_Index_Methodology_cn.pdf",
+          "tier": "official",
+          "evidenceClass": "official-primary"
+        },
+        {
+          "name": "2026年A股休市安排",
+          "publisher": "上海证券交易所",
+          "url": "https://www.sse.com.cn/disclosure/announcement/general/c/c_20251222_10802507.shtml",
+          "tier": "official",
+          "evidenceClass": "official-primary"
+        },
+        {
+          "name": "中证银行指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=399986",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "农牧渔指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=930910",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "汽车汽配指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30164",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "机械制造指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30166",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "商业指数指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30170",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "运输指数指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30171",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "消费者指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30173",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "媒体指数指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30174",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "零售指数指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30175",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "全指食品指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30177",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "制药生物指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30179",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "计算机指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30182",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "电子指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30183",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "半导体指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30184",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "保险指数指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30186",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "化学制品指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30187",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "耐用消费品指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30196",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "资本市场指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=H30211",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "航空航天指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=932143",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "建筑装饰指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931931",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "电力设备指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931932",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "全指环保指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931933",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "非金属材料指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931934",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "全指钢铁指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931935",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "全指有色指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931936",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "造纸与包装指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931937",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "服装珠宝指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931938",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "家庭用品指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931939",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "全指医疗指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931940",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "其他金融指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=931941",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "电信服务指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=932144",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "通信设服指数详情与数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/#/indices/family/detail?indexCode=932145",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        }
+      ],
+      "horizons": {
+        "current": {
+          "kind": "observed",
+          "status": "insufficient",
+          "asOf": "2025-12-31",
+          "reason": "最新完整日覆盖不足：19/32。"
+        },
+        "oneWeek": {
+          "kind": "forecast",
+          "status": "insufficient",
+          "asOf": "2025-12-31",
+          "sessions": 5,
+          "reason": "当前覆盖19/32，冻结训练覆盖19/32，数据截至2025-12-31、页面完整交易日为2026-07-17；样本外rank IC=-0.002，头尾差=0.12%。任一覆盖、时效或回测门禁未通过时不发布方向排序。"
+        },
+        "oneMonth": {
+          "kind": "forecast",
+          "status": "insufficient",
+          "asOf": "2025-12-31",
+          "sessions": 20,
+          "reason": "当前覆盖19/32，冻结训练覆盖19/32，数据截至2025-12-31、页面完整交易日为2026-07-17；样本外rank IC=0.035，头尾差=0.60%。任一覆盖、时效或回测门禁未通过时不发布方向排序。"
+        }
+      }
+    },
+    {
+      "id": "hk",
+      "label": "港股",
+      "mode": "industry",
+      "asOf": "2026-07-17",
+      "status": "ready",
+      "taxonomy": {
+        "owner": "恒生指数有限公司",
+        "name": "恒生综合指数行业指数（一级行业）",
+        "version": "HSICS current",
+        "effectiveDate": "2026-07-17"
+      },
+      "note": "以12个恒生综合行业指数为固定当前层；不使用第三方板块冒充官方历史。",
+      "reason": "官方实时行业快照可用；官方历史接口当前未稳定返回，因此一周/月预测保持insufficient。",
+      "sources": [
+        {
+          "name": "Hang Seng Composite Industry Indexes",
+          "publisher": "Hang Seng Indexes Company Limited",
+          "url": "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+          "tier": "official",
+          "evidenceClass": "official-primary"
+        },
+        {
+          "name": "Hang Seng industry performance snapshot",
+          "publisher": "Hang Seng Indexes Company Limited",
+          "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        }
+      ],
+      "horizons": {
+        "current": {
+          "kind": "observed",
+          "status": "ready",
+          "asOf": "2026-07-17",
+          "note": "当前score按12个恒生综合行业指数当日涨跌做横截面排序，不预测未来。",
+          "items": [
+            {
+              "sector": "公用事业",
+              "code": "00011.07",
+              "rank": 1,
+              "score": 100.0,
+              "direction": "leading",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "5,535.59"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+1.18%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "综合企业",
+              "code": "00011.11",
+              "rank": 2,
+              "score": 90.9,
+              "direction": "leading",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "2,062.25"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.33%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "电讯业",
+              "code": "00011.06",
+              "rank": 3,
+              "score": 81.8,
+              "direction": "leading",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "1,607.44"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.15%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "能源",
+              "code": "00011.01",
+              "rank": 4,
+              "score": 72.7,
+              "direction": "strengthening",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "13,484.24"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-0.05%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "金融业",
+              "code": "00011.08",
+              "rank": 5,
+              "score": 63.6,
+              "direction": "strengthening",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "5,367.64"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-0.27%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "必需性消费",
+              "code": "00011.13",
+              "rank": 6,
+              "score": 54.5,
+              "direction": "neutral",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "13,691.90"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-0.51%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "地产建筑业",
+              "code": "00011.09",
+              "rank": 7,
+              "score": 45.5,
+              "direction": "neutral",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "1,660.32"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-0.89%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "非必需性消费",
+              "code": "00011.12",
+              "rank": 8,
+              "score": 36.4,
+              "direction": "weakening",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "2,424.05"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-3.06%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "工业",
+              "code": "00011.03",
+              "rank": 9,
+              "score": 27.3,
+              "direction": "weakening",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "1,254.66"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-3.17%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "原材料",
+              "code": "00011.02",
+              "rank": 10,
+              "score": 18.2,
+              "direction": "lagging",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "12,612.04"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-4.98%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "资讯科技业",
+              "code": "00011.10",
+              "rank": 11,
+              "score": 9.1,
+              "direction": "lagging",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "13,888.04"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-5.11%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "医疗保健业",
+              "code": "00011.14",
+              "rank": 12,
+              "score": 0.0,
+              "direction": "lagging",
+              "signal": "2026-07-17恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "10,919.74"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-5.70%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        "oneWeek": {
+          "kind": "forecast",
+          "status": "insufficient",
+          "asOf": "2026-07-17",
+          "sessions": 5,
+          "reason": "官方12行业历史日频接口当前无法稳定返回，不能完成同口径walk-forward回测。"
+        },
+        "oneMonth": {
+          "kind": "forecast",
+          "status": "insufficient",
+          "asOf": "2026-07-17",
+          "sessions": 20,
+          "reason": "官方12行业历史日频接口当前无法稳定返回，不能完成同口径walk-forward回测。"
+        }
+      }
+    },
+    {
+      "id": "us",
+      "label": "美股三大指数",
+      "mode": "major-index",
+      "asOf": "2026-07-17",
+      "status": "ready",
+      "taxonomy": {
+        "owner": "观潮日报引用的指数发布方/市场数据来源",
+        "name": "纳斯达克、道琼斯、标普500三大指数（非行业分类）",
+        "version": "daily-brief",
+        "effectiveDate": "2026-07-17"
+      },
+      "note": "不扩建美股行业模型；只保留三大指数当前状态。",
+      "reason": "本次没有经同口径历史回测的美股三大指数条件模型。",
+      "sources": [
+        {
+          "name": "美股 7 月 17 日收盘",
+          "publisher": "Associated Press",
+          "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-5e44034ea86fa8d9c73184f3559e74a2",
+          "tier": "major-media"
+        },
+        {
+          "name": "美国国债收益率",
+          "publisher": "U.S. Treasury",
+          "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve",
+          "tier": "official"
+        }
+      ],
+      "horizons": {
+        "current": {
+          "kind": "observed",
+          "status": "ready",
+          "asOf": "2026-07-17",
+          "note": "仅展示纳斯达克、道琼斯、标普500三大指数当前状态；不称为行业轮动。",
+          "items": [
+            {
+              "sector": "道琼斯",
+              "rank": 1,
+              "score": 100.0,
+              "direction": "leading",
+              "signal": "2026-07-17完整交易日指数表现。",
+              "metrics": [
+                {
+                  "label": "点位",
+                  "value": "52,146.42"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-0.80%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "标普 500",
+              "rank": 2,
+              "score": 50.0,
+              "direction": "neutral",
+              "signal": "2026-07-17完整交易日指数表现。",
+              "metrics": [
+                {
+                  "label": "点位",
+                  "value": "7,475.69"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-1.00%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "纳斯达克",
+              "rank": 3,
+              "score": 0.0,
+              "direction": "lagging",
+              "signal": "2026-07-17完整交易日指数表现。",
+              "metrics": [
+                {
+                  "label": "点位",
+                  "value": "25,520.24"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-1.40%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            }
+          ]
+        },
+        "oneWeek": {
+          "kind": "forecast",
+          "status": "insufficient",
+          "asOf": "2026-07-17",
+          "sessions": 5,
+          "reason": "未训练并样本外验证三大指数条件模型，不发布一周方向排序。"
+        },
+        "oneMonth": {
+          "kind": "forecast",
+          "status": "insufficient",
+          "asOf": "2026-07-17",
+          "sessions": 20,
+          "reason": "未训练并样本外验证三大指数条件模型，不发布一月方向排序。"
+        }
+      }
+    }
+  ]
+}

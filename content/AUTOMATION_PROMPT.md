@@ -8,8 +8,9 @@
 2. 使用各市场“最新完整交易日”；不得把盘中数字当成收盘数字，也不得强行让三地使用同一日期。
 3. 每条文章必须保留至少一个可以直接打开的原文 URL；政策和重大事实优先使用官方原文，重要判断尽量使用两个独立来源。
 4. 页面只发布原创中文摘要、影响提示和来源链接，不复制新闻全文，不给出个股买卖建议。
-5. 自动化使用用户指定的 GPT-5.6 Moon 模型执行，不改用 5.4 系列。
+5. 自动化使用用户指定的 **GPT-5.6 Luna（月亮）**、高推理强度执行，不改用 5.4 系列。
 6. A 股和港股的每日市场文章必须包含“板块轮动与可观察资金流向”模块；即使数据不足也不得省略，必须按下文规则明确写出 `insufficient`。
+7. 同步更新 `content/sector-rotation.json`：A 股、港股是行业轮动主体；美股只保留纳斯达克、道琼斯、标普 500 三大指数，不得把美股写成行业板块轮动。
 
 ## 第一步：加载共享研究技能
 
@@ -110,6 +111,22 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 - `low` 至少需要两项有引用的观察；`medium` 至少需要两类独立证据和两个独立发布方，且包含一项 `official`、`primary-research` 或 `vendor-market-data`；`medium-high` 至少需要三类证据和三个发布方，其中两项为上述高等级来源，涉及市场数据时还要连续三个完整交易日同向。
 - Stanford AI Index 只能支持结构性或 2–4 周以上的行业推断，不能单独支持 1–5 日价格预测；短周期还必须加入最新业绩/指引/订单、估值、完整交易日量价及另一独立来源。
 
+## 冻结经验模型：日报只做推理
+
+行业轮动指数采用“强模型离线构建并版本化、每日 Luna 只更新输入并应用”的两阶段流程。每次日报必须读取 `schemas/sector-rotation.schema.json`、当前 `content/sector-rotation.json` 与冻结模型的 model card；先核验并写好 `daily-brief.json` 中 A 股/港股的最新完整 `sessionDate`，再执行项目提供的 `pnpm rotation:refresh`。该命令以该完整交易日为刷新截止日，只刷新官方结构化输入、重建当日特征并应用冻结模型，不训练或改写模型。严格遵守：
+
+- 日报不得训练、微调、回测选参、改权重、增删特征、换行业分类、覆盖 model card 或改变模型版本；也不得根据当天涨跌手工调高分数。模型文件缺失、哈希/版本不匹配、必要输入不足或推理失败时，对应窗口写 `insufficient` 并说明缺口，禁止临时训练一个新模型补位。
+- `current` 只呈现截至各市场最新完整交易日的观测排序，不含未来判断；`oneWeek` 与 `oneMonth` 分别对应 5、20 个交易日的条件式排序。`score` 只是横截面排名分，不是上涨概率、收益率或胜率，必须保留证据、反证、触发、失效、交易日历到期日与置信度。
+- A 股行业口径固定为中证全指二级行业，港股固定为恒生行业分类一级行业。美股 `mode` 固定为 `major-index`，任何可用窗口都只能出现纳斯达克、道琼斯、标普 500 三项；不得混入美股行业或概念板块。
+- 推理输入只保留同口径结构化数值及直接 HTTPS 证据页。识别来源中的图表时，优先提取为结构化数字并记录 `sourceUrl`、单位、口径、时间区间与 `extractionConfidence`，不保存原图；低置信度 OCR/视觉识别数值不得进入模型。只有确需保留视觉证据时才可转限宽 WebP，并执行哈希去重与大小门禁。
+- 轮动排名与同单位量能条形图由页面从已验证条目自动渲染；可选历史图使用 `charts` 中的 `line`，只有来源提供完整且同口径的 OHLC 才可使用 `candlestick`。每张图必须带 `asOf`、`unit`、范围/归一化或算法口径 `note`、`sourceIndexes`，最多 4 条系列、每系列最多 60 个点。长期资金的 `knownAt → truthAt` 时间轴和命中/误报汇总仅写入已有对应图表契约的周报或精读文章；未定义类型不得擅自写进轮动 JSON。
+- 精简事件记忆只允许追加到本机 `data/rotation-model/events/events.jsonl.gz`，逐行压缩存储：日期、标题、直达 URL、`sourceTier`、`evidenceClass`、行业标签、事件分类、100–200 字原创事实摘要、`knownAt`、到期后填写的 5/20 日后验结果和内容哈希。非空后验必须逐项列出 `tradingDates`，并保存版本化官方交易日历的 `calendarSourceUrl` 与 `calendarSha256`；A 股日期必须通过本地日历 artifact 逐日重算，港股在版本化港交所日历 artifact 缺失时保持 `null`，不得猜测工作日。可额外记录后来官方披露或前十大股东披露的 `truthAt`，但必须保留当时实际可得代理的 `knownAt`，不得事后改写历史可得信息。
+- 事件按规范化直达 URL、日期、事件分类和内容哈希去重；单条解压后不得超过 8 KB，事件库压缩文件硬上限 32 MB，达到 28 MB 时按最旧且已完成后验的记录清理。禁止保存网页全文、长引文、PDF、上游图片、视频、报告附件或检索缓存。每日只匹配、追加事件并填写到期后验，事件库不得被用于当天重新拟合权重。
+- 长期资金线索重点核查中央汇金、证金公司、全国社保基金和基本养老保险基金组合。前十大股东、基金/公司/监管官方披露可作硬证据；ETF 申赎、宽基成交份额、权重股相对强弱与尾盘集中度只能作 `inference-proxy`，必须同时写替代解释、反证与失效条件，页面只能称“疑似长期资金线索”，不得断言其已买入或“偷偷买入”。医保基金与社保基金、基本养老保险基金严格分开；没有制度依据或公开披露时，不得推断医保基金直接投资权益市场。
+- 对已到期的长期资金代理，事件记忆应统计 ETF 申赎、宽基成交份额、权重股强弱、尾盘集中度相对于后来 `truthAt` 的命中、误报和提前期；日报仅应用已冻结的统计先验，不得据此当日重训。
+- 基础冻结模型推理优先使用 CPU。只有新闻向量匹配或批量历史相似度检索经现有基准证明有明显收益时才可使用本机 4070；CUDA 显存上限取 6 GB 与可用显存 60% 中较小者，并使用小批次。记录本次是否使用 GPU、任务类型和峰值显存。GPU 不可用、显存不足或任务失败必须自动降级 CPU/更小批次，不得阻断日报发布，也不得因此改模型结果口径。
+- 全流程逐市场、逐文件处理，禁止把多年行情、新闻和事件库一次性全部装入上下文或内存；历史行情只保存在本机压缩缓存并受项目上限管理，不复制进 `content/` 或 Git。
+
 ## 日报重大新闻弹窗
 
 每天仍要从全部日报内容中选出“当日最有意义的一篇”，但**只有达到重大新闻阈值才允许弹窗**。读取 `public/update-notices.json`，只更新 `daily` 字段并保留 `weekly`：
@@ -124,14 +141,16 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 
 完成编辑后依次运行：
 
-1. `pnpm validate:brief`
-2. `pnpm validate:weekly`
-3. `pnpm archive:brief`
-4. `pnpm assets:prune`
-5. `pnpm validate:assets`
-6. `pnpm typecheck`
-7. `pnpm build`
+1. `pnpm validate:rotation`
+2. `pnpm validate:rotation-events`
+3. `pnpm validate:brief`
+4. `pnpm validate:weekly`
+5. `pnpm archive:brief`
+6. `pnpm assets:prune`
+7. `pnpm validate:assets`
+8. `pnpm typecheck`
+9. `pnpm build`
 
-只有七项全部通过才算更新成功。`data/archive/` 是仅保存在本机项目目录的轻量压缩备份，不要把归档文件加入 Git；归档脚本会自动去重并限制为最多 400 份、总计不超过 50 MB。如果项目已经配置 Git 远端，则只提交 `content/daily-brief.json`、本次更新的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图、视频、检索缓存或模型缓存。提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发 Vercel Git 生产部署。推送后验证 `https://guanchao-daily-brief.vercel.app/` 能返回 HTTP 200 和“每日早报”；如果 Vercel 尚在构建，可以短暂重试，部署失败要保留已经通过校验的本地数据和 Git 提交，并在任务结果中明确报错。未配置远端时只更新本地文件并在任务结果中说明。
+只有九项全部通过才算更新成功。`data/archive/` 是仅保存在本机项目目录的轻量压缩备份，不要把归档文件加入 Git；归档脚本在文件存在时把 `daily-brief.json` 与 `sector-rotation.json` 同包压缩，合并来源 URL，并以覆盖两者的内容哈希去重；旧 brief-only 快照仍可读取。归档最多 400 份、总计不超过 50 MB，且不保存来源网页全文或上游材料。如果项目已经配置 Git 远端，则只提交 `content/daily-brief.json`、`content/sector-rotation.json`、本次更新的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库仅在版本化强模型流程中单独提交或留在本机，日报不得顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图、视频、检索缓存或模型缓存。提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发 Vercel Git 生产部署。推送后验证 `https://guanchao-daily-brief.vercel.app/` 能返回 HTTP 200 和“每日早报”；如果 Vercel 尚在构建，可以短暂重试，部署失败要保留已经通过校验的本地数据和 Git 提交，并在任务结果中明确报错。未配置远端时只更新本地文件并在任务结果中说明。
 
 任务结果需汇报：版本日期、三地数据截止日、更新条目数、每篇详情字数、引用数、构建结果、Git 推送结果、Vercel 生产网址验证结果，以及任何沿用旧数据或无法核验的项目。

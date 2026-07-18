@@ -1,0 +1,1510 @@
+{
+  "schemaVersion": 1,
+  "id": "guanchao-a-share-sector-rotation",
+  "version": "2026.07.18-v1",
+  "trainedAt": "2026-07-18T18:02:58+08:00",
+  "asOf": "2025-12-31",
+  "trainingStart": "2022-04-13",
+  "trainingEnd": "2025-12-31",
+  "taxonomy": {
+    "schemaVersion": 1,
+    "owner": "中证指数有限公司",
+    "name": "中证全指二级行业指数（V1.7 附录可验证指数）",
+    "documentVersion": "V1.7",
+    "documentUpdated": "2023-10",
+    "methodologyUrl": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/H30199_Index_Methodology_cn.pdf",
+    "declaredLevel2Count": 35,
+    "appendixListedCount": 32,
+    "discrepancyNote": "编制方案正文写明35个二级行业，但V1.7附录逐项列示32个二级行业指数。本模型只使用附录明确列出的32个代码，不补造缺项。",
+    "indices": [
+      {
+        "code": "399986",
+        "name": "中证银行指数",
+        "shortName": "中证银行"
+      },
+      {
+        "code": "930910",
+        "name": "中证全指农牧渔指数",
+        "shortName": "农牧渔"
+      },
+      {
+        "code": "H30164",
+        "name": "中证全指乘用车及零部件指数",
+        "shortName": "汽车汽配"
+      },
+      {
+        "code": "H30166",
+        "name": "中证全指机械制造指数",
+        "shortName": "机械制造"
+      },
+      {
+        "code": "H30170",
+        "name": "中证全指商业服务与商业用品指数",
+        "shortName": "商业指数"
+      },
+      {
+        "code": "H30171",
+        "name": "中证全指运输指数",
+        "shortName": "运输指数"
+      },
+      {
+        "code": "H30173",
+        "name": "中证全指消费者服务指数",
+        "shortName": "消费者"
+      },
+      {
+        "code": "H30174",
+        "name": "中证全指媒体指数",
+        "shortName": "媒体指数"
+      },
+      {
+        "code": "H30175",
+        "name": "中证全指零售业指数",
+        "shortName": "零售指数"
+      },
+      {
+        "code": "H30177",
+        "name": "中证全指食品、饮料与烟草指数",
+        "shortName": "全指食品"
+      },
+      {
+        "code": "H30179",
+        "name": "中证全指医药指数",
+        "shortName": "制药生物"
+      },
+      {
+        "code": "H30182",
+        "name": "中证全指计算机指数",
+        "shortName": "计算机"
+      },
+      {
+        "code": "H30183",
+        "name": "中证全指电子指数",
+        "shortName": "电子"
+      },
+      {
+        "code": "H30184",
+        "name": "中证全指半导体产品与设备指数",
+        "shortName": "半导体"
+      },
+      {
+        "code": "H30186",
+        "name": "中证全指保险指数",
+        "shortName": "保险指数"
+      },
+      {
+        "code": "H30187",
+        "name": "中证全指化学制品",
+        "shortName": "化学制品"
+      },
+      {
+        "code": "H30196",
+        "name": "中证全指耐用消费品指数",
+        "shortName": "耐用消费品"
+      },
+      {
+        "code": "H30211",
+        "name": "中证全指资本市场指数",
+        "shortName": "资本市场"
+      },
+      {
+        "code": "932143",
+        "name": "中证全指航空航天与国防指数",
+        "shortName": "航空航天"
+      },
+      {
+        "code": "931931",
+        "name": "中证全指建筑装饰指数",
+        "shortName": "建筑装饰"
+      },
+      {
+        "code": "931932",
+        "name": "中证全指电力设备指数",
+        "shortName": "电力设备"
+      },
+      {
+        "code": "931933",
+        "name": "中证全指环保指数",
+        "shortName": "全指环保"
+      },
+      {
+        "code": "931934",
+        "name": "中证全指非金属材料指数",
+        "shortName": "非金属材料"
+      },
+      {
+        "code": "931935",
+        "name": "中证全指钢铁指数",
+        "shortName": "全指钢铁"
+      },
+      {
+        "code": "931936",
+        "name": "中证全指有色金属指数",
+        "shortName": "全指有色"
+      },
+      {
+        "code": "931937",
+        "name": "中证全指造纸与包装指数",
+        "shortName": "造纸与包装"
+      },
+      {
+        "code": "931938",
+        "name": "中证全指纺织服装与珠宝指数",
+        "shortName": "服装珠宝"
+      },
+      {
+        "code": "931939",
+        "name": "中证全指家庭与个人用品指数",
+        "shortName": "家庭用品"
+      },
+      {
+        "code": "931940",
+        "name": "中证全指医疗指数",
+        "shortName": "全指医疗"
+      },
+      {
+        "code": "931941",
+        "name": "中证全指其他金融指数",
+        "shortName": "其他金融"
+      },
+      {
+        "code": "932144",
+        "name": "中证全指电信服务指数",
+        "shortName": "电信服务"
+      },
+      {
+        "code": "932145",
+        "name": "中证全指通信设备及技术服务指数",
+        "shortName": "通信设服"
+      }
+    ]
+  },
+  "data": {
+    "owner": "中证指数有限公司",
+    "endpoint": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+    "evidenceClass": "official-primary",
+    "coverageCount": 19,
+    "availableSeriesCount": 19,
+    "universeCount": 32,
+    "trainingCoverageComplete": false,
+    "featureManifest": {
+      "builtAt": "2026-07-18T18:02:39+08:00",
+      "path": "data/rotation-model/features/a-share-features.csv.gz",
+      "compressedBytes": 3132710,
+      "sha256": "d469a75e190cfa41cfc8657aad938760ee4903e1e8d44080cb62fdf18adb1bb4",
+      "coverageCount": 19,
+      "sourceCoverageCount": 19,
+      "synchronizedCoverageCount": 19,
+      "synchronizedDates": 970,
+      "synchronizedStart": "2021-12-31",
+      "synchronizedEnd": "2025-12-31",
+      "rawFeatureRows": 17290,
+      "rows": 17290,
+      "featurePanelDates": 910,
+      "featurePanelStart": "2022-04-06",
+      "featurePanelEnd": "2025-12-31",
+      "featureDateMinCount": 19,
+      "featureDateMaxCount": 19,
+      "droppedIncompleteFeatureDates": 0,
+      "featurePanelComplete": true,
+      "labelled5": 17195,
+      "labelled20": 16910,
+      "streamingPolicy": "one sector in memory; cross-sectional targets by date accumulators"
+    }
+  },
+  "method": {
+    "type": "streaming-standardized-ridge",
+    "target": "5/20交易日前瞻行业收益减同日可用行业横截面均值",
+    "validation": "严格扩展窗口年度walk-forward；按目标实际到期日执行5/20交易日边界purge；无随机切分；到期前标签不进入训练",
+    "score": "推理值仅用于当日行业横截面0–100排名，非概率、非承诺收益",
+    "eventOverlay": "事件记忆独立保存；每日只匹配与追加，不自动重训数值模型"
+  },
+  "features": [
+    {
+      "id": "cs_momentum5",
+      "description": "当日行业横截面标准化：5个交易日价格动量"
+    },
+    {
+      "id": "cs_momentum20",
+      "description": "当日行业横截面标准化：20个交易日价格动量"
+    },
+    {
+      "id": "cs_momentum60",
+      "description": "当日行业横截面标准化：60个交易日价格动量"
+    },
+    {
+      "id": "cs_reversal1",
+      "description": "当日行业横截面标准化：前一交易日收益率的反向值"
+    },
+    {
+      "id": "cs_volatility20",
+      "description": "当日行业横截面标准化：20个交易日日收益波动率"
+    },
+    {
+      "id": "cs_drawdown60",
+      "description": "当日行业横截面标准化：相对60日最高收盘的回撤"
+    },
+    {
+      "id": "cs_amountRatio5v20",
+      "description": "当日行业横截面标准化：近5日平均成交额/此前20日平均成交额的对数"
+    },
+    {
+      "id": "cs_volumeRatio5v20",
+      "description": "当日行业横截面标准化：近5日平均成交量/此前20日平均成交量的对数"
+    },
+    {
+      "id": "cs_priceVolumeAcceleration",
+      "description": "当日行业横截面标准化：5日动量与成交额相对放量的交互项"
+    }
+  ],
+  "models": {
+    "5": {
+      "horizonSessions": 5,
+      "ridge": 20.0,
+      "trainingRows": 17195,
+      "trainingStart": "2022-04-13",
+      "trainingEnd": "2025-12-31",
+      "featureMeans": {
+        "cs_momentum5": -2.1975422783565568e-16,
+        "cs_momentum20": 3.1004116374938606e-16,
+        "cs_momentum60": 2.0389777106305518e-16,
+        "cs_reversal1": -4.750702869288359e-16,
+        "cs_volatility20": 9.508046476883192e-16,
+        "cs_drawdown60": 1.807365021533336e-16,
+        "cs_amountRatio5v20": 3.710681935331639e-17,
+        "cs_volumeRatio5v20": 1.0537089863843496e-16,
+        "cs_priceVolumeAcceleration": 1.0007186052041206e-16
+      },
+      "featureScales": {
+        "cs_momentum5": 1.0000290794887905,
+        "cs_momentum20": 1.0000290794887903,
+        "cs_momentum60": 1.0000290794887894,
+        "cs_reversal1": 1.0000290794887867,
+        "cs_volatility20": 1.0000290794887843,
+        "cs_drawdown60": 0.9989234638058191,
+        "cs_amountRatio5v20": 1.0000290794887885,
+        "cs_volumeRatio5v20": 1.0000290794887878,
+        "cs_priceVolumeAcceleration": 1.0000290794887887
+      },
+      "intercept": -4.278148203379715e-18,
+      "coefficients": {
+        "cs_momentum5": 0.000756100447404369,
+        "cs_momentum20": 0.0002875821711441603,
+        "cs_momentum60": -0.0007352617420325595,
+        "cs_reversal1": 0.00011077942016688324,
+        "cs_volatility20": 0.00016276039898289465,
+        "cs_drawdown60": -0.001204447834282266,
+        "cs_amountRatio5v20": -0.0014887072722878,
+        "cs_volumeRatio5v20": 0.0019891885077764284,
+        "cs_priceVolumeAcceleration": 0.0002331451911444292
+      }
+    },
+    "20": {
+      "horizonSessions": 20,
+      "ridge": 20.0,
+      "trainingRows": 16910,
+      "trainingStart": "2022-05-09",
+      "trainingEnd": "2025-12-31",
+      "featureMeans": {
+        "cs_momentum5": -1.7129716698913167e-16,
+        "cs_momentum20": 3.019299762464789e-16,
+        "cs_momentum60": 2.418583996272039e-16,
+        "cs_reversal1": -4.3859704822006573e-16,
+        "cs_volatility20": 7.476251605645357e-16,
+        "cs_drawdown60": -3.7240311745803667e-16,
+        "cs_amountRatio5v20": 1.1085967213664283e-17,
+        "cs_volumeRatio5v20": 1.639584735341204e-16,
+        "cs_priceVolumeAcceleration": -7.669375117619337e-17
+      },
+      "featureScales": {
+        "cs_momentum5": 1.0000295696142685,
+        "cs_momentum20": 1.0000295696142691,
+        "cs_momentum60": 1.0000295696142705,
+        "cs_reversal1": 1.0000295696142723,
+        "cs_volatility20": 1.0000295696142718,
+        "cs_drawdown60": 0.9989053089220021,
+        "cs_amountRatio5v20": 1.0000295696142716,
+        "cs_volumeRatio5v20": 1.0000295696142698,
+        "cs_priceVolumeAcceleration": 1.0000295696142727
+      },
+      "intercept": 1.2594064648948975e-17,
+      "coefficients": {
+        "cs_momentum5": 0.0013283256718526046,
+        "cs_momentum20": 0.0012289543174811431,
+        "cs_momentum60": -0.002343879742873029,
+        "cs_reversal1": 0.00011457167196792259,
+        "cs_volatility20": 1.3404235182469428e-05,
+        "cs_drawdown60": -0.004920876666714992,
+        "cs_amountRatio5v20": -0.0039749607248670245,
+        "cs_volumeRatio5v20": 0.0041414916472149125,
+        "cs_priceVolumeAcceleration": 0.00039748414995955614
+      }
+    }
+  },
+  "backtest": {
+    "status": "insufficient",
+    "horizons": {
+      "5": {
+        "status": "insufficient",
+        "horizonSessions": 5,
+        "walkForward": "dynamic expanding annual folds; a fold begins only after 500 matured training rows; training labels must mature before each test year; 5/20-session boundary purge",
+        "skippedFolds": [
+          {
+            "start": "2022-01-01",
+            "end": "2022-12-31",
+            "reason": "only 0 training rows for 5-session model",
+            "minimumMaturedTrainingRows": 500
+          }
+        ],
+        "evaluationDates": 722,
+        "observations": 13718,
+        "rankIc": -0.0015842931428293714,
+        "directionalHitRate": 0.5029887738737425,
+        "topBottomSpreadPct": 0.12149755484499628,
+        "folds": [
+          {
+            "start": "2023-01-01",
+            "end": "2023-12-31",
+            "dates": 242,
+            "observations": 4598,
+            "rankIc": 0.05817746846454979,
+            "directionalHitRate": 0.5258808177468465,
+            "topBottomSpreadPct": 0.4770868236171561,
+            "trainingRows": 3382,
+            "trainingTargetDateMax": "2022-12-30",
+            "purgeSessions": 5
+          },
+          {
+            "start": "2024-01-01",
+            "end": "2024-12-31",
+            "dates": 242,
+            "observations": 4598,
+            "rankIc": -0.03708133971291865,
+            "directionalHitRate": 0.48869073510221833,
+            "topBottomSpreadPct": 0.0266984219283118,
+            "trainingRows": 7980,
+            "trainingTargetDateMax": "2023-12-29",
+            "purgeSessions": 5
+          },
+          {
+            "start": "2025-01-01",
+            "end": "2025-12-31",
+            "dates": 238,
+            "observations": 4522,
+            "rankIc": -0.026256818516880432,
+            "directionalHitRate": 0.494250331711632,
+            "topBottomSpreadPct": -0.14367560850384842,
+            "trainingRows": 12578,
+            "trainingTargetDateMax": "2024-12-31",
+            "purgeSessions": 5
+          }
+        ],
+        "coverageGate": "19/32@2025-12-31"
+      },
+      "20": {
+        "status": "insufficient",
+        "horizonSessions": 20,
+        "walkForward": "dynamic expanding annual folds; a fold begins only after 500 matured training rows; training labels must mature before each test year; 5/20-session boundary purge",
+        "skippedFolds": [
+          {
+            "start": "2022-01-01",
+            "end": "2022-12-31",
+            "reason": "only 0 training rows for 20-session model",
+            "minimumMaturedTrainingRows": 500
+          }
+        ],
+        "evaluationDates": 707,
+        "observations": 13433,
+        "rankIc": 0.03463361373731357,
+        "directionalHitRate": 0.5173081217896226,
+        "topBottomSpreadPct": 0.6005711275807059,
+        "folds": [
+          {
+            "start": "2023-01-01",
+            "end": "2023-12-31",
+            "dates": 242,
+            "observations": 4598,
+            "rankIc": 0.12558358706684064,
+            "directionalHitRate": 0.5574162679425837,
+            "topBottomSpreadPct": 1.4064952800535608,
+            "trainingRows": 3097,
+            "trainingTargetDateMax": "2022-12-30",
+            "purgeSessions": 20
+          },
+          {
+            "start": "2024-01-01",
+            "end": "2024-12-31",
+            "dates": 242,
+            "observations": 4598,
+            "rankIc": -0.07151660142090763,
+            "directionalHitRate": 0.4817311874728143,
+            "topBottomSpreadPct": -0.47223585482583363,
+            "trainingRows": 7695,
+            "trainingTargetDateMax": "2023-12-29",
+            "purgeSessions": 20
+          },
+          {
+            "start": "2025-01-01",
+            "end": "2025-12-31",
+            "dates": 223,
+            "observations": 4237,
+            "rankIc": 0.051128943434820225,
+            "directionalHitRate": 0.5123908425772953,
+            "topBottomSpreadPct": 0.8901928533383365,
+            "trainingRows": 12293,
+            "trainingTargetDateMax": "2024-12-31",
+            "purgeSessions": 20
+          }
+        ],
+        "coverageGate": "19/32@2025-12-31"
+      }
+    }
+  },
+  "visualizationData": {
+    "schemaVersion": 1,
+    "note": "结构化轻量图表数据；折线最多4条×60点，柱状最多8项。指数API无完整OHLC，不生成K线图。",
+    "normalizedPerformance60d": {
+      "type": "line",
+      "unit": "%（各序列相对自身起点）",
+      "series": [
+        {
+          "name": "航空航天",
+          "code": "932143",
+          "points": [
+            {
+              "date": "2025-10-09",
+              "normalizedReturnPct": 0.0
+            },
+            {
+              "date": "2025-10-10",
+              "normalizedReturnPct": -0.638
+            },
+            {
+              "date": "2025-10-13",
+              "normalizedReturnPct": 0.643
+            },
+            {
+              "date": "2025-10-14",
+              "normalizedReturnPct": -0.969
+            },
+            {
+              "date": "2025-10-15",
+              "normalizedReturnPct": -0.968
+            },
+            {
+              "date": "2025-10-16",
+              "normalizedReturnPct": -2.098
+            },
+            {
+              "date": "2025-10-17",
+              "normalizedReturnPct": -5.558
+            },
+            {
+              "date": "2025-10-20",
+              "normalizedReturnPct": -5.159
+            },
+            {
+              "date": "2025-10-21",
+              "normalizedReturnPct": -4.685
+            },
+            {
+              "date": "2025-10-22",
+              "normalizedReturnPct": -5.798
+            },
+            {
+              "date": "2025-10-23",
+              "normalizedReturnPct": -6.396
+            },
+            {
+              "date": "2025-10-24",
+              "normalizedReturnPct": -3.887
+            },
+            {
+              "date": "2025-10-27",
+              "normalizedReturnPct": -2.886
+            },
+            {
+              "date": "2025-10-28",
+              "normalizedReturnPct": -2.0
+            },
+            {
+              "date": "2025-10-29",
+              "normalizedReturnPct": -1.863
+            },
+            {
+              "date": "2025-10-30",
+              "normalizedReturnPct": -3.67
+            },
+            {
+              "date": "2025-10-31",
+              "normalizedReturnPct": -4.41
+            },
+            {
+              "date": "2025-11-03",
+              "normalizedReturnPct": -3.541
+            },
+            {
+              "date": "2025-11-04",
+              "normalizedReturnPct": -4.95
+            },
+            {
+              "date": "2025-11-05",
+              "normalizedReturnPct": -5.166
+            },
+            {
+              "date": "2025-11-06",
+              "normalizedReturnPct": -3.986
+            },
+            {
+              "date": "2025-11-07",
+              "normalizedReturnPct": -4.534
+            },
+            {
+              "date": "2025-11-10",
+              "normalizedReturnPct": -4.493
+            },
+            {
+              "date": "2025-11-11",
+              "normalizedReturnPct": -5.706
+            },
+            {
+              "date": "2025-11-12",
+              "normalizedReturnPct": -6.322
+            },
+            {
+              "date": "2025-11-13",
+              "normalizedReturnPct": -5.846
+            },
+            {
+              "date": "2025-11-14",
+              "normalizedReturnPct": -5.948
+            },
+            {
+              "date": "2025-11-17",
+              "normalizedReturnPct": -4.382
+            },
+            {
+              "date": "2025-11-18",
+              "normalizedReturnPct": -5.715
+            },
+            {
+              "date": "2025-11-19",
+              "normalizedReturnPct": -5.027
+            },
+            {
+              "date": "2025-11-20",
+              "normalizedReturnPct": -5.97
+            },
+            {
+              "date": "2025-11-21",
+              "normalizedReturnPct": -7.729
+            },
+            {
+              "date": "2025-11-24",
+              "normalizedReturnPct": -3.57
+            },
+            {
+              "date": "2025-11-25",
+              "normalizedReturnPct": -3.947
+            },
+            {
+              "date": "2025-11-26",
+              "normalizedReturnPct": -6.306
+            },
+            {
+              "date": "2025-11-27",
+              "normalizedReturnPct": -6.618
+            },
+            {
+              "date": "2025-11-28",
+              "normalizedReturnPct": -5.188
+            },
+            {
+              "date": "2025-12-01",
+              "normalizedReturnPct": -3.583
+            },
+            {
+              "date": "2025-12-02",
+              "normalizedReturnPct": -3.625
+            },
+            {
+              "date": "2025-12-03",
+              "normalizedReturnPct": -4.807
+            },
+            {
+              "date": "2025-12-04",
+              "normalizedReturnPct": -4.107
+            },
+            {
+              "date": "2025-12-05",
+              "normalizedReturnPct": -1.806
+            },
+            {
+              "date": "2025-12-08",
+              "normalizedReturnPct": -0.625
+            },
+            {
+              "date": "2025-12-09",
+              "normalizedReturnPct": -1.086
+            },
+            {
+              "date": "2025-12-10",
+              "normalizedReturnPct": -0.63
+            },
+            {
+              "date": "2025-12-11",
+              "normalizedReturnPct": -0.652
+            },
+            {
+              "date": "2025-12-12",
+              "normalizedReturnPct": 0.346
+            },
+            {
+              "date": "2025-12-15",
+              "normalizedReturnPct": 1.825
+            },
+            {
+              "date": "2025-12-16",
+              "normalizedReturnPct": 0.759
+            },
+            {
+              "date": "2025-12-17",
+              "normalizedReturnPct": 0.185
+            },
+            {
+              "date": "2025-12-18",
+              "normalizedReturnPct": 1.694
+            },
+            {
+              "date": "2025-12-19",
+              "normalizedReturnPct": 3.561
+            },
+            {
+              "date": "2025-12-22",
+              "normalizedReturnPct": 3.712
+            },
+            {
+              "date": "2025-12-23",
+              "normalizedReturnPct": 1.633
+            },
+            {
+              "date": "2025-12-24",
+              "normalizedReturnPct": 4.747
+            },
+            {
+              "date": "2025-12-25",
+              "normalizedReturnPct": 8.685
+            },
+            {
+              "date": "2025-12-26",
+              "normalizedReturnPct": 9.857
+            },
+            {
+              "date": "2025-12-29",
+              "normalizedReturnPct": 11.32
+            },
+            {
+              "date": "2025-12-30",
+              "normalizedReturnPct": 10.507
+            },
+            {
+              "date": "2025-12-31",
+              "normalizedReturnPct": 13.475
+            }
+          ]
+        },
+        {
+          "name": "保险指数",
+          "code": "H30186",
+          "points": [
+            {
+              "date": "2025-10-09",
+              "normalizedReturnPct": 0.0
+            },
+            {
+              "date": "2025-10-10",
+              "normalizedReturnPct": 0.82
+            },
+            {
+              "date": "2025-10-13",
+              "normalizedReturnPct": 0.03
+            },
+            {
+              "date": "2025-10-14",
+              "normalizedReturnPct": 2.81
+            },
+            {
+              "date": "2025-10-15",
+              "normalizedReturnPct": 5.236
+            },
+            {
+              "date": "2025-10-16",
+              "normalizedReturnPct": 6.428
+            },
+            {
+              "date": "2025-10-17",
+              "normalizedReturnPct": 4.546
+            },
+            {
+              "date": "2025-10-20",
+              "normalizedReturnPct": 5.833
+            },
+            {
+              "date": "2025-10-21",
+              "normalizedReturnPct": 6.593
+            },
+            {
+              "date": "2025-10-22",
+              "normalizedReturnPct": 6.737
+            },
+            {
+              "date": "2025-10-23",
+              "normalizedReturnPct": 7.632
+            },
+            {
+              "date": "2025-10-24",
+              "normalizedReturnPct": 6.461
+            },
+            {
+              "date": "2025-10-27",
+              "normalizedReturnPct": 6.55
+            },
+            {
+              "date": "2025-10-28",
+              "normalizedReturnPct": 6.516
+            },
+            {
+              "date": "2025-10-29",
+              "normalizedReturnPct": 8.275
+            },
+            {
+              "date": "2025-10-30",
+              "normalizedReturnPct": 7.827
+            },
+            {
+              "date": "2025-10-31",
+              "normalizedReturnPct": 5.415
+            },
+            {
+              "date": "2025-11-03",
+              "normalizedReturnPct": 5.586
+            },
+            {
+              "date": "2025-11-04",
+              "normalizedReturnPct": 6.587
+            },
+            {
+              "date": "2025-11-05",
+              "normalizedReturnPct": 5.505
+            },
+            {
+              "date": "2025-11-06",
+              "normalizedReturnPct": 6.802
+            },
+            {
+              "date": "2025-11-07",
+              "normalizedReturnPct": 6.704
+            },
+            {
+              "date": "2025-11-10",
+              "normalizedReturnPct": 7.73
+            },
+            {
+              "date": "2025-11-11",
+              "normalizedReturnPct": 7.074
+            },
+            {
+              "date": "2025-11-12",
+              "normalizedReturnPct": 9.015
+            },
+            {
+              "date": "2025-11-13",
+              "normalizedReturnPct": 10.362
+            },
+            {
+              "date": "2025-11-14",
+              "normalizedReturnPct": 9.495
+            },
+            {
+              "date": "2025-11-17",
+              "normalizedReturnPct": 7.86
+            },
+            {
+              "date": "2025-11-18",
+              "normalizedReturnPct": 7.175
+            },
+            {
+              "date": "2025-11-19",
+              "normalizedReturnPct": 8.979
+            },
+            {
+              "date": "2025-11-20",
+              "normalizedReturnPct": 8.645
+            },
+            {
+              "date": "2025-11-21",
+              "normalizedReturnPct": 6.137
+            },
+            {
+              "date": "2025-11-24",
+              "normalizedReturnPct": 5.142
+            },
+            {
+              "date": "2025-11-25",
+              "normalizedReturnPct": 7.148
+            },
+            {
+              "date": "2025-11-26",
+              "normalizedReturnPct": 7.276
+            },
+            {
+              "date": "2025-11-27",
+              "normalizedReturnPct": 7.007
+            },
+            {
+              "date": "2025-11-28",
+              "normalizedReturnPct": 6.361
+            },
+            {
+              "date": "2025-12-01",
+              "normalizedReturnPct": 5.958
+            },
+            {
+              "date": "2025-12-02",
+              "normalizedReturnPct": 6.385
+            },
+            {
+              "date": "2025-12-03",
+              "normalizedReturnPct": 5.299
+            },
+            {
+              "date": "2025-12-04",
+              "normalizedReturnPct": 5.691
+            },
+            {
+              "date": "2025-12-05",
+              "normalizedReturnPct": 11.818
+            },
+            {
+              "date": "2025-12-08",
+              "normalizedReturnPct": 13.963
+            },
+            {
+              "date": "2025-12-09",
+              "normalizedReturnPct": 12.136
+            },
+            {
+              "date": "2025-12-10",
+              "normalizedReturnPct": 12.565
+            },
+            {
+              "date": "2025-12-11",
+              "normalizedReturnPct": 12.274
+            },
+            {
+              "date": "2025-12-12",
+              "normalizedReturnPct": 14.424
+            },
+            {
+              "date": "2025-12-15",
+              "normalizedReturnPct": 19.347
+            },
+            {
+              "date": "2025-12-16",
+              "normalizedReturnPct": 18.736
+            },
+            {
+              "date": "2025-12-17",
+              "normalizedReturnPct": 21.325
+            },
+            {
+              "date": "2025-12-18",
+              "normalizedReturnPct": 22.185
+            },
+            {
+              "date": "2025-12-19",
+              "normalizedReturnPct": 22.467
+            },
+            {
+              "date": "2025-12-22",
+              "normalizedReturnPct": 22.368
+            },
+            {
+              "date": "2025-12-23",
+              "normalizedReturnPct": 23.868
+            },
+            {
+              "date": "2025-12-24",
+              "normalizedReturnPct": 22.948
+            },
+            {
+              "date": "2025-12-25",
+              "normalizedReturnPct": 25.894
+            },
+            {
+              "date": "2025-12-26",
+              "normalizedReturnPct": 26.097
+            },
+            {
+              "date": "2025-12-29",
+              "normalizedReturnPct": 24.305
+            },
+            {
+              "date": "2025-12-30",
+              "normalizedReturnPct": 22.55
+            },
+            {
+              "date": "2025-12-31",
+              "normalizedReturnPct": 21.967
+            }
+          ]
+        },
+        {
+          "name": "制药生物",
+          "code": "H30179",
+          "points": [
+            {
+              "date": "2025-10-09",
+              "normalizedReturnPct": 0.0
+            },
+            {
+              "date": "2025-10-10",
+              "normalizedReturnPct": -1.86
+            },
+            {
+              "date": "2025-10-13",
+              "normalizedReturnPct": -3.51
+            },
+            {
+              "date": "2025-10-14",
+              "normalizedReturnPct": -5.498
+            },
+            {
+              "date": "2025-10-15",
+              "normalizedReturnPct": -3.124
+            },
+            {
+              "date": "2025-10-16",
+              "normalizedReturnPct": -2.7
+            },
+            {
+              "date": "2025-10-17",
+              "normalizedReturnPct": -4.449
+            },
+            {
+              "date": "2025-10-20",
+              "normalizedReturnPct": -4.082
+            },
+            {
+              "date": "2025-10-21",
+              "normalizedReturnPct": -3.089
+            },
+            {
+              "date": "2025-10-22",
+              "normalizedReturnPct": -3.51
+            },
+            {
+              "date": "2025-10-23",
+              "normalizedReturnPct": -4.234
+            },
+            {
+              "date": "2025-10-24",
+              "normalizedReturnPct": -3.973
+            },
+            {
+              "date": "2025-10-27",
+              "normalizedReturnPct": -2.91
+            },
+            {
+              "date": "2025-10-28",
+              "normalizedReturnPct": -4.022
+            },
+            {
+              "date": "2025-10-29",
+              "normalizedReturnPct": -3.224
+            },
+            {
+              "date": "2025-10-30",
+              "normalizedReturnPct": -5.303
+            },
+            {
+              "date": "2025-10-31",
+              "normalizedReturnPct": -2.642
+            },
+            {
+              "date": "2025-11-03",
+              "normalizedReturnPct": -2.843
+            },
+            {
+              "date": "2025-11-04",
+              "normalizedReturnPct": -4.676
+            },
+            {
+              "date": "2025-11-05",
+              "normalizedReturnPct": -4.998
+            },
+            {
+              "date": "2025-11-06",
+              "normalizedReturnPct": -4.743
+            },
+            {
+              "date": "2025-11-07",
+              "normalizedReturnPct": -5.088
+            },
+            {
+              "date": "2025-11-10",
+              "normalizedReturnPct": -4.083
+            },
+            {
+              "date": "2025-11-11",
+              "normalizedReturnPct": -4.215
+            },
+            {
+              "date": "2025-11-12",
+              "normalizedReturnPct": -3.662
+            },
+            {
+              "date": "2025-11-13",
+              "normalizedReturnPct": -1.886
+            },
+            {
+              "date": "2025-11-14",
+              "normalizedReturnPct": -1.961
+            },
+            {
+              "date": "2025-11-17",
+              "normalizedReturnPct": -3.793
+            },
+            {
+              "date": "2025-11-18",
+              "normalizedReturnPct": -4.679
+            },
+            {
+              "date": "2025-11-19",
+              "normalizedReturnPct": -5.833
+            },
+            {
+              "date": "2025-11-20",
+              "normalizedReturnPct": -6.122
+            },
+            {
+              "date": "2025-11-21",
+              "normalizedReturnPct": -8.56
+            },
+            {
+              "date": "2025-11-24",
+              "normalizedReturnPct": -7.352
+            },
+            {
+              "date": "2025-11-25",
+              "normalizedReturnPct": -6.46
+            },
+            {
+              "date": "2025-11-26",
+              "normalizedReturnPct": -5.613
+            },
+            {
+              "date": "2025-11-27",
+              "normalizedReturnPct": -6.139
+            },
+            {
+              "date": "2025-11-28",
+              "normalizedReturnPct": -6.307
+            },
+            {
+              "date": "2025-12-01",
+              "normalizedReturnPct": -6.001
+            },
+            {
+              "date": "2025-12-02",
+              "normalizedReturnPct": -7.341
+            },
+            {
+              "date": "2025-12-03",
+              "normalizedReturnPct": -7.619
+            },
+            {
+              "date": "2025-12-04",
+              "normalizedReturnPct": -7.453
+            },
+            {
+              "date": "2025-12-05",
+              "normalizedReturnPct": -7.142
+            },
+            {
+              "date": "2025-12-08",
+              "normalizedReturnPct": -6.945
+            },
+            {
+              "date": "2025-12-09",
+              "normalizedReturnPct": -7.477
+            },
+            {
+              "date": "2025-12-10",
+              "normalizedReturnPct": -7.28
+            },
+            {
+              "date": "2025-12-11",
+              "normalizedReturnPct": -7.683
+            },
+            {
+              "date": "2025-12-12",
+              "normalizedReturnPct": -7.509
+            },
+            {
+              "date": "2025-12-15",
+              "normalizedReturnPct": -9.017
+            },
+            {
+              "date": "2025-12-16",
+              "normalizedReturnPct": -10.751
+            },
+            {
+              "date": "2025-12-17",
+              "normalizedReturnPct": -9.682
+            },
+            {
+              "date": "2025-12-18",
+              "normalizedReturnPct": -9.838
+            },
+            {
+              "date": "2025-12-19",
+              "normalizedReturnPct": -8.505
+            },
+            {
+              "date": "2025-12-22",
+              "normalizedReturnPct": -8.69
+            },
+            {
+              "date": "2025-12-23",
+              "normalizedReturnPct": -8.9
+            },
+            {
+              "date": "2025-12-24",
+              "normalizedReturnPct": -8.72
+            },
+            {
+              "date": "2025-12-25",
+              "normalizedReturnPct": -8.362
+            },
+            {
+              "date": "2025-12-26",
+              "normalizedReturnPct": -8.48
+            },
+            {
+              "date": "2025-12-29",
+              "normalizedReturnPct": -9.505
+            },
+            {
+              "date": "2025-12-30",
+              "normalizedReturnPct": -9.935
+            },
+            {
+              "date": "2025-12-31",
+              "normalizedReturnPct": -10.332
+            }
+          ]
+        },
+        {
+          "name": "全指食品",
+          "code": "H30177",
+          "points": [
+            {
+              "date": "2025-10-09",
+              "normalizedReturnPct": 0.0
+            },
+            {
+              "date": "2025-10-10",
+              "normalizedReturnPct": 0.375
+            },
+            {
+              "date": "2025-10-13",
+              "normalizedReturnPct": -0.776
+            },
+            {
+              "date": "2025-10-14",
+              "normalizedReturnPct": 0.65
+            },
+            {
+              "date": "2025-10-15",
+              "normalizedReturnPct": 1.425
+            },
+            {
+              "date": "2025-10-16",
+              "normalizedReturnPct": 2.145
+            },
+            {
+              "date": "2025-10-17",
+              "normalizedReturnPct": 0.77
+            },
+            {
+              "date": "2025-10-20",
+              "normalizedReturnPct": 0.404
+            },
+            {
+              "date": "2025-10-21",
+              "normalizedReturnPct": 0.593
+            },
+            {
+              "date": "2025-10-22",
+              "normalizedReturnPct": 0.246
+            },
+            {
+              "date": "2025-10-23",
+              "normalizedReturnPct": 0.518
+            },
+            {
+              "date": "2025-10-24",
+              "normalizedReturnPct": -0.747
+            },
+            {
+              "date": "2025-10-27",
+              "normalizedReturnPct": -0.796
+            },
+            {
+              "date": "2025-10-28",
+              "normalizedReturnPct": -1.074
+            },
+            {
+              "date": "2025-10-29",
+              "normalizedReturnPct": -1.232
+            },
+            {
+              "date": "2025-10-30",
+              "normalizedReturnPct": -1.412
+            },
+            {
+              "date": "2025-10-31",
+              "normalizedReturnPct": -0.353
+            },
+            {
+              "date": "2025-11-03",
+              "normalizedReturnPct": -0.108
+            },
+            {
+              "date": "2025-11-04",
+              "normalizedReturnPct": -1.363
+            },
+            {
+              "date": "2025-11-05",
+              "normalizedReturnPct": -1.493
+            },
+            {
+              "date": "2025-11-06",
+              "normalizedReturnPct": -1.429
+            },
+            {
+              "date": "2025-11-07",
+              "normalizedReturnPct": -1.395
+            },
+            {
+              "date": "2025-11-10",
+              "normalizedReturnPct": 2.26
+            },
+            {
+              "date": "2025-11-11",
+              "normalizedReturnPct": 2.615
+            },
+            {
+              "date": "2025-11-12",
+              "normalizedReturnPct": 2.908
+            },
+            {
+              "date": "2025-11-13",
+              "normalizedReturnPct": 3.62
+            },
+            {
+              "date": "2025-11-14",
+              "normalizedReturnPct": 2.337
+            },
+            {
+              "date": "2025-11-17",
+              "normalizedReturnPct": 2.198
+            },
+            {
+              "date": "2025-11-18",
+              "normalizedReturnPct": 1.951
+            },
+            {
+              "date": "2025-11-19",
+              "normalizedReturnPct": 1.504
+            },
+            {
+              "date": "2025-11-20",
+              "normalizedReturnPct": 0.849
+            },
+            {
+              "date": "2025-11-21",
+              "normalizedReturnPct": -0.458
+            },
+            {
+              "date": "2025-11-24",
+              "normalizedReturnPct": -0.857
+            },
+            {
+              "date": "2025-11-25",
+              "normalizedReturnPct": -0.543
+            },
+            {
+              "date": "2025-11-26",
+              "normalizedReturnPct": -0.472
+            },
+            {
+              "date": "2025-11-27",
+              "normalizedReturnPct": -0.566
+            },
+            {
+              "date": "2025-11-28",
+              "normalizedReturnPct": -0.108
+            },
+            {
+              "date": "2025-12-01",
+              "normalizedReturnPct": 0.215
+            },
+            {
+              "date": "2025-12-02",
+              "normalizedReturnPct": -0.43
+            },
+            {
+              "date": "2025-12-03",
+              "normalizedReturnPct": -1.271
+            },
+            {
+              "date": "2025-12-04",
+              "normalizedReturnPct": -2.72
+            },
+            {
+              "date": "2025-12-05",
+              "normalizedReturnPct": -2.39
+            },
+            {
+              "date": "2025-12-08",
+              "normalizedReturnPct": -3.097
+            },
+            {
+              "date": "2025-12-09",
+              "normalizedReturnPct": -3.907
+            },
+            {
+              "date": "2025-12-10",
+              "normalizedReturnPct": -3.64
+            },
+            {
+              "date": "2025-12-11",
+              "normalizedReturnPct": -4.41
+            },
+            {
+              "date": "2025-12-12",
+              "normalizedReturnPct": -4.162
+            },
+            {
+              "date": "2025-12-15",
+              "normalizedReturnPct": -3.328
+            },
+            {
+              "date": "2025-12-16",
+              "normalizedReturnPct": -3.455
+            },
+            {
+              "date": "2025-12-17",
+              "normalizedReturnPct": -3.11
+            },
+            {
+              "date": "2025-12-18",
+              "normalizedReturnPct": -3.453
+            },
+            {
+              "date": "2025-12-19",
+              "normalizedReturnPct": -2.353
+            },
+            {
+              "date": "2025-12-22",
+              "normalizedReturnPct": -2.388
+            },
+            {
+              "date": "2025-12-23",
+              "normalizedReturnPct": -2.983
+            },
+            {
+              "date": "2025-12-24",
+              "normalizedReturnPct": -3.255
+            },
+            {
+              "date": "2025-12-25",
+              "normalizedReturnPct": -2.485
+            },
+            {
+              "date": "2025-12-26",
+              "normalizedReturnPct": -3.061
+            },
+            {
+              "date": "2025-12-29",
+              "normalizedReturnPct": -4.074
+            },
+            {
+              "date": "2025-12-30",
+              "normalizedReturnPct": -4.534
+            },
+            {
+              "date": "2025-12-31",
+              "normalizedReturnPct": -4.938
+            }
+          ]
+        }
+      ]
+    },
+    "turnoverAmountRatio": {
+      "type": "bar",
+      "unit": "倍",
+      "items": [
+        {
+          "sector": "航空航天",
+          "code": "932143",
+          "value": 1.646
+        },
+        {
+          "sector": "汽车汽配",
+          "code": "H30164",
+          "value": 1.506
+        },
+        {
+          "sector": "机械制造",
+          "code": "H30166",
+          "value": 1.4
+        },
+        {
+          "sector": "全指化工",
+          "code": "H30187",
+          "value": 1.35
+        },
+        {
+          "sector": "运输指数",
+          "code": "H30171",
+          "value": 1.308
+        },
+        {
+          "sector": "耐用消费品",
+          "code": "H30196",
+          "value": 1.308
+        },
+        {
+          "sector": "计算机",
+          "code": "H30182",
+          "value": 1.213
+        },
+        {
+          "sector": "零售指数",
+          "code": "H30175",
+          "value": 1.11
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "V1.7正文称35个二级行业，附录逐项仅列32个；本模型只用附录32个代码。",
+    "行业指数成交量和成交额是指数层观察，不等于机构真实持仓或已确认资金流。",
+    "模型只覆盖量价与横截面相对强弱；新闻、机构观点和国家队线索不泄漏进基础模型。",
+    "交易成本、指数样本调整、不可交易性和极端事件会削弱样本外表现。",
+    "仅有量价一种证据类别时，页面预测置信度上限为low。"
+  ]
+}

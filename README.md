@@ -4,12 +4,14 @@
 
 ## 数据方式
 
-本站不追求实时行情。页面内容来自 `content/daily-brief.json`，每日 AI 自动化完成全网检索、来源核验、摘要和引用整理后更新这一个文件，再重新构建网站。
+本站不追求实时行情。页面简报来自 `content/daily-brief.json`，行业轮动指数来自 `content/sector-rotation.json`；每日 AI 自动化完成检索、核验和结构化输入更新后，只应用已冻结的经验模型做推理，再重新构建网站。
 
 - 每条简报和热点都带原文引用，可点击跳转。
 - 首页条目可进入精读页；每篇正文控制在 1000 字内，并按段标注引用，必要时附条形、发散条形、折线或分组条形等结构化数据图表。
 - 三地市场分别使用各自最新完整交易日。
 - A 股和港股每日固定分析板块轮动与可观察资金流向：采用一致行业口径，以 5 日对前 20 日的成交额、真实成交量和成交额份额三门槛识别明显放量，并分别提供 1–5 日、2–4 周的条件式情景、证据、反证、置信度、触发与失效条件。
+- 行业轮动以 A 股、港股为主体；美股只保留纳斯达克、道琼斯、标普 500 三大指数。当前分只描述观测，5/20 交易日分数只是横截面排序分，不是上涨概率或收益承诺。
+- 经验模型只能由独立的强模型流程训练、样本外验证并版本化。每日早报和 20:00 收盘任务固定使用 GPT-5.6 Luna，只运行冻结模型推理；周五 GPT-5.6 Terra 内容周报只复盘表现和漂移，不能改模型；周六 08:00 的 GPT-5.6 Sol 极高推理审计才可训练候选，且仅在预登记、严格样本外和跨年度/市场状态门禁全部通过后替换冻结基线。
 - 轮动模块严格区分已核验事实、数据商估算和预测；缺少可靠数据时显示 `insufficient`，不编造北向行业流或将大单算法直接描述成机构资金。
 - 同花顺原始成交额与成交量标为 `vendor-market-data`；“主力资金”等算法字段标为 `vendor-estimate`，不能混为真实机构持仓。
 - 需要实际获取 A 股行情、K 线、成交额/成交量、行业/题材和公告时，自动化可调用本机已安装的 `$a-stock-data`。行情优先 mootdx/腾讯，东财接口严格串行限流；社区技能说明仅是取数工具文档，不作为网站事实引用。
@@ -21,7 +23,8 @@
 - 同花顺、东方财富可用于资讯发现、带直接链接的原始行情数据或交叉验证，重大结论仍回查官方公告或第二来源。
 - 自动化编辑规则见 `content/AUTOMATION_PROMPT.md`。
 - 交易日 20:00 由 `gpt-5.6-luna` 更新 A 股、港股收盘与当日机构/公司动态；规则见 `content/CLOSE_AUTOMATION_PROMPT.md`。
-- 每周五 21:30 由 `gpt-5.6-terra` 读取周五收盘晚报及本周日报归档并检索全网，发布独立周报；规则见 `content/WEEKLY_AUTOMATION_PROMPT.md`。
+- 每周五 20:30 由 `gpt-5.6-terra` 读取周五收盘晚报及本周日报归档并检索全网，发布独立周报；规则见 `content/WEEKLY_AUTOMATION_PROMPT.md`。
+- 每周六 08:00 由 `gpt-5.6-sol`、`xhigh` 推理审计到期的 5/20 交易日预测，必要时在独立候选目录调整来源、特征、权重或模型分类并训练；单周误差不会直接触发换模，规则见 `content/MODEL_REBUILD_AUTOMATION_PROMPT.md`。
 - 周报发布后首次打开网站会显示更新摘要；日报只有当日确有重要度 90 分以上的重大新闻时才弹出一篇精选文章，否则不提醒。
 
 ## 本机轻量备份
@@ -32,7 +35,9 @@
 pnpm archive:brief
 ```
 
-压缩快照保存在 `data/archive/YYYY/MM/`，索引为 `data/archive/index.json`。归档只保存结构化简报、精读正文和来源 URL，不保存来源网页全文、图片、视频或网页副本；按正文 SHA-256 去重，最多保留 400 份，总容量上限 50 MB，超限后自动从最旧记录开始清理。归档数据只保存在本机，默认不提交到 Git。
+压缩快照保存在 `data/archive/YYYY/MM/`，索引为 `data/archive/index.json`。归档保存结构化简报，并在文件存在时同包保存 `content/sector-rotation.json`；内容哈希覆盖简报与轮动结果，来源 URL 合并去重，同时兼容旧的 brief-only 快照。它不保存来源网页全文、图片、视频或网页副本；最多保留 400 份，总容量上限 50 MB，超限后自动从最旧记录开始清理。归档数据只保存在本机，默认不提交到 Git。
+
+轮动事件记忆位于 `data/rotation-model/events/events.jsonl.gz`，按行流式压缩，只保存直达 URL、100–200 字事实摘要、行业/事件标签、已知时间、到期后验与哈希。非空后验还必须携带逐项交易日、版本化官方交易日历 URL 与 SHA-256；A 股会按本地日历 artifact 重算，港股在对应 artifact 缺失时保持空值。压缩文件 32 MB 硬上限、28 MB 开始清理；不保存新闻全文、PDF、上游图片或视频。历史行情和派生特征同样只保存在本机压缩目录并逐文件读取。
 
 ## 本地运行
 
@@ -48,6 +53,8 @@ pnpm dev
 ## 内容与构建校验
 
 ```powershell
+pnpm validate:rotation
+pnpm validate:rotation-events
 pnpm validate:brief
 pnpm assets:prune
 pnpm validate:assets
@@ -63,16 +70,20 @@ pnpm build
 每日定时触发
   → AI 浏览和筛选可信来源
   → 共享证据技能分级来源、扫描 Stanford AI Index、复盘旧预测
+  → 刷新 A/H 结构化输入并应用冻结经验模型（不做每日训练）
+  → 流式匹配/追加精简事件记忆，GPU 可选且失败自动降级 CPU
   → 交叉核验并生成中文摘要、结构化图表与可选编辑插图
-  → 更新 content/daily-brief.json
-  → 内容/生成资产校验 + 本机压缩归档
+  → 更新 content/daily-brief.json 与 content/sector-rotation.json
+  → 轮动/事件/内容/生成资产校验 + 本机压缩归档
   → 类型检查 + 静态构建
   → Git 提交与推送
   → Vercel Git 自动生产发布
   → 固定网址 HTTP 与页面内容验证
 ```
 
-在 Codex 自动化中使用 `content/AUTOMATION_PROMPT.md` 作为任务说明。首次上线前需配置 GitHub 远端并在 Vercel 连接该仓库；本地未配置远端时，自动化只会更新本机文件。
+Codex 自动化分别使用 `content/AUTOMATION_PROMPT.md`、`content/CLOSE_AUTOMATION_PROMPT.md`、`content/WEEKLY_AUTOMATION_PROMPT.md` 与 `content/MODEL_REBUILD_AUTOMATION_PROMPT.md`。首次上线前需配置 GitHub 远端并在 Vercel 连接该仓库；本地未配置远端时，自动化只会更新本机文件。
+
+周六审计训练候选时必须使用隔离输出，例如 `pnpm rotation:train --candidate-output models/sector-rotation/candidates/<version>.json --version <version>`；该参数拒绝覆盖线上冻结基线。只有通过提示词中的全部门禁后，强模型流程才执行版本化原子升级。
 
 ## 重要说明
 

@@ -4,12 +4,13 @@
 
 ## 与早报的关系
 
-1. 每次先完整读取 `.agents/skills/market-evidence-brief/SKILL.md` 和 `content/AUTOMATION_PROMPT.md`，再读取现有 `content/daily-brief.json`、`lib/types.ts` 和 `scripts/validate-brief.mjs`。本文件只补充收盘版要求；共享来源、图表、AI 编辑插图、预测复盘以及早报的数据结构、1000 字硬上限、重大新闻弹窗和发布规则继续服从技能与早报提示词，冲突时采用更严格门槛。
+1. 每次先完整读取 `.agents/skills/market-evidence-brief/SKILL.md` 和 `content/AUTOMATION_PROMPT.md`，再读取现有 `content/daily-brief.json`、`content/sector-rotation.json`、`schemas/sector-rotation.schema.json`、冻结模型 model card、`lib/types.ts`、`scripts/validate-brief.mjs` 与 `scripts/validate-sector-rotation.mjs`。本文件只补充收盘版要求；共享来源、图表、AI 编辑插图、预测复盘、冻结模型、精简事件记忆以及早报的数据结构、1000 字硬上限、重大新闻弹窗和发布规则继续服从技能与早报提示词，冲突时采用更严格门槛。
 2. 收集外部事实、机构观点、同花顺或 Stanford 数据时必须按需读取技能的 `references/source-policy.md` 与 `references/stanford-ai-index.md`；写放量/资金路径、图表/插图、预测/复盘时分别读取 `references/rotation-volume.md`、`references/chart-image-policy.md`、`references/prediction-policy.md`。实际拉取 A 股行情、K 线、成交额/成交量、行业/题材和公告时可调用已安装的 `$a-stock-data`；触发后先完整读取它的 `SKILL.md`，再只执行本次所需端点。它只是取数工具，文章必须引用上游直接页面，不得把社区技能说明、仓库 README 或作者自述当成事实证据。
 3. 收盘版是当天日报的第二次更新，不创建第二套页面或重复文章。保留仍然有效的美联储、美股和热点内容，替换已过时的 A 股、港股盘中或上一交易日数据，并把当日新增信息去重后合并。
 4. `meta.editionDate` 使用 Asia/Shanghai 当天日期，`meta.generatedAt` 使用实际生成时间并带 `+08:00`；`meta.subtitle` 和 `meta.status` 明确写“收盘更新”。页面品牌仍使用“每日早报”。
 5. A 股、港股只允许使用各自最新完整交易日。遇休市时沿用最近完整交易日，并在市场 `status` 中写明休市和沿用日期。美股只使用当时已经完成的最新交易日，不把当晚盘前、期货或盘中行情写成收盘。
 6. 先核对上交所、深交所和港交所交易日历。若 A 股与港股当日均休市且没有达到重大新闻阈值的新事件，则本次任务直接 no-op，不改文件、不归档、不提交、不推送；只有一地开市时只更新该地，另一地明确沿用。
+7. 美股只保留其最新完整交易日的纳斯达克、道琼斯、标普 500 三大指数；不为美股建立行业板块轮动，也不让盘前、期货或盘中数字进入“当前”。
 
 ## 固定研究顺序
 
@@ -47,6 +48,17 @@
 - 预测大资金可能流向某板块，至少需要两类独立且同向的证据；只有价格、成交或单一算法指标时，置信度只能为低。
 - 1–5 日和 2–4 周两个窗口都必须使用“若……则可能……”的条件表达，写清触发、失效和数据缺口。禁止“主力锁定、确定流入、必涨、稳赚、保证收益”。
 
+### 收盘版经验模型推理顺序
+
+- 先核验并写好 `daily-brief.json` 中 A 股/港股本次最新完整 `sessionDate`，再执行一次 `pnpm rotation:refresh`：命令以该日期为截止日，只刷新官方结构化输入、重建当日特征并应用冻结模型，生成 `content/sector-rotation.json`，不得训练。`current` 只写已发生观测；`oneWeek` 与 `oneMonth` 只能应用已冻结的 5/20 交易日模型。`score` 是排序分，不是概率、胜率或收益率。
+- Luna 每日不得调用训练/调参模式，不得改模型权重、特征、分类、版本、model card 或历史回测。冻结模型缺失、版本/哈希不一致、输入不足或推理失败时将对应窗口写 `insufficient`，不得用主编主观看法补分。
+- 精简事件记忆只按早报提示词追加或填写已到期后验：100–200 字事实摘要与 URL/`sourceTier`/`evidenceClass`/行业/分类/`knownAt`/5日和20日结果/hash；非空结果还必须保存逐项 `tradingDates`、版本化官方日历的 `calendarSourceUrl` 与 `calendarSha256`，并通过日历 artifact 重算。港股日历 artifact 缺失时后验保持 `null`。禁止保存原文、PDF、图片或长引文，也不得用当天新增事件重新拟合模型。所有读取逐文件、逐行进行，遵守 32 MB 压缩上限。
+- 图表优先抽取结构化数字，同时保留 `sourceUrl`、单位、口径、时间区间和 `extractionConfidence`；低置信度 OCR 不得入模，不保存原图。确有视觉证据必要时才生成限宽 WebP，并经哈希去重和大小门禁。
+- 轮动排名与同单位量能条形图由页面自动渲染；可选历史图使用 `charts.line`，仅完整 OHLC 可使用 `charts.candlestick`。必须带 `asOf`、`unit`、范围/归一化或算法口径 `note`、`sourceIndexes`，最多 4 系列且每序列最多 60 点。长期资金的 `knownAt → truthAt` 时间轴及命中/误报汇总只进入已有对应契约的周报或精读文章；未定义类型不得擅自写入轮动 JSON。
+- 对中央汇金、证金、全国社保基金、基本养老保险基金组合，前十大股东或官方披露才是硬证据。ETF 申赎、宽基成交份额、权重股强弱和尾盘集中度只可标作 `inference-proxy`，必须写替代解释、反证与失效条件，最多表述为“疑似长期资金线索”，不得断言已经买入。医保基金不得与社保/养老混写，也不得在无制度或公开披露时推断其直接权益投资。
+- 到期复盘长期资金代理时，对照后来官方/股东披露的 `truthAt`，统计命中、误报与提前期；必须保留原始 `knownAt`，不得用后来信息回填成当时已知事实。
+- 基础冻结模型推理继续 CPU 优先。仅新闻向量匹配/批量历史相似度确有基准收益时可使用本机 4070；CUDA 显存上限取 6 GB 与可用显存 60% 中较小者，使用小批次并记录是否使用、用途及峰值显存；GPU 失败自动降级 CPU 或更小批次，不得阻断收盘发布。
+
 ## 结构化图表、AI 编辑插图与预测复盘
 
 - 按共享技能的图表路由，从 `bar`、`diverging-bar`、`line`、`grouped-bar` 中选择与关系匹配的结构化类型；带正负号的收盘涨跌必须使用有零轴的 `diverging-bar`。每张图保留日期、单位、范围、计算方法和直接引用，数据由网页代码渲染。
@@ -83,16 +95,18 @@
 
 完成后依次运行：
 
-1. `pnpm validate:brief`
-2. `pnpm validate:weekly`
-3. `pnpm archive:brief`
-4. `pnpm assets:prune`
-5. `pnpm validate:assets`
-6. `pnpm typecheck`
-7. `pnpm build`
+1. `pnpm validate:rotation`
+2. `pnpm validate:rotation-events`
+3. `pnpm validate:brief`
+4. `pnpm validate:weekly`
+5. `pnpm archive:brief`
+6. `pnpm assets:prune`
+7. `pnpm validate:assets`
+8. `pnpm typecheck`
+9. `pnpm build`
 
-只有全部通过才允许提交。压缩归档只保存结构化摘要和来源 URL，继续遵守 400 份 / 50 MB 上限，不保存网页全文、投行报告、上游图片、PDF、视频或检索缓存。
+只有全部通过才允许提交。压缩归档在 `sector-rotation.json` 存在时将其与结构化简报同包保存，内容哈希覆盖两者并合并来源 URL；继续兼容旧 brief-only 快照并遵守 400 份 / 50 MB 上限，不保存网页全文、投行报告、上游图片、PDF、视频或检索缓存。
 
-Git 工作树存在无关未提交修改时不得覆盖或一并提交。正常情况下只提交 `content/daily-brief.json`、本次变化的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图或模型缓存。提交信息使用 `content: closing brief YYYY-MM-DD`，推送当前分支触发 Vercel。随后验证首页、A 股、港股、热点、通知 JSON 与被引用生成资产均为 HTTP 200，并确认页面显示本次 `generatedAt`。
+Git 工作树存在无关未提交修改时不得覆盖或一并提交。正常情况下只提交 `content/daily-brief.json`、`content/sector-rotation.json`、本次变化的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库不得由每日收盘任务改写或顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图或模型缓存。提交信息使用 `content: closing brief YYYY-MM-DD`，推送当前分支触发 Vercel。随后验证首页、A 股、港股、热点、通知 JSON 与被引用生成资产均为 HTTP 200，并确认页面显示本次 `generatedAt`。
 
 任务结果必须用中文汇报：生成时间、A 股/港股/美股各自截止日、收盘文章数、当日新闻数、机构与公司花絮数、投行观点数、明显放量板块、引用数、日报弹窗是否开启、校验/归档/构建、Git 推送和 Vercel 验证结果，以及所有沿用旧数据或无法核验的项目。

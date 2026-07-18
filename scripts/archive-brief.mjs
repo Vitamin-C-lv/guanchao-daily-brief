@@ -8,6 +8,7 @@ import { promisify } from "node:util";
 const gzip = promisify(gzipCallback);
 const root = process.cwd();
 const sourcePath = path.join(root, "content", "daily-brief.json");
+const rotationPath = path.join(root, "content", "sector-rotation.json");
 const archiveRoot = path.join(root, "data", "archive");
 const indexPath = path.join(archiveRoot, "index.json");
 const MAX_FILES = 400;
@@ -19,6 +20,19 @@ function collectArticles(brief) {
     ...(brief.markets ?? []).flatMap((market) => market.articles ?? []),
     ...(brief.hotspots ?? []),
   ];
+}
+
+function collectUrls(value, urls = []) {
+  if (Array.isArray(value)) {
+    for (const item of value) collectUrls(item, urls);
+    return urls;
+  }
+  if (!value || typeof value !== "object") return urls;
+  if (typeof value.url === "string" && /^https?:\/\//i.test(value.url)) {
+    urls.push(value.url);
+  }
+  for (const child of Object.values(value)) collectUrls(child, urls);
+  return urls;
 }
 
 function safeTime(value) {
@@ -56,9 +70,21 @@ async function fileExists(filePath) {
   }
 }
 
+async function readOptionalJson(filePath) {
+  try {
+    return JSON.parse(await readFile(filePath, "utf8"));
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
 const brief = JSON.parse(await readFile(sourcePath, "utf8"));
+const sectorRotation = await readOptionalJson(rotationPath);
 const articles = collectArticles(brief);
-const sourceUrls = [...new Set(articles.flatMap((article) => article.sources ?? []).map((source) => source.url).filter(Boolean))];
+const briefSourceUrls = collectUrls(brief);
+const rotationSourceUrls = sectorRotation ? collectUrls(sectorRotation) : [];
+const sourceUrls = [...new Set([...briefSourceUrls, ...rotationSourceUrls])];
 const editionDate = brief.meta?.editionDate;
 
 if (!/^\d{4}-\d{2}-\d{2}$/.test(editionDate ?? "")) {
@@ -66,14 +92,24 @@ if (!/^\d{4}-\d{2}-\d{2}$/.test(editionDate ?? "")) {
 }
 
 const archivedAt = new Date().toISOString();
-const contentBytes = Buffer.from(`${JSON.stringify(brief)}\n`, "utf8");
+// Keep the old brief-only byte representation when rotation is absent so
+// schema-v1 hashes and duplicate detection remain backward compatible.
+const hashPayload = sectorRotation ? { brief, sectorRotation } : brief;
+const contentBytes = Buffer.from(`${JSON.stringify(hashPayload)}\n`, "utf8");
 const contentSha256 = createHash("sha256").update(contentBytes).digest("hex");
+const briefSha256 = createHash("sha256").update(Buffer.from(`${JSON.stringify(brief)}\n`, "utf8")).digest("hex");
+const rotationSha256 = sectorRotation
+  ? createHash("sha256").update(Buffer.from(`${JSON.stringify(sectorRotation)}\n`, "utf8")).digest("hex")
+  : null;
 const snapshot = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   archivedAt,
   contentSha256,
+  hashScope: sectorRotation ? "brief+sector-rotation" : "brief-only",
+  briefSha256,
+  ...(rotationSha256 ? { rotationSha256 } : {}),
   storagePolicy: {
-    mode: "structured-brief-only",
+    mode: sectorRotation ? "structured-brief-and-rotation" : "structured-brief-only",
     copiedArticles: false,
     downloadedMedia: false,
   },
@@ -83,6 +119,7 @@ const snapshot = {
     sourceUrls,
   },
   brief,
+  ...(sectorRotation ? { sectorRotation } : {}),
 };
 
 const uncompressed = Buffer.from(`${JSON.stringify(snapshot)}\n`, "utf8");
@@ -108,7 +145,8 @@ const temporaryArchive = `${archivePath}.tmp`;
 await writeFile(temporaryArchive, compressed);
 await rename(temporaryArchive, archivePath);
 
-index.policy = { maxFiles: MAX_FILES, maxBytes: MAX_BYTES, content: "structured-brief-only" };
+index.schemaVersion = 2;
+index.policy = { maxFiles: MAX_FILES, maxBytes: MAX_BYTES, content: "structured-brief-and-optional-rotation" };
 index.snapshots.push({
   file: relativeFile,
   editionDate,
@@ -117,6 +155,9 @@ index.snapshots.push({
   bytes: compressed.byteLength,
   uncompressedBytes: uncompressed.byteLength,
   contentSha256,
+  hashScope: snapshot.hashScope,
+  briefSha256,
+  ...(rotationSha256 ? { rotationSha256 } : {}),
   archiveSha256,
   articleCount: articles.length,
   uniqueSourceCount: sourceUrls.length,

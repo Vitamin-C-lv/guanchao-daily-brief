@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/sector-event-memory-v1.json",
+  "title": "观潮行业轮动压缩事件记忆",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "date",
+    "title",
+    "sourceUrl",
+    "sourceTier",
+    "evidenceClass",
+    "sectorTags",
+    "eventType",
+    "factSummary",
+    "knownAt",
+    "scenario",
+    "forward5dOutcome",
+    "forward20dOutcome",
+    "contentHash"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "date": { "type": "string", "format": "date" },
+    "title": { "type": "string", "minLength": 4, "maxLength": 120 },
+    "sourceUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
+    "corroboratingSourceUrls": {
+      "type": "array",
+      "maxItems": 5,
+      "uniqueItems": true,
+      "items": { "type": "string", "format": "uri", "pattern": "^https://" }
+    },
+    "sourceTier": { "enum": ["official", "authoritative", "major-media"] },
+    "evidenceClass": {
+      "enum": [
+        "official-primary",
+        "company-filing",
+        "primary-research",
+        "exchange-market-data",
+        "vendor-market-data",
+        "vendor-estimate",
+        "major-media",
+        "proxy"
+      ]
+    },
+    "sectorTags": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 12,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 30 }
+    },
+    "eventType": {
+      "enum": [
+        "policy",
+        "macro",
+        "earnings",
+        "guidance",
+        "regulation",
+        "corporate-action",
+        "institution-view",
+        "market-structure",
+        "long-term-capital-disclosure",
+        "other"
+      ]
+    },
+    "factSummary": { "type": "string", "minLength": 60, "maxLength": 220 },
+    "knownAt": { "type": "string", "format": "date-time" },
+    "truthAt": { "type": "string", "format": "date-time" },
+    "truthSourceUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
+    "scenario": { "enum": ["positive", "negative", "mixed", "neutral"] },
+    "capitalActor": {
+      "enum": [
+        "central-huijin",
+        "csf",
+        "national-social-security-fund",
+        "basic-pension-fund"
+      ]
+    },
+    "observationMode": { "enum": ["disclosed-fact", "retrospective-label", "inference-proxy"] },
+    "alternativeExplanations": {
+      "type": "array",
+      "maxItems": 5,
+      "items": { "type": "string", "minLength": 4, "maxLength": 120 }
+    },
+    "invalidation": { "type": "string", "maxLength": 180 },
+    "proxyEvaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "signals", "note"],
+      "properties": {
+        "status": { "enum": ["hit", "false-positive", "partial", "not-evaluable"] },
+        "signals": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "items": { "enum": ["etf-subscription-redemption", "broad-index-turnover-share", "heavyweight-relative-strength", "closing-auction-concentration"] }
+        },
+        "leadTradingDays": { "type": "integer", "minimum": 0, "maximum": 250 },
+        "note": { "type": "string", "minLength": 4, "maxLength": 180 }
+      }
+    },
+    "extraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "confidence"],
+      "properties": {
+        "mode": { "enum": ["html-structured", "manual-verified", "ocr-structured"] },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "sourceUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "unit": { "type": "string", "maxLength": 40 },
+        "scope": { "type": "string", "maxLength": 160 },
+        "period": { "type": "string", "maxLength": 80 }
+      }
+    },
+    "forward5dOutcome": { "$ref": "#/$defs/outcome" },
+    "forward20dOutcome": { "$ref": "#/$defs/outcome" },
+    "contentHash": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "eventType": { "const": "long-term-capital-disclosure" } },
+        "required": ["eventType"]
+      },
+      "then": { "required": ["capitalActor", "observationMode"] },
+      "else": {
+        "not": {
+          "anyOf": [
+            { "required": ["capitalActor"] },
+            { "required": ["observationMode"] },
+            { "required": ["proxyEvaluation"] }
+          ]
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "outcome": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["baseDate", "dueDate", "sessions", "tradingDates", "calendarSourceUrl", "calendarSha256", "market", "targetCode", "benchmarkCode", "returnType", "startClose", "endClose", "benchmarkStartClose", "benchmarkEndClose", "relativeReturnPct", "priceSourceUrls", "inputSha256", "measuredAt", "status"],
+          "properties": {
+            "baseDate": { "type": "string", "format": "date" },
+            "dueDate": { "type": "string", "format": "date" },
+            "sessions": { "enum": [5, 20] },
+            "tradingDates": {
+              "type": "array",
+              "minItems": 5,
+              "maxItems": 20,
+              "uniqueItems": true,
+              "items": { "type": "string", "format": "date" }
+            },
+            "calendarSourceUrl": { "type": "string", "format": "uri", "pattern": "^https://" },
+            "calendarSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "market": { "const": "a-share" },
+            "targetCode": { "type": "string", "minLength": 1, "maxLength": 30 },
+            "benchmarkCode": { "type": "string", "minLength": 1, "maxLength": 30 },
+            "returnType": { "const": "simple-close-relative" },
+            "startClose": { "type": "number", "exclusiveMinimum": 0 },
+            "endClose": { "type": "number", "exclusiveMinimum": 0 },
+            "benchmarkStartClose": { "type": "number", "exclusiveMinimum": 0 },
+            "benchmarkEndClose": { "type": "number", "exclusiveMinimum": 0 },
+            "relativeReturnPct": { "type": "number" },
+            "priceSourceUrls": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 3,
+              "uniqueItems": true,
+              "items": { "type": "string", "format": "uri", "pattern": "^https://" }
+            },
+            "inputSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+            "measuredAt": { "type": "string", "format": "date-time" },
+            "status": { "enum": ["confirmed", "partial", "invalidated", "neutral"] }
+          }
+        }
+      ]
+    }
+  }
+}

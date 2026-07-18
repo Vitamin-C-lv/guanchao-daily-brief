@@ -25,14 +25,16 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { TouchEvent } from "react";
+import type { KeyboardEvent, TouchEvent } from "react";
 import MobileBottomNav from "./MobileBottomNav";
+import SectorRotationIndex from "./SectorRotationIndex";
 import WeeklyTeaser from "./WeeklyTeaser";
 import { sourceEvidenceClassLabel, sourceMetaLabel, sourceTierLabel } from "./SourceLink";
 import type {
   BriefArticle,
   DailyBrief,
   MarketSection,
+  SectorRotationIndex as SectorRotationIndexData,
   SourceLink,
   Tone,
   WeeklyReportIndex,
@@ -277,7 +279,17 @@ function HotspotCard({ item, rank }: { item: DailyBrief["hotspots"][number]; ran
   );
 }
 
-export default function Dashboard({ data, view, weeklyIndex }: { data: DailyBrief; view: DashboardView; weeklyIndex?: WeeklyReportIndex }) {
+export default function Dashboard({
+  data,
+  view,
+  weeklyIndex,
+  sectorRotation,
+}: {
+  data: DailyBrief;
+  view: DashboardView;
+  weeklyIndex?: WeeklyReportIndex;
+  sectorRotation?: SectorRotationIndexData;
+}) {
   const pathname = usePathname();
   const normalizedPathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
   const [query, setQuery] = useState("");
@@ -307,6 +319,18 @@ export default function Dashboard({ data, view, weeklyIndex }: { data: DailyBrie
     marketScrollTargetRef.current = index;
     scroller.scrollTo({ left, behavior: "smooth" });
     setActiveMarketCard(index);
+  };
+
+  const handleMarketTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, currentIndex: number) => {
+    let nextIndex = currentIndex;
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % data.markets.length;
+    else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + data.markets.length) % data.markets.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = data.markets.length - 1;
+    else return;
+    event.preventDefault();
+    scrollToMarket(nextIndex);
+    window.requestAnimationFrame(() => document.getElementById(`market-tab-${data.markets[nextIndex].id}`)?.focus());
   };
 
   const syncActiveMarket = () => {
@@ -522,7 +546,7 @@ export default function Dashboard({ data, view, weeklyIndex }: { data: DailyBrie
             <SectionHeading eyebrow="THREE MARKETS" title="三地股市简报" description="每个市场使用各自最新完整交易日，避免盘中与收盘数据混用。" action={<span className="updated-label"><RefreshCw size={13} /> 数据截至 {formatCompactDate(data.meta.dataThrough)}</span>} />
             <div className="market-mobile-tabs" role="tablist" aria-label="切换市场卡片">
               {data.markets.map((market, index) => (
-                <button key={market.id} id={`market-tab-${market.id}`} type="button" role="tab" aria-controls="market-carousel" aria-selected={activeMarketCard === index} className={activeMarketCard === index ? "active" : ""} onClick={() => scrollToMarket(index)}>{market.shortName}</button>
+                <button key={market.id} id={`market-tab-${market.id}`} type="button" role="tab" aria-controls="market-carousel" aria-selected={activeMarketCard === index} tabIndex={activeMarketCard === index ? 0 : -1} className={activeMarketCard === index ? "active" : ""} onClick={() => scrollToMarket(index)} onKeyDown={(event) => handleMarketTabKeyDown(event, index)}>{market.shortName}</button>
               ))}
             </div>
             <div
@@ -535,6 +559,12 @@ export default function Dashboard({ data, view, weeklyIndex }: { data: DailyBrie
             >
               {data.markets.map((market) => <MarketCard key={market.id} market={market} />)}
             </div>
+            {view === "markets" ? (
+              <SectorRotationIndex
+                data={sectorRotation}
+                activeMarketId={data.markets[activeMarketCard]?.id ?? "a-share"}
+              />
+            ) : null}
           </section>
           ) : null}
 
