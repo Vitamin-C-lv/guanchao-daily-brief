@@ -1,214 +1,144 @@
 {
   "schemaVersion": 1,
   "id": "guanchao-a-share-sector-rotation",
-  "version": "2026.07.18-v1",
-  "trainedAt": "2026-07-18T18:02:58+08:00",
-  "asOf": "2025-12-31",
-  "trainingStart": "2022-04-13",
-  "trainingEnd": "2025-12-31",
+  "version": "2026.07.18-core12-v2",
+  "trainedAt": "2026-07-18T20:47:22+08:00",
+  "asOf": "2026-07-17",
+  "trainingStart": "2016-04-12",
+  "trainingEnd": "2026-07-17",
+  "taxonomyHash": "2cdb81a8cfbc2c2705bcbba45f14b601265f368accb68a94db74c062ac3c363a",
   "taxonomy": {
     "schemaVersion": 1,
     "owner": "中证指数有限公司",
-    "name": "中证全指二级行业指数（V1.7 附录可验证指数）",
-    "documentVersion": "V1.7",
-    "documentUpdated": "2023-10",
-    "methodologyUrl": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/H30199_Index_Methodology_cn.pdf",
-    "declaredLevel2Count": 35,
-    "appendixListedCount": 32,
-    "discrepancyNote": "编制方案正文写明35个二级行业，但V1.7附录逐项列示32个二级行业指数。本模型只使用附录明确列出的32个代码，不补造缺项。",
+    "name": "观潮A股核心行业与重点主题观察池",
+    "documentVersion": "a-core12-v2",
+    "documentUpdated": "2026-07-18",
+    "methodologyUrl": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+    "universeNote": "固定使用10个中证全指一级行业指数，并加入中证军工、移动互联网两个重点主题指数。重点标签只影响界面编排，不参与分数或排名。",
     "indices": [
       {
-        "code": "399986",
-        "name": "中证银行指数",
-        "shortName": "中证银行"
+        "code": "000986",
+        "name": "中证全指能源指数",
+        "shortName": "能源",
+        "market": "sh",
+        "role": "broad"
       },
       {
-        "code": "930910",
-        "name": "中证全指农牧渔指数",
-        "shortName": "农牧渔"
+        "code": "000987",
+        "name": "中证全指原材料指数",
+        "shortName": "原材料",
+        "market": "sh",
+        "role": "broad"
       },
       {
-        "code": "H30164",
-        "name": "中证全指乘用车及零部件指数",
-        "shortName": "汽车汽配"
+        "code": "000988",
+        "name": "中证全指工业指数",
+        "shortName": "工业",
+        "market": "sh",
+        "role": "broad"
       },
       {
-        "code": "H30166",
-        "name": "中证全指机械制造指数",
-        "shortName": "机械制造"
+        "code": "000989",
+        "name": "中证全指可选消费指数",
+        "shortName": "可选消费",
+        "market": "sh",
+        "role": "broad"
       },
       {
-        "code": "H30170",
-        "name": "中证全指商业服务与商业用品指数",
-        "shortName": "商业指数"
+        "code": "000990",
+        "name": "中证全指主要消费指数",
+        "shortName": "主要消费",
+        "market": "sh",
+        "role": "broad"
       },
       {
-        "code": "H30171",
-        "name": "中证全指运输指数",
-        "shortName": "运输指数"
+        "code": "000991",
+        "name": "中证全指医药卫生指数",
+        "shortName": "医药医疗",
+        "market": "sh",
+        "role": "broad",
+        "focusTag": "医疗"
       },
       {
-        "code": "H30173",
-        "name": "中证全指消费者服务指数",
-        "shortName": "消费者"
+        "code": "000992",
+        "name": "中证全指金融地产指数",
+        "shortName": "金融地产",
+        "market": "sh",
+        "role": "broad"
       },
       {
-        "code": "H30174",
-        "name": "中证全指媒体指数",
-        "shortName": "媒体指数"
+        "code": "000993",
+        "name": "中证全指信息技术指数",
+        "shortName": "信息技术",
+        "market": "sh",
+        "role": "broad"
       },
       {
-        "code": "H30175",
-        "name": "中证全指零售业指数",
-        "shortName": "零售指数"
+        "code": "000994",
+        "name": "中证全指通信服务指数",
+        "shortName": "通信服务",
+        "market": "sh",
+        "role": "broad"
       },
       {
-        "code": "H30177",
-        "name": "中证全指食品、饮料与烟草指数",
-        "shortName": "全指食品"
+        "code": "000995",
+        "name": "中证全指公用事业指数",
+        "shortName": "公用事业",
+        "market": "sh",
+        "role": "broad"
       },
       {
-        "code": "H30179",
-        "name": "中证全指医药指数",
-        "shortName": "制药生物"
+        "code": "399967",
+        "name": "中证军工指数",
+        "shortName": "军工",
+        "market": "sz",
+        "role": "focus-overlay",
+        "focusTag": "军工",
+        "factsheetUrl": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399967factsheet.pdf"
       },
       {
-        "code": "H30182",
-        "name": "中证全指计算机指数",
-        "shortName": "计算机"
-      },
-      {
-        "code": "H30183",
-        "name": "中证全指电子指数",
-        "shortName": "电子"
-      },
-      {
-        "code": "H30184",
-        "name": "中证全指半导体产品与设备指数",
-        "shortName": "半导体"
-      },
-      {
-        "code": "H30186",
-        "name": "中证全指保险指数",
-        "shortName": "保险指数"
-      },
-      {
-        "code": "H30187",
-        "name": "中证全指化学制品",
-        "shortName": "化学制品"
-      },
-      {
-        "code": "H30196",
-        "name": "中证全指耐用消费品指数",
-        "shortName": "耐用消费品"
-      },
-      {
-        "code": "H30211",
-        "name": "中证全指资本市场指数",
-        "shortName": "资本市场"
-      },
-      {
-        "code": "932143",
-        "name": "中证全指航空航天与国防指数",
-        "shortName": "航空航天"
-      },
-      {
-        "code": "931931",
-        "name": "中证全指建筑装饰指数",
-        "shortName": "建筑装饰"
-      },
-      {
-        "code": "931932",
-        "name": "中证全指电力设备指数",
-        "shortName": "电力设备"
-      },
-      {
-        "code": "931933",
-        "name": "中证全指环保指数",
-        "shortName": "全指环保"
-      },
-      {
-        "code": "931934",
-        "name": "中证全指非金属材料指数",
-        "shortName": "非金属材料"
-      },
-      {
-        "code": "931935",
-        "name": "中证全指钢铁指数",
-        "shortName": "全指钢铁"
-      },
-      {
-        "code": "931936",
-        "name": "中证全指有色金属指数",
-        "shortName": "全指有色"
-      },
-      {
-        "code": "931937",
-        "name": "中证全指造纸与包装指数",
-        "shortName": "造纸与包装"
-      },
-      {
-        "code": "931938",
-        "name": "中证全指纺织服装与珠宝指数",
-        "shortName": "服装珠宝"
-      },
-      {
-        "code": "931939",
-        "name": "中证全指家庭与个人用品指数",
-        "shortName": "家庭用品"
-      },
-      {
-        "code": "931940",
-        "name": "中证全指医疗指数",
-        "shortName": "全指医疗"
-      },
-      {
-        "code": "931941",
-        "name": "中证全指其他金融指数",
-        "shortName": "其他金融"
-      },
-      {
-        "code": "932144",
-        "name": "中证全指电信服务指数",
-        "shortName": "电信服务"
-      },
-      {
-        "code": "932145",
-        "name": "中证全指通信设备及技术服务指数",
-        "shortName": "通信设服"
+        "code": "399970",
+        "name": "中证移动互联网指数",
+        "shortName": "移动互联网",
+        "market": "sz",
+        "role": "focus-overlay",
+        "focusTag": "互联网",
+        "factsheetUrl": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399970factsheet.pdf"
       }
     ]
   },
   "data": {
     "owner": "中证指数有限公司",
     "endpoint": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
-    "evidenceClass": "official-primary",
-    "coverageCount": 19,
-    "availableSeriesCount": 19,
-    "universeCount": 32,
-    "trainingCoverageComplete": false,
+    "fallbackEndpoint": "https://finance.pae.baidu.com/selfselect/getstockquotation",
+    "verificationEndpoint": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get",
+    "evidenceClass": "official-primary-with-vendor-fallback",
+    "coverageCount": 12,
+    "availableSeriesCount": 12,
+    "universeCount": 12,
+    "trainingCoverageComplete": true,
     "featureManifest": {
-      "builtAt": "2026-07-18T18:02:39+08:00",
+      "builtAt": "2026-07-18T20:36:53+08:00",
       "path": "data/rotation-model/features/a-share-features.csv.gz",
-      "compressedBytes": 3132710,
-      "sha256": "d469a75e190cfa41cfc8657aad938760ee4903e1e8d44080cb62fdf18adb1bb4",
-      "coverageCount": 19,
-      "sourceCoverageCount": 19,
-      "synchronizedCoverageCount": 19,
-      "synchronizedDates": 970,
-      "synchronizedStart": "2021-12-31",
-      "synchronizedEnd": "2025-12-31",
-      "rawFeatureRows": 17290,
-      "rows": 17290,
-      "featurePanelDates": 910,
-      "featurePanelStart": "2022-04-06",
-      "featurePanelEnd": "2025-12-31",
-      "featureDateMinCount": 19,
-      "featureDateMaxCount": 19,
+      "compressedBytes": 5432647,
+      "sha256": "957e45d50655fc7edb02e6b323a8f5e38d5fe3a4713bf5d2e1cee1c84be351bb",
+      "coverageCount": 12,
+      "sourceCoverageCount": 12,
+      "synchronizedCoverageCount": 12,
+      "synchronizedDates": 2559,
+      "synchronizedStart": "2016-01-04",
+      "synchronizedEnd": "2026-07-17",
+      "rawFeatureRows": 29988,
+      "rows": 29988,
+      "featurePanelDates": 2499,
+      "featurePanelStart": "2016-04-05",
+      "featurePanelEnd": "2026-07-17",
+      "featureDateMinCount": 12,
+      "featureDateMaxCount": 12,
       "droppedIncompleteFeatureDates": 0,
       "featurePanelComplete": true,
-      "labelled5": 17195,
-      "labelled20": 16910,
+      "labelled5": 29928,
+      "labelled20": 29748,
       "streamingPolicy": "one sector in memory; cross-sectional targets by date accumulators"
     }
   },
@@ -261,116 +191,188 @@
     "5": {
       "horizonSessions": 5,
       "ridge": 20.0,
-      "trainingRows": 17195,
-      "trainingStart": "2022-04-13",
-      "trainingEnd": "2025-12-31",
+      "trainingRows": 29928,
+      "trainingStart": "2016-04-12",
+      "trainingEnd": "2026-07-17",
       "featureMeans": {
-        "cs_momentum5": -2.1975422783565568e-16,
-        "cs_momentum20": 3.1004116374938606e-16,
-        "cs_momentum60": 2.0389777106305518e-16,
-        "cs_reversal1": -4.750702869288359e-16,
-        "cs_volatility20": 9.508046476883192e-16,
-        "cs_drawdown60": 1.807365021533336e-16,
-        "cs_amountRatio5v20": 3.710681935331639e-17,
-        "cs_volumeRatio5v20": 1.0537089863843496e-16,
-        "cs_priceVolumeAcceleration": 1.0007186052041206e-16
+        "cs_momentum5": -1.0090195280872127e-16,
+        "cs_momentum20": -2.839254439196415e-17,
+        "cs_momentum60": -1.5439716562551387e-16,
+        "cs_reversal1": 1.0440189294677604e-16,
+        "cs_volatility20": 1.8873926943899222e-16,
+        "cs_drawdown60": 5.72797560251248e-17,
+        "cs_amountRatio5v20": -1.1800863021146912e-16,
+        "cs_volumeRatio5v20": 9.712249179807259e-17,
+        "cs_priceVolumeAcceleration": 1.7703835630562131e-16
       },
       "featureScales": {
-        "cs_momentum5": 1.0000290794887905,
-        "cs_momentum20": 1.0000290794887903,
-        "cs_momentum60": 1.0000290794887894,
-        "cs_reversal1": 1.0000290794887867,
-        "cs_volatility20": 1.0000290794887843,
-        "cs_drawdown60": 0.9989234638058191,
-        "cs_amountRatio5v20": 1.0000290794887885,
-        "cs_volumeRatio5v20": 1.0000290794887878,
-        "cs_priceVolumeAcceleration": 1.0000290794887887
+        "cs_momentum5": 1.000016707181584,
+        "cs_momentum20": 1.0000167071815802,
+        "cs_momentum60": 1.000016707181582,
+        "cs_reversal1": 1.0000167071815835,
+        "cs_volatility20": 1.0000167071815838,
+        "cs_drawdown60": 0.9996156577541122,
+        "cs_amountRatio5v20": 1.000016707181584,
+        "cs_volumeRatio5v20": 1.0000167071815833,
+        "cs_priceVolumeAcceleration": 1.0000167071815855
       },
-      "intercept": -4.278148203379715e-18,
+      "intercept": -3.3272348929516208e-18,
       "coefficients": {
-        "cs_momentum5": 0.000756100447404369,
-        "cs_momentum20": 0.0002875821711441603,
-        "cs_momentum60": -0.0007352617420325595,
-        "cs_reversal1": 0.00011077942016688324,
-        "cs_volatility20": 0.00016276039898289465,
-        "cs_drawdown60": -0.001204447834282266,
-        "cs_amountRatio5v20": -0.0014887072722878,
-        "cs_volumeRatio5v20": 0.0019891885077764284,
-        "cs_priceVolumeAcceleration": 0.0002331451911444292
+        "cs_momentum5": 1.553068386640615e-05,
+        "cs_momentum20": 0.0004346770537129378,
+        "cs_momentum60": -0.0006127088723466702,
+        "cs_reversal1": -2.709650953001026e-06,
+        "cs_volatility20": 0.0008653248329946564,
+        "cs_drawdown60": 0.0007346343345598187,
+        "cs_amountRatio5v20": -0.0005111943681812122,
+        "cs_volumeRatio5v20": 0.0008333119619500539,
+        "cs_priceVolumeAcceleration": -0.00011923913081483962
       }
     },
     "20": {
       "horizonSessions": 20,
       "ridge": 20.0,
-      "trainingRows": 16910,
-      "trainingStart": "2022-05-09",
-      "trainingEnd": "2025-12-31",
+      "trainingRows": 29748,
+      "trainingStart": "2016-05-04",
+      "trainingEnd": "2026-07-17",
       "featureMeans": {
-        "cs_momentum5": -1.7129716698913167e-16,
-        "cs_momentum20": 3.019299762464789e-16,
-        "cs_momentum60": 2.418583996272039e-16,
-        "cs_reversal1": -4.3859704822006573e-16,
-        "cs_volatility20": 7.476251605645357e-16,
-        "cs_drawdown60": -3.7240311745803667e-16,
-        "cs_amountRatio5v20": 1.1085967213664283e-17,
-        "cs_volumeRatio5v20": 1.639584735341204e-16,
-        "cs_priceVolumeAcceleration": -7.669375117619337e-17
+        "cs_momentum5": -7.481672616507784e-17,
+        "cs_momentum20": -8.557065646341844e-17,
+        "cs_momentum60": -6.596014966858688e-17,
+        "cs_reversal1": 1.3681953790409263e-16,
+        "cs_volatility20": -2.6169929938368863e-16,
+        "cs_drawdown60": 1.3316035557195405e-16,
+        "cs_amountRatio5v20": -1.3688730053987297e-16,
+        "cs_volumeRatio5v20": 4.7488055154865094e-17,
+        "cs_priceVolumeAcceleration": 1.1687021793035934e-16
       },
       "featureScales": {
-        "cs_momentum5": 1.0000295696142685,
-        "cs_momentum20": 1.0000295696142691,
-        "cs_momentum60": 1.0000295696142705,
-        "cs_reversal1": 1.0000295696142723,
-        "cs_volatility20": 1.0000295696142718,
-        "cs_drawdown60": 0.9989053089220021,
-        "cs_amountRatio5v20": 1.0000295696142716,
-        "cs_volumeRatio5v20": 1.0000295696142698,
-        "cs_priceVolumeAcceleration": 1.0000295696142727
+        "cs_momentum5": 1.0000168082763954,
+        "cs_momentum20": 1.0000168082763983,
+        "cs_momentum60": 1.0000168082763996,
+        "cs_reversal1": 1.0000168082764005,
+        "cs_volatility20": 1.0000168082763983,
+        "cs_drawdown60": 0.9996133316377164,
+        "cs_amountRatio5v20": 1.0000168082763978,
+        "cs_volumeRatio5v20": 1.0000168082763996,
+        "cs_priceVolumeAcceleration": 1.0000168082763992
       },
-      "intercept": 1.2594064648948975e-17,
+      "intercept": 5.043142549438491e-18,
       "coefficients": {
-        "cs_momentum5": 0.0013283256718526046,
-        "cs_momentum20": 0.0012289543174811431,
-        "cs_momentum60": -0.002343879742873029,
-        "cs_reversal1": 0.00011457167196792259,
-        "cs_volatility20": 1.3404235182469428e-05,
-        "cs_drawdown60": -0.004920876666714992,
-        "cs_amountRatio5v20": -0.0039749607248670245,
-        "cs_volumeRatio5v20": 0.0041414916472149125,
-        "cs_priceVolumeAcceleration": 0.00039748414995955614
+        "cs_momentum5": 0.001107026409377288,
+        "cs_momentum20": -0.00013396272798659768,
+        "cs_momentum60": -0.0014685615075100984,
+        "cs_reversal1": 0.0001261842068392559,
+        "cs_volatility20": 0.0033960457603346697,
+        "cs_drawdown60": 0.0024598365875077763,
+        "cs_amountRatio5v20": -0.0033735989888753325,
+        "cs_volumeRatio5v20": 0.0030614652020366155,
+        "cs_priceVolumeAcceleration": 0.00016824012432159062
       }
     }
   },
   "backtest": {
-    "status": "insufficient",
+    "status": "limited",
     "horizons": {
       "5": {
-        "status": "insufficient",
+        "status": "limited",
         "horizonSessions": 5,
         "walkForward": "dynamic expanding annual folds; a fold begins only after 500 matured training rows; training labels must mature before each test year; 5/20-session boundary purge",
         "skippedFolds": [
           {
-            "start": "2022-01-01",
-            "end": "2022-12-31",
+            "start": "2016-01-01",
+            "end": "2016-12-31",
             "reason": "only 0 training rows for 5-session model",
             "minimumMaturedTrainingRows": 500
           }
         ],
-        "evaluationDates": 722,
-        "observations": 13718,
-        "rankIc": -0.0015842931428293714,
-        "directionalHitRate": 0.5029887738737425,
-        "topBottomSpreadPct": 0.12149755484499628,
+        "evaluationDates": 2310,
+        "observations": 27720,
+        "rankIc": 0.0054339599794145255,
+        "directionalHitRate": 0.5012987012987012,
+        "topBottomSpreadPct": 0.06506088517352253,
         "folds": [
+          {
+            "start": "2017-01-01",
+            "end": "2017-12-31",
+            "dates": 244,
+            "observations": 2928,
+            "rankIc": -0.09689900263670756,
+            "directionalHitRate": 0.46584699453551914,
+            "topBottomSpreadPct": -0.3254354617630037,
+            "trainingRows": 2148,
+            "trainingTargetDateMax": "2016-12-30",
+            "purgeSessions": 5
+          },
+          {
+            "start": "2018-01-01",
+            "end": "2018-12-31",
+            "dates": 243,
+            "observations": 2916,
+            "rankIc": 0.010216121327232439,
+            "directionalHitRate": 0.5027434842249657,
+            "topBottomSpreadPct": -0.1238502792118834,
+            "trainingRows": 5076,
+            "trainingTargetDateMax": "2017-12-29",
+            "purgeSessions": 5
+          },
+          {
+            "start": "2019-01-01",
+            "end": "2019-12-31",
+            "dates": 244,
+            "observations": 2928,
+            "rankIc": -0.03642668806603233,
+            "directionalHitRate": 0.48975409836065575,
+            "topBottomSpreadPct": -0.3250928253457709,
+            "trainingRows": 7992,
+            "trainingTargetDateMax": "2018-12-28",
+            "purgeSessions": 5
+          },
+          {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "dates": 243,
+            "observations": 2916,
+            "rankIc": 0.12262223373334484,
+            "directionalHitRate": 0.5390946502057613,
+            "topBottomSpreadPct": 0.8958471556113033,
+            "trainingRows": 10920,
+            "trainingTargetDateMax": "2019-12-31",
+            "purgeSessions": 5
+          },
+          {
+            "start": "2021-01-01",
+            "end": "2021-12-31",
+            "dates": 243,
+            "observations": 2916,
+            "rankIc": -0.023799246021468243,
+            "directionalHitRate": 0.48148148148148145,
+            "topBottomSpreadPct": 0.18710062750478787,
+            "trainingRows": 13836,
+            "trainingTargetDateMax": "2020-12-31",
+            "purgeSessions": 5
+          },
+          {
+            "start": "2022-01-01",
+            "end": "2022-12-31",
+            "dates": 242,
+            "observations": 2904,
+            "rankIc": -0.010084956365948103,
+            "directionalHitRate": 0.49586776859504134,
+            "topBottomSpreadPct": -0.2336644158838977,
+            "trainingRows": 16752,
+            "trainingTargetDateMax": "2021-12-31",
+            "purgeSessions": 5
+          },
           {
             "start": "2023-01-01",
             "end": "2023-12-31",
             "dates": 242,
-            "observations": 4598,
-            "rankIc": 0.05817746846454979,
-            "directionalHitRate": 0.5258808177468465,
-            "topBottomSpreadPct": 0.4770868236171561,
-            "trainingRows": 3382,
+            "observations": 2904,
+            "rankIc": -0.0032653297116107052,
+            "directionalHitRate": 0.49242424242424243,
+            "topBottomSpreadPct": -0.03791151621913017,
+            "trainingRows": 19656,
             "trainingTargetDateMax": "2022-12-30",
             "purgeSessions": 5
           },
@@ -378,28 +380,39 @@
             "start": "2024-01-01",
             "end": "2024-12-31",
             "dates": 242,
-            "observations": 4598,
-            "rankIc": -0.03708133971291865,
-            "directionalHitRate": 0.48869073510221833,
-            "topBottomSpreadPct": 0.0266984219283118,
-            "trainingRows": 7980,
+            "observations": 2904,
+            "rankIc": -0.028492168988036755,
+            "directionalHitRate": 0.493801652892562,
+            "topBottomSpreadPct": -0.3214243288553685,
+            "trainingRows": 22560,
             "trainingTargetDateMax": "2023-12-29",
             "purgeSessions": 5
           },
           {
             "start": "2025-01-01",
             "end": "2025-12-31",
-            "dates": 238,
-            "observations": 4522,
-            "rankIc": -0.026256818516880432,
-            "directionalHitRate": 0.494250331711632,
-            "topBottomSpreadPct": -0.14367560850384842,
-            "trainingRows": 12578,
+            "dates": 243,
+            "observations": 2916,
+            "rankIc": 0.064663731330398,
+            "directionalHitRate": 0.5264060356652949,
+            "topBottomSpreadPct": 0.424815564560109,
+            "trainingRows": 25464,
             "trainingTargetDateMax": "2024-12-31",
             "purgeSessions": 5
+          },
+          {
+            "start": "2026-01-01",
+            "end": "2026-12-31",
+            "dates": 124,
+            "observations": 1488,
+            "rankIc": 0.10483870967741936,
+            "directionalHitRate": 0.5490591397849462,
+            "topBottomSpreadPct": 0.9373768896812977,
+            "trainingRows": 28380,
+            "trainingTargetDateMax": "2025-12-31",
+            "purgeSessions": 5
           }
-        ],
-        "coverageGate": "19/32@2025-12-31"
+        ]
       },
       "20": {
         "status": "insufficient",
@@ -407,27 +420,99 @@
         "walkForward": "dynamic expanding annual folds; a fold begins only after 500 matured training rows; training labels must mature before each test year; 5/20-session boundary purge",
         "skippedFolds": [
           {
-            "start": "2022-01-01",
-            "end": "2022-12-31",
+            "start": "2016-01-01",
+            "end": "2016-12-31",
             "reason": "only 0 training rows for 20-session model",
             "minimumMaturedTrainingRows": 500
           }
         ],
-        "evaluationDates": 707,
-        "observations": 13433,
-        "rankIc": 0.03463361373731357,
-        "directionalHitRate": 0.5173081217896226,
-        "topBottomSpreadPct": 0.6005711275807059,
+        "evaluationDates": 2295,
+        "observations": 27540,
+        "rankIc": -0.02709447415329768,
+        "directionalHitRate": 0.493681917211329,
+        "topBottomSpreadPct": -0.30318886240740467,
         "folds": [
+          {
+            "start": "2017-01-01",
+            "end": "2017-12-31",
+            "dates": 244,
+            "observations": 2928,
+            "rankIc": -0.0849478390461997,
+            "directionalHitRate": 0.4730191256830601,
+            "topBottomSpreadPct": -0.45370887859299996,
+            "trainingRows": 1968,
+            "trainingTargetDateMax": "2016-12-30",
+            "purgeSessions": 20
+          },
+          {
+            "start": "2018-01-01",
+            "end": "2018-12-31",
+            "dates": 243,
+            "observations": 2916,
+            "rankIc": -0.03251892140781029,
+            "directionalHitRate": 0.49348422496570643,
+            "topBottomSpreadPct": -1.172094244709651,
+            "trainingRows": 4896,
+            "trainingTargetDateMax": "2017-12-29",
+            "purgeSessions": 20
+          },
+          {
+            "start": "2019-01-01",
+            "end": "2019-12-31",
+            "dates": 244,
+            "observations": 2928,
+            "rankIc": -0.20145018915510718,
+            "directionalHitRate": 0.3989071038251366,
+            "topBottomSpreadPct": -2.405345823051989,
+            "trainingRows": 7812,
+            "trainingTargetDateMax": "2018-12-28",
+            "purgeSessions": 20
+          },
+          {
+            "start": "2020-01-01",
+            "end": "2020-12-31",
+            "dates": 243,
+            "observations": 2916,
+            "rankIc": 0.06351261906817462,
+            "directionalHitRate": 0.5229766803840878,
+            "topBottomSpreadPct": 0.879034422849987,
+            "trainingRows": 10740,
+            "trainingTargetDateMax": "2019-12-31",
+            "purgeSessions": 20
+          },
+          {
+            "start": "2021-01-01",
+            "end": "2021-12-31",
+            "dates": 243,
+            "observations": 2916,
+            "rankIc": -0.10993122104233215,
+            "directionalHitRate": 0.46021947873799723,
+            "topBottomSpreadPct": -1.9673755534725728,
+            "trainingRows": 13656,
+            "trainingTargetDateMax": "2020-12-31",
+            "purgeSessions": 20
+          },
+          {
+            "start": "2022-01-01",
+            "end": "2022-12-31",
+            "dates": 242,
+            "observations": 2904,
+            "rankIc": 0.022857307981274923,
+            "directionalHitRate": 0.5189393939393939,
+            "topBottomSpreadPct": -0.17138484810702348,
+            "trainingRows": 16572,
+            "trainingTargetDateMax": "2021-12-31",
+            "purgeSessions": 20
+          },
           {
             "start": "2023-01-01",
             "end": "2023-12-31",
             "dates": 242,
-            "observations": 4598,
-            "rankIc": 0.12558358706684064,
-            "directionalHitRate": 0.5574162679425837,
-            "topBottomSpreadPct": 1.4064952800535608,
-            "trainingRows": 3097,
+            "observations": 2904,
+            "rankIc": -0.07689418019996533,
+            "directionalHitRate": 0.4824380165289256,
+            "topBottomSpreadPct": -1.375104282132564,
+            "trainingRows": 19476,
             "trainingTargetDateMax": "2022-12-30",
             "purgeSessions": 20
           },
@@ -435,1019 +520,1030 @@
             "start": "2024-01-01",
             "end": "2024-12-31",
             "dates": 242,
-            "observations": 4598,
-            "rankIc": -0.07151660142090763,
-            "directionalHitRate": 0.4817311874728143,
-            "topBottomSpreadPct": -0.47223585482583363,
-            "trainingRows": 7695,
+            "observations": 2904,
+            "rankIc": 0.0019071837253655448,
+            "directionalHitRate": 0.5058539944903582,
+            "topBottomSpreadPct": -0.16651877179215369,
+            "trainingRows": 22380,
             "trainingTargetDateMax": "2023-12-29",
             "purgeSessions": 20
           },
           {
             "start": "2025-01-01",
             "end": "2025-12-31",
-            "dates": 223,
-            "observations": 4237,
-            "rankIc": 0.051128943434820225,
-            "directionalHitRate": 0.5123908425772953,
-            "topBottomSpreadPct": 0.8901928533383365,
-            "trainingRows": 12293,
+            "dates": 243,
+            "observations": 2916,
+            "rankIc": 0.07680796569685458,
+            "directionalHitRate": 0.5411522633744856,
+            "topBottomSpreadPct": 1.2403388828829636,
+            "trainingRows": 25284,
             "trainingTargetDateMax": "2024-12-31",
             "purgeSessions": 20
+          },
+          {
+            "start": "2026-01-01",
+            "end": "2026-12-31",
+            "dates": 109,
+            "observations": 1308,
+            "rankIc": 0.1911208057997049,
+            "directionalHitRate": 0.5978593272171254,
+            "topBottomSpreadPct": 6.093782274616865,
+            "trainingRows": 28200,
+            "trainingTargetDateMax": "2025-12-31",
+            "purgeSessions": 20
           }
-        ],
-        "coverageGate": "19/32@2025-12-31"
+        ]
       }
     }
   },
   "visualizationData": {
     "schemaVersion": 1,
-    "note": "结构化轻量图表数据；折线最多4条×60点，柱状最多8项。指数API无完整OHLC，不生成K线图。",
+    "note": "结构化轻量图表数据；折线最多4条×60点，柱状最多8项。本地轻量历史只保留收盘、成交量和成交额，不据此伪造K线图。",
     "normalizedPerformance60d": {
       "type": "line",
       "unit": "%（各序列相对自身起点）",
       "series": [
         {
-          "name": "航空航天",
-          "code": "932143",
+          "name": "医药医疗",
+          "code": "000991",
           "points": [
             {
-              "date": "2025-10-09",
+              "date": "2026-04-21",
               "normalizedReturnPct": 0.0
             },
             {
-              "date": "2025-10-10",
-              "normalizedReturnPct": -0.638
+              "date": "2026-04-22",
+              "normalizedReturnPct": 0.497
             },
             {
-              "date": "2025-10-13",
-              "normalizedReturnPct": 0.643
+              "date": "2026-04-23",
+              "normalizedReturnPct": 0.256
             },
             {
-              "date": "2025-10-14",
-              "normalizedReturnPct": -0.969
-            },
-            {
-              "date": "2025-10-15",
-              "normalizedReturnPct": -0.968
-            },
-            {
-              "date": "2025-10-16",
-              "normalizedReturnPct": -2.098
-            },
-            {
-              "date": "2025-10-17",
-              "normalizedReturnPct": -5.558
-            },
-            {
-              "date": "2025-10-20",
-              "normalizedReturnPct": -5.159
-            },
-            {
-              "date": "2025-10-21",
-              "normalizedReturnPct": -4.685
-            },
-            {
-              "date": "2025-10-22",
-              "normalizedReturnPct": -5.798
-            },
-            {
-              "date": "2025-10-23",
-              "normalizedReturnPct": -6.396
-            },
-            {
-              "date": "2025-10-24",
-              "normalizedReturnPct": -3.887
-            },
-            {
-              "date": "2025-10-27",
-              "normalizedReturnPct": -2.886
-            },
-            {
-              "date": "2025-10-28",
-              "normalizedReturnPct": -2.0
-            },
-            {
-              "date": "2025-10-29",
-              "normalizedReturnPct": -1.863
-            },
-            {
-              "date": "2025-10-30",
-              "normalizedReturnPct": -3.67
-            },
-            {
-              "date": "2025-10-31",
-              "normalizedReturnPct": -4.41
-            },
-            {
-              "date": "2025-11-03",
-              "normalizedReturnPct": -3.541
-            },
-            {
-              "date": "2025-11-04",
-              "normalizedReturnPct": -4.95
-            },
-            {
-              "date": "2025-11-05",
-              "normalizedReturnPct": -5.166
-            },
-            {
-              "date": "2025-11-06",
-              "normalizedReturnPct": -3.986
-            },
-            {
-              "date": "2025-11-07",
-              "normalizedReturnPct": -4.534
-            },
-            {
-              "date": "2025-11-10",
-              "normalizedReturnPct": -4.493
-            },
-            {
-              "date": "2025-11-11",
-              "normalizedReturnPct": -5.706
-            },
-            {
-              "date": "2025-11-12",
-              "normalizedReturnPct": -6.322
-            },
-            {
-              "date": "2025-11-13",
-              "normalizedReturnPct": -5.846
-            },
-            {
-              "date": "2025-11-14",
-              "normalizedReturnPct": -5.948
-            },
-            {
-              "date": "2025-11-17",
-              "normalizedReturnPct": -4.382
-            },
-            {
-              "date": "2025-11-18",
-              "normalizedReturnPct": -5.715
-            },
-            {
-              "date": "2025-11-19",
-              "normalizedReturnPct": -5.027
-            },
-            {
-              "date": "2025-11-20",
-              "normalizedReturnPct": -5.97
-            },
-            {
-              "date": "2025-11-21",
-              "normalizedReturnPct": -7.729
-            },
-            {
-              "date": "2025-11-24",
-              "normalizedReturnPct": -3.57
-            },
-            {
-              "date": "2025-11-25",
-              "normalizedReturnPct": -3.947
-            },
-            {
-              "date": "2025-11-26",
-              "normalizedReturnPct": -6.306
-            },
-            {
-              "date": "2025-11-27",
-              "normalizedReturnPct": -6.618
-            },
-            {
-              "date": "2025-11-28",
-              "normalizedReturnPct": -5.188
-            },
-            {
-              "date": "2025-12-01",
-              "normalizedReturnPct": -3.583
-            },
-            {
-              "date": "2025-12-02",
-              "normalizedReturnPct": -3.625
-            },
-            {
-              "date": "2025-12-03",
-              "normalizedReturnPct": -4.807
-            },
-            {
-              "date": "2025-12-04",
-              "normalizedReturnPct": -4.107
-            },
-            {
-              "date": "2025-12-05",
-              "normalizedReturnPct": -1.806
-            },
-            {
-              "date": "2025-12-08",
-              "normalizedReturnPct": -0.625
-            },
-            {
-              "date": "2025-12-09",
-              "normalizedReturnPct": -1.086
-            },
-            {
-              "date": "2025-12-10",
-              "normalizedReturnPct": -0.63
-            },
-            {
-              "date": "2025-12-11",
-              "normalizedReturnPct": -0.652
-            },
-            {
-              "date": "2025-12-12",
-              "normalizedReturnPct": 0.346
-            },
-            {
-              "date": "2025-12-15",
-              "normalizedReturnPct": 1.825
-            },
-            {
-              "date": "2025-12-16",
-              "normalizedReturnPct": 0.759
-            },
-            {
-              "date": "2025-12-17",
-              "normalizedReturnPct": 0.185
-            },
-            {
-              "date": "2025-12-18",
-              "normalizedReturnPct": 1.694
-            },
-            {
-              "date": "2025-12-19",
-              "normalizedReturnPct": 3.561
-            },
-            {
-              "date": "2025-12-22",
-              "normalizedReturnPct": 3.712
-            },
-            {
-              "date": "2025-12-23",
-              "normalizedReturnPct": 1.633
-            },
-            {
-              "date": "2025-12-24",
-              "normalizedReturnPct": 4.747
-            },
-            {
-              "date": "2025-12-25",
-              "normalizedReturnPct": 8.685
-            },
-            {
-              "date": "2025-12-26",
-              "normalizedReturnPct": 9.857
-            },
-            {
-              "date": "2025-12-29",
-              "normalizedReturnPct": 11.32
-            },
-            {
-              "date": "2025-12-30",
-              "normalizedReturnPct": 10.507
-            },
-            {
-              "date": "2025-12-31",
-              "normalizedReturnPct": 13.475
-            }
-          ]
-        },
-        {
-          "name": "保险指数",
-          "code": "H30186",
-          "points": [
-            {
-              "date": "2025-10-09",
-              "normalizedReturnPct": 0.0
-            },
-            {
-              "date": "2025-10-10",
-              "normalizedReturnPct": 0.82
-            },
-            {
-              "date": "2025-10-13",
+              "date": "2026-04-24",
               "normalizedReturnPct": 0.03
             },
             {
-              "date": "2025-10-14",
-              "normalizedReturnPct": 2.81
+              "date": "2026-04-27",
+              "normalizedReturnPct": -0.403
             },
             {
-              "date": "2025-10-15",
-              "normalizedReturnPct": 5.236
+              "date": "2026-04-28",
+              "normalizedReturnPct": 0.846
             },
             {
-              "date": "2025-10-16",
-              "normalizedReturnPct": 6.428
+              "date": "2026-04-29",
+              "normalizedReturnPct": 0.956
             },
             {
-              "date": "2025-10-17",
-              "normalizedReturnPct": 4.546
+              "date": "2026-04-30",
+              "normalizedReturnPct": 0.419
             },
             {
-              "date": "2025-10-20",
-              "normalizedReturnPct": 5.833
+              "date": "2026-05-06",
+              "normalizedReturnPct": 0.343
             },
             {
-              "date": "2025-10-21",
-              "normalizedReturnPct": 6.593
+              "date": "2026-05-07",
+              "normalizedReturnPct": 0.702
             },
             {
-              "date": "2025-10-22",
-              "normalizedReturnPct": 6.737
+              "date": "2026-05-08",
+              "normalizedReturnPct": -0.237
             },
             {
-              "date": "2025-10-23",
-              "normalizedReturnPct": 7.632
+              "date": "2026-05-11",
+              "normalizedReturnPct": 1.201
             },
             {
-              "date": "2025-10-24",
-              "normalizedReturnPct": 6.461
+              "date": "2026-05-12",
+              "normalizedReturnPct": 0.942
             },
             {
-              "date": "2025-10-27",
-              "normalizedReturnPct": 6.55
+              "date": "2026-05-13",
+              "normalizedReturnPct": 0.332
             },
             {
-              "date": "2025-10-28",
-              "normalizedReturnPct": 6.516
+              "date": "2026-05-14",
+              "normalizedReturnPct": -2.032
             },
             {
-              "date": "2025-10-29",
-              "normalizedReturnPct": 8.275
+              "date": "2026-05-15",
+              "normalizedReturnPct": -2.699
             },
             {
-              "date": "2025-10-30",
-              "normalizedReturnPct": 7.827
+              "date": "2026-05-18",
+              "normalizedReturnPct": -4.583
             },
             {
-              "date": "2025-10-31",
-              "normalizedReturnPct": 5.415
+              "date": "2026-05-19",
+              "normalizedReturnPct": -4.272
             },
             {
-              "date": "2025-11-03",
-              "normalizedReturnPct": 5.586
+              "date": "2026-05-20",
+              "normalizedReturnPct": -4.848
             },
             {
-              "date": "2025-11-04",
-              "normalizedReturnPct": 6.587
+              "date": "2026-05-21",
+              "normalizedReturnPct": -4.327
             },
             {
-              "date": "2025-11-05",
-              "normalizedReturnPct": 5.505
+              "date": "2026-05-22",
+              "normalizedReturnPct": -5.375
             },
             {
-              "date": "2025-11-06",
-              "normalizedReturnPct": 6.802
+              "date": "2026-05-25",
+              "normalizedReturnPct": -5.89
             },
             {
-              "date": "2025-11-07",
-              "normalizedReturnPct": 6.704
+              "date": "2026-05-26",
+              "normalizedReturnPct": -6.034
             },
             {
-              "date": "2025-11-10",
-              "normalizedReturnPct": 7.73
+              "date": "2026-05-27",
+              "normalizedReturnPct": -6.289
             },
             {
-              "date": "2025-11-11",
-              "normalizedReturnPct": 7.074
+              "date": "2026-05-28",
+              "normalizedReturnPct": -8.076
             },
             {
-              "date": "2025-11-12",
-              "normalizedReturnPct": 9.015
+              "date": "2026-05-29",
+              "normalizedReturnPct": -6.712
             },
             {
-              "date": "2025-11-13",
-              "normalizedReturnPct": 10.362
+              "date": "2026-06-01",
+              "normalizedReturnPct": -7.46
             },
             {
-              "date": "2025-11-14",
-              "normalizedReturnPct": 9.495
+              "date": "2026-06-02",
+              "normalizedReturnPct": -8.431
             },
             {
-              "date": "2025-11-17",
-              "normalizedReturnPct": 7.86
+              "date": "2026-06-03",
+              "normalizedReturnPct": -9.946
             },
             {
-              "date": "2025-11-18",
-              "normalizedReturnPct": 7.175
+              "date": "2026-06-04",
+              "normalizedReturnPct": -11.1
             },
             {
-              "date": "2025-11-19",
-              "normalizedReturnPct": 8.979
+              "date": "2026-06-05",
+              "normalizedReturnPct": -10.89
             },
             {
-              "date": "2025-11-20",
-              "normalizedReturnPct": 8.645
+              "date": "2026-06-08",
+              "normalizedReturnPct": -12.647
             },
             {
-              "date": "2025-11-21",
-              "normalizedReturnPct": 6.137
+              "date": "2026-06-09",
+              "normalizedReturnPct": -12.784
             },
             {
-              "date": "2025-11-24",
-              "normalizedReturnPct": 5.142
+              "date": "2026-06-10",
+              "normalizedReturnPct": -11.887
             },
             {
-              "date": "2025-11-25",
-              "normalizedReturnPct": 7.148
+              "date": "2026-06-11",
+              "normalizedReturnPct": -12.209
             },
             {
-              "date": "2025-11-26",
-              "normalizedReturnPct": 7.276
+              "date": "2026-06-12",
+              "normalizedReturnPct": -10.317
             },
             {
-              "date": "2025-11-27",
-              "normalizedReturnPct": 7.007
+              "date": "2026-06-15",
+              "normalizedReturnPct": -10.668
             },
             {
-              "date": "2025-11-28",
-              "normalizedReturnPct": 6.361
+              "date": "2026-06-16",
+              "normalizedReturnPct": -12.157
             },
             {
-              "date": "2025-12-01",
-              "normalizedReturnPct": 5.958
+              "date": "2026-06-17",
+              "normalizedReturnPct": -12.651
             },
             {
-              "date": "2025-12-02",
-              "normalizedReturnPct": 6.385
+              "date": "2026-06-18",
+              "normalizedReturnPct": -11.591
             },
             {
-              "date": "2025-12-03",
-              "normalizedReturnPct": 5.299
+              "date": "2026-06-22",
+              "normalizedReturnPct": -10.795
             },
             {
-              "date": "2025-12-04",
-              "normalizedReturnPct": 5.691
+              "date": "2026-06-23",
+              "normalizedReturnPct": -10.363
             },
             {
-              "date": "2025-12-05",
-              "normalizedReturnPct": 11.818
+              "date": "2026-06-24",
+              "normalizedReturnPct": -9.101
             },
             {
-              "date": "2025-12-08",
-              "normalizedReturnPct": 13.963
+              "date": "2026-06-25",
+              "normalizedReturnPct": -8.738
             },
             {
-              "date": "2025-12-09",
-              "normalizedReturnPct": 12.136
+              "date": "2026-06-26",
+              "normalizedReturnPct": -11.346
             },
             {
-              "date": "2025-12-10",
-              "normalizedReturnPct": 12.565
+              "date": "2026-06-29",
+              "normalizedReturnPct": -5.774
             },
             {
-              "date": "2025-12-11",
-              "normalizedReturnPct": 12.274
+              "date": "2026-06-30",
+              "normalizedReturnPct": -7.268
             },
             {
-              "date": "2025-12-12",
-              "normalizedReturnPct": 14.424
+              "date": "2026-07-01",
+              "normalizedReturnPct": -3.935
             },
             {
-              "date": "2025-12-15",
-              "normalizedReturnPct": 19.347
+              "date": "2026-07-02",
+              "normalizedReturnPct": -4.153
             },
             {
-              "date": "2025-12-16",
-              "normalizedReturnPct": 18.736
+              "date": "2026-07-03",
+              "normalizedReturnPct": -2.185
             },
             {
-              "date": "2025-12-17",
-              "normalizedReturnPct": 21.325
+              "date": "2026-07-06",
+              "normalizedReturnPct": -1.304
             },
             {
-              "date": "2025-12-18",
-              "normalizedReturnPct": 22.185
+              "date": "2026-07-07",
+              "normalizedReturnPct": -4.849
             },
             {
-              "date": "2025-12-19",
-              "normalizedReturnPct": 22.467
+              "date": "2026-07-08",
+              "normalizedReturnPct": -6.209
             },
             {
-              "date": "2025-12-22",
-              "normalizedReturnPct": 22.368
+              "date": "2026-07-09",
+              "normalizedReturnPct": -4.892
             },
             {
-              "date": "2025-12-23",
-              "normalizedReturnPct": 23.868
+              "date": "2026-07-10",
+              "normalizedReturnPct": -2.947
             },
             {
-              "date": "2025-12-24",
-              "normalizedReturnPct": 22.948
+              "date": "2026-07-13",
+              "normalizedReturnPct": -3.497
             },
             {
-              "date": "2025-12-25",
-              "normalizedReturnPct": 25.894
+              "date": "2026-07-14",
+              "normalizedReturnPct": -1.046
             },
             {
-              "date": "2025-12-26",
-              "normalizedReturnPct": 26.097
+              "date": "2026-07-15",
+              "normalizedReturnPct": 2.361
             },
             {
-              "date": "2025-12-29",
-              "normalizedReturnPct": 24.305
+              "date": "2026-07-16",
+              "normalizedReturnPct": 2.556
             },
             {
-              "date": "2025-12-30",
-              "normalizedReturnPct": 22.55
-            },
-            {
-              "date": "2025-12-31",
-              "normalizedReturnPct": 21.967
+              "date": "2026-07-17",
+              "normalizedReturnPct": -2.703
             }
           ]
         },
         {
-          "name": "制药生物",
-          "code": "H30179",
+          "name": "主要消费",
+          "code": "000990",
           "points": [
             {
-              "date": "2025-10-09",
+              "date": "2026-04-21",
               "normalizedReturnPct": 0.0
             },
             {
-              "date": "2025-10-10",
-              "normalizedReturnPct": -1.86
+              "date": "2026-04-22",
+              "normalizedReturnPct": -0.634
             },
             {
-              "date": "2025-10-13",
-              "normalizedReturnPct": -3.51
+              "date": "2026-04-23",
+              "normalizedReturnPct": -0.422
             },
             {
-              "date": "2025-10-14",
-              "normalizedReturnPct": -5.498
+              "date": "2026-04-24",
+              "normalizedReturnPct": -0.251
             },
             {
-              "date": "2025-10-15",
-              "normalizedReturnPct": -3.124
+              "date": "2026-04-27",
+              "normalizedReturnPct": -1.469
             },
             {
-              "date": "2025-10-16",
-              "normalizedReturnPct": -2.7
+              "date": "2026-04-28",
+              "normalizedReturnPct": -1.199
             },
             {
-              "date": "2025-10-17",
-              "normalizedReturnPct": -4.449
+              "date": "2026-04-29",
+              "normalizedReturnPct": 0.314
             },
             {
-              "date": "2025-10-20",
-              "normalizedReturnPct": -4.082
+              "date": "2026-04-30",
+              "normalizedReturnPct": 0.243
             },
             {
-              "date": "2025-10-21",
-              "normalizedReturnPct": -3.089
+              "date": "2026-05-06",
+              "normalizedReturnPct": -0.474
             },
             {
-              "date": "2025-10-22",
-              "normalizedReturnPct": -3.51
+              "date": "2026-05-07",
+              "normalizedReturnPct": -0.772
             },
             {
-              "date": "2025-10-23",
-              "normalizedReturnPct": -4.234
+              "date": "2026-05-08",
+              "normalizedReturnPct": -1.342
             },
             {
-              "date": "2025-10-24",
-              "normalizedReturnPct": -3.973
+              "date": "2026-05-11",
+              "normalizedReturnPct": -1.169
             },
             {
-              "date": "2025-10-27",
-              "normalizedReturnPct": -2.91
+              "date": "2026-05-12",
+              "normalizedReturnPct": -2.533
             },
             {
-              "date": "2025-10-28",
-              "normalizedReturnPct": -4.022
+              "date": "2026-05-13",
+              "normalizedReturnPct": -3.273
             },
             {
-              "date": "2025-10-29",
-              "normalizedReturnPct": -3.224
+              "date": "2026-05-14",
+              "normalizedReturnPct": -3.167
             },
             {
-              "date": "2025-10-30",
-              "normalizedReturnPct": -5.303
+              "date": "2026-05-15",
+              "normalizedReturnPct": -4.623
             },
             {
-              "date": "2025-10-31",
-              "normalizedReturnPct": -2.642
+              "date": "2026-05-18",
+              "normalizedReturnPct": -5.806
             },
             {
-              "date": "2025-11-03",
-              "normalizedReturnPct": -2.843
+              "date": "2026-05-19",
+              "normalizedReturnPct": -5.857
             },
             {
-              "date": "2025-11-04",
-              "normalizedReturnPct": -4.676
+              "date": "2026-05-20",
+              "normalizedReturnPct": -6.133
             },
             {
-              "date": "2025-11-05",
-              "normalizedReturnPct": -4.998
+              "date": "2026-05-21",
+              "normalizedReturnPct": -7.071
             },
             {
-              "date": "2025-11-06",
-              "normalizedReturnPct": -4.743
+              "date": "2026-05-22",
+              "normalizedReturnPct": -8.391
             },
             {
-              "date": "2025-11-07",
-              "normalizedReturnPct": -5.088
+              "date": "2026-05-25",
+              "normalizedReturnPct": -8.315
             },
             {
-              "date": "2025-11-10",
-              "normalizedReturnPct": -4.083
+              "date": "2026-05-26",
+              "normalizedReturnPct": -8.613
             },
             {
-              "date": "2025-11-11",
-              "normalizedReturnPct": -4.215
+              "date": "2026-05-27",
+              "normalizedReturnPct": -8.171
             },
             {
-              "date": "2025-11-12",
-              "normalizedReturnPct": -3.662
+              "date": "2026-05-28",
+              "normalizedReturnPct": -9.913
             },
             {
-              "date": "2025-11-13",
-              "normalizedReturnPct": -1.886
+              "date": "2026-05-29",
+              "normalizedReturnPct": -7.391
             },
             {
-              "date": "2025-11-14",
-              "normalizedReturnPct": -1.961
+              "date": "2026-06-01",
+              "normalizedReturnPct": -7.217
             },
             {
-              "date": "2025-11-17",
-              "normalizedReturnPct": -3.793
+              "date": "2026-06-02",
+              "normalizedReturnPct": -8.585
             },
             {
-              "date": "2025-11-18",
-              "normalizedReturnPct": -4.679
+              "date": "2026-06-03",
+              "normalizedReturnPct": -9.792
             },
             {
-              "date": "2025-11-19",
-              "normalizedReturnPct": -5.833
+              "date": "2026-06-04",
+              "normalizedReturnPct": -11.452
             },
             {
-              "date": "2025-11-20",
-              "normalizedReturnPct": -6.122
+              "date": "2026-06-05",
+              "normalizedReturnPct": -11.85
             },
             {
-              "date": "2025-11-21",
-              "normalizedReturnPct": -8.56
+              "date": "2026-06-08",
+              "normalizedReturnPct": -13.181
             },
             {
-              "date": "2025-11-24",
-              "normalizedReturnPct": -7.352
+              "date": "2026-06-09",
+              "normalizedReturnPct": -13.724
             },
             {
-              "date": "2025-11-25",
-              "normalizedReturnPct": -6.46
+              "date": "2026-06-10",
+              "normalizedReturnPct": -12.87
             },
             {
-              "date": "2025-11-26",
-              "normalizedReturnPct": -5.613
+              "date": "2026-06-11",
+              "normalizedReturnPct": -12.942
             },
             {
-              "date": "2025-11-27",
-              "normalizedReturnPct": -6.139
+              "date": "2026-06-12",
+              "normalizedReturnPct": -12.174
             },
             {
-              "date": "2025-11-28",
-              "normalizedReturnPct": -6.307
+              "date": "2026-06-15",
+              "normalizedReturnPct": -12.669
             },
             {
-              "date": "2025-12-01",
-              "normalizedReturnPct": -6.001
+              "date": "2026-06-16",
+              "normalizedReturnPct": -14.186
             },
             {
-              "date": "2025-12-02",
-              "normalizedReturnPct": -7.341
+              "date": "2026-06-17",
+              "normalizedReturnPct": -15.066
             },
             {
-              "date": "2025-12-03",
-              "normalizedReturnPct": -7.619
+              "date": "2026-06-18",
+              "normalizedReturnPct": -16.917
             },
             {
-              "date": "2025-12-04",
-              "normalizedReturnPct": -7.453
+              "date": "2026-06-22",
+              "normalizedReturnPct": -16.106
             },
             {
-              "date": "2025-12-05",
-              "normalizedReturnPct": -7.142
+              "date": "2026-06-23",
+              "normalizedReturnPct": -17.332
             },
             {
-              "date": "2025-12-08",
-              "normalizedReturnPct": -6.945
+              "date": "2026-06-24",
+              "normalizedReturnPct": -18.608
             },
             {
-              "date": "2025-12-09",
-              "normalizedReturnPct": -7.477
+              "date": "2026-06-25",
+              "normalizedReturnPct": -18.345
             },
             {
-              "date": "2025-12-10",
-              "normalizedReturnPct": -7.28
+              "date": "2026-06-26",
+              "normalizedReturnPct": -19.541
             },
             {
-              "date": "2025-12-11",
-              "normalizedReturnPct": -7.683
+              "date": "2026-06-29",
+              "normalizedReturnPct": -17.271
             },
             {
-              "date": "2025-12-12",
-              "normalizedReturnPct": -7.509
+              "date": "2026-06-30",
+              "normalizedReturnPct": -18.179
             },
             {
-              "date": "2025-12-15",
-              "normalizedReturnPct": -9.017
+              "date": "2026-07-01",
+              "normalizedReturnPct": -16.281
             },
             {
-              "date": "2025-12-16",
-              "normalizedReturnPct": -10.751
+              "date": "2026-07-02",
+              "normalizedReturnPct": -16.391
             },
             {
-              "date": "2025-12-17",
-              "normalizedReturnPct": -9.682
+              "date": "2026-07-03",
+              "normalizedReturnPct": -16.363
             },
             {
-              "date": "2025-12-18",
-              "normalizedReturnPct": -9.838
+              "date": "2026-07-06",
+              "normalizedReturnPct": -14.793
             },
             {
-              "date": "2025-12-19",
-              "normalizedReturnPct": -8.505
+              "date": "2026-07-07",
+              "normalizedReturnPct": -16.112
             },
             {
-              "date": "2025-12-22",
-              "normalizedReturnPct": -8.69
+              "date": "2026-07-08",
+              "normalizedReturnPct": -16.636
             },
             {
-              "date": "2025-12-23",
-              "normalizedReturnPct": -8.9
+              "date": "2026-07-09",
+              "normalizedReturnPct": -17.42
             },
             {
-              "date": "2025-12-24",
-              "normalizedReturnPct": -8.72
+              "date": "2026-07-10",
+              "normalizedReturnPct": -15.753
             },
             {
-              "date": "2025-12-25",
-              "normalizedReturnPct": -8.362
+              "date": "2026-07-13",
+              "normalizedReturnPct": -15.898
             },
             {
-              "date": "2025-12-26",
-              "normalizedReturnPct": -8.48
+              "date": "2026-07-14",
+              "normalizedReturnPct": -15.581
             },
             {
-              "date": "2025-12-29",
-              "normalizedReturnPct": -9.505
+              "date": "2026-07-15",
+              "normalizedReturnPct": -12.459
             },
             {
-              "date": "2025-12-30",
-              "normalizedReturnPct": -9.935
+              "date": "2026-07-16",
+              "normalizedReturnPct": -11.911
             },
             {
-              "date": "2025-12-31",
-              "normalizedReturnPct": -10.332
+              "date": "2026-07-17",
+              "normalizedReturnPct": -13.357
             }
           ]
         },
         {
-          "name": "全指食品",
-          "code": "H30177",
+          "name": "军工",
+          "code": "399967",
           "points": [
             {
-              "date": "2025-10-09",
+              "date": "2026-04-21",
               "normalizedReturnPct": 0.0
             },
             {
-              "date": "2025-10-10",
-              "normalizedReturnPct": 0.375
+              "date": "2026-04-22",
+              "normalizedReturnPct": 0.271
             },
             {
-              "date": "2025-10-13",
-              "normalizedReturnPct": -0.776
+              "date": "2026-04-23",
+              "normalizedReturnPct": 0.423
             },
             {
-              "date": "2025-10-14",
-              "normalizedReturnPct": 0.65
+              "date": "2026-04-24",
+              "normalizedReturnPct": -1.533
             },
             {
-              "date": "2025-10-15",
-              "normalizedReturnPct": 1.425
+              "date": "2026-04-27",
+              "normalizedReturnPct": -1.695
             },
             {
-              "date": "2025-10-16",
-              "normalizedReturnPct": 2.145
+              "date": "2026-04-28",
+              "normalizedReturnPct": -3.234
             },
             {
-              "date": "2025-10-17",
-              "normalizedReturnPct": 0.77
+              "date": "2026-04-29",
+              "normalizedReturnPct": -2.96
             },
             {
-              "date": "2025-10-20",
-              "normalizedReturnPct": 0.404
+              "date": "2026-04-30",
+              "normalizedReturnPct": -1.351
             },
             {
-              "date": "2025-10-21",
-              "normalizedReturnPct": 0.593
+              "date": "2026-05-06",
+              "normalizedReturnPct": 0.814
             },
             {
-              "date": "2025-10-22",
-              "normalizedReturnPct": 0.246
+              "date": "2026-05-07",
+              "normalizedReturnPct": 1.995
             },
             {
-              "date": "2025-10-23",
-              "normalizedReturnPct": 0.518
+              "date": "2026-05-08",
+              "normalizedReturnPct": 3.875
             },
             {
-              "date": "2025-10-24",
-              "normalizedReturnPct": -0.747
+              "date": "2026-05-11",
+              "normalizedReturnPct": 4.629
             },
             {
-              "date": "2025-10-27",
-              "normalizedReturnPct": -0.796
+              "date": "2026-05-12",
+              "normalizedReturnPct": 3.732
             },
             {
-              "date": "2025-10-28",
-              "normalizedReturnPct": -1.074
+              "date": "2026-05-13",
+              "normalizedReturnPct": 4.936
             },
             {
-              "date": "2025-10-29",
-              "normalizedReturnPct": -1.232
+              "date": "2026-05-14",
+              "normalizedReturnPct": 0.101
             },
             {
-              "date": "2025-10-30",
-              "normalizedReturnPct": -1.412
+              "date": "2026-05-15",
+              "normalizedReturnPct": -2.25
             },
             {
-              "date": "2025-10-31",
-              "normalizedReturnPct": -0.353
+              "date": "2026-05-18",
+              "normalizedReturnPct": -2.912
             },
             {
-              "date": "2025-11-03",
-              "normalizedReturnPct": -0.108
+              "date": "2026-05-19",
+              "normalizedReturnPct": -2.786
             },
             {
-              "date": "2025-11-04",
-              "normalizedReturnPct": -1.363
+              "date": "2026-05-20",
+              "normalizedReturnPct": -3.237
             },
             {
-              "date": "2025-11-05",
-              "normalizedReturnPct": -1.493
+              "date": "2026-05-21",
+              "normalizedReturnPct": -5.687
             },
             {
-              "date": "2025-11-06",
-              "normalizedReturnPct": -1.429
+              "date": "2026-05-22",
+              "normalizedReturnPct": -4.236
             },
             {
-              "date": "2025-11-07",
-              "normalizedReturnPct": -1.395
+              "date": "2026-05-25",
+              "normalizedReturnPct": -2.907
             },
             {
-              "date": "2025-11-10",
-              "normalizedReturnPct": 2.26
+              "date": "2026-05-26",
+              "normalizedReturnPct": -4.896
             },
             {
-              "date": "2025-11-11",
-              "normalizedReturnPct": 2.615
+              "date": "2026-05-27",
+              "normalizedReturnPct": -6.726
             },
             {
-              "date": "2025-11-12",
-              "normalizedReturnPct": 2.908
+              "date": "2026-05-28",
+              "normalizedReturnPct": -5.219
             },
             {
-              "date": "2025-11-13",
-              "normalizedReturnPct": 3.62
+              "date": "2026-05-29",
+              "normalizedReturnPct": -9.719
             },
             {
-              "date": "2025-11-14",
-              "normalizedReturnPct": 2.337
+              "date": "2026-06-01",
+              "normalizedReturnPct": -10.868
             },
             {
-              "date": "2025-11-17",
-              "normalizedReturnPct": 2.198
+              "date": "2026-06-02",
+              "normalizedReturnPct": -11.092
             },
             {
-              "date": "2025-11-18",
-              "normalizedReturnPct": 1.951
+              "date": "2026-06-03",
+              "normalizedReturnPct": -10.474
             },
             {
-              "date": "2025-11-19",
-              "normalizedReturnPct": 1.504
+              "date": "2026-06-04",
+              "normalizedReturnPct": -10.137
             },
             {
-              "date": "2025-11-20",
-              "normalizedReturnPct": 0.849
+              "date": "2026-06-05",
+              "normalizedReturnPct": -10.432
             },
             {
-              "date": "2025-11-21",
-              "normalizedReturnPct": -0.458
+              "date": "2026-06-08",
+              "normalizedReturnPct": -14.265
             },
             {
-              "date": "2025-11-24",
-              "normalizedReturnPct": -0.857
+              "date": "2026-06-09",
+              "normalizedReturnPct": -13.158
             },
             {
-              "date": "2025-11-25",
-              "normalizedReturnPct": -0.543
+              "date": "2026-06-10",
+              "normalizedReturnPct": -14.161
             },
             {
-              "date": "2025-11-26",
-              "normalizedReturnPct": -0.472
+              "date": "2026-06-11",
+              "normalizedReturnPct": -14.219
             },
             {
-              "date": "2025-11-27",
-              "normalizedReturnPct": -0.566
+              "date": "2026-06-12",
+              "normalizedReturnPct": -12.524
             },
             {
-              "date": "2025-11-28",
-              "normalizedReturnPct": -0.108
+              "date": "2026-06-15",
+              "normalizedReturnPct": -11.289
             },
             {
-              "date": "2025-12-01",
-              "normalizedReturnPct": 0.215
+              "date": "2026-06-16",
+              "normalizedReturnPct": -11.01
             },
             {
-              "date": "2025-12-02",
-              "normalizedReturnPct": -0.43
+              "date": "2026-06-17",
+              "normalizedReturnPct": -9.506
             },
             {
-              "date": "2025-12-03",
-              "normalizedReturnPct": -1.271
+              "date": "2026-06-18",
+              "normalizedReturnPct": -9.398
             },
             {
-              "date": "2025-12-04",
-              "normalizedReturnPct": -2.72
+              "date": "2026-06-22",
+              "normalizedReturnPct": -8.813
             },
             {
-              "date": "2025-12-05",
-              "normalizedReturnPct": -2.39
+              "date": "2026-06-23",
+              "normalizedReturnPct": -12.086
             },
             {
-              "date": "2025-12-08",
-              "normalizedReturnPct": -3.097
+              "date": "2026-06-24",
+              "normalizedReturnPct": -11.327
             },
             {
-              "date": "2025-12-09",
-              "normalizedReturnPct": -3.907
+              "date": "2026-06-25",
+              "normalizedReturnPct": -11.443
             },
             {
-              "date": "2025-12-10",
-              "normalizedReturnPct": -3.64
+              "date": "2026-06-26",
+              "normalizedReturnPct": -12.929
             },
             {
-              "date": "2025-12-11",
-              "normalizedReturnPct": -4.41
+              "date": "2026-06-29",
+              "normalizedReturnPct": -13.298
             },
             {
-              "date": "2025-12-12",
-              "normalizedReturnPct": -4.162
+              "date": "2026-06-30",
+              "normalizedReturnPct": -10.168
             },
             {
-              "date": "2025-12-15",
-              "normalizedReturnPct": -3.328
+              "date": "2026-07-01",
+              "normalizedReturnPct": -9.566
             },
             {
-              "date": "2025-12-16",
-              "normalizedReturnPct": -3.455
+              "date": "2026-07-02",
+              "normalizedReturnPct": -11.788
             },
             {
-              "date": "2025-12-17",
-              "normalizedReturnPct": -3.11
+              "date": "2026-07-03",
+              "normalizedReturnPct": -8.75
             },
             {
-              "date": "2025-12-18",
-              "normalizedReturnPct": -3.453
+              "date": "2026-07-06",
+              "normalizedReturnPct": -10.105
             },
             {
-              "date": "2025-12-19",
-              "normalizedReturnPct": -2.353
+              "date": "2026-07-07",
+              "normalizedReturnPct": -12.451
             },
             {
-              "date": "2025-12-22",
-              "normalizedReturnPct": -2.388
+              "date": "2026-07-08",
+              "normalizedReturnPct": -14.599
             },
             {
-              "date": "2025-12-23",
-              "normalizedReturnPct": -2.983
+              "date": "2026-07-09",
+              "normalizedReturnPct": -12.735
             },
             {
-              "date": "2025-12-24",
-              "normalizedReturnPct": -3.255
+              "date": "2026-07-10",
+              "normalizedReturnPct": -10.647
             },
             {
-              "date": "2025-12-25",
-              "normalizedReturnPct": -2.485
+              "date": "2026-07-13",
+              "normalizedReturnPct": -16.51
             },
             {
-              "date": "2025-12-26",
-              "normalizedReturnPct": -3.061
+              "date": "2026-07-14",
+              "normalizedReturnPct": -18.644
             },
             {
-              "date": "2025-12-29",
-              "normalizedReturnPct": -4.074
+              "date": "2026-07-15",
+              "normalizedReturnPct": -19.856
             },
             {
-              "date": "2025-12-30",
-              "normalizedReturnPct": -4.534
+              "date": "2026-07-16",
+              "normalizedReturnPct": -21.549
             },
             {
-              "date": "2025-12-31",
-              "normalizedReturnPct": -4.938
+              "date": "2026-07-17",
+              "normalizedReturnPct": -25.689
+            }
+          ]
+        },
+        {
+          "name": "通信服务",
+          "code": "000994",
+          "points": [
+            {
+              "date": "2026-04-21",
+              "normalizedReturnPct": 0.0
+            },
+            {
+              "date": "2026-04-22",
+              "normalizedReturnPct": 3.526
+            },
+            {
+              "date": "2026-04-23",
+              "normalizedReturnPct": 2.649
+            },
+            {
+              "date": "2026-04-24",
+              "normalizedReturnPct": -1.336
+            },
+            {
+              "date": "2026-04-27",
+              "normalizedReturnPct": -1.548
+            },
+            {
+              "date": "2026-04-28",
+              "normalizedReturnPct": -3.488
+            },
+            {
+              "date": "2026-04-29",
+              "normalizedReturnPct": -2.557
+            },
+            {
+              "date": "2026-04-30",
+              "normalizedReturnPct": -3.126
+            },
+            {
+              "date": "2026-05-06",
+              "normalizedReturnPct": -1.099
+            },
+            {
+              "date": "2026-05-07",
+              "normalizedReturnPct": 2.751
+            },
+            {
+              "date": "2026-05-08",
+              "normalizedReturnPct": 3.676
+            },
+            {
+              "date": "2026-05-11",
+              "normalizedReturnPct": 5.927
+            },
+            {
+              "date": "2026-05-12",
+              "normalizedReturnPct": 7.5
+            },
+            {
+              "date": "2026-05-13",
+              "normalizedReturnPct": 10.83
+            },
+            {
+              "date": "2026-05-14",
+              "normalizedReturnPct": 9.8
+            },
+            {
+              "date": "2026-05-15",
+              "normalizedReturnPct": 7.782
+            },
+            {
+              "date": "2026-05-18",
+              "normalizedReturnPct": 8.28
+            },
+            {
+              "date": "2026-05-19",
+              "normalizedReturnPct": 8.083
+            },
+            {
+              "date": "2026-05-20",
+              "normalizedReturnPct": 7.677
+            },
+            {
+              "date": "2026-05-21",
+              "normalizedReturnPct": 2.675
+            },
+            {
+              "date": "2026-05-22",
+              "normalizedReturnPct": 6.017
+            },
+            {
+              "date": "2026-05-25",
+              "normalizedReturnPct": 9.29
+            },
+            {
+              "date": "2026-05-26",
+              "normalizedReturnPct": 8.925
+            },
+            {
+              "date": "2026-05-27",
+              "normalizedReturnPct": 7.979
+            },
+            {
+              "date": "2026-05-28",
+              "normalizedReturnPct": 11.671
+            },
+            {
+              "date": "2026-05-29",
+              "normalizedReturnPct": 10.529
+            },
+            {
+              "date": "2026-06-01",
+              "normalizedReturnPct": 7.914
+            },
+            {
+              "date": "2026-06-02",
+              "normalizedReturnPct": 12.625
+            },
+            {
+              "date": "2026-06-03",
+              "normalizedReturnPct": 17.059
+            },
+            {
+              "date": "2026-06-04",
+              "normalizedReturnPct": 16.704
+            },
+            {
+              "date": "2026-06-05",
+              "normalizedReturnPct": 13.564
+            },
+            {
+              "date": "2026-06-08",
+              "normalizedReturnPct": 10.262
+            },
+            {
+              "date": "2026-06-09",
+              "normalizedReturnPct": 15.196
+            },
+            {
+              "date": "2026-06-10",
+              "normalizedReturnPct": 12.363
+            },
+            {
+              "date": "2026-06-11",
+              "normalizedReturnPct": 9.841
+            },
+            {
+              "date": "2026-06-12",
+              "normalizedReturnPct": 8.954
+            },
+            {
+              "date": "2026-06-15",
+              "normalizedReturnPct": 14.789
+            },
+            {
+              "date": "2026-06-16",
+              "normalizedReturnPct": 17.253
+            },
+            {
+              "date": "2026-06-17",
+              "normalizedReturnPct": 18.369
+            },
+            {
+              "date": "2026-06-18",
+              "normalizedReturnPct": 21.573
+            },
+            {
+              "date": "2026-06-22",
+              "normalizedReturnPct": 24.301
+            },
+            {
+              "date": "2026-06-23",
+              "normalizedReturnPct": 20.681
+            },
+            {
+              "date": "2026-06-24",
+              "normalizedReturnPct": 21.794
+            },
+            {
+              "date": "2026-06-25",
+              "normalizedReturnPct": 24.992
+            },
+            {
+              "date": "2026-06-26",
+              "normalizedReturnPct": 17.389
+            },
+            {
+              "date": "2026-06-29",
+              "normalizedReturnPct": 15.22
+            },
+            {
+              "date": "2026-06-30",
+              "normalizedReturnPct": 20.143
+            },
+            {
+              "date": "2026-07-01",
+              "normalizedReturnPct": 16.524
+            },
+            {
+              "date": "2026-07-02",
+              "normalizedReturnPct": 9.451
+            },
+            {
+              "date": "2026-07-03",
+              "normalizedReturnPct": 8.991
+            },
+            {
+              "date": "2026-07-06",
+              "normalizedReturnPct": 6.282
+            },
+            {
+              "date": "2026-07-07",
+              "normalizedReturnPct": 6.169
+            },
+            {
+              "date": "2026-07-08",
+              "normalizedReturnPct": 6.044
+            },
+            {
+              "date": "2026-07-09",
+              "normalizedReturnPct": 11.123
+            },
+            {
+              "date": "2026-07-10",
+              "normalizedReturnPct": 9.295
+            },
+            {
+              "date": "2026-07-13",
+              "normalizedReturnPct": 5.339
+            },
+            {
+              "date": "2026-07-14",
+              "normalizedReturnPct": 8.864
+            },
+            {
+              "date": "2026-07-15",
+              "normalizedReturnPct": 7.775
+            },
+            {
+              "date": "2026-07-16",
+              "normalizedReturnPct": 5.15
+            },
+            {
+              "date": "2026-07-17",
+              "normalizedReturnPct": -4.095
             }
           ]
         }
@@ -1458,50 +1554,50 @@
       "unit": "倍",
       "items": [
         {
-          "sector": "航空航天",
-          "code": "932143",
-          "value": 1.646
+          "sector": "医药医疗",
+          "code": "000991",
+          "value": 1.497
         },
         {
-          "sector": "汽车汽配",
-          "code": "H30164",
-          "value": 1.506
+          "sector": "主要消费",
+          "code": "000990",
+          "value": 1.175
         },
         {
-          "sector": "机械制造",
-          "code": "H30166",
-          "value": 1.4
+          "sector": "能源",
+          "code": "000986",
+          "value": 1.139
         },
         {
-          "sector": "全指化工",
-          "code": "H30187",
-          "value": 1.35
+          "sector": "移动互联网",
+          "code": "399970",
+          "value": 0.961
         },
         {
-          "sector": "运输指数",
-          "code": "H30171",
-          "value": 1.308
+          "sector": "通信服务",
+          "code": "000994",
+          "value": 0.941
         },
         {
-          "sector": "耐用消费品",
-          "code": "H30196",
-          "value": 1.308
+          "sector": "公用事业",
+          "code": "000995",
+          "value": 0.882
         },
         {
-          "sector": "计算机",
-          "code": "H30182",
-          "value": 1.213
+          "sector": "可选消费",
+          "code": "000989",
+          "value": 0.881
         },
         {
-          "sector": "零售指数",
-          "code": "H30175",
-          "value": 1.11
+          "sector": "信息技术",
+          "code": "000993",
+          "value": 0.879
         }
       ]
     }
   },
   "limitations": [
-    "V1.7正文称35个二级行业，附录逐项仅列32个；本模型只用附录32个代码。",
+    "固定观察池由10个一级行业与军工、移动互联网两个重点主题指数构成；重点标签不参与打分，主题指数与一级行业可能重叠。",
     "行业指数成交量和成交额是指数层观察，不等于机构真实持仓或已确认资金流。",
     "模型只覆盖量价与横截面相对强弱；新闻、机构观点和国家队线索不泄漏进基础模型。",
     "交易成本、指数样本调整、不可交易性和极端事件会削弱样本外表现。",

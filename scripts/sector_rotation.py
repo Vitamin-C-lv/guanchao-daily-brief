@@ -26,6 +26,7 @@ import random
 import re
 import shutil
 import statistics
+import subprocess
 import sys
 import tempfile
 import time
@@ -33,7 +34,7 @@ from collections import defaultdict
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Iterable, Iterator
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 try:
     import requests
@@ -47,7 +48,7 @@ DATA_DIR = ROOT / "data" / "rotation-model"
 HISTORY_DIR = DATA_DIR / "history"
 FEATURE_DIR = DATA_DIR / "features"
 EVENT_DIR = DATA_DIR / "events"
-TAXONOMY_PATH = MODEL_DIR / "taxonomy.csi-level2-v1.7.json"
+TAXONOMY_PATH = MODEL_DIR / "taxonomy.a-core12-v2.json"
 CALENDAR_PATH = MODEL_DIR / "cn-market-calendar-2026.json"
 FEATURE_PATH = FEATURE_DIR / "a-share-features.csv.gz"
 MODEL_PATH = MODEL_DIR / "a-share-v1.json"
@@ -59,6 +60,18 @@ DAILY_BRIEF_PATH = ROOT / "content" / "daily-brief.json"
 
 CSI_API = "https://www.csindex.com.cn/csindex-home/perf/index-perf"
 CSI_REFERER = "https://www.csindex.com.cn/"
+BAIDU_KLINE_API = "https://finance.pae.baidu.com/selfselect/getstockquotation"
+BAIDU_REFERER = "https://gushitong.baidu.com/"
+TENCENT_KLINE_API = "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get"
+# Baidu resolves some 000xxx index-looking codes as Shenzhen equities.  Keep
+# this allow-list deliberately narrow instead of inferring eligibility from a
+# numeric prefix or taxonomy role.
+BAIDU_FALLBACK_CODES = frozenset({"399967", "399970"})
+# CSI publishes OHLC rounded to 0.1 index point in a small number of rows.  A
+# close/open can consequently exceed the rounded high (or undershoot the low)
+# by exactly 0.1; 0.11 absorbs that representation error without accepting a
+# materially inconsistent bar.
+CSI_OHLC_TOLERANCE_POINTS = 0.11
 HSI_CURRENT_API = "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
 HSI_INDUSTRY_PAGE = "https://www.hsi.com.hk/eng/indexes/all-indexes/industry"
 # China Standard Time has no daylight-saving transition; a fixed offset keeps
@@ -188,12 +201,49 @@ def sha256_path(path: Path) -> str:
     return digest.hexdigest()
 
 
+def canonical_json_sha256(payload: Any) -> str:
+    """Hash JSON semantics, independent of indentation and line endings."""
+    encoded = json.dumps(
+        payload,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(encoded).hexdigest()
+
+
 def finite(value: Any) -> float | None:
     try:
         number = float(value)
     except (TypeError, ValueError):
         return None
     return number if math.isfinite(number) else None
+
+
+def valid_ohlc(
+    open_value: float | None,
+    high: float | None,
+    low: float | None,
+    close: float | None,
+    *,
+    tolerance: float = 0.0,
+) -> bool:
+    """Return whether a daily bar is internally consistent within source precision."""
+    values = (open_value, high, low, close)
+    if any(value is None or value <= 0 for value in values):
+        return False
+    assert open_value is not None and high is not None and low is not None and close is not None
+    return (
+        high + tolerance >= max(open_value, close)
+        and low - tolerance <= min(open_value, close)
+        and high + tolerance >= low
+    )
+
+
+def baidu_fallback_allowed(index: dict[str, Any]) -> bool:
+    """Permit Baidu only for the two explicitly reviewed 399 theme indices."""
+    code = str(index.get("code", ""))
+    return code.startswith("399") and code in BAIDU_FALLBACK_CODES
 
 
 def fmt_float(value: float | None, digits: int = 10) -> str:
@@ -210,6 +260,11 @@ def parse_yyyymmdd(raw: Any) -> str | None:
         return datetime.strptime(text, "%Y%m%d").date().isoformat()
     except ValueError:
         return None
+
+
+def as_of_compact(raw: Any) -> str:
+    text = str(raw or "")
+    return text.replace("-", "") if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text) else ""
 
 
 def load_manifest() -> dict[str, Any]:
@@ -264,6 +319,29 @@ def fetch_json_with_retry(
     raise RuntimeError(f"request failed after {attempts} attempts: {last_error}")
 
 
+def fetch_json_via_curl(
+    url: str,
+    *,
+    params: dict[str, str],
+    headers: dict[str, str],
+) -> dict[str, Any]:
+    """Alternative HTTP transport for public endpoints that fingerprint Python TLS."""
+    curl = shutil.which("curl") or shutil.which("curl.exe")
+    if not curl:
+        raise RuntimeError("curl transport is unavailable")
+    command = [curl, "--fail", "--silent", "--show-error", "--location", "--max-time", "45"]
+    for name, value in headers.items():
+        command.extend(["--header", f"{name}: {value}"])
+    command.append(f"{url}?{urlencode(params)}")
+    result = subprocess.run(command, capture_output=True, text=True, timeout=55, check=False)
+    if result.returncode != 0:
+        raise RuntimeError(f"curl request failed: {result.stderr.strip()}")
+    payload = json.loads(result.stdout)
+    if not isinstance(payload, dict):
+        raise ValueError("curl endpoint returned non-object JSON")
+    return payload
+
+
 def write_history(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile("wb", delete=False, dir=path.parent, suffix=".tmp") as raw:
@@ -287,16 +365,149 @@ def existing_history_rows(path: Path) -> dict[str, dict[str, Any]]:
 
 
 def request_chunks(start_text: str, end_text: str) -> list[tuple[str, str]]:
-    """Split into <=5 calendar-year chunks; CSI silently truncates long spans."""
+    """Split into <=12 calendar-year chunks to minimize CSI WAF pressure."""
     start = date.fromisoformat(start_text)
     end = date.fromisoformat(end_text)
     chunks: list[tuple[str, str]] = []
     cursor = start
     while cursor <= end:
-        chunk_end = min(end, date(min(cursor.year + 4, 9999), 12, 31))
+        chunk_end = min(end, date(min(cursor.year + 11, 9999), 12, 31))
         chunks.append((cursor.isoformat(), chunk_end.isoformat()))
         cursor = chunk_end + timedelta(days=1)
     return chunks
+
+
+def parse_baidu_history(
+    session: requests.Session,
+    index: dict[str, Any],
+    start_text: str,
+    end_text: str,
+) -> list[dict[str, Any]]:
+    """Fetch a bounded vendor fallback with OHLC, volume and turnover amount."""
+    if not baidu_fallback_allowed(index):
+        raise ValueError(
+            f"Baidu fallback is not permitted for {index.get('code', '')}; "
+            "only explicitly reviewed 399 theme indices are eligible"
+        )
+    params = {
+        "all": "1",
+        "isIndex": "true",
+        "isBk": "false",
+        "isBlock": "false",
+        "isFutures": "false",
+        "isStock": "false",
+        "newFormat": "1",
+        "group": "quotation_kline_ab",
+        "finClientType": "pc",
+        "code": index["code"],
+        "start_time": "",
+        "ktype": "1",
+    }
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/vnd.finance-web.v1+json",
+        "Origin": "https://gushitong.baidu.com",
+        "Referer": BAIDU_REFERER,
+    }
+    payload = fetch_json_with_retry(
+        session,
+        BAIDU_KLINE_API,
+        params=params,
+        headers=headers,
+    )
+    market_data = (payload.get("Result") or {}).get("newMarketData") or {}
+    keys = market_data.get("keys") or []
+    raw_text = market_data.get("marketData") or ""
+    if not isinstance(keys, list) or not keys:
+        payload = fetch_json_via_curl(BAIDU_KLINE_API, params=params, headers=headers)
+        market_data = (payload.get("Result") or {}).get("newMarketData") or {}
+        keys = market_data.get("keys") or []
+        raw_text = market_data.get("marketData") or ""
+    if not isinstance(keys, list) or not isinstance(raw_text, str):
+        raise ValueError("unexpected Baidu K-line payload")
+    positions = {str(key): position for position, key in enumerate(keys)}
+    required = {"time", "open", "high", "low", "close", "volume", "amount", "preClose"}
+    if not required <= set(positions):
+        raise ValueError(f"Baidu K-line fields missing: {sorted(required - set(positions))}")
+    rows: list[dict[str, Any]] = []
+    for raw_row in raw_text.split(";"):
+        values = raw_row.split(",")
+        if len(values) < len(keys):
+            continue
+        trading_date = values[positions["time"]]
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", trading_date):
+            continue
+        if trading_date < start_text or trading_date > end_text:
+            continue
+        close = finite(values[positions["close"]])
+        open_value = finite(values[positions["open"]])
+        high = finite(values[positions["high"]])
+        low = finite(values[positions["low"]])
+        volume = finite(values[positions["volume"]])
+        amount_yuan = finite(values[positions["amount"]])
+        previous = finite(values[positions["preClose"]])
+        if (
+            close is None
+            or close <= 0
+            or not valid_ohlc(open_value, high, low, close)
+            or volume is None
+            or volume <= 0
+            or amount_yuan is None
+            or amount_yuan <= 0
+        ):
+            continue
+        change_pct = (close / previous - 1) * 100 if previous is not None and previous > 0 else None
+        rows.append(
+            {
+                "date": trading_date,
+                "code": index["code"],
+                "name": index["shortName"],
+                "close": fmt_float(close, 12),
+                "change_pct": fmt_float(change_pct, 10),
+                "trading_volume": fmt_float(volume, 14),
+                "trading_value_yi": fmt_float(amount_yuan / 100_000_000, 12),
+                "constituents": "",
+            }
+        )
+    rows.sort(key=lambda item: item["date"])
+    return rows
+
+
+def verify_latest_with_tencent(
+    session: requests.Session,
+    index: dict[str, Any],
+    expected_date: str,
+    expected_close: float,
+) -> dict[str, Any]:
+    """Cross-check the latest date and close without mixing vendor series."""
+    symbol = f"{index.get('market', 'sh')}{index['code']}"
+    payload = fetch_json_with_retry(
+        session,
+        TENCENT_KLINE_API,
+        params={"param": f"{symbol},day,{expected_date},{expected_date},5,qfq"},
+        attempts=2,
+    )
+    node = (payload.get("data") or {}).get(symbol) or {}
+    rows = node.get("day") or node.get("qfqday") or []
+    if not rows:
+        raise ValueError("Tencent verification returned no row")
+    latest = rows[-1]
+    if len(latest) < 3:
+        raise ValueError("Tencent verification row is incomplete")
+    vendor_date = str(latest[0])
+    vendor_close = finite(latest[2])
+    if vendor_close is None or vendor_date != expected_date:
+        raise ValueError(f"Tencent verification mismatch date={vendor_date}")
+    relative_gap = abs(vendor_close / expected_close - 1) if expected_close else math.inf
+    if relative_gap > 0.001:
+        raise ValueError(f"Tencent close differs by {relative_gap * 100:.3f}%")
+    return {
+        "status": "matched",
+        "source": TENCENT_KLINE_API,
+        "date": vendor_date,
+        "close": vendor_close,
+        "relativeGapPct": round(relative_gap * 100, 6),
+    }
 
 
 def fetch_a_share_history(args: argparse.Namespace) -> dict[str, Any]:
@@ -307,59 +518,166 @@ def fetch_a_share_history(args: argparse.Namespace) -> dict[str, Any]:
     history_manifest: dict[str, Any] = manifest.setdefault("aShareHistory", {})
     session = requests_session()
     failures: list[dict[str, str]] = []
+    preserved_official_cache_codes: list[str] = []
     downloaded = 0
 
     rate_limited = False
     for position, index in enumerate(indices, start=1):
         code = index["code"]
         path = HISTORY_DIR / f"{code}.csv.gz"
-        by_date = {} if args.refresh else existing_history_rows(path)
+        cached_by_date = existing_history_rows(path)
+        cached_metadata = history_manifest.get(code, {})
+        cached_source = cached_metadata.get("source") if isinstance(cached_metadata, dict) else None
+        by_date = {} if args.refresh else dict(cached_by_date)
         if by_date and max(by_date) >= args.end:
             print(f"[fetch {position:02d}/{len(indices)}] {code} current cache", flush=True)
             continue
-        if by_date:
-            fetch_start = (date.fromisoformat(max(by_date)) + timedelta(days=1)).isoformat()
-        else:
-            fetch_start = args.start
-            # The new appendix indices have a 2021-12-31 base; requesting empty
-            # pre-history wastes rate-limit budget.
-            if code.startswith(("931", "932")):
-                fetch_start = max(fetch_start, "2021-12-31")
+        fetch_start = (
+            (date.fromisoformat(max(by_date)) + timedelta(days=1)).isoformat()
+            if by_date
+            else args.start
+        )
         headers = {
             "Referer": CSI_REFERER,
             "X-Requested-With": "XMLHttpRequest",
             "Accept": "application/json",
         }
+        official_error: str | None = None
+        source_used = CSI_API
         try:
-            for chunk_start, chunk_end in request_chunks(fetch_start, args.end):
-                params = {"indexCode": code, "startDate": chunk_start, "endDate": chunk_end}
-                payload = fetch_json_with_retry(session, CSI_API, params=params, headers=headers)
-                if str(payload.get("code")) != "200" or not isinstance(payload.get("data"), list):
-                    raise ValueError(f"unexpected CSI payload code={payload.get('code')!r}")
-                for raw in payload["data"]:
-                    if not isinstance(raw, dict):
-                        continue
-                    trading_date = parse_yyyymmdd(raw.get("tradeDate"))
-                    close = finite(raw.get("close"))
-                    if not trading_date or close is None or close <= 0:
-                        # The API prepends a metadata-like YYYY-MM-DD row.
-                        continue
-                    by_date[trading_date] = {
-                        "date": trading_date,
-                        "code": code,
-                        "name": raw.get("indexNameCn") or index["shortName"],
-                        "close": fmt_float(close, 12),
-                        "change_pct": fmt_float(finite(raw.get("changePct")), 10),
-                        "trading_volume": fmt_float(finite(raw.get("tradingVol")), 14),
-                        "trading_value_yi": fmt_float(finite(raw.get("tradingValue")), 12),
-                        "constituents": fmt_float(finite(raw.get("consNumber")), 10),
+            try:
+                if rate_limited:
+                    raise RuntimeError("CSI rate gate already detected in this run")
+                for chunk_start, chunk_end in request_chunks(fetch_start, args.end):
+                    # CSI returns HTTP 200 + data=[] when dashed ISO dates are used.
+                    # Its public perf endpoint requires compact YYYYMMDD parameters.
+                    params = {
+                        "indexCode": code,
+                        "startDate": chunk_start.replace("-", ""),
+                        "endDate": chunk_end.replace("-", ""),
                     }
-                time.sleep(args.interval + random.uniform(0.05, 0.20))
+                    payload = fetch_json_with_retry(
+                        session,
+                        CSI_API,
+                        params=params,
+                        headers=headers,
+                        attempts=2,
+                    )
+                    if str(payload.get("code")) != "200" or not isinstance(payload.get("data"), list):
+                        raise ValueError(f"unexpected CSI payload code={payload.get('code')!r}")
+                    chunk_rows: list[dict[str, Any]] = []
+                    for raw in payload["data"]:
+                        if not isinstance(raw, dict):
+                            continue
+                        trading_date = parse_yyyymmdd(raw.get("tradeDate"))
+                        close = finite(raw.get("close"))
+                        open_value = finite(raw.get("open"))
+                        high = finite(raw.get("high"))
+                        low = finite(raw.get("low"))
+                        volume = finite(raw.get("tradingVol"))
+                        amount = finite(raw.get("tradingValue"))
+                        if (
+                            not trading_date
+                            or close is None
+                            or close <= 0
+                            or not valid_ohlc(
+                                open_value,
+                                high,
+                                low,
+                                close,
+                                tolerance=CSI_OHLC_TOLERANCE_POINTS,
+                            )
+                            or volume is None
+                            or volume <= 0
+                            or amount is None
+                            or amount <= 0
+                        ):
+                            # The API can prepend a metadata-like row.
+                            continue
+                        chunk_rows.append({
+                            "date": trading_date,
+                            "code": code,
+                            "name": index["shortName"],
+                            "close": fmt_float(close, 12),
+                            "change_pct": fmt_float(finite(raw.get("changePct")), 10),
+                            "trading_volume": fmt_float(volume, 14),
+                            "trading_value_yi": fmt_float(amount, 12),
+                            "constituents": fmt_float(finite(raw.get("consNumber")), 10),
+                        })
+                    chunk_rows.sort(key=lambda item: item["date"])
+                    if (
+                        len(chunk_rows) >= 2
+                        and chunk_rows[0]["date"] == chunk_start
+                        and all(
+                            chunk_rows[0][field] == chunk_rows[1][field]
+                            for field in ("close", "trading_volume", "trading_value_yi")
+                        )
+                    ):
+                        # CSI can echo the next trading day's values on the query
+                        # start date. Remove only the exact replicated baseline.
+                        chunk_rows.pop(0)
+                    for row in chunk_rows:
+                        by_date[row["date"]] = row
+                    time.sleep(args.interval + random.uniform(0.05, 0.20))
+                official_rows = [by_date[d] for d in sorted(by_date)]
+                if len(official_rows) < args.min_rows:
+                    raise ValueError(f"only {len(official_rows)} valid official daily rows")
+                if official_rows[-1]["date"] < args.end:
+                    raise ValueError(
+                        f"stale official endpoint result ends {official_rows[-1]['date']}, expected {args.end}"
+                    )
+            except Exception as exc:
+                official_error = str(exc)
+                if "403" in official_error or "429" in official_error:
+                    rate_limited = True
+                if cached_by_date and cached_source == CSI_API:
+                    preserved_official_cache_codes.append(code)
+                    raise RuntimeError(
+                        f"CSI failed ({official_error}); preserved official cache "
+                        f"through {max(cached_by_date)}"
+                    ) from exc
+                if not baidu_fallback_allowed(index):
+                    raise RuntimeError(
+                        f"CSI failed ({official_error}); no unambiguous vendor fallback "
+                        f"is permitted for {code}"
+                    ) from exc
+                # Do not splice two vendors across time. The fallback replaces the
+                # entire bounded series and is cross-checked against Tencent below.
+                fallback_rows = parse_baidu_history(session, index, args.start, args.end)
+                if len(fallback_rows) < args.min_rows:
+                    raise ValueError(
+                        f"CSI failed ({official_error}); Baidu fallback has only {len(fallback_rows)} rows"
+                    )
+                if fallback_rows[-1]["date"] < args.end:
+                    raise ValueError(
+                        f"CSI failed ({official_error}); Baidu fallback ends {fallback_rows[-1]['date']}"
+                    )
+                by_date = {row["date"]: row for row in fallback_rows}
+                source_used = BAIDU_KLINE_API
             rows = [by_date[d] for d in sorted(by_date)]
             if len(rows) < args.min_rows:
                 raise ValueError(f"only {len(rows)} valid daily rows")
             if rows[-1]["date"] < args.end:
                 raise ValueError(f"stale endpoint result ends {rows[-1]['date']}, expected {args.end}")
+            if source_used == BAIDU_KLINE_API:
+                # Vendor fallback may replace a vendor cache or create a new
+                # series only after an independent latest-close check succeeds.
+                verification = verify_latest_with_tencent(
+                    session,
+                    index,
+                    rows[-1]["date"],
+                    float(rows[-1]["close"]),
+                )
+            else:
+                try:
+                    verification = verify_latest_with_tencent(
+                        session,
+                        index,
+                        rows[-1]["date"],
+                        float(rows[-1]["close"]),
+                    )
+                except Exception as exc:
+                    verification = {"status": "unavailable", "error": str(exc)}
             write_history(path, rows)
             history_manifest[code] = {
                 "name": rows[-1]["name"],
@@ -367,7 +685,10 @@ def fetch_a_share_history(args: argparse.Namespace) -> dict[str, Any]:
                 "firstDate": rows[0]["date"],
                 "lastDate": rows[-1]["date"],
                 "retrievedAt": now_iso(),
-                "source": CSI_API,
+                "source": source_used,
+                "evidenceClass": "official-primary" if source_used == CSI_API else "vendor-market-data",
+                "officialAttemptError": official_error,
+                "verification": verification,
                 "sha256": sha256_path(path),
                 "compressedBytes": path.stat().st_size,
             }
@@ -380,10 +701,6 @@ def fetch_a_share_history(args: argparse.Namespace) -> dict[str, Any]:
         except Exception as exc:  # continue to preserve usable partial coverage
             failures.append({"code": code, "error": str(exc)})
             print(f"[fetch {position:02d}/{len(indices)}] {code} FAILED: {exc}", file=sys.stderr)
-            if "403" in str(exc) or "429" in str(exc):
-                rate_limited = True
-                print("[fetch] rate gate persists; stopping cleanly for a later resume", file=sys.stderr)
-                break
 
     manifest.update(
         {
@@ -398,10 +715,14 @@ def fetch_a_share_history(args: argparse.Namespace) -> dict[str, Any]:
                 "start": args.start,
                 "end": args.end,
                 "officialEndpoint": CSI_API,
+                "fallbackEndpoint": BAIDU_KLINE_API,
+                "fallbackEligibleCodes": sorted(BAIDU_FALLBACK_CODES),
+                "verificationEndpoint": TENCENT_KLINE_API,
                 "serialIntervalSeconds": args.interval,
                 "downloadedThisRun": downloaded,
                 "coverageCount": sum((HISTORY_DIR / f"{i['code']}.csv.gz").exists() for i in indices),
                 "failures": failures,
+                "preservedOfficialCacheCodes": sorted(set(preserved_official_cache_codes)),
                 "stoppedForRateLimit": rate_limited,
             },
         }
@@ -934,7 +1255,7 @@ def visualization_artifact(latest: dict[str, dict[str, Any]]) -> dict[str, Any]:
     amount_items = sorted(latest.values(), key=lambda row: row["amountRatio5v20"], reverse=True)[:8]
     return {
         "schemaVersion": 1,
-        "note": "结构化轻量图表数据；折线最多4条×60点，柱状最多8项。指数API无完整OHLC，不生成K线图。",
+        "note": "结构化轻量图表数据；折线最多4条×60点，柱状最多8项。本地轻量历史只保留收盘、成交量和成交额，不据此伪造K线图。",
         "normalizedPerformance60d": {
             "type": "line",
             "unit": "%（各序列相对自身起点）",
@@ -994,11 +1315,14 @@ def train_model(args: argparse.Namespace) -> dict[str, Any]:
         "asOf": as_of,
         "trainingStart": min(model["trainingStart"] for model in final_models.values()),
         "trainingEnd": max(model["trainingEnd"] for model in final_models.values()),
+        "taxonomyHash": canonical_json_sha256(taxonomy),
         "taxonomy": taxonomy,
         "data": {
             "owner": "中证指数有限公司",
             "endpoint": CSI_API,
-            "evidenceClass": "official-primary",
+            "fallbackEndpoint": BAIDU_KLINE_API,
+            "verificationEndpoint": TENCENT_KLINE_API,
+            "evidenceClass": "official-primary-with-vendor-fallback",
             "coverageCount": len(latest_cross_section),
             "availableSeriesCount": len(latest),
             "universeCount": len(taxonomy["indices"]),
@@ -1020,7 +1344,7 @@ def train_model(args: argparse.Namespace) -> dict[str, Any]:
         "backtest": {"status": overall, "horizons": backtests},
         "visualizationData": visualization_artifact(latest_cross_section),
         "limitations": [
-            "V1.7正文称35个二级行业，附录逐项仅列32个；本模型只用附录32个代码。",
+            "固定观察池由10个一级行业与军工、移动互联网两个重点主题指数构成；重点标签不参与打分，主题指数与一级行业可能重叠。",
             "行业指数成交量和成交额是指数层观察，不等于机构真实持仓或已确认资金流。",
             "模型只覆盖量价与横截面相对强弱；新闻、机构观点和国家队线索不泄漏进基础模型。",
             "交易成本、指数样本调整、不可交易性和极端事件会削弱样本外表现。",
@@ -1112,9 +1436,12 @@ def trading_due_date(as_of: str, sessions: int) -> str:
 
 def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
     taxonomy_data = read_json(TAXONOMY_PATH)
+    taxonomy_hash = canonical_json_sha256(taxonomy_data)
+    manifest = load_manifest()
+    history_manifest = manifest.get("aShareHistory", {})
     a_sources = [
         {
-            "name": "中证全指行业指数编制方案V1.7",
+            "name": "中证全指行业优选指数编制方案V1.6",
             "publisher": "中证指数有限公司",
             "url": taxonomy_data["methodologyUrl"],
             "tier": "official",
@@ -1128,18 +1455,57 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
             "evidenceClass": "official-primary",
         },
     ]
-    source_by_code: dict[str, int] = {}
+    source_by_code: dict[str, list[int]] = {}
     for index in taxonomy_data["indices"]:
-        source_by_code[index["code"]] = len(a_sources)
+        official_source_index = len(a_sources)
         a_sources.append(
             {
-                "name": f"{index['shortName']}指数详情与数据",
+                "name": f"{index['shortName']}指数官方详情",
                 "publisher": "中证指数有限公司",
-                "url": f"https://www.csindex.com.cn/#/indices/family/detail?indexCode={index['code']}",
+                "url": index.get("factsheetUrl") or f"https://www.csindex.com.cn/zh-CN/indices/index-detail/{index['code']}",
                 "tier": "official",
-                "evidenceClass": "exchange-market-data",
+                "evidenceClass": "official-primary",
             }
         )
+        history_source = history_manifest.get(index["code"], {}).get("source")
+        if history_source == BAIDU_KLINE_API:
+            if not baidu_fallback_allowed(index):
+                raise RuntimeError(
+                    f"invalid Baidu source metadata for ambiguous index code {index['code']}"
+                )
+            data_url = (
+                f"{BAIDU_KLINE_API}?all=1&isIndex=true&isBk=false&isBlock=false&"
+                f"isFutures=false&isStock=false&newFormat=1&group=quotation_kline_ab&"
+                f"finClientType=pc&code={index['code']}&ktype=1"
+            )
+            publisher = "百度股市通"
+            tier = "authoritative"
+            evidence_class = "vendor-market-data"
+        elif history_source == CSI_API:
+            data_url = (
+                f"{CSI_API}?indexCode={index['code']}&"
+                f"startDate={as_of_compact(artifact.get('asOf', ''))}&"
+                f"endDate={as_of_compact(artifact.get('asOf', ''))}"
+            )
+            publisher = "中证指数有限公司"
+            tier = "official"
+            evidence_class = "exchange-market-data"
+        else:
+            raise RuntimeError(
+                f"missing or unsupported history source metadata for {index['code']}: "
+                f"{history_source!r}"
+            )
+        data_source_index = len(a_sources)
+        a_sources.append(
+            {
+                "name": f"{index['shortName']}日频量价数据",
+                "publisher": publisher,
+                "url": data_url,
+                "tier": tier,
+                "evidenceClass": evidence_class,
+            }
+        )
+        source_by_code[index["code"]] = [official_source_index, data_source_index]
     latest = list(latest_rows().values())
     as_of = max(row["date"] for row in latest)
     latest = [row for row in latest if row["date"] == as_of]
@@ -1147,15 +1513,21 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
     expected_as_of = daily_brief_session("a-share")
     fresh = expected_as_of is not None and as_of == expected_as_of
     expected_label = expected_as_of or "日报缺少可验证sessionDate"
-    # Current observation needs a full fresh cross-section. Forecasts also need
-    # a model that was frozen on the full taxonomy, never a partial-universe fit.
-    current_ready = len(latest) == universe_count and fresh
+    # A fresh comparable subset can support current observation. Forecasts still
+    # require the full fixed universe and never reuse a partial cross-section.
+    current_ready = len(latest) >= 3 and fresh
     artifact_ready = (
         artifact.get("data", {}).get("coverageCount") == universe_count
         and artifact.get("data", {}).get("universeCount") == universe_count
         and artifact.get("data", {}).get("trainingCoverageComplete") is True
+        and artifact.get("taxonomyHash") == taxonomy_hash
+        and artifact.get("taxonomy") == taxonomy_data
     )
-    forecast_inputs_ready = current_ready and artifact_ready
+    forecast_inputs_ready = (
+        current_ready
+        and len(latest) == universe_count
+        and artifact_ready
+    )
     current_charts: list[dict[str, Any]] = []
     if current_ready:
         visualization = visualization_artifact({row["code"]: row for row in latest})
@@ -1169,7 +1541,11 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
                     "note": "各行业序列分别以区间首个完整交易日收盘归一为0，仅比较相对路径。",
                     "asOf": as_of,
                     "sourceIndexes": sorted(
-                        {source_by_code[series["code"]] for series in visual_series}
+                        {
+                            source_index
+                            for series in visual_series
+                            for source_index in source_by_code[series["code"]]
+                        }
                     ),
                     "series": [
                         {
@@ -1215,7 +1591,7 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
                     {"label": "成交额比", "value": f"{amount_ratio:.2f}x", "tone": "positive" if amount_ratio >= 1.35 else "neutral"},
                     {"label": "成交量比", "value": f"{volume_ratio:.2f}x", "tone": "positive" if volume_ratio >= 1.20 else "neutral"},
                 ],
-                "sourceIndexes": [source_by_code[row["code"]]],
+                "sourceIndexes": source_by_code[row["code"]],
             }
         )
 
@@ -1281,19 +1657,19 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
                         {
                             "label": "趋势",
                             "observation": f"5日{row['momentum5'] * 100:+.2f}% / 20日{row['momentum20'] * 100:+.2f}%",
-                            "sourceIndexes": [source_by_code[row["code"]]],
+                            "sourceIndexes": source_by_code[row["code"]],
                         },
                         {
                             "label": "活跃度",
                             "observation": f"成交额比{amount_ratio:.2f}x，成交量比{volume_ratio:.2f}x",
-                            "sourceIndexes": [source_by_code[row["code"]]],
+                            "sourceIndexes": source_by_code[row["code"]],
                         },
                     ],
                     "counterEvidence": [
                         {
                             "label": "反向风险",
                             "observation": f"20日波动率{row['volatility20'] * 100:.2f}%，60日回撤{row['drawdown60'] * 100:.2f}%",
-                            "sourceIndexes": [source_by_code[row["code"]]],
+                            "sourceIndexes": source_by_code[row["code"]],
                         }
                     ],
                     "trigger": trigger,
@@ -1307,7 +1683,7 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
             "asOf": as_of,
             "dueDate": due_date,
             "sessions": sessions,
-            "note": "score为模型横截面排名分、非预测概率；仅有量价一种证据类别，置信度统一为low。",
+            "note": "score为模型横截面排名分，不是预测概率；仅有量价一种证据类别，置信度统一为low。",
             "items": items,
         }
 
@@ -1319,14 +1695,14 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
         "status": "ready" if current_ready else "insufficient",
         "taxonomy": {
             "owner": "中证指数有限公司",
-            "name": "中证全指二级行业（V1.7附录32个可验证指数）",
-            "version": "V1.7",
-            "effectiveDate": "2023-10-01",
+            "name": "A股核心行业与重点主题固定观察池（12项）",
+            "version": "a-core12-v2",
+            "effectiveDate": "2026-07-18",
         },
-        "note": "当前层是量价观察；一周/月仅在walk-forward门禁通过时发布条件排序。正文35与附录32的口径差异已保留。",
+        "note": "固定12项精简观察池；医疗、军工、互联网仅作重点编排、不参与加分。当前允许同日可复核子集，一周/月仍须完整池walk-forward门禁。",
         "reason": None if current_ready else (
-            f"最新横截面覆盖{len(latest)}/{universe_count}个行业，数据截至{as_of}，"
-            f"页面完整交易日为{expected_label}；当前与预测均降级。"
+            f"最新同日可比数据仅{len(latest)}/{universe_count}项，数据截至{as_of}，"
+            f"页面完整交易日为{expected_label}；少于3项时不生成横截面排序。"
         ),
         "sources": a_sources,
         "horizons": {
@@ -1336,15 +1712,15 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
                 "asOf": as_of,
                 **(
                     {
-                        "note": "当前score为量价横截面观察分，不预测未来；成交额比/成交量比按近5日均值除以前20日均值计算。",
+                        "note": f"当前score只在同日可用的{len(latest)}/{universe_count}项固定观察池内比较，不预测未来；成交额比/成交量比按近5日均值除以前20日均值计算。",
                         "items": current_items,
                         **({"charts": current_charts} if current_charts else {}),
                     }
                     if current_ready
                     else {
                         "reason": (
-                            f"最新完整日覆盖不足：{len(latest)}/{universe_count}。"
-                            if len(latest) != universe_count
+                            f"同日可比数据少于3项：{len(latest)}/{universe_count}。"
+                            if len(latest) < 3
                             else f"数据日{as_of}未与日报完整交易日{expected_label}严格对齐。"
                         )
                     }
