@@ -13,7 +13,16 @@ data/weekly-archive/**/*.json.gz
 .DS_Store
 *.log
 *.tsbuildinfo
+__pycache__/
+*.pyc
 .env*
 !.env.example
 
 .vercel
+
+# 行业轮动：历史行情、派生特征和事件记忆只在本地压缩保存。
+data/rotation-model/history/
+data/rotation-model/features/
+data/rotation-model/events/events.jsonl.gz
+data/rotation-model/manifest.json
+models/sector-rotation/candidates/

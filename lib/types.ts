@@ -218,6 +218,176 @@ export interface MarketSection {
   articles: BriefArticle[];
 }
 
+export type SectorRotationMarketMode = "industry" | "major-index";
+export type SectorRotationDataStatus = "ready" | "insufficient";
+export type SectorRotationConfidence = "low" | "medium" | "medium-high";
+export type SectorRotationObservedDirection = "leading" | "strengthening" | "neutral" | "weakening" | "lagging";
+export type SectorRotationForecastDirection = "strong-up" | "up" | "range" | "down" | "strong-down";
+
+export interface SectorRotationEvidencePoint {
+  label: string;
+  observation: string;
+  /** Zero-based indexes into the owning market's sources array. */
+  sourceIndexes: number[];
+}
+
+export interface SectorRotationObservedItem {
+  sector: string;
+  code?: string;
+  rank: number;
+  /** A cross-sectional ranking score, not a probability or promised return. */
+  score: number;
+  direction: SectorRotationObservedDirection;
+  signal: string;
+  metrics: Array<{
+    label: string;
+    value: string;
+    tone?: Tone;
+  }>;
+  sourceIndexes: number[];
+}
+
+export interface SectorRotationForecastItem {
+  sector: string;
+  code?: string;
+  rank: number;
+  /** A model ranking score, not a probability or promised return. */
+  score: number;
+  direction: SectorRotationForecastDirection;
+  confidence: SectorRotationConfidence;
+  claim: string;
+  evidence: SectorRotationEvidencePoint[];
+  counterEvidence: SectorRotationEvidencePoint[];
+  trigger: string;
+  invalidation: string;
+  dueDate: string;
+}
+
+export interface SectorRotationChartBase {
+  title: string;
+  /** Explicit display unit, for example "%", "点" or "亿元". */
+  unit: string;
+  /** Scope, normalization or calculation note needed to interpret the chart. */
+  note: string;
+  /** The last complete observation represented by the chart. */
+  asOf: string;
+  /** Zero-based indexes into the owning market's sources array. */
+  sourceIndexes: number[];
+}
+
+export interface SectorRotationLinePoint {
+  date: string;
+  value: number;
+}
+
+export interface SectorRotationLineSeries {
+  name: string;
+  points: SectorRotationLinePoint[];
+}
+
+export interface SectorRotationCandlestickPoint {
+  date: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+}
+
+/**
+ * Optional evidence charts. They are rendered only after strict runtime validation;
+ * ranking bars continue to be derived directly from the horizon's ranked items.
+ */
+export type SectorRotationChart =
+  | (SectorRotationChartBase & {
+      type: "line";
+      series: SectorRotationLineSeries[];
+    })
+  | (SectorRotationChartBase & {
+      type: "candlestick";
+      points: SectorRotationCandlestickPoint[];
+    });
+
+export type SectorRotationObservedHorizon =
+  | {
+      kind: "observed";
+      status: "ready";
+      asOf: string;
+      note: string;
+      items: SectorRotationObservedItem[];
+      charts?: SectorRotationChart[];
+    }
+  | {
+      kind: "observed";
+      status: "insufficient";
+      asOf: string;
+      reason: string;
+      items?: never;
+      charts?: never;
+    };
+
+export type SectorRotationForecastHorizon =
+  | {
+      kind: "forecast";
+      status: "ready";
+      asOf: string;
+      dueDate: string;
+      sessions: 5 | 20;
+      note: string;
+      items: SectorRotationForecastItem[];
+      charts?: SectorRotationChart[];
+    }
+  | {
+      kind: "forecast";
+      status: "insufficient";
+      asOf: string;
+      dueDate?: string;
+      sessions: 5 | 20;
+      reason: string;
+      items?: never;
+      charts?: never;
+    };
+
+export interface SectorRotationMarket {
+  id: MarketSection["id"];
+  label: string;
+  mode: SectorRotationMarketMode;
+  asOf: string;
+  status: SectorRotationDataStatus;
+  taxonomy: {
+    owner: string;
+    name: string;
+    version: string;
+    effectiveDate: string;
+  };
+  note: string;
+  reason?: string;
+  sources: SourceLink[];
+  horizons: {
+    current: SectorRotationObservedHorizon;
+    oneWeek: SectorRotationForecastHorizon;
+    oneMonth: SectorRotationForecastHorizon;
+  };
+}
+
+export interface SectorRotationIndex {
+  schemaVersion: 1;
+  generatedAt: string;
+  model: {
+    id: string;
+    version: string;
+    trainedAt: string;
+    trainingStart: string;
+    trainingEnd: string;
+    method: string;
+    features: string[];
+    backtest: {
+      status: "passed" | "limited" | "insufficient";
+      summary: string;
+    };
+  };
+  markets: SectorRotationMarket[];
+}
+
 export interface FederalReserveSection {
   targetRange: string;
   stance: string;
