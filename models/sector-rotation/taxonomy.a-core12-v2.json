@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "owner": "中证指数有限公司",
+  "name": "观潮A股核心行业与重点主题观察池",
+  "documentVersion": "a-core12-v2",
+  "documentUpdated": "2026-07-18",
+  "methodologyUrl": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+  "universeNote": "固定使用10个中证全指一级行业指数，并加入中证军工、移动互联网两个重点主题指数。重点标签只影响界面编排，不参与分数或排名。",
+  "indices": [
+    { "code": "000986", "name": "中证全指能源指数", "shortName": "能源", "market": "sh", "role": "broad" },
+    { "code": "000987", "name": "中证全指原材料指数", "shortName": "原材料", "market": "sh", "role": "broad" },
+    { "code": "000988", "name": "中证全指工业指数", "shortName": "工业", "market": "sh", "role": "broad" },
+    { "code": "000989", "name": "中证全指可选消费指数", "shortName": "可选消费", "market": "sh", "role": "broad" },
+    { "code": "000990", "name": "中证全指主要消费指数", "shortName": "主要消费", "market": "sh", "role": "broad" },
+    { "code": "000991", "name": "中证全指医药卫生指数", "shortName": "医药医疗", "market": "sh", "role": "broad", "focusTag": "医疗" },
+    { "code": "000992", "name": "中证全指金融地产指数", "shortName": "金融地产", "market": "sh", "role": "broad" },
+    { "code": "000993", "name": "中证全指信息技术指数", "shortName": "信息技术", "market": "sh", "role": "broad" },
+    { "code": "000994", "name": "中证全指通信服务指数", "shortName": "通信服务", "market": "sh", "role": "broad" },
+    { "code": "000995", "name": "中证全指公用事业指数", "shortName": "公用事业", "market": "sh", "role": "broad" },
+    { "code": "399967", "name": "中证军工指数", "shortName": "军工", "market": "sz", "role": "focus-overlay", "focusTag": "军工", "factsheetUrl": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399967factsheet.pdf" },
+    { "code": "399970", "name": "中证移动互联网指数", "shortName": "移动互联网", "market": "sz", "role": "focus-overlay", "focusTag": "互联网", "factsheetUrl": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399970factsheet.pdf" }
+  ]
+}

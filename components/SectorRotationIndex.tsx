@@ -33,6 +33,19 @@ import type {
 
 type HorizonKey = "current" | "oneWeek" | "oneMonth";
 
+function compactRankingItems<T extends { rank: number; code?: string; sector: string }>(items: T[], top = 3, bottom = 2) {
+  const selected = [...items.slice(0, top), ...items.slice(-bottom)];
+  const seen = new Set<string>();
+  return selected
+    .filter((item) => {
+      const key = item.code ?? item.sector;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .sort((left, right) => left.rank - right.rank);
+}
+
 const horizonTabs: Array<{ key: HorizonKey; label: string; caption: string }> = [
   { key: "current", label: "当前", caption: "观测" },
   { key: "oneWeek", label: "一周内", caption: "5 个交易日" },
@@ -141,7 +154,12 @@ function RotationRankingChart({
   asOf: string;
   forecast?: boolean;
 }) {
-  const visibleItems = items.slice(0, market.mode === "major-index" ? 3 : 6);
+  const visibleItems = market.mode === "major-index" ? items.slice(0, 3) : compactRankingItems(items);
+  const scopeLabel = market.mode === "major-index"
+    ? "三大指数"
+    : items.length > 5
+      ? "Top 3 / Bottom 2"
+      : `${visibleItems.length} 项可用数据`;
   const sourceIndexes = visibleItems.flatMap(chartSourceIndexes);
   const volumeMetric = forecast
     ? null
@@ -152,7 +170,7 @@ function RotationRankingChart({
       <figcaption>
         <div>
           <strong>{forecast ? "条件情景排名" : "当前相对强弱"}</strong>
-          <span>截至 {formatDate(asOf)} · {market.mode === "major-index" ? "三大指数" : `前 ${visibleItems.length} 项`}</span>
+          <span>截至 {formatDate(asOf)} · {scopeLabel}</span>
         </div>
         <em>综合分 / 100</em>
       </figcaption>
@@ -379,25 +397,73 @@ function DirectionIcon({ direction }: { direction: SectorRotationForecastDirecti
   return <Minus size={15} />;
 }
 
-function InsufficientState({ reason, compact = false }: { reason: string; compact?: boolean }) {
+function InsufficientState({
+  reason,
+  compact = false,
+  title = "本期暂无可发布结果",
+}: {
+  reason: string;
+  compact?: boolean;
+  title?: string;
+}) {
   return (
     <div className={`rotation-insufficient ${compact ? "compact" : ""}`} role="status">
       <CircleAlert size={20} />
       <div>
-        <strong>数据不足，暂不生成排序</strong>
-        <p>{reason}</p>
+        <strong>{title}</strong>
+        <details>
+          <summary>查看原因</summary>
+          <p>{reason}</p>
+        </details>
       </div>
     </div>
   );
 }
 
+const aShareFocus = [
+  { code: "000991", label: "医疗" },
+  { code: "399967", label: "军工" },
+  { code: "399970", label: "互联网" },
+] as const;
+
+function FocusObservations({ items }: { items: SectorRotationObservedItem[] }) {
+  const focusItems = aShareFocus.flatMap((focus) => {
+    const item = items.find((candidate) => candidate.code === focus.code);
+    return item ? [{ focus, item }] : [];
+  });
+  if (!focusItems.length) return null;
+  return (
+    <section className="rotation-focus" aria-labelledby="rotation-focus-title">
+      <header>
+        <div><span>FOCUS</span><strong id="rotation-focus-title">重点观察</strong></div>
+        <p>固定展示，不加分、不改变原始排名</p>
+      </header>
+      <ul>
+        {focusItems.map(({ focus, item }) => {
+          const metric = item.metrics.find((candidate) => candidate.label === "成交额比") ?? item.metrics[0];
+          return (
+            <li key={focus.code} className={`direction-${item.direction}`}>
+              <span>{focus.label}</span>
+              <div><strong>{item.sector}</strong><small>原始排名 #{item.rank}</small></div>
+              <em>{metric?.value ?? "—"}<small>{metric?.label ?? "当前观测"}</small></em>
+              <b>{observedDirectionLabel[item.direction]}</b>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 function ObservedRanking({ horizon, market }: { horizon: SectorRotationObservedHorizon; market: SectorRotationMarket }) {
+  const [expanded, setExpanded] = useState(false);
   if (horizon.status === "insufficient") {
-    return <InsufficientState reason={horizon.reason} compact={market.mode === "major-index"} />;
+    return <InsufficientState title="本期暂无可比观测" reason={horizon.reason} compact={market.mode === "major-index"} />;
   }
 
   const items = [...horizon.items].sort((left, right) => left.rank - right.rank);
   if (!items.length) return <InsufficientState reason="观测结果为空，未发布不可复核的占位排名。" />;
+  const visibleItems = expanded || market.mode === "major-index" ? items : compactRankingItems(items);
 
   return (
     <>
@@ -405,10 +471,11 @@ function ObservedRanking({ horizon, market }: { horizon: SectorRotationObservedH
         <Activity size={15} />
         <p><strong>只描述当前相对强弱</strong>{horizon.note}</p>
       </div>
+      {market.id === "a-share" ? <FocusObservations items={items} /> : null}
       <RotationRankingChart items={items} market={market} asOf={horizon.asOf} />
       <RotationDataCharts charts={horizon.charts} market={market} asOf={horizon.asOf} />
-      <ol className={`rotation-ranking observed ${market.mode === "major-index" ? "compact" : ""}`}>
-        {items.map((item) => (
+      <ol id="rotation-observed-list" className={`rotation-ranking observed ${market.mode === "major-index" ? "compact" : ""}`}>
+        {visibleItems.map((item) => (
           <li key={`${item.rank}-${item.code ?? item.sector}`} className={`rotation-rank-item observed direction-${item.direction}`}>
             <span className="rotation-rank-number">{String(item.rank).padStart(2, "0")}</span>
             <div className="rotation-rank-main">
@@ -432,6 +499,27 @@ function ObservedRanking({ horizon, market }: { horizon: SectorRotationObservedH
           </li>
         ))}
       </ol>
+      {market.mode !== "major-index" && items.length > visibleItems.length ? (
+        <button
+          type="button"
+          className="rotation-expand"
+          aria-expanded={expanded}
+          aria-controls="rotation-observed-list"
+          onClick={() => setExpanded(true)}
+        >
+          展开全部可用板块（{items.length}）<ChevronDown size={16} />
+        </button>
+      ) : market.mode !== "major-index" && expanded && items.length > 5 ? (
+        <button
+          type="button"
+          className="rotation-expand"
+          aria-expanded={expanded}
+          aria-controls="rotation-observed-list"
+          onClick={() => setExpanded(false)}
+        >
+          收起为 Top 3 / Bottom 2<ChevronDown className="is-up" size={16} />
+        </button>
+      ) : null}
     </>
   );
 }
@@ -461,13 +549,15 @@ function ForecastEvidence({
 }
 
 function ForecastRanking({ horizon, market }: { horizon: SectorRotationForecastHorizon; market: SectorRotationMarket }) {
+  const [expanded, setExpanded] = useState(false);
   if (horizon.status === "insufficient") {
-    return <InsufficientState reason={horizon.reason} compact={market.mode === "major-index"} />;
+    return <InsufficientState title="本期未发布条件排序" reason={horizon.reason} compact={market.mode === "major-index"} />;
   }
 
   const items = [...horizon.items].sort((left, right) => left.rank - right.rank);
   if (!items.length) return <InsufficientState reason="模型没有形成满足证据门槛的条件情景，未发布空白预测。" />;
   const isCompact = market.mode === "major-index";
+  const visibleItems = expanded || isCompact ? items : compactRankingItems(items);
 
   return (
     <>
@@ -477,8 +567,8 @@ function ForecastRanking({ horizon, market }: { horizon: SectorRotationForecastH
       </div>
       <RotationRankingChart items={items} market={market} asOf={horizon.asOf} forecast />
       <RotationDataCharts charts={horizon.charts} market={market} asOf={horizon.asOf} />
-      <ol className={`rotation-ranking forecast ${isCompact ? "compact" : ""}`}>
-        {items.map((item) => (
+      <ol id="rotation-forecast-list" className={`rotation-ranking forecast ${isCompact ? "compact" : ""}`}>
+        {visibleItems.map((item) => (
           <li key={`${item.rank}-${item.code ?? item.sector}`} className={`rotation-rank-item forecast direction-${item.direction}`}>
             <span className="rotation-rank-number">{String(item.rank).padStart(2, "0")}</span>
             <div className="rotation-rank-main">
@@ -520,6 +610,15 @@ function ForecastRanking({ horizon, market }: { horizon: SectorRotationForecastH
           </li>
         ))}
       </ol>
+      {!isCompact && items.length > visibleItems.length ? (
+        <button type="button" className="rotation-expand" aria-expanded={expanded} aria-controls="rotation-forecast-list" onClick={() => setExpanded(true)}>
+          展开全部条件情景（{items.length}）<ChevronDown size={16} />
+        </button>
+      ) : !isCompact && expanded && items.length > 5 ? (
+        <button type="button" className="rotation-expand" aria-expanded={expanded} aria-controls="rotation-forecast-list" onClick={() => setExpanded(false)}>
+          收起为 Top 3 / Bottom 2<ChevronDown className="is-up" size={16} />
+        </button>
+      ) : null}
     </>
   );
 }
@@ -597,14 +696,12 @@ export default function SectorRotationIndex({
       >
         {!data || !market ? (
           <InsufficientState reason={`${isUS ? "三大指数" : "行业轮动"}模型产物尚未接入；页面不会用占位数据伪造结果。`} compact={isUS} />
-        ) : market.status === "insufficient" ? (
-          <InsufficientState reason={market.reason ?? "市场分类、完整交易日或来源链路未达到发布门槛。"} compact={isUS} />
         ) : !horizon ? (
           <InsufficientState reason={`${activeTab.label}窗口没有可验证数据。`} compact={isUS} />
         ) : horizon.kind === "observed" ? (
-          <ObservedRanking horizon={horizon} market={market} />
+          <ObservedRanking key={`${market.id}-${horizon.asOf}`} horizon={horizon} market={market} />
         ) : (
-          <ForecastRanking horizon={horizon} market={market} />
+          <ForecastRanking key={`${market.id}-${activeHorizon}-${horizon.asOf}`} horizon={horizon} market={market} />
         )}
       </div>
 

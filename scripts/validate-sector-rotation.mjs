@@ -1,4 +1,5 @@
 import { readFile, stat } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import process from "node:process";
 
@@ -6,10 +7,23 @@ const root = process.cwd();
 const rotationPath = path.resolve(root, "content", "sector-rotation.json");
 const schemaPath = path.resolve(root, "schemas", "sector-rotation.schema.json");
 const modelArtifactPath = path.resolve(root, "models", "sector-rotation", "a-share-v1.json");
+const aShareTaxonomyPath = path.resolve(root, "models", "sector-rotation", "taxonomy.a-core12-v2.json");
 const dailyBriefPath = path.resolve(root, "content", "daily-brief.json");
 const aShareCalendarPath = path.resolve(root, "models", "sector-rotation", "cn-market-calendar-2026.json");
 const MAX_ROTATION_BYTES = 384 * 1024;
 const errors = [];
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value !== null && typeof value === "object") {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function canonicalJsonSha256(value) {
+  return createHash("sha256").update(canonicalJson(value), "utf8").digest("hex");
+}
 const sourceEvidenceClasses = new Set([
   "official-primary",
   "company-filing",
@@ -410,7 +424,12 @@ function validateDirectCodeEvidence(horizon, sources, label) {
   if (horizon?.status !== "ready") return;
   horizon.items.forEach((item, index) => {
     if (!item.code) return;
-    const hasDirectCodeLink = item.sourceIndexes?.some((sourceIndex) => {
+    const nestedIndexes = [
+      ...(item.sourceIndexes ?? []),
+      ...(item.evidence ?? []).flatMap((point) => point.sourceIndexes ?? []),
+      ...(item.counterEvidence ?? []).flatMap((point) => point.sourceIndexes ?? []),
+    ];
+    const hasDirectCodeLink = nestedIndexes.some((sourceIndex) => {
       const url = sources[sourceIndex]?.url ?? "";
       return url.toLowerCase().includes(encodeURIComponent(item.code).toLowerCase())
         || url.toLowerCase().includes(item.code.toLowerCase());
@@ -446,10 +465,41 @@ function validateMarket(market, label) {
   if (market.status === "insufficient" && market.horizons.current?.status === "ready") fail(`${label}.status=insufficient 时不得隐藏 ready 的当前观测`);
   if (market.id === "a-share") {
     if (market.mode !== "industry") fail(`${label}.mode 必须是 industry`);
-    if (!/中证|CSI/i.test(market.taxonomy.owner) || !/中证全指.*二级|CSI All Share.*level.?2/i.test(market.taxonomy.name)) {
-      fail(`${label}.taxonomy 必须明确使用中证全指二级行业`);
+    if (!/中证|CSI/i.test(market.taxonomy.owner) || !/(核心行业.*观察池|中证全指.*二级|CSI All Share)/i.test(market.taxonomy.name)) {
+      fail(`${label}.taxonomy 必须明确使用中证指数固定行业观察池`);
     }
-    if (market.horizons.current?.status === "ready" && market.horizons.current.items.length !== 32) fail(`${label}.horizons.current 必须完整覆盖32个可验证二级行业`);
+    const fixedCodes = new Set((modelArtifact?.taxonomy?.indices ?? []).map((item) => item.code));
+    const fixedUniverseCount = fixedCodes.size;
+    const requiredFocusCodes = ["000991", "399967", "399970"];
+    if (fixedUniverseCount < 3 || fixedUniverseCount > 20) fail(`${label} 冻结观察池必须包含3–20项`);
+    if (requiredFocusCodes.some((code) => !fixedCodes.has(code))) fail(`${label} 冻结观察池必须包含医疗、军工、互联网三个重点代码`);
+    if (modelArtifact?.taxonomy?.documentVersion && market.taxonomy.version !== modelArtifact.taxonomy.documentVersion) {
+      fail(`${label}.taxonomy.version 必须与冻结模型观察池版本一致`);
+    }
+    if (market.horizons.current?.status === "ready") {
+      const currentItems = market.horizons.current.items;
+      if (currentItems.length > fixedUniverseCount) fail(`${label}.horizons.current 不得超出冻结观察池${fixedUniverseCount}项`);
+      if (currentItems.some((item) => !fixedCodes.has(item.code))) fail(`${label}.horizons.current 含观察池外代码`);
+      if (currentItems.length < fixedUniverseCount && !market.horizons.current.note.includes(`${currentItems.length}/${fixedUniverseCount}`)) {
+        fail(`${label}.horizons.current 部分覆盖必须在note明确写出${currentItems.length}/${fixedUniverseCount}`);
+      }
+    }
+    for (const [horizonKey, sessions, horizon] of [["oneWeek", 5, market.horizons.oneWeek], ["oneMonth", 20, market.horizons.oneMonth]]) {
+      if (horizon?.status !== "ready") continue;
+      const forecastCodes = new Set(horizon.items.map((item) => item.code));
+      if (horizon.items.length !== fixedUniverseCount || forecastCodes.size !== fixedUniverseCount
+        || [...fixedCodes].some((code) => !forecastCodes.has(code))) {
+        fail(`${label}.horizons.${horizonKey} 预测必须完整覆盖冻结观察池${fixedUniverseCount}项，部分覆盖只能用于当前观测`);
+      }
+      const currentCodes = new Set((market.horizons.current?.items ?? []).map((item) => item.code));
+      if (market.horizons.current?.status !== "ready" || currentCodes.size !== fixedUniverseCount
+        || [...fixedCodes].some((code) => !currentCodes.has(code))) {
+        fail(`${label}.horizons.${horizonKey} 发布预测时当前截面必须完整覆盖冻结观察池，部分当前观测不得升级为预测`);
+      }
+      if (modelArtifact?.backtest?.horizons?.[String(sessions)]?.status === "insufficient") {
+        fail(`${label}.horizons.${horizonKey} 对应样本外回测未通过发布门槛`);
+      }
+    }
     validateDirectCodeEvidence(market.horizons.current, sources, `${label}.horizons.current`);
     validateDirectCodeEvidence(market.horizons.oneWeek, sources, `${label}.horizons.oneWeek`);
     validateDirectCodeEvidence(market.horizons.oneMonth, sources, `${label}.horizons.oneMonth`);
@@ -470,20 +520,23 @@ function validateMarket(market, label) {
 let data;
 let aShareCalendar;
 let modelArtifact;
+let aShareTaxonomy;
 let dailyBrief;
 try {
-  const [info, raw, schemaRaw, calendarRaw, modelRaw, dailyBriefRaw] = await Promise.all([
+  const [info, raw, schemaRaw, calendarRaw, modelRaw, taxonomyRaw, dailyBriefRaw] = await Promise.all([
     stat(rotationPath),
     readFile(rotationPath, "utf8"),
     readFile(schemaPath, "utf8"),
     readFile(aShareCalendarPath, "utf8"),
     readFile(modelArtifactPath, "utf8"),
+    readFile(aShareTaxonomyPath, "utf8"),
     readFile(dailyBriefPath, "utf8"),
   ]);
   if (info.size > MAX_ROTATION_BYTES) fail(`sector-rotation.json 为 ${info.size} 字节，超过 ${MAX_ROTATION_BYTES} 字节低内存上限`);
   JSON.parse(schemaRaw);
   aShareCalendar = JSON.parse(calendarRaw);
   modelArtifact = JSON.parse(modelRaw);
+  aShareTaxonomy = JSON.parse(taxonomyRaw);
   dailyBrief = JSON.parse(dailyBriefRaw);
   data = JSON.parse(raw);
 } catch (error) {
@@ -494,6 +547,13 @@ try {
 if (!isObject(modelArtifact) || !isObject(modelArtifact.backtest) || !isObject(modelArtifact.models)) {
   fail("A股冻结模型 artifact 缺少 models/backtest，不能验证内容来源");
 } else {
+  if (!isObject(aShareTaxonomy) || !isObject(modelArtifact.taxonomy) || typeof modelArtifact.taxonomyHash !== "string") {
+    fail("A股冻结模型或固定观察池缺少可验证 taxonomy/taxonomyHash");
+  } else {
+    const currentTaxonomyHash = canonicalJsonSha256(aShareTaxonomy);
+    if (modelArtifact.taxonomyHash !== currentTaxonomyHash) fail("A股冻结模型 taxonomyHash 与当前固定观察池不一致");
+    if (canonicalJsonSha256(modelArtifact.taxonomy) !== currentTaxonomyHash) fail("A股冻结模型内嵌 taxonomy 与当前固定观察池不一致");
+  }
   const artifactCoverageComplete = modelArtifact.data?.coverageCount === modelArtifact.data?.universeCount
     && modelArtifact.data?.trainingCoverageComplete === true;
   const featureManifest = modelArtifact.data?.featureManifest;
