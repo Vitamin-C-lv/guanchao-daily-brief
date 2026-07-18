@@ -2,7 +2,6 @@ import {
   Activity,
   ArrowLeft,
   ArrowRight,
-  BarChart3,
   CheckCircle2,
   Clock3,
   ExternalLink,
@@ -13,9 +12,12 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import Link from "next/link";
+import { EvidenceForecastPanel, GeneratedEditorialVisualFigure } from "@/components/ArticleEnhancements";
 import MobileBottomNav, { type MobileNavView } from "@/components/MobileBottomNav";
+import { SourceMeta, sourceMetaLabel } from "@/components/SourceLink";
+import StructuredChartFigure from "@/components/StructuredChart";
 import { countArticleCharacters, type ArticleRecord } from "@/lib/articles";
-import type { BriefArticle, SourceLink } from "@/lib/types";
+import type { BriefArticle, SourceLink, StructuredChart } from "@/lib/types";
 
 function formatArticleDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
@@ -33,7 +35,7 @@ function SourceRefs({ indexes, sources }: { indexes: number[]; sources: SourceLi
         const source = sources[index];
         if (!source) return null;
         return (
-          <a key={`${source.url}-${index}`} href={source.url} target="_blank" rel="noreferrer" title={source.name}>
+          <a key={`${source.url}-${index}`} href={source.url} target="_blank" rel="noreferrer" title={`${source.name} · ${sourceMetaLabel(source)}`}>
             [{index + 1}]
           </a>
         );
@@ -42,31 +44,18 @@ function SourceRefs({ indexes, sources }: { indexes: number[]; sources: SourceLi
   );
 }
 
-function DetailChart({ article }: { article: BriefArticle }) {
-  const chart = article.detail.chart;
-  if (!chart) return null;
-  const maxValue = Math.max(...chart.items.map((item) => Math.abs(item.value)), 1);
-
-  return (
-    <figure className="article-chart-card">
-      <figcaption>
-        <div><BarChart3 size={17} /><strong>{chart.title}</strong></div>
-        <span>{chart.unit}</span>
-      </figcaption>
-      <div className="article-bars">
-        {chart.items.map((item) => (
-          <div className="article-bar-row" key={`${item.label}-${item.display}`}>
-            <span>{item.label}</span>
-            <div className="article-bar-track">
-              <i className={`tone-${item.tone}`} style={{ width: item.value === 0 ? "0" : `${Math.max(3, Math.abs(item.value) / maxValue * 100)}%` }} />
-            </div>
-            <strong>{item.display}</strong>
-          </div>
-        ))}
-      </div>
-      <p>图表数据来源 <SourceRefs indexes={chart.sourceIndexes} sources={article.sources} /></p>
-    </figure>
-  );
+function getStructuredCharts(article: BriefArticle): StructuredChart[] {
+  if (article.detail.charts?.length) return article.detail.charts;
+  const legacy = article.detail.chart;
+  if (!legacy) return [];
+  return [{
+    type: legacy.items.some((item) => item.value < 0) ? "diverging-bar" : "bar",
+    title: legacy.title,
+    unit: legacy.unit,
+    asOf: article.publishedAt,
+    items: legacy.items,
+    sourceIndexes: legacy.sourceIndexes,
+  }];
 }
 
 const rotationStageLabel = {
@@ -85,9 +74,14 @@ const flowDirectionLabel = {
 
 const evidenceClassLabel = {
   official: "官方披露",
+  "vendor-market-data": "数据商行情",
   "vendor-estimate": "数据商估算",
   proxy: "价格/资金代理",
 } as const;
+
+function formatRatio(value: number | undefined) {
+  return Number.isFinite(value) ? `${value!.toFixed(2)}×` : "—";
+}
 
 const rotationBiasLabel = {
   strengthening: "偏强情景",
@@ -126,8 +120,10 @@ function RotationRadar({ article }: { article: BriefArticle }) {
                 <div key={item.sector} className="rotation-volume-item">
                   <div><strong>{item.sector}</strong><span>{rotationStageLabel[item.stage]}</span></div>
                   <dl>
-                    <div><dt>20日量比</dt><dd>{item.turnoverRatio20d.toFixed(2)}×</dd></div>
-                    <div><dt>成交占比</dt><dd>{item.turnoverShareRatio20d.toFixed(2)}×</dd></div>
+                    <div><dt>成交额比</dt><dd>{formatRatio(item.turnoverAmountRatio20d ?? item.turnoverRatio20d)}</dd></div>
+                    <div><dt>成交量比</dt><dd>{formatRatio(item.tradingVolumeRatio20d)}</dd></div>
+                    <div><dt>成交额份额比</dt><dd>{formatRatio(item.turnoverShareRatio20d)}</dd></div>
+                    <div><dt>同口径样本</dt><dd>{Number.isFinite(item.historySessions) ? `${item.historySessions}日` : "—"}</dd></div>
                     <div><dt>上涨广度</dt><dd>{item.breadthPct.toFixed(0)}%</dd></div>
                     <div><dt>5日相对收益</dt><dd>{item.relativeReturn5d >= 0 ? "+" : ""}{item.relativeReturn5d.toFixed(1)}%</dd></div>
                     <div><dt>前三成交集中度</dt><dd>{item.top3ConcentrationPct.toFixed(0)}%</dd></div>
@@ -159,20 +155,25 @@ function RotationRadar({ article }: { article: BriefArticle }) {
       </div>
 
       <div className="rotation-outlooks">
-        {rotation.outlooks.map((outlook) => (
-          <article key={outlook.horizon}>
-            <div className="rotation-outlook-topline">
-              <span>{outlook.horizon === "1_5d" ? "未来 1–5 个交易日" : "未来 2–4 周"}</span>
-              <div><b>{rotationBiasLabel[outlook.bias]}</b><em>{confidenceLabel[outlook.confidence]}</em></div>
-            </div>
-            <div className="rotation-sector-chips">{outlook.candidateSectors.map((sector) => <span key={sector}>{sector}</span>)}</div>
-            <p>{outlook.flowPath}<SourceRefs indexes={outlook.sourceIndexes} sources={article.sources} /></p>
-            <dl>
-              <div><dt>触发条件</dt><dd>{outlook.trigger}</dd></div>
-              <div><dt>失效条件</dt><dd>{outlook.invalidation}</dd></div>
-            </dl>
-          </article>
-        ))}
+        {rotation.outlooks.map((outlook) => {
+          const isInsufficient = outlook.status === "insufficient";
+          const candidateSectors = outlook.candidateSectors ?? [];
+          return (
+            <article key={outlook.horizon} className={isInsufficient ? "rotation-outlook-insufficient" : undefined}>
+              <div className="rotation-outlook-topline">
+                <span>{outlook.horizon === "1_5d" ? "未来 1–5 个交易日" : "未来 2–4 周"}</span>
+                <div><b>{isInsufficient ? "证据不足" : rotationBiasLabel[outlook.bias]}</b><em>{confidenceLabel[outlook.confidence]}</em></div>
+              </div>
+              {candidateSectors.length ? <div className="rotation-sector-chips">{candidateSectors.map((sector) => <span key={sector}>{sector}</span>)}</div> : null}
+              {isInsufficient ? <div className="rotation-outlook-reason"><ShieldAlert size={14} /><p>{outlook.reason}</p></div> : null}
+              <p>{outlook.flowPath}<SourceRefs indexes={outlook.sourceIndexes} sources={article.sources} /></p>
+              <dl>
+                <div><dt>触发条件</dt><dd>{outlook.trigger}</dd></div>
+                <div><dt>失效条件</dt><dd>{outlook.invalidation}</dd></div>
+              </dl>
+            </article>
+          );
+        })}
       </div>
 
       <p className="rotation-risk-note"><ShieldAlert size={14} />{rotation.riskNote}</p>
@@ -182,6 +183,10 @@ function RotationRadar({ article }: { article: BriefArticle }) {
 
 export default function ArticleReport({ record }: { record: ArticleRecord }) {
   const { article } = record;
+  const charts = getStructuredCharts(article);
+  const forecasts = article.detail.evidenceForecast
+    ? (Array.isArray(article.detail.evidenceForecast) ? article.detail.evidenceForecast : [article.detail.evidenceForecast])
+    : [];
   const characterCount = countArticleCharacters(article);
   const readingMinutes = Math.max(2, Math.ceil(characterCount / 350));
   const activeNav: MobileNavView = record.sectionId === "fed" ? "fed" : record.sectionId === "hotspot" ? "hotspots" : "markets";
@@ -213,6 +218,8 @@ export default function ArticleReport({ record }: { record: ArticleRecord }) {
             </div>
           </header>
 
+          {article.detail.visual ? <GeneratedEditorialVisualFigure visual={article.detail.visual} sources={article.sources} /> : null}
+
           <section className="article-key-points" aria-labelledby="key-points-title">
             <div><span className="eyebrow">KEY POINTS</span><h2 id="key-points-title">先看结论</h2></div>
             <ul>
@@ -220,9 +227,15 @@ export default function ArticleReport({ record }: { record: ArticleRecord }) {
             </ul>
           </section>
 
-          <DetailChart article={article} />
+          {charts.length ? (
+            <div className="article-structured-charts">
+              {charts.map((chart, index) => <StructuredChartFigure key={`${chart.type}-${chart.title}-${index}`} chart={chart} sources={article.sources} />)}
+            </div>
+          ) : null}
 
           <RotationRadar article={article} />
+
+          {forecasts.map((forecast) => <EvidenceForecastPanel key={forecast.id} forecast={forecast} sources={article.sources} />)}
 
           <div className="article-body">
             {article.detail.sections.map((section) => (
@@ -250,7 +263,7 @@ export default function ArticleReport({ record }: { record: ArticleRecord }) {
                 <li key={source.url}>
                   <span>{String(index + 1).padStart(2, "0")}</span>
                   <a href={source.url} target="_blank" rel="noreferrer">
-                    <div><strong>{source.name}</strong><small>{source.publisher} · {source.tier === "official" ? "官方" : source.tier === "authoritative" ? "权威" : "主流媒体"}</small></div>
+                    <div><strong>{source.name}</strong><SourceMeta source={source} /></div>
                     <ExternalLink size={15} />
                   </a>
                 </li>

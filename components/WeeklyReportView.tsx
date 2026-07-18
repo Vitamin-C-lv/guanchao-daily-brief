@@ -1,6 +1,9 @@
 import { ArrowLeft, CalendarDays, ExternalLink, Gauge, Layers3, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { GeneratedEditorialVisualFigure } from "@/components/ArticleEnhancements";
 import MobileBottomNav from "@/components/MobileBottomNav";
+import { SourceMeta, sourceMetaLabel } from "@/components/SourceLink";
+import StructuredChart from "@/components/StructuredChart";
 import type { WeeklyReport } from "@/lib/types";
 
 const confidenceLabel = { low: "低", medium: "中", "medium-high": "中高" } as const;
@@ -14,7 +17,7 @@ function SourceRefs({ ids, report }: { ids: string[]; report: WeeklyReport }) {
   return <span className="weekly-inline-refs">{[...new Set(ids)].map((id) => {
     const source = report.sources.find((item) => item.id === id);
     if (!source) return null;
-    return <a key={id} href={source.url} target="_blank" rel="noreferrer" title={source.name}>[{positions.get(id)}]</a>;
+    return <a key={id} href={source.url} target="_blank" rel="noreferrer" title={`${source.name} · ${sourceMetaLabel(source)}`}>[{positions.get(id)}]</a>;
   })}</span>;
 }
 
@@ -46,6 +49,15 @@ export default function WeeklyReportView({ data }: { data: WeeklyReport }) {
           <section className="weekly-takeaways">
             {data.executiveSummary.keyTakeaways.map((item, index) => <article key={item.id}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{item.title}</strong><p>{item.summary}<SourceRefs ids={item.sourceIds} report={data} /></p></div><b>{item.importance}</b></article>)}
           </section>
+
+          {data.visual ? <div className="weekly-editorial-visual"><GeneratedEditorialVisualFigure visual={data.visual} sources={data.sources} /></div> : null}
+
+          {data.charts?.length ? (
+            <section className="weekly-chart-section" aria-labelledby="weekly-chart-title">
+              <div className="weekly-section-heading"><div><span className="eyebrow">DATA VIEWS</span><h2 id="weekly-chart-title">本周关键图表</h2></div><Gauge size={20} /></div>
+              <div className="weekly-chart-grid">{data.charts.map((chart, index) => <StructuredChart key={`${chart.type}-${chart.title}-${index}`} chart={chart} sources={data.sources} />)}</div>
+            </section>
+          ) : null}
 
           <section className="weekly-section" id="major-events">
             <div className="weekly-section-heading"><div><span className="eyebrow">MAJOR EVENTS</span><h2>本周大事</h2></div><CalendarDays size={20} /></div>
@@ -82,7 +94,7 @@ export default function WeeklyReportView({ data }: { data: WeeklyReport }) {
 
           <section className="weekly-sources">
             <div className="weekly-section-heading"><div><span className="eyebrow">SOURCES</span><h2>引用与原文</h2></div><span>{data.sources.length} 个来源</span></div>
-            <ol>{data.sources.map((source, index) => <li key={source.id}><span>{String(index + 1).padStart(2, "0")}</span><a href={source.url} target="_blank" rel="noreferrer"><div><strong>{source.name}</strong><small>{source.publisher} · {source.tier === "official" ? "官方" : source.tier === "authoritative" ? "权威" : "主流媒体"}</small></div><ExternalLink size={14} /></a></li>)}</ol>
+            <ol>{data.sources.map((source, index) => <li key={source.id}><span>{String(index + 1).padStart(2, "0")}</span><a href={source.url} target="_blank" rel="noreferrer"><div><strong>{source.name}</strong><SourceMeta source={source} /></div><ExternalLink size={14} /></a></li>)}</ol>
           </section>
         </article>
       </main>

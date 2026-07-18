@@ -1,10 +1,21 @@
 export type Tone = "positive" | "negative" | "neutral" | "warning";
 
+export type SourceEvidenceClass =
+  | "official-primary"
+  | "company-filing"
+  | "primary-research"
+  | "exchange-market-data"
+  | "vendor-market-data"
+  | "vendor-estimate"
+  | "major-media";
+
 export interface SourceLink {
   name: string;
   publisher: string;
   url: string;
   tier: "official" | "authoritative" | "major-media";
+  /** 证据的生成方式；与来源质量层级 tier 分开记录，旧内容可省略。 */
+  evidenceClass?: SourceEvidenceClass;
 }
 
 export interface ArticleDetailSection {
@@ -20,9 +31,116 @@ export interface ArticleChartItem {
   tone: Tone;
 }
 
+export interface LegacyArticleChart {
+  title: string;
+  unit: string;
+  items: ArticleChartItem[];
+  sourceIndexes: number[];
+}
+
+export interface StructuredChartBase {
+  title: string;
+  unit: string;
+  asOf: string;
+  note?: string;
+  sourceIndexes: number[];
+}
+
+export interface StructuredChartSeries {
+  name: string;
+  tone: Tone;
+  kind: "observed" | "institution-forecast";
+  items: ArticleChartItem[];
+}
+
+export type StructuredChart =
+  | (StructuredChartBase & {
+      type: "bar";
+      items: ArticleChartItem[];
+    })
+  | (StructuredChartBase & {
+      type: "diverging-bar";
+      items: ArticleChartItem[];
+    })
+  | (StructuredChartBase & {
+      type: "line";
+      series: StructuredChartSeries[];
+    })
+  | (StructuredChartBase & {
+      type: "grouped-bar";
+      series: StructuredChartSeries[];
+    });
+
+export interface GeneratedEditorialVisual {
+  kind: "ai-editorial-illustration";
+  src: string;
+  width: 1200;
+  height: 675;
+  bytes: number;
+  sha256: string;
+  generator: "openai-image";
+  generatedAt: string;
+  quality?: number;
+  alt: string;
+  caption: string;
+  basisSourceIndexes: number[];
+}
+
+export interface EvidenceForecast {
+  id: string;
+  asOf: string;
+  dueDate: string;
+  title: string;
+  horizon: "1_5d" | "2_4w" | "3_12m";
+  direction: "upside" | "range" | "downside" | "mixed";
+  confidence: "low" | "medium" | "medium-high";
+  claim: string;
+  evidence: Array<{
+    label: string;
+    observation: string;
+    sourceIndexes: number[];
+  }>;
+  counterEvidence: Array<{
+    label: string;
+    observation: string;
+    sourceIndexes: number[];
+  }>;
+  trigger: string;
+  invalidation: string;
+  riskNote: string;
+  review?: {
+    status: "pending" | "confirmed" | "partial" | "invalidated";
+    reviewedAt?: string;
+    note: string;
+  };
+}
+
 export type RotationStage = "early" | "accelerating" | "diverging" | "fading" | "rebound";
 export type RotationBias = "strengthening" | "range" | "weakening";
 export type RotationConfidence = "low" | "medium" | "medium-high";
+
+interface RotationOutlookBase {
+  horizon: "1_5d" | "2_4w";
+  bias: RotationBias;
+  confidence: RotationConfidence;
+  flowPath: string;
+  trigger: string;
+  invalidation: string;
+  sourceIndexes: number[];
+}
+
+export type RotationOutlook =
+  | (RotationOutlookBase & {
+      /** 旧版快照未写 status，按 active 兼容。 */
+      status?: "active";
+      candidateSectors: string[];
+      reason?: string;
+    })
+  | (RotationOutlookBase & {
+      status: "insufficient";
+      candidateSectors?: string[];
+      reason: string;
+    });
 
 export interface RotationAnalysis {
   asOf: string;
@@ -32,8 +150,12 @@ export interface RotationAnalysis {
   volumeLeaders: Array<{
     sector: string;
     stage: RotationStage;
-    turnoverRatio20d: number;
+    turnoverAmountRatio20d: number;
+    tradingVolumeRatio20d: number;
     turnoverShareRatio20d: number;
+    historySessions: number;
+    /** @deprecated 旧版字段仅供历史快照兼容，新内容必须写 turnoverAmountRatio20d。 */
+    turnoverRatio20d?: number;
     breadthPct: number;
     relativeReturn5d: number;
     top3ConcentrationPct: number;
@@ -42,20 +164,11 @@ export interface RotationAnalysis {
   flowSignals: Array<{
     sector: string;
     direction: "inflow" | "outflow" | "mixed";
-    evidenceClass: "official" | "vendor-estimate" | "proxy";
+    evidenceClass: "official" | "vendor-market-data" | "vendor-estimate" | "proxy";
     evidence: string;
     sourceIndexes: number[];
   }>;
-  outlooks: Array<{
-    horizon: "1_5d" | "2_4w";
-    candidateSectors: string[];
-    bias: RotationBias;
-    confidence: RotationConfidence;
-    flowPath: string;
-    trigger: string;
-    invalidation: string;
-    sourceIndexes: number[];
-  }>;
+  outlooks: RotationOutlook[];
   riskNote: string;
 }
 
@@ -63,12 +176,12 @@ export interface ArticleDetail {
   lead: string;
   keyPoints: string[];
   sections: ArticleDetailSection[];
-  chart?: {
-    title: string;
-    unit: string;
-    items: ArticleChartItem[];
-    sourceIndexes: number[];
-  };
+  /** @deprecated 新内容优先使用 charts；保留以兼容既有日报。 */
+  chart?: LegacyArticleChart;
+  charts?: StructuredChart[];
+  visual?: GeneratedEditorialVisual;
+  /** 单对象供旧版快照兼容；新内容优先使用数组表达多个预测窗口。 */
+  evidenceForecast?: EvidenceForecast | EvidenceForecast[];
   rotationAnalysis?: RotationAnalysis;
 }
 
@@ -149,6 +262,7 @@ export interface DailyBrief {
     description: string;
     url: string;
     tier: SourceLink["tier"];
+    evidenceClass?: SourceEvidenceClass;
   }>;
   methodology: string[];
 }
@@ -174,6 +288,8 @@ export interface WeeklyReportIndex {
 
 export interface WeeklyReport {
   schemaVersion: 1;
+  visual?: GeneratedEditorialVisual;
+  charts?: StructuredChart[];
   report: {
     id: string;
     revision: number;
