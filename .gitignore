@@ -4,6 +4,7 @@ out/
 .visual-check/
 .codex-remote-attachments/
 outputs/
+.generated-staging/
 data/archive/index.json
 data/archive/**/*.json.gz
 data/weekly-context.json

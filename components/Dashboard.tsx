@@ -28,6 +28,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { TouchEvent } from "react";
 import MobileBottomNav from "./MobileBottomNav";
 import WeeklyTeaser from "./WeeklyTeaser";
+import { sourceEvidenceClassLabel, sourceMetaLabel, sourceTierLabel } from "./SourceLink";
 import type {
   BriefArticle,
   DailyBrief,
@@ -161,7 +162,7 @@ function SourceLinks({ sources, compact = false }: { sources: SourceLink[]; comp
     <div className={`source-links ${compact ? "source-links-compact" : ""}`} aria-label="引用来源">
       <span className="source-prefix"><LinkIcon size={13} /> 引用</span>
       {sources.map((source) => (
-        <a key={`${source.publisher}-${source.url}`} href={source.url} target="_blank" rel="noreferrer" title={`打开 ${source.publisher} 原文`}>
+        <a key={`${source.publisher}-${source.url}`} href={source.url} target="_blank" rel="noreferrer" title={`打开原文 · ${sourceMetaLabel(source)}`}>
           {source.name}
           <ExternalLink size={12} />
         </a>
@@ -592,8 +593,8 @@ export default function Dashboard({ data, view, weeklyIndex }: { data: DailyBrie
             <div className="source-directory">
               {data.sourceDirectory.map((source) => (
                 <a href={source.url} key={source.name} target="_blank" rel="noreferrer">
-                  <span className={`source-tier tier-${source.tier}`}>{source.tier === "official" ? "官方" : source.tier === "authoritative" ? "权威" : "主流"}</span>
-                  <div><strong>{source.name}</strong><small>{source.category}</small><p>{source.description}</p></div>
+                  <span className={`source-tier tier-${source.tier}`}>{sourceTierLabel(source.tier)}</span>
+                  <div><strong>{source.name}</strong><small>{[source.category, sourceEvidenceClassLabel(source.evidenceClass)].filter(Boolean).join(" · ")}</small><p>{source.description}</p></div>
                   <ExternalLink size={15} />
                 </a>
               ))}

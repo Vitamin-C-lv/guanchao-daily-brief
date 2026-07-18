@@ -6,6 +6,15 @@ const root = process.cwd();
 const weeklyRoot = path.join(root, "content", "weekly-reports");
 const errors = [];
 const idPattern = /^weekly-\d{4}-W\d{2}$/;
+const sourceEvidenceClasses = [
+  "official-primary",
+  "company-filing",
+  "primary-research",
+  "exchange-market-data",
+  "vendor-market-data",
+  "vendor-estimate",
+  "major-media",
+];
 
 function fail(message) { errors.push(message); }
 function isObject(value) { return value !== null && typeof value === "object" && !Array.isArray(value); }
@@ -139,6 +148,7 @@ function validateReport(data, entry, fileSize) {
     requireString(source.url, `${sourceLabel}.url`, 500);
     try { const url = new URL(source.url); if (url.protocol !== "https:") fail(`${sourceLabel}.url 必须使用 HTTPS`); } catch { fail(`${sourceLabel}.url 非法`); }
     if (!["official", "authoritative", "major-media"].includes(source.tier)) fail(`${sourceLabel}.tier 非法`);
+    if (source.evidenceClass !== undefined && !sourceEvidenceClasses.includes(source.evidenceClass)) fail(`${sourceLabel}.evidenceClass 非法`);
     requireIso(source.publishedAt, `${sourceLabel}.publishedAt`);
     requireIso(source.accessedAt, `${sourceLabel}.accessedAt`);
   });
@@ -147,6 +157,91 @@ function validateReport(data, entry, fileSize) {
     if (!Array.isArray(ids) || ids.length < min) { fail(`${refLabel} 至少需要 ${min} 个引用`); return; }
     for (const id of ids) { if (!sourceMap.has(id)) fail(`${refLabel} 含未知来源 ${id}`); else usedSources.add(id); }
   };
+  const indexRefs = (indexes, refLabel, min = 1) => {
+    if (!Array.isArray(indexes) || indexes.length < min) { fail(`${refLabel} 至少需要 ${min} 个引用`); return; }
+    const seen = new Set();
+    for (const index of indexes) {
+      if (!Number.isInteger(index) || index < 0 || index >= data.sources.length) fail(`${refLabel} 含越界索引 ${index}`);
+      else {
+        if (seen.has(index)) fail(`${refLabel} 含重复索引 ${index}`);
+        seen.add(index);
+        usedSources.add(data.sources[index].id);
+      }
+    }
+  };
+  const chartItems = (items, itemLabel, min, max, allowNegative) => {
+    if (!requireArray(items, itemLabel, min, max)) return [];
+    const labels = new Set();
+    items.forEach((item, position) => {
+      const pointLabel = `${itemLabel}[${position}]`;
+      if (!isObject(item)) { fail(`${pointLabel} 必须是对象`); return; }
+      requireString(item.label, `${pointLabel}.label`, 30);
+      requireString(item.display, `${pointLabel}.display`, 20);
+      if (labels.has(item.label)) fail(`${itemLabel} 含重复标签 ${item.label}`);
+      labels.add(item.label);
+      if (!Number.isFinite(item.value)) fail(`${pointLabel}.value 必须是有限数值`);
+      else if (!allowNegative && item.value < 0) fail(`${pointLabel}.value 不能为负；有正负方向时使用 diverging-bar`);
+      if (!["positive", "negative", "neutral", "warning"].includes(item.tone)) fail(`${pointLabel}.tone 非法`);
+    });
+    return items.map((item) => item?.label);
+  };
+  const validateChart = (chart, chartLabel) => {
+    if (!isObject(chart)) { fail(`${chartLabel} 必须是对象`); return; }
+    if (!["bar", "diverging-bar", "line", "grouped-bar"].includes(chart.type)) { fail(`${chartLabel}.type 非法`); return; }
+    requireString(chart.title, `${chartLabel}.title`, 50);
+    requireString(chart.unit, `${chartLabel}.unit`, 20);
+    requireDate(chart.asOf, `${chartLabel}.asOf`);
+    if (chart.note !== undefined) requireString(chart.note, `${chartLabel}.note`, 140);
+    indexRefs(chart.sourceIndexes, `${chartLabel}.sourceIndexes`);
+    if (chart.type === "bar" || chart.type === "diverging-bar") {
+      if (chart.series !== undefined) fail(`${chartLabel}.series 不适用于 ${chart.type}`);
+      const labels = chartItems(chart.items, `${chartLabel}.items`, 3, 6, chart.type === "diverging-bar");
+      if (chart.type === "diverging-bar" && labels.length && chart.items.every((item) => item?.value === 0)) fail(`${chartLabel}.items 不能全部为零`);
+      return;
+    }
+    if (chart.items !== undefined) fail(`${chartLabel}.items 不适用于 ${chart.type}`);
+    const minSeries = chart.type === "line" ? 1 : 2;
+    const maxSeries = chart.type === "line" ? 2 : 3;
+    if (!requireArray(chart.series, `${chartLabel}.series`, minSeries, maxSeries)) return;
+    const names = new Set();
+    let referenceLabels;
+    chart.series.forEach((series, position) => {
+      const seriesLabel = `${chartLabel}.series[${position}]`;
+      if (!isObject(series)) { fail(`${seriesLabel} 必须是对象`); return; }
+      requireString(series.name, `${seriesLabel}.name`, 30);
+      if (names.has(series.name)) fail(`${chartLabel}.series 含重复名称 ${series.name}`);
+      names.add(series.name);
+      if (!["positive", "negative", "neutral", "warning"].includes(series.tone)) fail(`${seriesLabel}.tone 非法`);
+      if (!["observed", "institution-forecast"].includes(series.kind)) fail(`${seriesLabel}.kind 非法`);
+      if (series.kind === "institution-forecast" && !chart.note?.trim()) fail(`${chartLabel}.note 必须说明机构预测口径`);
+      const labels = chartItems(series.items, `${seriesLabel}.items`, chart.type === "line" ? 4 : 2, chart.type === "line" ? 12 : 5, chart.type === "line");
+      if (referenceLabels === undefined) referenceLabels = labels;
+      else if (labels.join("\u0000") !== referenceLabels.join("\u0000")) fail(`${seriesLabel}.items 标签及顺序必须一致`);
+    });
+  };
+
+  if (data.charts !== undefined) {
+    if (requireArray(data.charts, `${label}.charts`, 1, 4)) data.charts.forEach((chart, position) => validateChart(chart, `${label}.charts[${position}]`));
+  }
+  if (data.visual !== undefined) {
+    const visual = data.visual;
+    const visualLabel = `${label}.visual`;
+    if (!isObject(visual)) fail(`${visualLabel} 必须是对象`);
+    else {
+      if (visual.kind !== "ai-editorial-illustration") fail(`${visualLabel}.kind 非法`);
+      requireString(visual.src, `${visualLabel}.src`, 500);
+      if (typeof visual.src === "string" && !visual.src.startsWith("/generated/editorial/")) fail(`${visualLabel}.src 必须位于 /generated/editorial/`);
+      if (visual.width !== 1200 || visual.height !== 675) fail(`${visualLabel}.width/height 必须是 1200/675`);
+      if (!Number.isInteger(visual.bytes) || visual.bytes < 1) fail(`${visualLabel}.bytes 必须是正整数`);
+      if (typeof visual.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(visual.sha256)) fail(`${visualLabel}.sha256 非法`);
+      if (visual.generator !== "openai-image") fail(`${visualLabel}.generator 必须是 openai-image`);
+      requireIso(visual.generatedAt, `${visualLabel}.generatedAt`);
+      if (visual.quality !== undefined && (!Number.isInteger(visual.quality) || visual.quality < 1 || visual.quality > 100)) fail(`${visualLabel}.quality 非法`);
+      requireString(visual.alt, `${visualLabel}.alt`, 120);
+      requireString(visual.caption, `${visualLabel}.caption`, 140);
+      indexRefs(visual.basisSourceIndexes, `${visualLabel}.basisSourceIndexes`);
+    }
+  }
 
   const summary = data.executiveSummary;
   if (!isObject(summary)) fail(`${label}.executiveSummary 缺失`);

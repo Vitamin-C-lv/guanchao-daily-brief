@@ -9,10 +9,13 @@
     "typecheck": "tsc --noEmit",
     "validate:brief": "node scripts/validate-brief.mjs",
     "validate:weekly": "node scripts/validate-weekly.mjs",
+    "validate:assets": "node scripts/validate-generated-assets.mjs",
+    "visual:publish": "node scripts/publish-generated-image.mjs",
+    "assets:prune": "node scripts/validate-generated-assets.mjs --prune",
     "archive:brief": "node scripts/archive-brief.mjs",
     "archive:weekly": "node scripts/archive-weekly-report.mjs",
     "context:weekly": "node scripts/collect-week-context.mjs",
-    "check": "pnpm validate:brief && pnpm validate:weekly && pnpm typecheck && pnpm build"
+    "check": "pnpm validate:brief && pnpm validate:weekly && pnpm validate:assets && pnpm typecheck && pnpm build"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",
@@ -24,6 +27,7 @@
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "sharp": "0.34.5",
     "typescript": "^5.9.3"
   },
   "packageManager": "pnpm@11.9.0"

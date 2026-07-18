@@ -51,6 +51,9 @@ export function findArticleRecord(data: DailyBrief, id: string): ArticleRecord |
 export function countArticleCharacters(article: BriefArticle): number {
   const detail = article.detail;
   const rotation = detail.rotationAnalysis;
+  const forecasts = detail.evidenceForecast
+    ? (Array.isArray(detail.evidenceForecast) ? detail.evidenceForecast : [detail.evidenceForecast])
+    : [];
   return [
     detail.lead,
     ...detail.keyPoints,
@@ -59,8 +62,18 @@ export function countArticleCharacters(article: BriefArticle): number {
       rotation.regime,
       ...rotation.volumeLeaders.map((item) => item.sector),
       ...rotation.flowSignals.flatMap((item) => [item.sector, item.evidence]),
-      ...rotation.outlooks.flatMap((item) => [item.horizon, ...item.candidateSectors, item.flowPath, item.trigger, item.invalidation]),
+      ...rotation.outlooks.flatMap((item) => [item.horizon, ...(item.candidateSectors ?? []), item.reason ?? "", item.flowPath, item.trigger, item.invalidation]),
       rotation.riskNote,
     ] : []),
+    ...forecasts.flatMap((forecast) => [
+      forecast.title,
+      forecast.claim,
+      ...forecast.evidence.flatMap((item) => [item.label, item.observation]),
+      ...forecast.counterEvidence.flatMap((item) => [item.label, item.observation]),
+      forecast.trigger,
+      forecast.invalidation,
+      forecast.riskNote,
+      forecast.review?.note ?? "",
+    ]),
   ].join("").replace(/\s/g, "").length;
 }
