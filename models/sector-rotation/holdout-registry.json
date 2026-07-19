@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "policy": "Append-only opened holdout boundaries. A prior opening must never be rolled, reused, or relabelled as unseen.",
+  "protocolId": "a-core12-v2-rolling504-select504-holdout252-v1",
+  "taxonomyHash": "2cdb81a8cfbc2c2705bcbba45f14b601265f368accb68a94db74c062ac3c363a",
+  "horizons": {
+    "5": {
+      "openings": [
+        {
+          "openedAt": "2026-07-19T10:24:45+08:00",
+          "start": "2025-06-27",
+          "end": "2026-07-10",
+          "dates": 252,
+          "auditId": "a-share-rotation-2026-07-19-v2",
+          "featurePanelSha256": "56f16e0ddbf82c2b12e22f7a8fb0fec07b6b68081ab70731ee889daee9317c2d",
+          "selectionEnd": "2025-06-26",
+          "consumedBy": "2026.07.19-v2-research/rolling-linear-ridge"
+        }
+      ]
+    },
+    "20": {
+      "openings": [
+        {
+          "openedAt": "2026-07-19T10:24:45+08:00",
+          "start": "2025-06-06",
+          "end": "2026-06-18",
+          "dates": 252,
+          "auditId": "a-share-rotation-2026-07-19-v2",
+          "featurePanelSha256": "56f16e0ddbf82c2b12e22f7a8fb0fec07b6b68081ab70731ee889daee9317c2d",
+          "selectionEnd": "2025-06-05",
+          "consumedBy": "2026.07.19-v2-research/rolling-linear-ridge"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "auditId": "a-share-rotation-2026-07-19-v2",
+  "auditedAt": "2026-07-19T10:24:45+08:00",
+  "dataAsOf": "2026-07-17",
+  "featurePanelSha256": "56f16e0ddbf82c2b12e22f7a8fb0fec07b6b68081ab70731ee889daee9317c2d",
+  "compute": {
+    "device": "CPU",
+    "runtimeSeconds": 245.4,
+    "peakGpuMemoryMb": 0,
+    "gpuReason": "仅两个低维ridge候选，训练保存小型充分统计量；GPU传输与依赖开销不会改善有效性或验证质量。"
+  },
+  "baseline": {
+    "version": "2026.07.18-core12-v2",
+    "sha256": "8e39871274457a1a12545d12aba357c7af8e82dabb14b4dfdc09ff404b4efb97"
+  },
+  "protocol": {
+    "primaryTrainingWindowSessions": 504,
+    "candidateSelectionSessions": 504,
+    "lockedHoldoutSessions": 252,
+    "walkForwardBlockSessions": 63,
+    "purge": "每个训练标签的targetDate必须严格早于测试块首日",
+    "selection": "先在holdout之前固定比较线性ridge与17项小型交互ridge；复杂候选须至少改善0.01 rank IC、头尾差为正且不触发旧制度压力否决",
+    "holdoutPolicy": "候选锁定后才打开最后252个交易日；不得根据holdout更换候选或继续调参",
+    "confidencePolicy": "0-100仅表示同一模型内的样本外校准证据强度，不是上涨概率或胜率；单一量价证据等级封顶low"
+  },
+  "horizons": {
+    "5": {
+      "selectedCandidateId": "rolling-linear-ridge",
+      "status": "insufficient",
+      "primarySelection": {
+        "dates": 504,
+        "rankIc": -0.0369075369,
+        "directionalHitRate": 0.4806547619,
+        "topBottomSpreadPct": -0.2668654187
+      },
+      "lockedHoldout": {
+        "dates": 252,
+        "rankIc": 0.0162892663,
+        "directionalHitRate": 0.5079365079,
+        "topBottomSpreadPct": 0.3954823346
+      },
+      "olderHistoryStress": {
+        "dates": 1108,
+        "rankIc": -0.0128815228,
+        "topBottomSpreadPct": -0.0831431233
+      },
+      "gateReasons": [
+        "primary-selection rank IC is not positive",
+        "primary-selection top-bottom spread is not positive"
+      ]
+    },
+    "20": {
+      "selectedCandidateId": "rolling-linear-ridge",
+      "status": "insufficient",
+      "primarySelection": {
+        "dates": 504,
+        "rankIc": -0.0204795205,
+        "directionalHitRate": 0.4799933862,
+        "topBottomSpreadPct": 0.0360725732
+      },
+      "lockedHoldout": {
+        "dates": 252,
+        "rankIc": -0.000971251,
+        "directionalHitRate": 0.5082671958,
+        "topBottomSpreadPct": 2.1343765655
+      },
+      "olderHistoryStress": {
+        "dates": 1093,
+        "rankIc": -0.0297890582,
+        "topBottomSpreadPct": -0.8674779199
+      },
+      "gateReasons": [
+        "primary-selection rank IC is not positive",
+        "locked-holdout rank IC is negative"
+      ]
+    }
+  },
+  "candidateComparison": {
+    "rolling-linear-ridge": {
+      "featureCount": 9,
+      "ridge": 20
+    },
+    "rolling-interaction-ridge": {
+      "featureCount": 17,
+      "ridge": 80,
+      "decision": "未达到预登记的选择期改善门槛，不能用更高复杂度替代有效性"
+    }
+  },
+  "decision": {
+    "promoted": false,
+    "keepFrozenVersion": "2026.07.18-core12-v2",
+    "reason": "两个期限在504日候选选择段或252日锁定holdout未通过门禁；近期局部改善不足以抵消旧制度压力与排序不稳定。"
+  },
+  "correction": {
+    "recordedAt": "2026-07-19T11:11:32+08:00",
+    "issue": "原审计曾将训练截止到最新日的线上冻结模型直接评估过去252日，存在前视污染。",
+    "action": "已删除该基线指标，不用于任何比较或发布决策。未来基线比较只允许相同时间边界逐fold重拟合，或部署后前瞻数据。",
+    "decisionImpact": "无；候选原本就未通过自身的选择段与holdout门禁，冻结基线继续保留。"
+  }
+}

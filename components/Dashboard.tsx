@@ -284,11 +284,13 @@ export default function Dashboard({
   view,
   weeklyIndex,
   sectorRotation,
+  sectorDetailKeys,
 }: {
   data: DailyBrief;
   view: DashboardView;
   weeklyIndex?: WeeklyReportIndex;
   sectorRotation?: SectorRotationIndexData;
+  sectorDetailKeys?: string[];
 }) {
   const pathname = usePathname();
   const normalizedPathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
@@ -563,6 +565,7 @@ export default function Dashboard({
               <SectorRotationIndex
                 data={sectorRotation}
                 activeMarketId={data.markets[activeMarketCard]?.id ?? "a-share"}
+                detailKeys={sectorDetailKeys}
               />
             ) : null}
           </section>

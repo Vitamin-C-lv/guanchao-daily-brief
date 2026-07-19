@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-19T08:19:40+08:00",
+  "generatedAt": "2026-07-19T10:32:44+08:00",
   "model": {
     "id": "guanchao-a-share-sector-rotation",
     "version": "2026.07.18-core12-v2",
     "trainedAt": "2026-07-18T20:47:22+08:00",
     "trainingStart": "2016-04-12",
     "trainingEnd": "2026-07-17",
-    "method": "冻结的流式标准化岭回归；每日只取最新输入并推理，不自动重训。",
+    "method": "冻结的低内存行业相对强弱模型；每日只刷新输入并推理，不训练、不选参、不打开锁定holdout。模型研究采用最近504交易日主窗口与更早历史压力测试。",
     "features": [
       "当日行业横截面标准化：5个交易日价格动量",
       "当日行业横截面标准化：20个交易日价格动量",
@@ -21,7 +21,7 @@
     ],
     "backtest": {
       "status": "limited",
-      "summary": "5日 limited（IC 0.005，头尾差 0.07%）；20日 insufficient（IC -0.027，头尾差 -0.30%）。score是横截面排名分，不是概率。"
+      "summary": "5日 limited（IC 0.005，头尾差 0.07%）；20日 insufficient（IC -0.027，头尾差 -0.30%）。score是横截面排名分，confidenceScore是校准证据强度；二者都不是概率或胜率。"
     }
   },
   "markets": [
@@ -1646,15 +1646,18 @@
           "asOf": "2026-07-17",
           "dueDate": "2026-07-24",
           "sessions": 5,
-          "note": "score为模型横截面排名分，不是预测概率；仅有量价一种证据类别，置信度统一为low。",
+          "note": "score为模型横截面排名分；confidenceScore为样本外校准证据强度，二者都不是上涨概率或胜率。仅有量价一种证据类别，置信度等级封顶low。",
           "items": [
             {
+              "forecastId": "fr-a-20260717-h5-000991-ef6ee19ed3aa",
               "sector": "医药医疗",
               "code": "000991",
               "rank": 1,
               "score": 100.0,
               "direction": "strong-up",
               "confidence": "low",
+              "confidenceScore": 30,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。30分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若5日与20日相对强势延续且成交额未明显退潮，则医药医疗未来5个交易日相对行业均值可能偏强。",
               "evidence": [
                 {
@@ -1689,12 +1692,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-000992-d131c4ea9984",
               "sector": "金融地产",
               "code": "000992",
               "rank": 2,
               "score": 90.9,
               "direction": "strong-up",
               "confidence": "low",
+              "confidenceScore": 30,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。30分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若5日与20日相对强势延续且成交额未明显退潮，则金融地产未来5个交易日相对行业均值可能偏强。",
               "evidence": [
                 {
@@ -1729,12 +1735,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-000986-6ca769723014",
               "sector": "能源",
               "code": "000986",
               "rank": 3,
               "score": 81.8,
               "direction": "up",
               "confidence": "low",
+              "confidenceScore": 29,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。29分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若5日与20日相对强势延续且成交额未明显退潮，则能源未来5个交易日相对行业均值可能偏强。",
               "evidence": [
                 {
@@ -1769,12 +1778,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-000994-c469f233da87",
               "sector": "通信服务",
               "code": "000994",
               "rank": 4,
               "score": 72.7,
               "direction": "up",
               "confidence": "low",
+              "confidenceScore": 28,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。28分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若5日与20日相对强势延续且成交额未明显退潮，则通信服务未来5个交易日相对行业均值可能偏强。",
               "evidence": [
                 {
@@ -1809,12 +1821,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-000990-264fa0885eab",
               "sector": "主要消费",
               "code": "000990",
               "rank": 5,
               "score": 63.6,
               "direction": "up",
               "confidence": "low",
+              "confidenceScore": 27,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。27分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若5日与20日相对强势延续且成交额未明显退潮，则主要消费未来5个交易日相对行业均值可能偏强。",
               "evidence": [
                 {
@@ -1849,12 +1864,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-000989-c9db0db710dd",
               "sector": "可选消费",
               "code": "000989",
               "rank": 6,
               "score": 54.5,
               "direction": "range",
               "confidence": "low",
+              "confidenceScore": 27,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。27分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若动量与成交活跃度继续相互抵消，则可选消费未来5个交易日可能以区间和方向反复为主。",
               "evidence": [
                 {
@@ -1889,12 +1907,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-000987-239fda94159d",
               "sector": "原材料",
               "code": "000987",
               "rank": 7,
               "score": 45.5,
               "direction": "range",
               "confidence": "low",
+              "confidenceScore": 27,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。27分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若动量与成交活跃度继续相互抵消，则原材料未来5个交易日可能以区间和方向反复为主。",
               "evidence": [
                 {
@@ -1929,12 +1950,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-399967-73fcf082f19d",
               "sector": "军工",
               "code": "399967",
               "rank": 8,
               "score": 36.4,
               "direction": "down",
               "confidence": "low",
+              "confidenceScore": 27,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。27分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若量价弱势延续且未出现广泛修复，则军工未来5个交易日相对行业均值可能继续偏弱。",
               "evidence": [
                 {
@@ -1969,12 +1993,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-399970-53c77eba2193",
               "sector": "移动互联网",
               "code": "399970",
               "rank": 9,
               "score": 27.3,
               "direction": "down",
               "confidence": "low",
+              "confidenceScore": 28,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。28分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若量价弱势延续且未出现广泛修复，则移动互联网未来5个交易日相对行业均值可能继续偏弱。",
               "evidence": [
                 {
@@ -2009,12 +2036,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-000988-2f36fff9f439",
               "sector": "工业",
               "code": "000988",
               "rank": 10,
               "score": 18.2,
               "direction": "down",
               "confidence": "low",
+              "confidenceScore": 29,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。29分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若量价弱势延续且未出现广泛修复，则工业未来5个交易日相对行业均值可能继续偏弱。",
               "evidence": [
                 {
@@ -2049,12 +2079,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-000993-5e8d42f04047",
               "sector": "信息技术",
               "code": "000993",
               "rank": 11,
               "score": 9.1,
               "direction": "strong-down",
               "confidence": "low",
+              "confidenceScore": 30,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。30分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若量价弱势延续且未出现广泛修复，则信息技术未来5个交易日相对行业均值可能继续偏弱。",
               "evidence": [
                 {
@@ -2089,12 +2122,15 @@
               "dueDate": "2026-07-24"
             },
             {
+              "forecastId": "fr-a-20260717-h5-000995-7afc979c6293",
               "sector": "公用事业",
               "code": "000995",
               "rank": 12,
               "score": 0.0,
               "direction": "strong-down",
               "confidence": "low",
+              "confidenceScore": 30,
+              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。30分只表示保守证据强度，不是上涨概率或胜率。",
               "claim": "若量价弱势延续且未出现广泛修复，则公用事业未来5个交易日相对行业均值可能继续偏弱。",
               "evidence": [
                 {
