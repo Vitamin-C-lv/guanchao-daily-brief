@@ -1,0 +1,840 @@
+{
+  "generatedAt": "2026-07-19T02:12:10.225250Z",
+  "evidenceGrade": "official",
+  "coverage": {
+    "expectedSectors": 12,
+    "extractedSectors": 12
+  },
+  "monthEndReport": {
+    "url": "https://www.hsi.com.hk/static/uploads/contents/en/indexes/report/hsci/con_30Jun26.pdf",
+    "httpStatus": 200,
+    "contentType": "application/pdf",
+    "bytes": 1006877,
+    "asOf": "2026-06-30",
+    "fields": [
+      "Trade Date",
+      "Index",
+      "Stock Code",
+      "Stock Name",
+      "Exchange Listed",
+      "Industry",
+      "Trading Currency",
+      "Closing Price",
+      "% Change",
+      "Index Point Contribution",
+      "Weighting (%)"
+    ],
+    "unit": "percent",
+    "method": "Download official PDF in memory; extract tables from pages 39-77; group exact Industry Index rows; sort official Weighting (%) descending."
+  },
+  "sampleData": {
+    "00011.01": {
+      "sector": "能源",
+      "totalConstituents": 16,
+      "officialMonthEndTop3": [
+        {
+          "code": "0883.HK",
+          "name": "中國海洋石油（CNOOC）",
+          "weightPct": 38.03,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0857.HK",
+          "name": "中國石油股份（PETROCHINA）",
+          "weightPct": 21.48,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "1088.HK",
+          "name": "中國神華（CHINA SHENHUA）",
+          "weightPct": 15.45,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.02": {
+      "sector": "原材料",
+      "totalConstituents": 26,
+      "officialMonthEndTop3": [
+        {
+          "code": "2899.HK",
+          "name": "紫金礦業（ZIJIN MINING）",
+          "weightPct": 25.81,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "1378.HK",
+          "name": "中國宏橋（CHINAHONGQIAO）",
+          "weightPct": 11.02,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "3993.HK",
+          "name": "洛陽鉬業（CMOC）",
+          "weightPct": 8.92,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.03": {
+      "sector": "工业",
+      "totalConstituents": 63,
+      "officialMonthEndTop3": [
+        {
+          "code": "3750.HK",
+          "name": "寧德時代（CATL）",
+          "weightPct": 13.07,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "1888.HK",
+          "name": "建滔積層板（KB LAMINATES）",
+          "weightPct": 8.37,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0148.HK",
+          "name": "建滔集團（KINGBOARD HLDG）",
+          "weightPct": 7.04,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.12": {
+      "sector": "非必需性消费",
+      "totalConstituents": 104,
+      "officialMonthEndTop3": [
+        {
+          "code": "9988.HK",
+          "name": "阿里巴巴 - W（BABA - W）",
+          "weightPct": 37.21,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "3690.HK",
+          "name": "美團 - W（MEITUAN - W）",
+          "weightPct": 7.97,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "1211.HK",
+          "name": "比亞迪股份（BYD COMPANY）",
+          "weightPct": 5.59,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.13": {
+      "sector": "必需性消费",
+      "totalConstituents": 38,
+      "officialMonthEndTop3": [
+        {
+          "code": "9633.HK",
+          "name": "農夫山泉（NONGFU SPRING）",
+          "weightPct": 17.28,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0288.HK",
+          "name": "萬洲國際（WH GROUP）",
+          "weightPct": 14.98,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "2319.HK",
+          "name": "蒙牛乳業（MENGNIU DAIRY）",
+          "weightPct": 10.81,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.14": {
+      "sector": "医疗保健业",
+      "totalConstituents": 82,
+      "officialMonthEndTop3": [
+        {
+          "code": "6160.HK",
+          "name": "百濟神州（BEONE MEDICINES）",
+          "weightPct": 15.74,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "2269.HK",
+          "name": "藥明生物（WUXI BIO）",
+          "weightPct": 10.36,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "1801.HK",
+          "name": "信達生物（INNOVENT BIO）",
+          "weightPct": 10.0,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.06": {
+      "sector": "电讯业",
+      "totalConstituents": 9,
+      "officialMonthEndTop3": [
+        {
+          "code": "0941.HK",
+          "name": "中國移動（CHINA MOBILE）",
+          "weightPct": 70.26,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0728.HK",
+          "name": "中國電信（CHINA TELECOM）",
+          "weightPct": 8.34,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "6823.HK",
+          "name": "香港電訊 - SS（HKT - SS）",
+          "weightPct": 5.9,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.07": {
+      "sector": "公用事业",
+      "totalConstituents": 26,
+      "officialMonthEndTop3": [
+        {
+          "code": "0002.HK",
+          "name": "中電控股（CLP HOLDINGS）",
+          "weightPct": 19.48,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0006.HK",
+          "name": "電能實業（POWER ASSETS）",
+          "weightPct": 12.81,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0003.HK",
+          "name": "香港中華煤氣（HK & CHINA GAS）",
+          "weightPct": 11.79,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.08": {
+      "sector": "金融业",
+      "totalConstituents": 54,
+      "officialMonthEndTop3": [
+        {
+          "code": "0005.HK",
+          "name": "滙豐控股（HSBC HOLDINGS）",
+          "weightPct": 34.8,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0939.HK",
+          "name": "建設銀行（CCB）",
+          "weightPct": 10.63,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "1299.HK",
+          "name": "友邦保險（AIA）",
+          "weightPct": 10.28,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.09": {
+      "sector": "地产建筑业",
+      "totalConstituents": 53,
+      "officialMonthEndTop3": [
+        {
+          "code": "0016.HK",
+          "name": "新鴻基地產（SHK PPT）",
+          "weightPct": 15.59,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "1109.HK",
+          "name": "華潤置地（CHINA RES LAND）",
+          "weightPct": 9.23,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0823.HK",
+          "name": "領展房產基金（LINK REIT）",
+          "weightPct": 9.09,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.10": {
+      "sector": "资讯科技业",
+      "totalConstituents": 59,
+      "officialMonthEndTop3": [
+        {
+          "code": "0700.HK",
+          "name": "騰訊控股（TENCENT）",
+          "weightPct": 53.09,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "1810.HK",
+          "name": "小米集團 - W（XIAOMI - W）",
+          "weightPct": 8.73,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0981.HK",
+          "name": "中芯國際（SMIC）",
+          "weightPct": 8.35,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    },
+    "00011.11": {
+      "sector": "综合企业",
+      "totalConstituents": 7,
+      "officialMonthEndTop3": [
+        {
+          "code": "0001.HK",
+          "name": "長和（CKH HOLDINGS）",
+          "weightPct": 58.37,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0267.HK",
+          "name": "中信股份（CITIC）",
+          "weightPct": 20.29,
+          "sourceIndexes": [
+            0
+          ]
+        },
+        {
+          "code": "0019.HK",
+          "name": "太古股份公司A（SWIRE PACIFIC A）",
+          "weightPct": 9.41,
+          "sourceIndexes": [
+            0
+          ]
+        }
+      ]
+    }
+  },
+  "currentApi": {
+    "endpointTemplate": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode={code}",
+    "accessedWith": "HTTPS GET, language=eng, one request per official index code",
+    "verification": {
+      "00011.01": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.01",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "0883.HK",
+          "0857.HK",
+          "1088.HK",
+          "0386.HK",
+          "1171.HK",
+          "1898.HK",
+          "3668.HK",
+          "2883.HK",
+          "2386.HK",
+          "3899.HK"
+        ],
+        "latestApiTop10Codes": [
+          "0883.HK",
+          "0857.HK",
+          "1088.HK",
+          "0386.HK",
+          "1171.HK",
+          "1898.HK",
+          "3668.HK",
+          "2883.HK",
+          "2386.HK",
+          "3899.HK"
+        ],
+        "overlapCount": 10
+      },
+      "00011.02": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.02",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "2899.HK",
+          "1378.HK",
+          "3993.HK",
+          "2259.HK",
+          "0358.HK",
+          "0189.HK",
+          "1208.HK",
+          "2099.HK",
+          "1818.HK",
+          "2600.HK"
+        ],
+        "latestApiTop10Codes": [
+          "2899.HK",
+          "1378.HK",
+          "3993.HK",
+          "2259.HK",
+          "2099.HK",
+          "0358.HK",
+          "1208.HK",
+          "1818.HK",
+          "2600.HK",
+          "0189.HK"
+        ],
+        "overlapCount": 10
+      },
+      "00011.03": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.03",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "3750.HK",
+          "1888.HK",
+          "0148.HK",
+          "2338.HK",
+          "2057.HK",
+          "1519.HK",
+          "1308.HK",
+          "2382.HK",
+          "1919.HK",
+          "2018.HK"
+        ],
+        "latestApiTop10Codes": [
+          "3750.HK",
+          "2057.HK",
+          "2338.HK",
+          "1308.HK",
+          "1519.HK",
+          "1888.HK",
+          "2382.HK",
+          "1919.HK",
+          "2618.HK",
+          "0148.HK"
+        ],
+        "overlapCount": 9
+      },
+      "00011.12": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.12",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "9988.HK",
+          "3690.HK",
+          "1211.HK",
+          "0669.HK",
+          "9888.HK",
+          "9618.HK",
+          "1024.HK",
+          "9992.HK",
+          "9987.HK",
+          "0175.HK"
+        ],
+        "latestApiTop10Codes": [
+          "9988.HK",
+          "3690.HK",
+          "1211.HK",
+          "0669.HK",
+          "9618.HK",
+          "9888.HK",
+          "1024.HK",
+          "9987.HK",
+          "9992.HK",
+          "0175.HK"
+        ],
+        "overlapCount": 10
+      },
+      "00011.13": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.13",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "9633.HK",
+          "0288.HK",
+          "2319.HK",
+          "0291.HK",
+          "0168.HK",
+          "0322.HK",
+          "0151.HK",
+          "1044.HK",
+          "6186.HK",
+          "1364.HK"
+        ],
+        "latestApiTop10Codes": [
+          "9633.HK",
+          "0288.HK",
+          "2319.HK",
+          "0291.HK",
+          "0168.HK",
+          "0322.HK",
+          "0151.HK",
+          "1044.HK",
+          "6186.HK",
+          "1876.HK"
+        ],
+        "overlapCount": 9
+      },
+      "00011.14": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.14",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "6160.HK",
+          "2269.HK",
+          "1801.HK",
+          "2359.HK",
+          "9926.HK",
+          "1093.HK",
+          "1177.HK",
+          "3692.HK",
+          "6618.HK",
+          "1530.HK"
+        ],
+        "latestApiTop10Codes": [
+          "6160.HK",
+          "1801.HK",
+          "2269.HK",
+          "2359.HK",
+          "1093.HK",
+          "9926.HK",
+          "1177.HK",
+          "3692.HK",
+          "6618.HK",
+          "1530.HK"
+        ],
+        "overlapCount": 10
+      },
+      "00011.06": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.06",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "0941.HK",
+          "0728.HK",
+          "6823.HK",
+          "0788.HK",
+          "0762.HK",
+          "0008.HK",
+          "1883.HK",
+          "1310.HK",
+          "2477.HK"
+        ],
+        "latestApiTop10Codes": [
+          "0941.HK",
+          "0728.HK",
+          "6823.HK",
+          "0788.HK",
+          "0762.HK",
+          "0008.HK",
+          "1883.HK",
+          "1310.HK",
+          "2477.HK"
+        ],
+        "overlapCount": 9
+      },
+      "00011.07": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.07",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "0002.HK",
+          "0006.HK",
+          "0003.HK",
+          "1038.HK",
+          "0836.HK",
+          "2688.HK",
+          "1816.HK",
+          "0135.HK",
+          "0902.HK",
+          "0270.HK"
+        ],
+        "latestApiTop10Codes": [
+          "0002.HK",
+          "0006.HK",
+          "0003.HK",
+          "1038.HK",
+          "0836.HK",
+          "2688.HK",
+          "1816.HK",
+          "0135.HK",
+          "0902.HK",
+          "0270.HK"
+        ],
+        "overlapCount": 10
+      },
+      "00011.08": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.08",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "0005.HK",
+          "0939.HK",
+          "1299.HK",
+          "1398.HK",
+          "0388.HK",
+          "3988.HK",
+          "2318.HK",
+          "2628.HK",
+          "3968.HK",
+          "2388.HK"
+        ],
+        "latestApiTop10Codes": [
+          "0005.HK",
+          "0939.HK",
+          "1299.HK",
+          "1398.HK",
+          "0388.HK",
+          "2318.HK",
+          "3988.HK",
+          "2628.HK",
+          "3968.HK",
+          "2388.HK"
+        ],
+        "overlapCount": 10
+      },
+      "00011.09": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.09",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "0016.HK",
+          "1109.HK",
+          "0823.HK",
+          "1113.HK",
+          "2423.HK",
+          "0688.HK",
+          "0083.HK",
+          "0012.HK",
+          "1997.HK",
+          "1209.HK"
+        ],
+        "latestApiTop10Codes": [
+          "0016.HK",
+          "1109.HK",
+          "0823.HK",
+          "2423.HK",
+          "1113.HK",
+          "0688.HK",
+          "1997.HK",
+          "0083.HK",
+          "0012.HK",
+          "1209.HK"
+        ],
+        "overlapCount": 10
+      },
+      "00011.10": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.10",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "0700.HK",
+          "1810.HK",
+          "0981.HK",
+          "9999.HK",
+          "1347.HK",
+          "0992.HK",
+          "6869.HK",
+          "0522.HK",
+          "9660.HK",
+          "0020.HK"
+        ],
+        "latestApiTop10Codes": [
+          "0700.HK",
+          "1810.HK",
+          "9999.HK",
+          "0981.HK",
+          "0992.HK",
+          "1347.HK",
+          "6869.HK",
+          "0522.HK",
+          "9660.HK",
+          "0020.HK"
+        ],
+        "overlapCount": 10
+      },
+      "00011.11": {
+        "apiUrl": "https://www.hsi.com.hk/api/wsit-hsil-hiip-ea-public-proxy/v1/dataretrieval/e/constituents/v1?language=eng&indexCode=00011.11",
+        "apiTradeDate": "2026-07-17",
+        "apiFields": [
+          "stockCode",
+          "stockName",
+          "price",
+          "changePercentage",
+          "weightOrder"
+        ],
+        "apiWeightFieldPresent": false,
+        "monthEndTop10Codes": [
+          "0001.HK",
+          "0267.HK",
+          "0019.HK",
+          "0087.HK",
+          "0659.HK",
+          "0656.HK",
+          "0363.HK"
+        ],
+        "latestApiTop10Codes": [
+          "0001.HK",
+          "0267.HK",
+          "0019.HK",
+          "0087.HK",
+          "0659.HK",
+          "0656.HK",
+          "0363.HK"
+        ],
+        "overlapCount": 7
+      }
+    }
+  },
+  "limitations": [
+    "The official current constituent API exposes weightOrder, not numerical weight.",
+    "Exact numerical weights therefore use the latest public month-end report dated 2026-06-30.",
+    "The 2026-07-17 API snapshot is used only to verify that the official leading-constituent ordering remains broadly consistent; it is not used to invent current weights.",
+    "Descriptions, style traits, drivers and risks are concise editorial interpretations of the official composition and methodology, not return forecasts."
+  ]
+}

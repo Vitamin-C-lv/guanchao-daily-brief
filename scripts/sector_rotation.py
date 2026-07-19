@@ -52,6 +52,7 @@ TAXONOMY_PATH = MODEL_DIR / "taxonomy.a-core12-v2.json"
 CALENDAR_PATH = MODEL_DIR / "cn-market-calendar-2026.json"
 FEATURE_PATH = FEATURE_DIR / "a-share-features.csv.gz"
 MODEL_PATH = MODEL_DIR / "a-share-v1.json"
+HOLDOUT_REGISTRY_PATH = MODEL_DIR / "holdout-registry.json"
 CONTENT_PATH = ROOT / "content" / "sector-rotation.json"
 MANIFEST_PATH = DATA_DIR / "manifest.json"
 EVENT_PATH = EVENT_DIR / "events.jsonl.gz"
@@ -91,6 +92,50 @@ FEATURES = [
 ]
 MODEL_FEATURES = [f"cs_{feature}" for feature in FEATURES]
 
+# The live model is deliberately bounded to the latest ~2 trading years.  The
+# older panel is still evaluated as a stress sample, but it cannot dilute the
+# current regime fit.  These are trading-session counts, not calendar days or
+# sector-row counts.
+PRIMARY_WINDOW_SESSIONS = 504
+SELECTION_WINDOW_SESSIONS = 504
+LOCKED_HOLDOUT_SESSIONS = 252
+WALK_FORWARD_BLOCK_SESSIONS = 63
+MINIMUM_TRAINING_DATES = 504
+HOLDOUT_PROTOCOL_ID = "a-core12-v2-rolling504-select504-holdout252-v1"
+
+# A compact, interpretable nonlinear candidate.  It only transforms values
+# already known at the as-of close; no revised fundamentals, future
+# constituents or later news can enter these terms.  Candidate choice is made
+# before the locked holdout is opened.
+NONLINEAR_MODEL_FEATURES = [
+    *MODEL_FEATURES,
+    "nl_momentum_acceleration",
+    "nl_medium_trend_acceleration",
+    "nl_momentum5_x_amount",
+    "nl_momentum20_x_volume",
+    "nl_trend_x_drawdown",
+    "nl_reversal_x_volatility",
+    "nl_momentum5_squared",
+    "nl_drawdown_squared",
+]
+
+MODEL_CANDIDATES = [
+    {
+        "id": "rolling-linear-ridge",
+        "type": "rolling-standardized-ridge",
+        "featureNames": MODEL_FEATURES,
+        "ridge": 20.0,
+        "complexity": "baseline",
+    },
+    {
+        "id": "rolling-interaction-ridge",
+        "type": "rolling-standardized-interaction-ridge",
+        "featureNames": NONLINEAR_MODEL_FEATURES,
+        "ridge": 80.0,
+        "complexity": "nonlinear-candidate",
+    },
+]
+
 FEATURE_DESCRIPTIONS = {
     "momentum5": "5个交易日价格动量",
     "momentum20": "20个交易日价格动量",
@@ -106,6 +151,18 @@ MODEL_FEATURE_DESCRIPTIONS = {
     f"cs_{feature}": f"当日行业横截面标准化：{description}"
     for feature, description in FEATURE_DESCRIPTIONS.items()
 }
+MODEL_FEATURE_DESCRIPTIONS.update(
+    {
+        "nl_momentum_acceleration": "5日相对动量减20日相对动量，刻画短期趋势加速度",
+        "nl_medium_trend_acceleration": "20日相对动量减60日相对动量，刻画中期趋势变化",
+        "nl_momentum5_x_amount": "5日相对动量与成交额活跃度的交互项",
+        "nl_momentum20_x_volume": "20日相对动量与真实成交量活跃度的交互项",
+        "nl_trend_x_drawdown": "20日相对动量与60日回撤的交互项",
+        "nl_reversal_x_volatility": "单日反转与20日波动率的交互项",
+        "nl_momentum5_squared": "5日相对动量平方项，用于检测非线性极端状态",
+        "nl_drawdown_squared": "60日回撤平方项，用于检测非线性压力状态",
+    }
+)
 
 HISTORY_FIELDS = [
     "date",
@@ -191,6 +248,37 @@ def write_json_atomic(path: Path, payload: Any) -> None:
         handle.write(encoded)
         temp_name = handle.name
     os.replace(temp_name, path)
+
+
+def record_holdout_opening(
+    horizon: int,
+    opened_dates: list[str],
+    *,
+    selection_end: str,
+    candidate_id: str,
+) -> None:
+    """Append an opened holdout boundary once; never rewrite prior openings."""
+    if len(opened_dates) != LOCKED_HOLDOUT_SESSIONS:
+        raise RuntimeError("refusing to record a holdout that is not exactly 252 dates")
+    registry = read_json(HOLDOUT_REGISTRY_PATH)
+    bucket = registry.setdefault("horizons", {}).setdefault(str(horizon), {"openings": []})
+    openings = bucket.setdefault("openings", [])
+    if openings and opened_dates[0] <= str(openings[-1]["end"]):
+        raise RuntimeError("refusing to overlap or reopen an immutable holdout")
+    openings.append(
+        {
+            "openedAt": now_iso(),
+            "start": opened_dates[0],
+            "end": opened_dates[-1],
+            "dates": len(opened_dates),
+            "dateListSha256": canonical_json_sha256(opened_dates),
+            "protocolId": HOLDOUT_PROTOCOL_ID,
+            "featurePanelSha256": sha256_path(FEATURE_PATH),
+            "selectionEnd": selection_end,
+            "consumedBy": candidate_id,
+        }
+    )
+    write_json_atomic(HOLDOUT_REGISTRY_PATH, registry)
 
 
 def sha256_path(path: Path) -> str:
@@ -1024,36 +1112,88 @@ def solve_linear(matrix: list[list[float]], vector: list[float]) -> list[float]:
     return [augmented[i][-1] for i in range(size)]
 
 
-def fit_ridge(horizon: int, train_end_exclusive: str | None, ridge: float) -> dict[str, Any]:
+def model_feature_value(row: dict[str, Any], feature: str) -> float:
+    if feature in row:
+        return float(row[feature])
+    values = {
+        "nl_momentum_acceleration": row["cs_momentum5"] - row["cs_momentum20"],
+        "nl_medium_trend_acceleration": row["cs_momentum20"] - row["cs_momentum60"],
+        "nl_momentum5_x_amount": row["cs_momentum5"] * row["cs_amountRatio5v20"],
+        "nl_momentum20_x_volume": row["cs_momentum20"] * row["cs_volumeRatio5v20"],
+        "nl_trend_x_drawdown": row["cs_momentum20"] * row["cs_drawdown60"],
+        "nl_reversal_x_volatility": row["cs_reversal1"] * row["cs_volatility20"],
+        "nl_momentum5_squared": row["cs_momentum5"] ** 2,
+        "nl_drawdown_squared": row["cs_drawdown60"] ** 2,
+    }
+    if feature not in values:
+        raise KeyError(f"unknown model feature {feature}")
+    return float(values[feature])
+
+
+def labelled_feature_dates(horizon: int, before: str | None = None) -> list[str]:
     target_key = f"target{horizon}"
     target_date_key = f"targetDate{horizon}"
-    stats = RunningStats(len(MODEL_FEATURES))
+    dates = {
+        row["date"]
+        for row in iter_features()
+        if row[target_key] is not None
+        and row[target_date_key] is not None
+        and (before is None or row[target_date_key] < before)
+    }
+    return sorted(dates)
+
+
+def fit_ridge(
+    horizon: int,
+    train_end_exclusive: str | None,
+    ridge: float,
+    *,
+    feature_names: list[str] | None = None,
+    train_start_inclusive: str | None = None,
+    candidate_id: str = "rolling-linear-ridge",
+    model_type: str = "rolling-standardized-ridge",
+) -> dict[str, Any]:
+    target_key = f"target{horizon}"
+    target_date_key = f"targetDate{horizon}"
+    feature_names = list(feature_names or MODEL_FEATURES)
+    stats = RunningStats(len(feature_names))
+    row_dates: set[str] = set()
     target_dates: list[str] = []
     for row in iter_features():
         target = row[target_key]
         target_date = row[target_date_key]
-        if target is None or target_date is None or (
-            train_end_exclusive and target_date >= train_end_exclusive
+        if (
+            target is None
+            or target_date is None
+            or (train_end_exclusive and target_date >= train_end_exclusive)
+            or (train_start_inclusive and row["date"] < train_start_inclusive)
         ):
             continue
-        stats.add([row[feature] for feature in MODEL_FEATURES])
+        stats.add([model_feature_value(row, feature) for feature in feature_names])
+        row_dates.add(row["date"])
         target_dates.append(target_date)
-    if stats.n < 500:
-        raise RuntimeError(f"only {stats.n} training rows for {horizon}-session model")
+    if len(row_dates) < MINIMUM_TRAINING_DATES:
+        raise RuntimeError(
+            f"only {len(row_dates)} matured training dates/{stats.n} rows for "
+            f"{horizon}-session model; require {MINIMUM_TRAINING_DATES} dates"
+        )
     scales = stats.scales()
-    dim = len(MODEL_FEATURES) + 1
+    dim = len(feature_names) + 1
     xtx = [[0.0] * dim for _ in range(dim)]
     xty = [0.0] * dim
     for row in iter_features():
         target = row[target_key]
         target_date = row[target_date_key]
-        if target is None or target_date is None or (
-            train_end_exclusive and target_date >= train_end_exclusive
+        if (
+            target is None
+            or target_date is None
+            or (train_end_exclusive and target_date >= train_end_exclusive)
+            or (train_start_inclusive and row["date"] < train_start_inclusive)
         ):
             continue
         design = [1.0] + [
-            (row[feature] - stats.mean[i]) / scales[i]
-            for i, feature in enumerate(MODEL_FEATURES)
+            (model_feature_value(row, feature) - stats.mean[i]) / scales[i]
+            for i, feature in enumerate(feature_names)
         ]
         for i in range(dim):
             xty[i] += design[i] * target
@@ -1067,23 +1207,30 @@ def fit_ridge(horizon: int, train_end_exclusive: str | None, ridge: float) -> di
     coefficients = solve_linear(xtx, xty)
     return {
         "horizonSessions": horizon,
+        "candidateId": candidate_id,
+        "modelType": model_type,
         "ridge": ridge,
         "trainingRows": stats.n,
-        "trainingStart": min(target_dates),
-        "trainingEnd": max(target_dates),
-        "featureMeans": dict(zip(MODEL_FEATURES, stats.mean)),
-        "featureScales": dict(zip(MODEL_FEATURES, scales)),
+        "trainingDates": len(row_dates),
+        "trainingWindowSessions": PRIMARY_WINDOW_SESSIONS,
+        "trainingStart": min(row_dates),
+        "trainingEnd": max(row_dates),
+        "trainingTargetDateMax": max(target_dates),
+        "featureNames": feature_names,
+        "featureMeans": dict(zip(feature_names, stats.mean)),
+        "featureScales": dict(zip(feature_names, scales)),
         "intercept": coefficients[0],
-        "coefficients": dict(zip(MODEL_FEATURES, coefficients[1:])),
+        "coefficients": dict(zip(feature_names, coefficients[1:])),
     }
 
 
 def predict(model: dict[str, Any], row: dict[str, Any]) -> float:
     value = float(model["intercept"])
-    for feature in MODEL_FEATURES:
+    feature_names = model.get("featureNames") or MODEL_FEATURES
+    for feature in feature_names:
         scale = float(model["featureScales"][feature]) or 1.0
         value += (
-            (float(row[feature]) - float(model["featureMeans"][feature]))
+            (model_feature_value(row, feature) - float(model["featureMeans"][feature]))
             / scale
             * float(model["coefficients"][feature])
         )
@@ -1132,14 +1279,29 @@ def evaluate_fold(model: dict[str, Any], horizon: int, start: str, end: str) -> 
 
     rank_ics: list[float] = []
     spreads: list[float] = []
-    for pairs in by_date.values():
+    bin_stats = [
+        {"observations": 0, "directionalHits": 0, "targetSum": 0.0, "dates": set()}
+        for _ in range(5)
+    ]
+    for trading_date, pairs in by_date.items():
         if len(pairs) < 8:
             continue
         estimates = [pair[0] for pair in pairs]
         targets = [pair[1] for pair in pairs]
-        ic = pearson(average_ranks(estimates), average_ranks(targets))
+        estimate_ranks = average_ranks(estimates)
+        ic = pearson(estimate_ranks, average_ranks(targets))
         if ic is not None:
             rank_ics.append(ic)
+        denominator = max(1, len(pairs) - 1)
+        for rank_value, target in zip(estimate_ranks, targets):
+            percentile = (rank_value - 1) / denominator * 100
+            bin_index = min(4, int(percentile // 20))
+            expected_positive = percentile >= 50
+            stats = bin_stats[bin_index]
+            stats["observations"] += 1
+            stats["directionalHits"] += int((target > 0) == expected_positive)
+            stats["targetSum"] += target
+            stats["dates"].add(trading_date)
         ordered = sorted(pairs, key=lambda pair: pair[0])
         bucket = max(1, len(ordered) // 5)
         bottom = statistics.fmean(value for _, value in ordered[:bucket])
@@ -1151,76 +1313,393 @@ def evaluate_fold(model: dict[str, Any], horizon: int, start: str, end: str) -> 
         "dates": len(rank_ics),
         "observations": directional_total,
         "rankIc": statistics.fmean(rank_ics) if rank_ics else None,
+        "rankIcPositiveDateShare": (
+            sum(value > 0 for value in rank_ics) / len(rank_ics) if rank_ics else None
+        ),
         "directionalHitRate": directional_hits / directional_total if directional_total else None,
         "topBottomSpreadPct": statistics.fmean(spreads) * 100 if spreads else None,
+        "_binStats": [
+            {
+                "observations": stats["observations"],
+                "directionalHits": stats["directionalHits"],
+                "targetSum": stats["targetSum"],
+                "dates": len(stats["dates"]),
+            }
+            for stats in bin_stats
+        ],
     }
 
 
-def backtest_horizon(horizon: int, ridge: float) -> dict[str, Any]:
-    folds: list[dict[str, Any]] = []
-    skipped_folds: list[dict[str, Any]] = []
-    # Do not hard-code the first test year. A taxonomy constituent can start
-    # later than the rest of the universe, and the synchronized feature panel
-    # intentionally begins only when every available series is present. Start
-    # annual testing from the feature panel itself and skip a fold until at
-    # least 500 *matured* labels exist before its boundary.
-    test_years = sorted(
-        {
-            int(row["date"][:4])
-            for row in iter_features()
-            if row[f"target{horizon}"] is not None
-        }
-    )
-    for year in test_years:
-        start, end = f"{year}-01-01", f"{year}-12-31"
-        try:
-            model = fit_ridge(horizon, start, ridge)
-        except RuntimeError as exc:
-            if not str(exc).startswith("only "):
-                raise
-            skipped_folds.append(
-                {
-                    "start": start,
-                    "end": end,
-                    "reason": str(exc),
-                    "minimumMaturedTrainingRows": 500,
-                }
-            )
-            continue
-        result = evaluate_fold(model, horizon, start, end)
-        result["trainingRows"] = model["trainingRows"]
-        result["trainingTargetDateMax"] = model["trainingEnd"]
-        result["purgeSessions"] = horizon
-        folds.append(result)
+def aggregate_folds(folds: list[dict[str, Any]]) -> dict[str, Any]:
     usable = [fold for fold in folds if fold["dates"]]
     total_dates = sum(fold["dates"] for fold in usable)
     total_observations = sum(fold["observations"] for fold in usable)
 
     def weighted(metric: str, weight: str) -> float | None:
-        pairs = [(fold[metric], fold[weight]) for fold in usable if fold[metric] is not None]
+        pairs = [(fold[metric], fold[weight]) for fold in usable if fold.get(metric) is not None]
         denominator = sum(pair[1] for pair in pairs)
         return sum(pair[0] * pair[1] for pair in pairs) / denominator if denominator else None
 
-    rank_ic = weighted("rankIc", "dates")
-    hit_rate = weighted("directionalHitRate", "observations")
-    spread = weighted("topBottomSpreadPct", "dates")
-    if total_dates >= 500 and rank_ic is not None and rank_ic >= 0.03 and spread is not None and spread > 0:
-        status = "passed"
-    elif total_dates >= 250 and rank_ic is not None and rank_ic > 0 and spread is not None and spread > 0:
-        status = "limited"
-    else:
-        status = "insufficient"
+    combined_bins = [
+        {"observations": 0, "directionalHits": 0, "targetSum": 0.0, "dates": 0}
+        for _ in range(5)
+    ]
+    for fold in usable:
+        for index, stats in enumerate(fold.get("_binStats", [])):
+            for key in combined_bins[index]:
+                combined_bins[index][key] += stats[key]
+    calibration = []
+    for index, stats in enumerate(combined_bins):
+        observations = stats["observations"]
+        calibration.append(
+            {
+                "scoreRange": f"{index * 20}-{(index + 1) * 20}",
+                "dates": stats["dates"],
+                "observations": observations,
+                "directionalConsistency": (
+                    stats["directionalHits"] / observations if observations else None
+                ),
+                "meanRelativeReturnPct": (
+                    stats["targetSum"] / observations * 100 if observations else None
+                ),
+            }
+        )
+    public_folds = []
+    for fold in usable:
+        public_folds.append({key: value for key, value in fold.items() if not key.startswith("_")})
+    return {
+        "evaluationDates": total_dates,
+        "observations": total_observations,
+        "rankIc": weighted("rankIc", "dates"),
+        "rankIcPositiveDateShare": weighted("rankIcPositiveDateShare", "dates"),
+        "directionalHitRate": weighted("directionalHitRate", "observations"),
+        "topBottomSpreadPct": weighted("topBottomSpreadPct", "dates"),
+        "positiveFoldShare": (
+            sum((fold.get("rankIc") or 0) > 0 for fold in usable) / len(usable)
+            if usable
+            else None
+        ),
+        "calibration": calibration,
+        "folds": public_folds,
+    }
+
+
+def walk_forward_evaluate(
+    horizon: int,
+    candidate: dict[str, Any],
+    test_dates: list[str],
+    *,
+    block_sessions: int = WALK_FORWARD_BLOCK_SESSIONS,
+) -> dict[str, Any]:
+    folds: list[dict[str, Any]] = []
+    skipped: list[dict[str, Any]] = []
+    for offset in range(0, len(test_dates), block_sessions):
+        block = test_dates[offset : offset + block_sessions]
+        if not block:
+            continue
+        start, end = block[0], block[-1]
+        matured_dates = labelled_feature_dates(horizon, before=start)
+        if len(matured_dates) < PRIMARY_WINDOW_SESSIONS:
+            skipped.append(
+                {
+                    "start": start,
+                    "end": end,
+                    "reason": f"only {len(matured_dates)} matured dates before fold",
+                    "minimumMaturedTrainingDates": PRIMARY_WINDOW_SESSIONS,
+                }
+            )
+            continue
+        train_start = matured_dates[-PRIMARY_WINDOW_SESSIONS]
+        model = fit_ridge(
+            horizon,
+            start,
+            float(candidate["ridge"]),
+            feature_names=list(candidate["featureNames"]),
+            train_start_inclusive=train_start,
+            candidate_id=str(candidate["id"]),
+            model_type=str(candidate["type"]),
+        )
+        result = evaluate_fold(model, horizon, start, end)
+        result.update(
+            {
+                "candidateId": candidate["id"],
+                "trainingRows": model["trainingRows"],
+                "trainingDates": model["trainingDates"],
+                "trainingStart": model["trainingStart"],
+                "trainingEnd": model["trainingEnd"],
+                "trainingTargetDateMax": model["trainingTargetDateMax"],
+                "purgeSessions": horizon,
+                "embargoPolicy": "training targetDate strictly precedes test start",
+            }
+        )
+        folds.append(result)
+    result = aggregate_folds(folds)
+    result.update(
+        {
+            "candidateId": candidate["id"],
+            "modelType": candidate["type"],
+            "featureCount": len(candidate["featureNames"]),
+            "ridge": candidate["ridge"],
+            "rollingTrainingSessions": PRIMARY_WINDOW_SESSIONS,
+            "blockSessions": block_sessions,
+            "skippedFolds": skipped,
+        }
+    )
+    return result
+
+
+def compact_evaluation(result: dict[str, Any]) -> dict[str, Any]:
+    keys = (
+        "evaluationDates",
+        "observations",
+        "rankIc",
+        "rankIcPositiveDateShare",
+        "directionalHitRate",
+        "topBottomSpreadPct",
+        "positiveFoldShare",
+    )
+    return {key: result.get(key) for key in keys}
+
+
+def candidate_catalog(ridge: float) -> list[dict[str, Any]]:
+    candidates = []
+    for template in MODEL_CANDIDATES:
+        candidate = {**template, "featureNames": list(template["featureNames"])}
+        if candidate["complexity"] == "baseline":
+            candidate["ridge"] = float(ridge)
+        else:
+            candidate["ridge"] = max(40.0, float(ridge) * 4.0)
+        candidates.append(candidate)
+    return candidates
+
+
+def select_candidate(
+    candidates: list[dict[str, Any]],
+    evaluations: dict[str, dict[str, dict[str, Any]]],
+) -> tuple[dict[str, Any], str]:
+    baseline = candidates[0]
+    complex_candidate = candidates[1]
+    base_selection = evaluations[baseline["id"]]["selection"]
+    complex_selection = evaluations[complex_candidate["id"]]["selection"]
+    base_stress = evaluations[baseline["id"]]["stress"]
+    complex_stress = evaluations[complex_candidate["id"]]["stress"]
+    base_ic = base_selection.get("rankIc")
+    complex_ic = complex_selection.get("rankIc")
+    base_spread = base_selection.get("topBottomSpreadPct")
+    complex_spread = complex_selection.get("topBottomSpreadPct")
+    base_stress_ic = base_stress.get("rankIc")
+    complex_stress_ic = complex_stress.get("rankIc")
+    improvement = (
+        complex_ic - base_ic
+        if complex_ic is not None and base_ic is not None
+        else float("-inf")
+    )
+    complex_passes = (
+        complex_selection.get("evaluationDates", 0) >= 378
+        and improvement >= 0.01
+        and complex_ic is not None
+        and complex_ic > 0
+        and complex_spread is not None
+        and complex_spread > 0
+        and (base_spread is None or complex_spread >= base_spread - 0.10)
+        and (
+            complex_stress_ic is None
+            or base_stress_ic is None
+            or complex_stress_ic >= base_stress_ic - 0.025
+        )
+    )
+    if complex_passes:
+        return complex_candidate, (
+            f"locked before holdout: primary-selection rank IC improved by {improvement:.4f}; "
+            "spread stayed positive and older stress did not breach the predeclared tolerance"
+        )
+    reason = (
+        "locked before holdout: nonlinear candidate did not clear the predeclared "
+        "+0.01 primary rank-IC improvement, positive-spread and older-stress vetoes"
+    )
+    return baseline, reason
+
+
+def status_from_locked_gate(selection: dict[str, Any], holdout: dict[str, Any]) -> tuple[str, list[str]]:
+    reasons: list[str] = []
+    selection_ic = selection.get("rankIc")
+    selection_spread = selection.get("topBottomSpreadPct")
+    holdout_ic = holdout.get("rankIc")
+    holdout_spread = holdout.get("topBottomSpreadPct")
+    if selection.get("evaluationDates", 0) < 378:
+        reasons.append("primary selection has fewer than 378 independent dates")
+    if holdout.get("evaluationDates", 0) < 200:
+        reasons.append("locked holdout has fewer than 200 independent dates")
+    passed = (
+        not reasons
+        and selection_ic is not None
+        and selection_ic >= 0.03
+        and selection_spread is not None
+        and selection_spread > 0
+        and holdout_ic is not None
+        and holdout_ic >= 0.02
+        and holdout_spread is not None
+        and holdout_spread > 0
+    )
+    limited = (
+        not reasons
+        and selection_ic is not None
+        and selection_ic > 0
+        and selection_spread is not None
+        and selection_spread > 0
+        and holdout_ic is not None
+        and holdout_ic >= 0
+        and holdout_spread is not None
+        and holdout_spread >= 0
+    )
+    if passed:
+        return "passed", ["primary selection and untouched holdout both cleared the strict gate"]
+    if limited:
+        return "limited", ["direction is positive in both phases but strict passed thresholds were not met"]
+    if selection_ic is None or selection_ic <= 0:
+        reasons.append("primary-selection rank IC is not positive")
+    if selection_spread is None or selection_spread <= 0:
+        reasons.append("primary-selection top-bottom spread is not positive")
+    if holdout_ic is None or holdout_ic < 0:
+        reasons.append("locked-holdout rank IC is negative or unavailable")
+    if holdout_spread is None or holdout_spread < 0:
+        reasons.append("locked-holdout top-bottom spread is negative or unavailable")
+    return "insufficient", reasons
+
+
+def backtest_horizon(
+    horizon: int,
+    ridge: float,
+) -> dict[str, Any]:
+    dates = labelled_feature_dates(horizon)
+    required = MINIMUM_TRAINING_DATES + SELECTION_WINDOW_SESSIONS + LOCKED_HOLDOUT_SESSIONS
+    if len(dates) < required:
+        return {
+            "status": "insufficient",
+            "horizonSessions": horizon,
+            "walkForward": "504-session rolling training; locked 252-session holdout",
+            "evaluationDates": 0,
+            "observations": 0,
+            "rankIc": None,
+            "directionalHitRate": None,
+            "topBottomSpreadPct": None,
+            "folds": [],
+            "gateReasons": [f"only {len(dates)} labelled dates; require at least {required}"],
+        }
+    registry = read_json(HOLDOUT_REGISTRY_PATH)
+    expected_taxonomy_hash = canonical_json_sha256(read_json(TAXONOMY_PATH))
+    if registry.get("protocolId") != HOLDOUT_PROTOCOL_ID:
+        raise RuntimeError("holdout registry protocolId does not match the coded protocol")
+    if registry.get("taxonomyHash") != expected_taxonomy_hash:
+        raise RuntimeError("holdout registry taxonomyHash does not match the current taxonomy")
+    openings = registry.get("horizons", {}).get(str(horizon), {}).get("openings", [])
+    if not openings:
+        raise RuntimeError(f"holdout registry has no immutable opening for horizon {horizon}")
+    last_opened_end = str(openings[-1]["end"])
+    new_dates = [item for item in dates if item > last_opened_end]
+    if len(new_dates) < LOCKED_HOLDOUT_SESSIONS:
+        research_dates = dates[-SELECTION_WINDOW_SESSIONS:]
+        candidates = candidate_catalog(ridge)
+        evaluations = {
+            candidate["id"]: {
+                "selection": walk_forward_evaluate(horizon, candidate, research_dates),
+                "stress": {"evaluationDates": 0, "rankIc": None},
+            }
+            for candidate in candidates
+        }
+        selected, selection_reason = select_candidate(candidates, evaluations)
+        research = evaluations[selected["id"]]["selection"]
+        return {
+            "status": "insufficient",
+            "horizonSessions": horizon,
+            "walkForward": "research only; previously opened holdout is never reused",
+            "selectedCandidateId": selected["id"],
+            "selectionReason": selection_reason,
+            "researchSelection": compact_evaluation(research),
+            "holdoutState": {
+                "status": "waiting-for-new-unseen-dates",
+                "lastOpenedEnd": last_opened_end,
+                "newMaturedDates": len(new_dates),
+                "requiredNewMaturedDates": LOCKED_HOLDOUT_SESSIONS,
+            },
+            "gateReasons": [
+                f"only {len(new_dates)}/252 brand-new matured dates after immutable holdout boundary {last_opened_end}; locked holdout cannot be reopened or rolled"
+            ],
+            "evaluationDates": 0,
+            "observations": 0,
+            "rankIc": None,
+            "rankIcPositiveDateShare": None,
+            "directionalHitRate": None,
+            "topBottomSpreadPct": None,
+            "calibration": research.get("calibration", []),
+            "folds": [{**fold, "phase": "research-only"} for fold in research["folds"]],
+        }
+    holdout_dates = new_dates[:LOCKED_HOLDOUT_SESSIONS]
+    selection_pool = [item for item in dates if item < holdout_dates[0]]
+    selection_dates = selection_pool[-SELECTION_WINDOW_SESSIONS:]
+    selection_start_index = dates.index(selection_dates[0])
+    stress_candidates = dates[MINIMUM_TRAINING_DATES:selection_start_index]
+    candidates = candidate_catalog(ridge)
+    evaluations: dict[str, dict[str, dict[str, Any]]] = {}
+    for candidate in candidates:
+        evaluations[candidate["id"]] = {
+            "selection": walk_forward_evaluate(horizon, candidate, selection_dates),
+            "stress": walk_forward_evaluate(
+                horizon,
+                candidate,
+                stress_candidates,
+                block_sessions=126,
+            ),
+        }
+    selected, selection_reason = select_candidate(candidates, evaluations)
+    holdout = walk_forward_evaluate(horizon, selected, holdout_dates)
+    record_holdout_opening(
+        horizon,
+        holdout_dates,
+        selection_end=selection_dates[-1],
+        candidate_id=selected["id"],
+    )
+    status, gate_reasons = status_from_locked_gate(
+        evaluations[selected["id"]]["selection"],
+        holdout,
+    )
+    selected_selection = evaluations[selected["id"]]["selection"]
+    selected_stress = evaluations[selected["id"]]["stress"]
+    public_folds = [
+        {**fold, "phase": "primary-selection"} for fold in selected_selection["folds"]
+    ] + [{**fold, "phase": "locked-holdout"} for fold in holdout["folds"]]
     return {
         "status": status,
         "horizonSessions": horizon,
-        "walkForward": "dynamic expanding annual folds; a fold begins only after 500 matured training rows; training labels must mature before each test year; 5/20-session boundary purge",
-        "skippedFolds": skipped_folds,
-        "evaluationDates": total_dates,
-        "observations": total_observations,
-        "rankIc": rank_ic,
-        "directionalHitRate": hit_rate,
-        "topBottomSpreadPct": spread,
-        "folds": usable,
+        "walkForward": (
+            "504-session rolling training; 63-session time blocks; labels must mature before each "
+            "test boundary; candidate locked on the preceding 504 sessions; final 252 sessions "
+            "opened once as holdout; older history retained as secondary stress test"
+        ),
+        "selectedCandidateId": selected["id"],
+        "selectionReason": selection_reason,
+        "candidateComparisons": {
+            candidate["id"]: {
+                "complexity": candidate["complexity"],
+                "featureCount": len(candidate["featureNames"]),
+                "ridge": candidate["ridge"],
+                "primarySelection": compact_evaluation(evaluations[candidate["id"]]["selection"]),
+                "olderHistoryStress": compact_evaluation(evaluations[candidate["id"]]["stress"]),
+            }
+            for candidate in candidates
+        },
+        "primarySelection": compact_evaluation(selected_selection),
+        "lockedHoldout": compact_evaluation(holdout),
+        "olderHistoryStress": compact_evaluation(selected_stress),
+        "gateReasons": gate_reasons,
+        "evaluationDates": holdout["evaluationDates"],
+        "observations": holdout["observations"],
+        "rankIc": holdout["rankIc"],
+        "rankIcPositiveDateShare": holdout["rankIcPositiveDateShare"],
+        "directionalHitRate": holdout["directionalHitRate"],
+        "topBottomSpreadPct": holdout["topBottomSpreadPct"],
+        "calibration": selected_selection["calibration"],
+        "folds": public_folds,
     }
 
 
@@ -1279,6 +1758,26 @@ def visualization_artifact(latest: dict[str, dict[str, Any]]) -> dict[str, Any]:
 def train_model(args: argparse.Namespace) -> dict[str, Any]:
     if not FEATURE_PATH.exists():
         raise SystemExit("feature file missing; run 'features' first")
+    candidate_output = getattr(args, "candidate_output", None)
+    promotion_requested = bool(getattr(args, "promote", False))
+    if promotion_requested:
+        raise SystemExit(
+            "direct --promote is disabled: promotion must verify an already-audited candidate "
+            "and its SHA-256 without retraining"
+        )
+    validated_candidate_path: Path | None = None
+    if candidate_output:
+        validated_candidate_path = (ROOT / candidate_output).resolve()
+        candidate_dir = (MODEL_DIR / "candidates").resolve()
+        if not validated_candidate_path.is_relative_to(candidate_dir):
+            raise SystemExit("candidate output must stay inside models/sector-rotation/candidates")
+        if validated_candidate_path == MODEL_PATH.resolve():
+            raise SystemExit("candidate output cannot overwrite the frozen baseline")
+    if MODEL_PATH.exists() and not candidate_output and not promotion_requested:
+        raise SystemExit(
+            "frozen model exists; weekly research must use --candidate-output. "
+            "Training is not a publication path and cannot replace the baseline"
+        )
     taxonomy = read_json(TAXONOMY_PATH)
     manifest = load_manifest()
     latest = latest_rows()
@@ -1286,8 +1785,29 @@ def train_model(args: argparse.Namespace) -> dict[str, Any]:
     latest_cross_section = {
         code: row for code, row in latest.items() if row["date"] == as_of
     }
-    backtests = {str(horizon): backtest_horizon(horizon, args.ridge) for horizon in (5, 20)}
-    final_models = {str(horizon): fit_ridge(horizon, None, args.ridge) for horizon in (5, 20)}
+    backtests = {
+        str(horizon): backtest_horizon(horizon, args.ridge)
+        for horizon in (5, 20)
+    }
+    catalog = {candidate["id"]: candidate for candidate in candidate_catalog(args.ridge)}
+    final_models: dict[str, dict[str, Any]] = {}
+    for horizon in (5, 20):
+        selected_id = backtests[str(horizon)].get("selectedCandidateId", next(iter(catalog)))
+        selected = catalog[selected_id]
+        matured_dates = labelled_feature_dates(horizon)
+        if len(matured_dates) < PRIMARY_WINDOW_SESSIONS:
+            raise RuntimeError(
+                f"only {len(matured_dates)} matured dates for final {horizon}-session fit"
+            )
+        final_models[str(horizon)] = fit_ridge(
+            horizon,
+            None,
+            float(selected["ridge"]),
+            feature_names=list(selected["featureNames"]),
+            train_start_inclusive=matured_dates[-PRIMARY_WINDOW_SESSIONS],
+            candidate_id=str(selected["id"]),
+            model_type=str(selected["type"]),
+        )
     feature_manifest = manifest.get("features", {})
     coverage_complete = (
         len(latest_cross_section) == len(taxonomy["indices"])
@@ -1303,14 +1823,16 @@ def train_model(args: argparse.Namespace) -> dict[str, Any]:
             result["coverageGate"] = f"{len(latest_cross_section)}/{len(taxonomy['indices'])}@{as_of}"
     statuses = {result["status"] for result in backtests.values()}
     overall = "passed" if statuses == {"passed"} else "limited" if statuses & {"passed", "limited"} else "insufficient"
-    candidate_output = getattr(args, "candidate_output", None)
+    audit_gate_eligible = coverage_complete and overall == "passed" and all(
+        backtests[str(horizon)]["status"] == "passed" for horizon in (5, 20)
+    )
     artifact_version = getattr(args, "version", None)
     if candidate_output and not artifact_version:
         artifact_version = f"{datetime.now(SHANGHAI):%Y.%m.%d-%H%M%S}-candidate"
     artifact = {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "id": "guanchao-a-share-sector-rotation",
-        "version": artifact_version or f"{datetime.now(SHANGHAI):%Y.%m.%d}-v1",
+        "version": artifact_version or f"{datetime.now(SHANGHAI):%Y.%m.%d}-v2",
         "trainedAt": now_iso(),
         "asOf": as_of,
         "trainingStart": min(model["trainingStart"] for model in final_models.values()),
@@ -1330,34 +1852,43 @@ def train_model(args: argparse.Namespace) -> dict[str, Any]:
             "featureManifest": manifest.get("features", {}),
         },
         "method": {
-            "type": "streaming-standardized-ridge",
+            "type": "rolling-candidate-selected-ridge",
             "target": "5/20交易日前瞻行业收益减同日可用行业横截面均值",
-            "validation": "严格扩展窗口年度walk-forward；按目标实际到期日执行5/20交易日边界purge；无随机切分；到期前标签不进入训练",
+            "primaryWindow": "最近504个完整交易日滚动训练（约2年）；每日只推理，周六审计才可重训",
+            "validation": "候选只在预留holdout之前的504日walk-forward选择；目标到期日必须早于测试边界；最后252日锁定保留集只打开一次；无随机切分",
+            "stressTest": "更早历史使用相同504日滚动训练作为制度压力测试，不与最近窗口混合拟合，也不允许用保留集反选候选",
+            "candidatePolicy": "固定比较可解释线性岭回归与小型交互岭回归；复杂候选须至少改善0.01 primary rank IC、头尾差为正且不触发旧制度压力否决",
             "score": "推理值仅用于当日行业横截面0–100排名，非概率、非承诺收益",
+            "confidenceScore": "0–100仅表示历史样本外校准证据强度，不是上涨概率或胜率；只有量价一类证据时页面等级封顶low",
             "eventOverlay": "事件记忆独立保存；每日只匹配与追加，不自动重训数值模型",
         },
         "features": [
             {"id": feature, "description": MODEL_FEATURE_DESCRIPTIONS[feature]}
-            for feature in MODEL_FEATURES
+            for feature in sorted(
+                {feature for model in final_models.values() for feature in model["featureNames"]}
+            )
         ],
         "models": final_models,
         "backtest": {"status": overall, "horizons": backtests},
+        "promotion": {
+            "promotionReady": False,
+            "auditGateEligible": audit_gate_eligible,
+            "policy": "training never promotes; a separate audited publisher must verify candidate/audit hashes, taxonomy, coverage, both passed horizons, and expected current baseline hash",
+        },
         "visualizationData": visualization_artifact(latest_cross_section),
         "limitations": [
             "固定观察池由10个一级行业与军工、移动互联网两个重点主题指数构成；重点标签不参与打分，主题指数与一级行业可能重叠。",
             "行业指数成交量和成交额是指数层观察，不等于机构真实持仓或已确认资金流。",
             "模型只覆盖量价与横截面相对强弱；新闻、机构观点和国家队线索不泄漏进基础模型。",
+            "最近504交易日是主制度窗口；更早历史只作压力测试。近期保留集改善不能抵消旧制度下的脆弱性。",
             "交易成本、指数样本调整、不可交易性和极端事件会削弱样本外表现。",
-            "仅有量价一种证据类别时，页面预测置信度上限为low。",
+            "confidenceScore不是概率；仅有量价一种证据类别时，页面预测置信度等级上限为low。",
         ],
     }
     output_path = MODEL_PATH
     if candidate_output:
-        output_path = (ROOT / candidate_output).resolve()
-        if not output_path.is_relative_to(ROOT):
-            raise SystemExit("candidate output must stay inside the project root")
-        if output_path == MODEL_PATH.resolve():
-            raise SystemExit("candidate output cannot overwrite the frozen baseline")
+        assert validated_candidate_path is not None
+        output_path = validated_candidate_path
     write_json_atomic(output_path, artifact)
     print(
         f"[train] output={output_path.relative_to(ROOT)} status={overall} "
@@ -1432,6 +1963,99 @@ def trading_due_date(as_of: str, sessions: int) -> str:
         if cursor.weekday() < 5 and text not in closed:
             remaining -= 1
     return cursor.isoformat()
+
+
+def immutable_forecast_id(
+    artifact: dict[str, Any],
+    *,
+    as_of: str,
+    due_date: str,
+    sessions: int,
+    code: str,
+) -> str:
+    identity = "\0".join(
+        [
+            str(artifact["id"]),
+            str(artifact["version"]),
+            "a-share",
+            as_of,
+            due_date,
+            str(sessions),
+            code,
+        ]
+    )
+    digest = hashlib.sha256(identity.encode("utf-8")).hexdigest()[:12]
+    return f"fr-a-{as_of.replace('-', '')}-h{sessions}-{code}-{digest}"
+
+
+def calibrated_confidence(
+    backtest: dict[str, Any],
+    ranking_score: float,
+) -> tuple[str, int, str]:
+    """Return an evidence-strength grade; never interpret it as a probability."""
+    bucket_index = min(4, max(0, int(min(ranking_score, 99.999) // 20)))
+    calibration = backtest.get("calibration", [])
+    has_bins = len(calibration) == 5
+    bucket = calibration[bucket_index] if has_bins else {}
+    dates = int(
+        bucket.get("dates")
+        if has_bins
+        else backtest.get("evaluationDates", 0)
+        or 0
+    )
+    observations = int(
+        bucket.get("observations")
+        if has_bins
+        else backtest.get("observations", 0)
+        or 0
+    )
+    consistency = finite(
+        bucket.get("directionalConsistency")
+        if has_bins
+        else backtest.get("directionalHitRate")
+    )
+    holdout_ic = finite(
+        backtest.get("lockedHoldout", {}).get("rankIc")
+        if has_bins
+        else backtest.get("rankIc")
+    )
+    positive_share = finite(backtest.get("lockedHoldout", {}).get("rankIcPositiveDateShare"))
+    if positive_share is None and backtest.get("folds"):
+        positive_share = sum(
+            (finite(fold.get("rankIc")) or 0.0) > 0 for fold in backtest["folds"]
+        ) / len(backtest["folds"])
+    support_component = min(1.0, dates / 100.0)
+    consistency_component = max(0.0, min(1.0, ((consistency or 0.5) - 0.5) / 0.15))
+    ic_component = max(0.0, min(1.0, (holdout_ic or 0.0) / 0.12))
+    stability_component = max(0.0, min(1.0, ((positive_share or 0.5) - 0.5) / 0.20))
+    extremity_component = min(1.0, abs(ranking_score - 50.0) / 50.0)
+    evidence_score = round(
+        18
+        + support_component * 8
+        + consistency_component * 8
+        + ic_component * 7
+        + stability_component * 4
+        + extremity_component * 4
+    )
+    # One market-data evidence class cannot be upgraded to medium regardless
+    # of a strong recent backtest.  The numeric score stays available for
+    # comparing similarly scoped forecasts.
+    evidence_score = max(10, min(49, evidence_score))
+    consistency_text = "n/a" if consistency is None else f"{consistency:.3f}"
+    holdout_text = "n/a" if holdout_ic is None else f"{holdout_ic:.3f}"
+    if has_bins:
+        basis = (
+            f"近504日walk-forward校准分箱含{dates}个独立日期/{observations}项观察，"
+            f"方向一致度{consistency_text}；锁定252日保留集rank IC={holdout_text}。"
+            f"{evidence_score}分只表示同一量价模型内的证据强度，不是上涨概率或胜率。"
+        )
+    else:
+        basis = (
+            f"当前冻结基线仅保存总体walk-forward汇总：{dates}个独立日期/{observations}项观察，"
+            f"方向一致度{consistency_text}，rank IC={holdout_text}；未保存行业分箱校准。"
+            f"{evidence_score}分只表示保守证据强度，不是上涨概率或胜率。"
+        )
+    return "low", evidence_score, basis
 
 
 def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
@@ -1517,9 +2141,18 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
     # require the full fixed universe and never reuse a partial cross-section.
     current_ready = len(latest) >= 3 and fresh
     artifact_ready = (
-        artifact.get("data", {}).get("coverageCount") == universe_count
+        artifact.get("schemaVersion") in {1, 2}
+        and artifact.get("data", {}).get("coverageCount") == universe_count
         and artifact.get("data", {}).get("universeCount") == universe_count
         and artifact.get("data", {}).get("trainingCoverageComplete") is True
+        and (
+            artifact.get("schemaVersion") == 1
+            or all(
+                artifact.get("models", {}).get(str(sessions), {}).get("trainingDates")
+                == PRIMARY_WINDOW_SESSIONS
+                for sessions in (5, 20)
+            )
+        )
         and artifact.get("taxonomyHash") == taxonomy_hash
         and artifact.get("taxonomy") == taxonomy_data
     )
@@ -1628,6 +2261,10 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
         for rank, row in enumerate(ordered, start=1):
             score = scores[row["code"]]
             direction = forecast_direction(score)
+            confidence, confidence_score, confidence_basis = calibrated_confidence(
+                backtest,
+                score,
+            )
             amount_ratio = math.exp(row["amountRatio5v20"])
             volume_ratio = math.exp(row["volumeRatio5v20"])
             positive = direction in {"strong-up", "up"}
@@ -1646,12 +2283,21 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
                 invalidation = "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。"
             items.append(
                 {
+                    "forecastId": immutable_forecast_id(
+                        artifact,
+                        as_of=as_of,
+                        due_date=due_date,
+                        sessions=sessions,
+                        code=row["code"],
+                    ),
                     "sector": row["name"],
                     "code": row["code"],
                     "rank": rank,
                     "score": score,
                     "direction": direction,
-                    "confidence": "low",
+                    "confidence": confidence,
+                    "confidenceScore": confidence_score,
+                    "confidenceBasis": confidence_basis,
                     "claim": claim,
                     "evidence": [
                         {
@@ -1683,7 +2329,7 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
             "asOf": as_of,
             "dueDate": due_date,
             "sessions": sessions,
-            "note": "score为模型横截面排名分，不是预测概率；仅有量价一种证据类别，置信度统一为low。",
+            "note": "score为模型横截面排名分；confidenceScore为样本外校准证据强度，二者都不是上涨概率或胜率。仅有量价一种证据类别，置信度等级封顶low。",
             "items": items,
         }
 
@@ -1970,6 +2616,9 @@ def infer(_: argparse.Namespace) -> dict[str, Any]:
         ic = "n/a" if result["rankIc"] is None else f"{result['rankIc']:.3f}"
         spread = "n/a" if result["topBottomSpreadPct"] is None else f"{result['topBottomSpreadPct']:.2f}%"
         metrics.append(f"{sessions}日 {result['status']}（IC {ic}，头尾差 {spread}）")
+    artifact_feature_ids = [item["id"] for item in artifact.get("features", [])]
+    if not artifact_feature_ids:
+        artifact_feature_ids = list(MODEL_FEATURES)
     payload = {
         "schemaVersion": 1,
         "generatedAt": now_iso(),
@@ -1979,11 +2628,14 @@ def infer(_: argparse.Namespace) -> dict[str, Any]:
             "trainedAt": artifact["trainedAt"],
             "trainingStart": artifact["trainingStart"],
             "trainingEnd": artifact["trainingEnd"],
-            "method": "冻结的流式标准化岭回归；每日只取最新输入并推理，不自动重训。",
-            "features": [MODEL_FEATURE_DESCRIPTIONS[feature] for feature in MODEL_FEATURES],
+            "method": "冻结的低内存行业相对强弱模型；每日只刷新输入并推理，不训练、不选参、不打开锁定holdout。模型研究采用最近504交易日主窗口与更早历史压力测试。",
+            "features": [
+                MODEL_FEATURE_DESCRIPTIONS.get(feature, feature)
+                for feature in artifact_feature_ids
+            ],
             "backtest": {
                 "status": backtest["status"],
-                "summary": "；".join(metrics) + "。score是横截面排名分，不是概率。",
+                "summary": "；".join(metrics) + "。score是横截面排名分，confidenceScore是校准证据强度；二者都不是概率或胜率。",
             },
         },
         "markets": [a_share_market(artifact), hk_market(), us_market()],
@@ -2469,6 +3121,10 @@ def append_event(args: argparse.Namespace) -> None:
 
 
 def pipeline(args: argparse.Namespace) -> None:
+    if bool(getattr(args, "promote", False)):
+        raise SystemExit(
+            "direct --promote is disabled: pipeline may create an audit candidate but never publish it"
+        )
     fetch_args = argparse.Namespace(
         start=args.start,
         end=args.end,
@@ -2503,13 +3159,18 @@ def parser() -> argparse.ArgumentParser:
     features = commands.add_parser("features", help="build streaming cross-sectional features")
     features.set_defaults(func=build_features)
 
-    train = commands.add_parser("train", help="walk-forward test and freeze model")
+    train = commands.add_parser("train", help="walk-forward research and write an isolated audit candidate")
     train.add_argument("--ridge", type=float, default=20.0)
     train.add_argument(
         "--candidate-output",
-        help="write an isolated candidate artifact inside the project instead of replacing the frozen baseline",
+        help="write an isolated artifact under models/sector-rotation/candidates for audit only",
     )
     train.add_argument("--version", help="explicit artifact version (recommended for audited candidates)")
+    train.add_argument(
+        "--promote",
+        action="store_true",
+        help="disabled safety trap; training is never allowed to replace the frozen baseline",
+    )
     train.set_defaults(func=train_model)
 
     inference = commands.add_parser("infer", help="apply frozen model only")
@@ -2543,6 +3204,16 @@ def parser() -> argparse.ArgumentParser:
     full.add_argument("--min-rows", type=int, default=250)
     full.add_argument("--refresh", action="store_true")
     full.add_argument("--ridge", type=float, default=20.0)
+    full.add_argument(
+        "--candidate-output",
+        help="write an audit-only artifact under models/sector-rotation/candidates",
+    )
+    full.add_argument("--version", help="explicit audited candidate version")
+    full.add_argument(
+        "--promote",
+        action="store_true",
+        help="disabled safety trap; pipeline is never allowed to replace the frozen baseline",
+    )
     full.set_defaults(func=pipeline)
     return root
 

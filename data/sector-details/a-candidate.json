@@ -1,0 +1,2482 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-19T09:59:42+08:00",
+  "market": {
+    "id": "a-share",
+    "label": "A股",
+    "asOf": "2026-06-30",
+    "taxonomy": {
+      "owner": "中证指数有限公司",
+      "name": "观潮A股核心行业与重点主题观察池",
+      "version": "a-core12-v2",
+      "effectiveDate": "2026-07-18"
+    },
+    "dataNote": "12 个指数的成分与权重均来自中证官方收盘权重文件；仅保留结构化前十大，不保存上游 PDF 或 XLS。",
+    "sectors": [
+      {
+        "code": "000986",
+        "name": "能源",
+        "aliases": [],
+        "description": "从中证全指能源行业中筛选具备流动性和市值代表性的上市公司，观察油气、煤炭及能源服务的整体表现。",
+        "styleTags": [
+          "资源周期",
+          "央国企",
+          "高股息"
+        ],
+        "styleSummary": "前十大权重合计 70.70%，中国石油、中国神华、杰瑞股份和陕西煤业占比较高，呈现资源品周期、央国企与现金流风格。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 70.70%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 70.70%；完整指数共有 50 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "资源周期",
+            "explanation": "油气、煤炭与油服共同构成主要暴露。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 40 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 70.70%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 50,
+          "weightingMethod": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 70.70%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "601857",
+              "name": "中国石油",
+              "weightPct": 12.916,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601088",
+              "name": "中国神华",
+              "weightPct": 12.318,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002353",
+              "name": "杰瑞股份",
+              "weightPct": 10.762,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601225",
+              "name": "陕西煤业",
+              "weightPct": 9.065,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600028",
+              "name": "中国石化",
+              "weightPct": 7.465,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600938",
+              "name": "中国海油",
+              "weightPct": 7.46,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600188",
+              "name": "兖矿能源",
+              "weightPct": 3.651,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601898",
+              "name": "中煤能源",
+              "weightPct": 2.561,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600256",
+              "name": "广汇能源",
+              "weightPct": 2.539,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601699",
+              "name": "潞安环能",
+              "weightPct": 1.963,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "能源指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "能源指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/000986closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "能源指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "能源指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000986factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "000987",
+        "name": "原材料",
+        "aliases": [],
+        "description": "从中证全指原材料行业中筛选具备流动性和市值代表性的上市公司，覆盖有色、化工与基础材料。",
+        "styleTags": [
+          "商品周期",
+          "供给约束",
+          "分散"
+        ],
+        "styleSummary": "前十大权重合计 28.57%，紫金矿业居首但整体较分散；有色金属、化工和新能源材料并存，内部行情通常不会完全同步。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 28.57%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 28.57%；完整指数共有 158 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "商品周期",
+            "explanation": "紫金矿业、洛阳钼业、万华化学、稀土与锂钴公司体现多材料链条。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 148 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 28.57%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 158,
+          "weightingMethod": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 28.57%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "601899",
+              "name": "紫金矿业",
+              "weightPct": 8.352,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600176",
+              "name": "中国巨石",
+              "weightPct": 3.528,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "603993",
+              "name": "洛阳钼业",
+              "weightPct": 3.088,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600309",
+              "name": "万华化学",
+              "weightPct": 2.59,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600111",
+              "name": "北方稀土",
+              "weightPct": 2.451,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "000792",
+              "name": "盐湖股份",
+              "weightPct": 1.932,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600549",
+              "name": "厦门钨业",
+              "weightPct": 1.909,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "000657",
+              "name": "中钨高新",
+              "weightPct": 1.759,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002460",
+              "name": "赣锋锂业",
+              "weightPct": 1.489,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "603799",
+              "name": "华友钴业",
+              "weightPct": 1.476,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "原材料指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000987",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "原材料指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/000987closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "原材料指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "原材料指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000987factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "000988",
+        "name": "工业",
+        "aliases": [],
+        "description": "从中证全指工业行业中筛选具备流动性和市值代表性的上市公司，覆盖设备制造、运输、电力设备与工业服务。",
+        "styleTags": [
+          "制造升级",
+          "资本开支",
+          "高广度"
+        ],
+        "styleSummary": "共有 362 只样本，前十大仅占 24.64%；宁德时代权重较高，但工业设备、船舶、铁路与机械等暴露广，板块内部差异很大。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 24.64%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 24.64%；完整指数共有 362 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "制造升级",
+            "explanation": "新能源设备、船舶、轨交、自动化和工程机械共同构成主要暴露。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 352 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 24.64%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 362,
+          "weightingMethod": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 24.64%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "300750",
+              "name": "宁德时代",
+              "weightPct": 11.254,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300274",
+              "name": "阳光电源",
+              "weightPct": 2.499,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600150",
+              "name": "中国船舶",
+              "weightPct": 1.652,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "000338",
+              "name": "潍柴动力",
+              "weightPct": 1.586,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601816",
+              "name": "京沪高铁",
+              "weightPct": 1.44,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300124",
+              "name": "汇川技术",
+              "weightPct": 1.361,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002008",
+              "name": "大族激光",
+              "weightPct": 1.339,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600089",
+              "name": "特变电工",
+              "weightPct": 1.231,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002028",
+              "name": "思源电气",
+              "weightPct": 1.166,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600031",
+              "name": "三一重工",
+              "weightPct": 1.11,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "工业指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000988",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "工业指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/000988closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "工业指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "工业指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000988factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "000989",
+        "name": "可选消费",
+        "aliases": [],
+        "description": "从中证全指可选消费行业中筛选具备流动性和市值代表性的上市公司，观察耐用品、汽车及服务消费。",
+        "styleTags": [
+          "消费弹性",
+          "制造出海",
+          "汽车家电"
+        ],
+        "styleSummary": "前十大权重合计 47.27%，美的集团、比亚迪和格力电器居前，当前更像家电与汽车制造主导的可选消费组合。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 47.27%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 47.27%；完整指数共有 140 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "消费弹性",
+            "explanation": "家电、汽车整车与零部件、免税和消费服务构成主要暴露。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 130 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 47.27%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 140,
+          "weightingMethod": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 47.27%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "000333",
+              "name": "美的集团",
+              "weightPct": 14.149,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002594",
+              "name": "比亚迪",
+              "weightPct": 8.342,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "000651",
+              "name": "格力电器",
+              "weightPct": 6.474,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002050",
+              "name": "三花智控",
+              "weightPct": 3.781,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600660",
+              "name": "福耀玻璃",
+              "weightPct": 3.114,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600690",
+              "name": "海尔智家",
+              "weightPct": 2.95,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002851",
+              "name": "麦格米特",
+              "weightPct": 2.621,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601888",
+              "name": "中国中免",
+              "weightPct": 2.02,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601127",
+              "name": "赛力斯",
+              "weightPct": 1.927,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601689",
+              "name": "拓普集团",
+              "weightPct": 1.889,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "可选消费指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000989",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "可选消费指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/000989closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "可选消费指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "可选消费指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000989factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "000990",
+        "name": "主要消费",
+        "aliases": [],
+        "description": "从中证全指主要消费行业中筛选具备流动性和市值代表性的上市公司，覆盖食品饮料、养殖与日常消费。",
+        "styleTags": [
+          "防御消费",
+          "品牌资产",
+          "农产品周期"
+        ],
+        "styleSummary": "前十大权重合计 66.92%，白酒、乳品和养殖占比较高；品牌消费的稳定性与生猪等农产品周期同时存在。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 66.92%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 66.92%；完整指数共有 50 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "防御消费",
+            "explanation": "贵州茅台、五粮液等品牌消费与牧原、温氏等养殖公司并存。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 40 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 66.92%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 50,
+          "weightingMethod": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 66.92%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "600519",
+              "name": "贵州茅台",
+              "weightPct": 14.92,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600887",
+              "name": "伊利股份",
+              "weightPct": 11.385,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "000858",
+              "name": "五粮液",
+              "weightPct": 10.789,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002714",
+              "name": "牧原股份",
+              "weightPct": 7.18,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300498",
+              "name": "温氏股份",
+              "weightPct": 4.927,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "000568",
+              "name": "泸州老窖",
+              "weightPct": 4.286,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "603288",
+              "name": "海天味业",
+              "weightPct": 4.156,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600809",
+              "name": "山西汾酒",
+              "weightPct": 4.009,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002311",
+              "name": "海大集团",
+              "weightPct": 2.757,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "605499",
+              "name": "东鹏饮料",
+              "weightPct": 2.507,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "主要消费指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000990",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "主要消费指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/000990closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "主要消费指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "主要消费指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000990factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "000991",
+        "name": "医药医疗",
+        "aliases": [
+          "医药卫生"
+        ],
+        "description": "从中证全指医药卫生行业中筛选具备流动性和市值代表性的上市公司，覆盖医药研发、器械、医疗服务与中药。",
+        "styleTags": [
+          "医疗重点",
+          "创新成长",
+          "政策敏感"
+        ],
+        "styleSummary": "前十大权重合计 41.05%，药明康德与恒瑞医药合计约四分之一；创新药、CXO、器械、服务及中药风格并存。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 41.05%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 41.05%；完整指数共有 119 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "医疗重点",
+            "explanation": "药明康德、恒瑞医药、迈瑞医疗、联影医疗分别映射研发服务、创新药与器械。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 109 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 41.05%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 119,
+          "weightingMethod": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 41.05%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "603259",
+              "name": "药明康德",
+              "weightPct": 13.96,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600276",
+              "name": "恒瑞医药",
+              "weightPct": 10.534,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300760",
+              "name": "迈瑞医疗",
+              "weightPct": 3.733,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "688271",
+              "name": "联影医疗",
+              "weightPct": 2.269,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002001",
+              "name": "新和成",
+              "weightPct": 1.98,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002422",
+              "name": "科伦药业",
+              "weightPct": 1.945,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "000538",
+              "name": "云南白药",
+              "weightPct": 1.916,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300015",
+              "name": "爱尔眼科",
+              "weightPct": 1.746,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600436",
+              "name": "片仔癀",
+              "weightPct": 1.494,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002821",
+              "name": "凯莱英",
+              "weightPct": 1.468,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "医药医疗指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "医药医疗指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/000991closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "医药医疗指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "医药医疗指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000991factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "000992",
+        "name": "金融地产",
+        "aliases": [],
+        "description": "选取中证全指样本中属于金融和房地产两个一级行业的上市公司，观察金融地产整体表现。",
+        "styleTags": [
+          "利率敏感",
+          "信用周期",
+          "高股息"
+        ],
+        "styleSummary": "官方事实表显示金融权重 95.8%、房地产 4.2%；前十大均为保险、银行或券商，因此当前实际风格明显偏金融。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 45.90%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 45.90%；完整指数共有 129 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "利率敏感",
+            "explanation": "保险、银行、券商与互联网金融构成前十大主要暴露。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "按调整市值口径计算；当前实际权重以官方收盘权重文件为准。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 119 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 45.90%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 129,
+          "weightingMethod": "按调整市值口径计算；当前实际权重以官方收盘权重文件为准。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 45.90%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "601318",
+              "name": "中国平安",
+              "weightPct": 8.634,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600036",
+              "name": "招商银行",
+              "weightPct": 7.455,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601166",
+              "name": "兴业银行",
+              "weightPct": 4.757,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600030",
+              "name": "中信证券",
+              "weightPct": 4.757,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300059",
+              "name": "东方财富",
+              "weightPct": 4.376,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601398",
+              "name": "工商银行",
+              "weightPct": 3.881,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601211",
+              "name": "国泰海通",
+              "weightPct": 3.489,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601288",
+              "name": "农业银行",
+              "weightPct": 2.959,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601328",
+              "name": "交通银行",
+              "weightPct": 2.91,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600919",
+              "name": "江苏银行",
+              "weightPct": 2.685,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "金融地产指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000992",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "金融地产指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/000992closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "金融地产指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/H30199_Index_Methodology_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "金融地产指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000992factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "000993",
+        "name": "信息技术",
+        "aliases": [],
+        "description": "从中证全指信息技术行业中筛选具备流动性和市值代表性的上市公司，覆盖半导体、硬件与电子制造。",
+        "styleTags": [
+          "科技成长",
+          "半导体周期",
+          "国产替代"
+        ],
+        "styleSummary": "前十大权重合计 31.82%，半导体设计、设备、制造与电子零部件占据多数，属于硬科技与产业周期并重的组合。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 31.82%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 31.82%；完整指数共有 148 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "科技成长",
+            "explanation": "兆易创新、寒武纪、北方华创、中微公司和中芯国际构成显著半导体暴露。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 138 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 31.82%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 148,
+          "weightingMethod": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 31.82%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "603986",
+              "name": "兆易创新",
+              "weightPct": 4.541,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "688256",
+              "name": "寒武纪",
+              "weightPct": 4.181,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002371",
+              "name": "北方华创",
+              "weightPct": 3.195,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002475",
+              "name": "立讯精密",
+              "weightPct": 2.995,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "688008",
+              "name": "澜起科技",
+              "weightPct": 2.964,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "688012",
+              "name": "中微公司",
+              "weightPct": 2.93,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "688041",
+              "name": "海光信息",
+              "weightPct": 2.872,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002384",
+              "name": "东山精密",
+              "weightPct": 2.806,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "688981",
+              "name": "中芯国际",
+              "weightPct": 2.699,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "000725",
+              "name": "京东方A",
+              "weightPct": 2.632,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "信息技术指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000993",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "信息技术指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/000993closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "信息技术指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "信息技术指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000993factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "000994",
+        "name": "通信服务",
+        "aliases": [],
+        "description": "从中证全指通信服务行业中筛选具备流动性和市值代表性的上市公司，覆盖光通信、通信设备、运营商与传媒服务。",
+        "styleTags": [
+          "光通信",
+          "AI基建",
+          "高集中"
+        ],
+        "styleSummary": "前十大权重合计 60.35%，新易盛与中际旭创合计超过三成；当前指数对光模块和数据中心通信链的敏感度较高。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 60.35%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 60.35%；完整指数共有 57 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "光通信",
+            "explanation": "光模块、光纤光缆、通信设备、运营商与游戏传媒共同构成暴露。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 47 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 60.35%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 57,
+          "weightingMethod": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 60.35%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "300502",
+              "name": "新易盛",
+              "weightPct": 16.126,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300308",
+              "name": "中际旭创",
+              "weightPct": 15.107,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600487",
+              "name": "亨通光电",
+              "weightPct": 5.909,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300394",
+              "name": "天孚通信",
+              "weightPct": 5.426,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600522",
+              "name": "中天科技",
+              "weightPct": 4.538,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002281",
+              "name": "光迅科技",
+              "weightPct": 3.406,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "000063",
+              "name": "中兴通讯",
+              "weightPct": 3.194,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002602",
+              "name": "世纪华通",
+              "weightPct": 2.277,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601728",
+              "name": "中国电信",
+              "weightPct": 2.207,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600105",
+              "name": "永鼎股份",
+              "weightPct": 2.162,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "通信服务指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000994",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "通信服务指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/000994closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "通信服务指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "通信服务指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000994factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "000995",
+        "name": "公用事业",
+        "aliases": [],
+        "description": "从中证全指公用事业行业中筛选具备流动性和市值代表性的上市公司，覆盖水电、核电、火电与新能源发电。",
+        "styleTags": [
+          "防御",
+          "现金流",
+          "电力资产"
+        ],
+        "styleSummary": "前十大权重合计 53.55%，长江电力居首，核电、水电、火电与新能源运营商并存，整体偏稳定现金流与重资产运营。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 53.55%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 53.55%；完整指数共有 50 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "防御",
+            "explanation": "长江电力、中国核电、三峡能源及多家发电运营商构成主要暴露。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 40 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 53.55%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 50,
+          "weightingMethod": "调整市值加权；定期调整时单只样本不超过 15%，前五大合计不超过 60%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 53.55%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "600900",
+              "name": "长江电力",
+              "weightPct": 15.863,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601985",
+              "name": "中国核电",
+              "weightPct": 7.905,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600905",
+              "name": "三峡能源",
+              "weightPct": 5.643,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600795",
+              "name": "国电电力",
+              "weightPct": 4.431,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600157",
+              "name": "永泰能源",
+              "weightPct": 3.738,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600011",
+              "name": "华能国际",
+              "weightPct": 3.553,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600886",
+              "name": "国投电力",
+              "weightPct": 3.401,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "003816",
+              "name": "中国广核",
+              "weightPct": 3.273,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600674",
+              "name": "川投能源",
+              "weightPct": 2.94,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601991",
+              "name": "大唐发电",
+              "weightPct": 2.802,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "公用事业指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000995",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "公用事业指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/000995closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "公用事业指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20240510102751-000986_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "公用事业指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000995factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "399967",
+        "name": "军工",
+        "aliases": [],
+        "description": "选取十大军工集团控股且主营业务与军工相关的公司，以及航空、航天、船舶、兵器、军事电子和卫星领域代表性公司。",
+        "styleTags": [
+          "军工重点",
+          "装备制造",
+          "订单周期"
+        ],
+        "styleSummary": "前十大权重合计 38.30%；官方事实表显示工业权重约 71%，并包含原材料、信息技术和通信服务，属于跨产业链国防装备主题。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 38.30%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 38.30%；完整指数共有 80 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "军工重点",
+            "explanation": "船舶、航空发动机、军用电子、卫星通信与特种材料共同构成暴露。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每半年调样",
+            "explanation": "调整市值加权；定期调整时单只样本权重不超过 10%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 70 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 38.30%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每半年定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 80,
+          "weightingMethod": "调整市值加权；定期调整时单只样本权重不超过 10%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 38.30%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "600150",
+              "name": "中国船舶",
+              "weightPct": 9.238,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002179",
+              "name": "中航光电",
+              "weightPct": 3.66,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "688002",
+              "name": "睿创微纳",
+              "weightPct": 3.626,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300395",
+              "name": "菲利华",
+              "weightPct": 3.507,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600879",
+              "name": "航天电子",
+              "weightPct": 3.504,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002625",
+              "name": "光启技术",
+              "weightPct": 3.259,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600893",
+              "name": "航发动力",
+              "weightPct": 3.186,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600118",
+              "name": "中国卫星",
+              "weightPct": 3.025,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600760",
+              "name": "中航沈飞",
+              "weightPct": 2.906,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "601698",
+              "name": "中国卫通",
+              "weightPct": 2.391,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "军工指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/399967",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "军工指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/399967closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "军工指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20231208175428-399967_Index_Methodology_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "军工指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399967factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      },
+      {
+        "code": "399970",
+        "name": "移动互联网",
+        "aliases": [
+          "移动互联"
+        ],
+        "description": "选取移动终端、移动互联网平台、平台销售与内容服务，以及其他受益于移动互联网的上市公司。",
+        "styleTags": [
+          "互联网重点",
+          "硬科技",
+          "主题指数"
+        ],
+        "styleSummary": "它并不等同于互联网平台股：官方事实表显示信息技术权重 77.9%、通信服务 18.3%，前十大以半导体和电子硬件为主。",
+        "styleTraits": [
+          {
+            "label": "集中度",
+            "assessment": "前十大 35.65%",
+            "explanation": "官方 2026-06-30 收盘权重中，前十大合计 35.65%；完整指数共有 100 只样本。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "主要暴露",
+            "assessment": "互联网重点",
+            "explanation": "半导体设备、芯片、显示面板、电子材料、服务器和互联网金融共同构成暴露。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "label": "编制特征",
+            "assessment": "每季度调样",
+            "explanation": "调整市值加权；定期调整时单只样本权重不超过 3%。 权重上限约束适用于调整时点，之后会随证券价格变化而漂移。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "drivers": [
+          {
+            "title": "先看龙头贡献",
+            "detail": "研究当日走势时，先核对前十大尤其前三大成分的涨跌与成交，避免把少数龙头拉动误读成全板块普涨。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "再看内部扩散",
+            "detail": "将龙头表现与其余 90 只样本对照；只有上涨家数、成交和行业子链同步改善，板块强度才更具广度。",
+            "sourceIndexes": [
+              1
+            ]
+          }
+        ],
+        "risks": [
+          {
+            "title": "成分集中或内部异质",
+            "detail": "前十大占 35.65%，指数点位可能主要反映权重股；个股结论不能由指数表现直接外推。",
+            "sourceIndexes": [
+              1,
+              3
+            ]
+          },
+          {
+            "title": "快照会变化",
+            "detail": "本页为 2026-06-30 收盘权重快照，每季度定期调样且权重会随价格漂移，研究时应核对最新官方文件。",
+            "sourceIndexes": [
+              1,
+              2
+            ]
+          }
+        ],
+        "constituents": {
+          "asOf": "2026-06-30",
+          "unit": "percent",
+          "scope": "前十大成分股",
+          "totalConstituents": 100,
+          "weightingMethod": "调整市值加权；定期调整时单只样本权重不超过 3%。",
+          "note": "权重为中证官方 2026-06-30 收盘权重，单位为%；仅展示前十大（合计 35.65%），不是持仓建议。因价格漂移，当前权重可能高于定期调整时的上限。",
+          "sourceIndexes": [
+            1,
+            3
+          ],
+          "items": [
+            {
+              "code": "688012",
+              "name": "中微公司",
+              "weightPct": 4.514,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "603986",
+              "name": "兆易创新",
+              "weightPct": 4.398,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002371",
+              "name": "北方华创",
+              "weightPct": 3.863,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "000725",
+              "name": "京东方A",
+              "weightPct": 3.53,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300408",
+              "name": "三环集团",
+              "weightPct": 3.473,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "688981",
+              "name": "中芯国际",
+              "weightPct": 3.395,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "600183",
+              "name": "生益科技",
+              "weightPct": 3.308,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "002384",
+              "name": "东山精密",
+              "weightPct": 3.15,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "603019",
+              "name": "中科曙光",
+              "weightPct": 3.078,
+              "sourceIndexes": [
+                1
+              ]
+            },
+            {
+              "code": "300059",
+              "name": "东方财富",
+              "weightPct": 2.942,
+              "sourceIndexes": [
+                1
+              ]
+            }
+          ]
+        },
+        "sourceIndexes": [
+          0,
+          2,
+          3
+        ],
+        "sources": [
+          {
+            "name": "移动互联网指数官方详情",
+            "publisher": "中证指数有限公司",
+            "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/399970",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "移动互联网指数收盘权重文件",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/file/autofile/closeweight/399970closeweight.xls",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "移动互联网指数编制方案",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20231208175406-399970_Index_Methodology_cn.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "移动互联网指数事实表（2026-06-30）",
+            "publisher": "中证指数有限公司",
+            "url": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399970factsheet.pdf",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
+        ]
+      }
+    ]
+  }
+}

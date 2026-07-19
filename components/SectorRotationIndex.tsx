@@ -6,12 +6,14 @@ import {
   ArrowUpRight,
   CalendarDays,
   ChevronDown,
+  ChevronRight,
   CircleAlert,
   ExternalLink,
   Gauge,
   Minus,
   ShieldCheck,
 } from "lucide-react";
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { KeyboardEvent } from "react";
 import type {
@@ -32,6 +34,19 @@ import type {
 } from "@/lib/types";
 
 type HorizonKey = "current" | "oneWeek" | "oneMonth";
+
+function sectorDetailHref(market: SectorRotationMarket, code: string | undefined, detailKeys: ReadonlySet<string>) {
+  if (!code || market.id === "us" || !detailKeys.has(`${market.id}:${code}`)) return null;
+  return `/markets/sectors/${market.id}/${encodeURIComponent(code)}`;
+}
+
+function SectorCardLink({ href, sector }: { href: string; sector: string }) {
+  return (
+    <Link className="rotation-card-link" href={href} aria-label={`查看${sector}板块构成与风格说明`}>
+      <span>详情</span><ChevronRight size={13} aria-hidden="true" />
+    </Link>
+  );
+}
 
 function compactRankingItems<T extends { rank: number; code?: string; sector: string }>(items: T[], top = 3, bottom = 2) {
   const selected = [...items.slice(0, top), ...items.slice(-bottom)];
@@ -455,7 +470,15 @@ function FocusObservations({ items }: { items: SectorRotationObservedItem[] }) {
   );
 }
 
-function ObservedRanking({ horizon, market }: { horizon: SectorRotationObservedHorizon; market: SectorRotationMarket }) {
+function ObservedRanking({
+  horizon,
+  market,
+  detailKeys,
+}: {
+  horizon: SectorRotationObservedHorizon;
+  market: SectorRotationMarket;
+  detailKeys: ReadonlySet<string>;
+}) {
   const [expanded, setExpanded] = useState(false);
   if (horizon.status === "insufficient") {
     return <InsufficientState title="本期暂无可比观测" reason={horizon.reason} compact={market.mode === "major-index"} />;
@@ -475,13 +498,18 @@ function ObservedRanking({ horizon, market }: { horizon: SectorRotationObservedH
       <RotationRankingChart items={items} market={market} asOf={horizon.asOf} />
       <RotationDataCharts charts={horizon.charts} market={market} asOf={horizon.asOf} />
       <ol id="rotation-observed-list" className={`rotation-ranking observed ${market.mode === "major-index" ? "compact" : ""}`}>
-        {visibleItems.map((item) => (
-          <li key={`${item.rank}-${item.code ?? item.sector}`} className={`rotation-rank-item observed direction-${item.direction}`}>
+        {visibleItems.map((item) => {
+          const detailHref = sectorDetailHref(market, item.code, detailKeys);
+          return (
+          <li key={`${item.rank}-${item.code ?? item.sector}`} className={`rotation-rank-item observed direction-${item.direction} ${detailHref ? "has-detail" : ""}`}>
             <span className="rotation-rank-number">{String(item.rank).padStart(2, "0")}</span>
             <div className="rotation-rank-main">
               <div className="rotation-rank-title">
                 <div><strong>{item.sector}</strong>{item.code ? <small>{item.code}</small> : null}</div>
-                <span className={`rotation-direction direction-${item.direction}`}>{observedDirectionLabel[item.direction]}</span>
+                <div className="rotation-rank-actions">
+                  <span className={`rotation-direction direction-${item.direction}`}>{observedDirectionLabel[item.direction]}</span>
+                  {detailHref ? <SectorCardLink href={detailHref} sector={item.sector} /> : null}
+                </div>
               </div>
               <ScoreBar score={item.score} />
               <p className="rotation-signal">{item.signal}<SourceRefs indexes={item.sourceIndexes} sources={market.sources} /></p>
@@ -497,7 +525,8 @@ function ObservedRanking({ horizon, market }: { horizon: SectorRotationObservedH
               ) : null}
             </div>
           </li>
-        ))}
+          );
+        })}
       </ol>
       {market.mode !== "major-index" && items.length > visibleItems.length ? (
         <button
@@ -548,7 +577,15 @@ function ForecastEvidence({
   );
 }
 
-function ForecastRanking({ horizon, market }: { horizon: SectorRotationForecastHorizon; market: SectorRotationMarket }) {
+function ForecastRanking({
+  horizon,
+  market,
+  detailKeys,
+}: {
+  horizon: SectorRotationForecastHorizon;
+  market: SectorRotationMarket;
+  detailKeys: ReadonlySet<string>;
+}) {
   const [expanded, setExpanded] = useState(false);
   if (horizon.status === "insufficient") {
     return <InsufficientState title="本期未发布条件排序" reason={horizon.reason} compact={market.mode === "major-index"} />;
@@ -568,17 +605,28 @@ function ForecastRanking({ horizon, market }: { horizon: SectorRotationForecastH
       <RotationRankingChart items={items} market={market} asOf={horizon.asOf} forecast />
       <RotationDataCharts charts={horizon.charts} market={market} asOf={horizon.asOf} />
       <ol id="rotation-forecast-list" className={`rotation-ranking forecast ${isCompact ? "compact" : ""}`}>
-        {visibleItems.map((item) => (
-          <li key={`${item.rank}-${item.code ?? item.sector}`} className={`rotation-rank-item forecast direction-${item.direction}`}>
+        {visibleItems.map((item) => {
+          const detailHref = sectorDetailHref(market, item.code, detailKeys);
+          return (
+          <li key={`${item.rank}-${item.code ?? item.sector}`} className={`rotation-rank-item forecast direction-${item.direction} ${detailHref ? "has-detail" : ""}`}>
             <span className="rotation-rank-number">{String(item.rank).padStart(2, "0")}</span>
             <div className="rotation-rank-main">
               <div className="rotation-rank-title">
                 <div><strong>{item.sector}</strong>{item.code ? <small>{item.code}</small> : null}</div>
-                <span className={`rotation-direction direction-${item.direction}`}><DirectionIcon direction={item.direction} />{forecastDirectionLabel[item.direction]}</span>
+                <div className="rotation-rank-actions">
+                  <span className={`rotation-direction direction-${item.direction}`}><DirectionIcon direction={item.direction} />{forecastDirectionLabel[item.direction]}</span>
+                  {detailHref ? <SectorCardLink href={detailHref} sector={item.sector} /> : null}
+                </div>
               </div>
               <div className="rotation-forecast-score">
                 <ScoreBar score={item.score} forecast />
-                <span className={`rotation-confidence confidence-${item.confidence}`}>{confidenceLabel[item.confidence]}</span>
+                <span
+                  className={`rotation-confidence confidence-${item.confidence}`}
+                  title={item.confidenceBasis}
+                  aria-label={`${confidenceLabel[item.confidence]}置信度，证据强度 ${item.confidenceScore} 分（满分 100 分）；该分数不是上涨概率或胜率`}
+                >
+                  {confidenceLabel[item.confidence]} · {item.confidenceScore}/100
+                </span>
                 <time dateTime={item.dueDate}><CalendarDays size={11} /> 至 {formatDate(item.dueDate)}</time>
               </div>
               <p className="rotation-claim">{item.claim}</p>
@@ -592,6 +640,7 @@ function ForecastRanking({ horizon, market }: { horizon: SectorRotationForecastH
                   <dl className="rotation-conditions">
                     <div><dt>触发</dt><dd>{item.trigger}</dd></div>
                     <div><dt>失效</dt><dd>{item.invalidation}</dd></div>
+                    <div className="rotation-confidence-explain"><dt>置信度</dt><dd>{item.confidenceBasis}</dd></div>
                   </dl>
                 </details>
               ) : (
@@ -603,12 +652,14 @@ function ForecastRanking({ horizon, market }: { horizon: SectorRotationForecastH
                   <dl className="rotation-conditions">
                     <div><dt>触发条件</dt><dd>{item.trigger}</dd></div>
                     <div><dt>失效条件</dt><dd>{item.invalidation}</dd></div>
+                    <div className="rotation-confidence-explain"><dt>置信度</dt><dd>{item.confidenceBasis}</dd></div>
                   </dl>
                 </>
               )}
             </div>
           </li>
-        ))}
+          );
+        })}
       </ol>
       {!isCompact && items.length > visibleItems.length ? (
         <button type="button" className="rotation-expand" aria-expanded={expanded} aria-controls="rotation-forecast-list" onClick={() => setExpanded(true)}>
@@ -626,15 +677,18 @@ function ForecastRanking({ horizon, market }: { horizon: SectorRotationForecastH
 export default function SectorRotationIndex({
   data,
   activeMarketId,
+  detailKeys,
 }: {
   data?: SectorRotationIndexData;
   activeMarketId: MarketSection["id"];
+  detailKeys?: string[];
 }) {
   const [activeHorizon, setActiveHorizon] = useState<HorizonKey>("current");
   const market = useMemo(
     () => data?.markets.find((candidate) => candidate.id === activeMarketId),
     [activeMarketId, data],
   );
+  const detailKeySet = useMemo(() => new Set(detailKeys ?? []), [detailKeys]);
   const activeTab = horizonTabs.find((tab) => tab.key === activeHorizon) ?? horizonTabs[0];
   const horizon = market?.horizons[activeHorizon];
   const isForecast = activeHorizon !== "current";
@@ -699,9 +753,9 @@ export default function SectorRotationIndex({
         ) : !horizon ? (
           <InsufficientState reason={`${activeTab.label}窗口没有可验证数据。`} compact={isUS} />
         ) : horizon.kind === "observed" ? (
-          <ObservedRanking key={`${market.id}-${horizon.asOf}`} horizon={horizon} market={market} />
+          <ObservedRanking key={`${market.id}-${horizon.asOf}`} horizon={horizon} market={market} detailKeys={detailKeySet} />
         ) : (
-          <ForecastRanking key={`${market.id}-${activeHorizon}-${horizon.asOf}`} horizon={horizon} market={market} />
+          <ForecastRanking key={`${market.id}-${activeHorizon}-${horizon.asOf}`} horizon={horizon} market={market} detailKeys={detailKeySet} />
         )}
       </div>
 

@@ -9,7 +9,17 @@
 - 历史输入以中证官方接口为首选，日期参数使用 `YYYYMMDD`、逐代码串行并优先复用有效缓存；官方源不可用时才扩大至独立可信市场数据源交叉核验。百度 `000xxx` 代码与个股存在歧义，禁止作为这些指数的降级源。
 - 历史压缩为单指数 `csv.gz`，一次只读取一个行业；派生特征和训练采用流式多遍扫描，不把全部年月数据同时放进内存。
 - 当前层是观察分，不是预测。5日和20日前瞻是横截面排名分，不是上涨概率、收益保证或个股建议。
+- 每条可发布预测由模型版本、市场、`asOf`、期限、`dueDate` 和行业代码生成不可变 `forecastId`。`confidenceScore` 为 0–100 的同口径样本外证据强度，附 `confidenceBasis`；它同样不是上涨概率或胜率。只有量价一类证据时，文字置信度等级始终封顶 `low`。
 - 数值层只学习当时可得的量价数据。新闻、机构观点与长期资金线索是独立事件覆盖层，不泄漏进量价基础模型，也不会触发日常重训。
+
+## 两年主窗口与锁定保留集
+
+- 周六研究流程把最近 **504 个完整交易日**作为主要滚动制度窗口。每个测试块只使用其开始前已经到期的标签训练；训练标签的 `targetDate` 必须严格早于测试块首日，5/20日重叠标签不能穿越边界。
+- 模型选择先在锁定保留集之前的504个交易日完成，252个交易日保留集只打开一次。已打开边界追加记录在 `holdout-registry.json`；不足252个全新已到期日时只能输出 `research/insufficient`，不得滚动、重用或重命名旧holdout。
+- 固定候选只有两个：9项可解释线性岭回归，以及在相同量价输入上增加8个预先定义交互/平方项的小型岭回归。复杂候选至少要把选择段 rank IC 提高0.01、维持正头尾差，并且不触发更早历史压力否决；复杂度本身不是升级理由。
+- 更早历史继续用相同504日滚动方式作为制度压力测试，但不与最近两年混合拟合。压力样本用于暴露失效状态，不能用来包装近期局部改善。
+
+2026-07-19 的首次 v2 审计记录在 `a-share-v2-audit.json`。5日与20日候选均未通过预登记门禁，交互模型也没有达到最低改善，因此 `a-share-v1.json` 保持原冻结版本。原审计中“把训练至最新日的冻结模型直接评估过去252日”的比较存在前视污染，已删除且不影响“候选未通过”的结论。未来基线比较必须在相同边界逐fold重拟合，或使用部署后前瞻结果。
 
 ## 压缩事件记忆
 
@@ -27,10 +37,11 @@
 pnpm rotation:pipeline
 pnpm rotation:refresh
 pnpm rotation:infer
+pnpm rotation:train --candidate-output models/sector-rotation/candidates/<version>.json --version <version>
 pnpm rotation:events-append --input event.json
 pnpm rotation:events-prune
 ```
 
 Node 启动器依次尝试 `CODEX_PYTHON`、`python`、`py -3` 和 `uv` 管理的 Python，不写死任何用户缓存路径。日常无人值守入口是 `pnpm rotation:refresh`：刷新官方结构化输入、重建当日特征并应用冻结模型，但不训练。
 
-`pipeline` 会按“下载 → 特征 → walk-forward回测 → 冻结模型 → 推理”执行。每日 Luna 只运行 `refresh`；单独的 `infer` 不刷新输入。只有周六 Sol 版本化模型审计等明确流程才运行 `train` 或完整 `pipeline`。
+`pipeline` 会按“下载 → 特征 → 504日滚动walk-forward → 候选锁定 → 新的252日holdout → 推理”执行。已存在冻结模型时，`train`/`pipeline` 必须给出项目内的 `--candidate-output`。直接 `--promote` 已被禁用，因为它会重训后覆盖；未来只能用独立发布步骤验证已审计 candidate 的路径/SHA-256、taxonomy/覆盖、两期限 `passed` 和当前基线哈希后再原子替换。

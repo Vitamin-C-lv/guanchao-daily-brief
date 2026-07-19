@@ -248,6 +248,8 @@ export interface SectorRotationObservedItem {
 }
 
 export interface SectorRotationForecastItem {
+  /** Immutable identity derived from model version, market, as-of, horizon, due date and sector code. */
+  forecastId: string;
   sector: string;
   code?: string;
   rank: number;
@@ -255,6 +257,9 @@ export interface SectorRotationForecastItem {
   score: number;
   direction: SectorRotationForecastDirection;
   confidence: SectorRotationConfidence;
+  /** Calibrated evidence-strength score, not an upside probability or hit-rate claim. */
+  confidenceScore: number;
+  confidenceBasis: string;
   claim: string;
   evidence: SectorRotationEvidencePoint[];
   counterEvidence: SectorRotationEvidencePoint[];
@@ -386,6 +391,80 @@ export interface SectorRotationIndex {
     };
   };
   markets: SectorRotationMarket[];
+}
+
+export type SectorDetailMarketId = "a-share" | "hk";
+
+export interface SectorDetailEvidencePoint {
+  title: string;
+  detail: string;
+  /** Zero-based indexes into the owning sector's sources array. */
+  sourceIndexes: number[];
+}
+
+export interface SectorDetailStyleTrait {
+  label: string;
+  assessment: string;
+  explanation: string;
+  /** Zero-based indexes into the owning sector's sources array. */
+  sourceIndexes: number[];
+}
+
+export interface SectorDetailConstituent {
+  code: string;
+  name: string;
+  /** Index constituent weight in percent, not a portfolio recommendation. */
+  weightPct: number;
+  /** Optional constituent-level references into the owning sector's sources array. */
+  sourceIndexes?: number[];
+}
+
+export interface SectorDetail {
+  code: string;
+  name: string;
+  aliases?: string[];
+  description: string;
+  styleTags: string[];
+  styleSummary: string;
+  styleTraits: SectorDetailStyleTrait[];
+  drivers: SectorDetailEvidencePoint[];
+  risks: SectorDetailEvidencePoint[];
+  constituents: {
+    asOf: string;
+    unit: "percent";
+    /** For example "前十大成分股"; must make partial coverage explicit. */
+    scope: string;
+    totalConstituents?: number;
+    weightingMethod: string;
+    note: string;
+    /** References that support the constituent snapshot as a whole. */
+    sourceIndexes: number[];
+    items: SectorDetailConstituent[];
+  };
+  /** References supporting the description and overall sector definition. */
+  sourceIndexes: number[];
+  /** Source indexes in this object are local to this array. */
+  sources: SourceLink[];
+}
+
+export interface SectorDetailMarket {
+  id: SectorDetailMarketId;
+  label: string;
+  asOf: string;
+  dataNote?: string;
+  taxonomy: {
+    owner: string;
+    name: string;
+    version: string;
+    effectiveDate: string;
+  };
+  sectors: SectorDetail[];
+}
+
+export interface SectorDetailsIndex {
+  schemaVersion: 1;
+  generatedAt: string;
+  markets: SectorDetailMarket[];
 }
 
 export interface FederalReserveSection {

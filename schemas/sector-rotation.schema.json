@@ -132,14 +132,17 @@
     "forecastItem": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["sector", "rank", "score", "direction", "confidence", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "dueDate"],
+      "required": ["forecastId", "sector", "rank", "score", "direction", "confidence", "confidenceScore", "confidenceBasis", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "dueDate"],
       "properties": {
+        "forecastId": { "type": "string", "minLength": 12, "maxLength": 100, "pattern": "^fr-[a-z0-9-]+$" },
         "sector": { "type": "string", "minLength": 1, "maxLength": 60 },
         "code": { "type": "string", "minLength": 1, "maxLength": 30 },
         "rank": { "type": "integer", "minimum": 1 },
         "score": { "type": "number", "minimum": 0, "maximum": 100 },
         "direction": { "enum": ["strong-up", "up", "range", "down", "strong-down"] },
         "confidence": { "enum": ["low", "medium", "medium-high"] },
+        "confidenceScore": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "confidenceBasis": { "type": "string", "minLength": 20, "maxLength": 300 },
         "claim": { "type": "string", "minLength": 1, "maxLength": 280 },
         "evidence": {
           "type": "array",
