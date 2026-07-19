@@ -1,22 +1,6 @@
 {
   "schemaVersion": 1,
-  "daily": {
-    "noticeId": "daily-2026-07-18-hot-cross-market",
-    "kind": "daily",
-    "importance": 98,
-    "publishedAt": "2026-07-18T08:19:17+08:00",
-    "expiresAt": "2026-07-19T08:10:00+08:00",
-    "title": "AI 抛售传导至三地市场",
-    "summary": "7 月 17 日 A 股、港股和美股科技权重同步承压：创业板跌 7.15%、恒科跌 4.37%、纳指跌 1.4%。",
-    "selectionReason": "经南方财经网、新浪财经与 Associated Press 交叉核验，事件同时影响 A 股、港股和美股，已达到跨市场系统性风险观察阈值。",
-    "highlights": [
-      "A 股创业板指跌 7.15%，5001 只个股下跌。",
-      "恒生科技跌 4.37%，美股纳指跌 1.4%。",
-      "AI 高估值重定价与油价、地缘风险同时放大波动。"
-    ],
-    "href": "/articles/hot-cross-market/",
-    "ctaLabel": "阅读重点文章"
-  },
+  "daily": null,
   "weekly": {
     "noticeId": "weekly-2026-W29-r1",
     "kind": "weekly",
