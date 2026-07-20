@@ -150,7 +150,7 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 
 ## 全局覆盖与重点观察快照（每日强制）
 
-日报继续覆盖全球宏观、政策、科技、商业和三地市场，不得收缩成恒生科技或少数行业专页。同时读取 `config/market/priority-watchlist.ts`、`config/market/etf-pools.ts`、`config/market/score-weights.ts`、`content/market-observer.json`、`lib/types.ts` 与 `scripts/validate-market-observer.mjs`，同步更新 `content/market-observer.json`：
+日报继续覆盖全球宏观、政策、科技、商业和三地市场，不得收缩成恒生科技或少数行业专页。同时读取 `config/market/priority-watchlist.ts`、`config/market/etf-pools.ts`、`config/market/score-weights.ts`、`content/market-observer.json`、`lib/types.ts` 与 `scripts/validate-market-observer.mjs`，同步更新 `content/market-observer.json`。宏观链路显示在 `/briefs/#daily-macro`，预测排行榜显示在 `/predictions/`；不要把宏观链重新堆回三地市场页：
 
 - P1 深度采集固定优先检查恒生科技、港股互联网与 AI 巨头、南向资金、恒生科技 ETF，以及 A 股军工、医疗、半导体和 AI 互联网。P1 只提高抓取频率、字段完整度、交叉验证、历史保存和解释深度，**不得给轮动分加分、改权重或改变客观排名**。观察池之外的重大风险仍可成为全局主结论。
 - 每张 `EvidenceConclusionCardData` 只能有一个15–30字的明确结论，并严格按“结论 → 数据 → 解释 → 反证 → 观察”写。结论禁用“可能、或许、不排除、尚难判断、似乎、大概、仍需谨慎、仅供参考”；条件、不确定性和失效边界只写入 `counterEvidence` 与 `watchItems`。没有至少一项事实不得生成结论。
@@ -181,6 +181,6 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 12. `pnpm typecheck`
 13. `pnpm build`
 
-只有十三项全部通过才算更新成功。`data/archive/` 与 `data/market-observer-history/` 都是仅保存在本机项目目录的轻量压缩备份，不要加入 Git。如果项目已经配置 Git 远端，则只提交 `content/daily-brief.json`、`content/market-observer.json`、`content/sector-rotation.json`、确有更新且通过校验的 `content/sector-details.json`、本次更新的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库仅在版本化强模型流程中单独提交或留在本机，日报不得顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图、视频、检索缓存或模型缓存。提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发 Vercel Git 生产部署。推送后验证 `https://guanchao-daily-brief.vercel.app/` 与 `/markets/` 能返回 HTTP 200；如果 Vercel 尚在构建，可以短暂重试，部署失败要保留已经通过校验的本地数据和 Git 提交，并在任务结果中明确报错。未配置远端时只更新本地文件并在任务结果中说明。
+只有十三项全部通过才算更新成功。`data/archive/` 与 `data/market-observer-history/` 都是仅保存在本机项目目录的轻量压缩备份，不要加入 Git。如果项目已经配置 Git 远端，则只提交 `content/daily-brief.json`、`content/market-observer.json`、`content/sector-rotation.json`、确有更新且通过校验的 `content/sector-details.json`、本次更新的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库仅在版本化强模型流程中单独提交或留在本机，日报不得顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图、视频、检索缓存或模型缓存。提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发 Vercel Git 生产部署。推送后验证 `https://guanchao-daily-brief.vercel.app/`、`/predictions/`、`/briefs/` 与 `/markets/` 能返回 HTTP 200；如果 Vercel 尚在构建，可以短暂重试，部署失败要保留已经通过校验的本地数据和 Git 提交，并在任务结果中明确报错。未配置远端时只更新本地文件并在任务结果中说明。
 
 任务结果需汇报：版本日期、三地数据截止日、更新条目数、每篇详情字数、引用数、构建结果、Git 推送结果、Vercel 生产网址验证结果，以及任何沿用旧数据或无法核验的项目。

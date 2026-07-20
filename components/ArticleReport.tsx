@@ -189,7 +189,7 @@ export default function ArticleReport({ record }: { record: ArticleRecord }) {
     : [];
   const characterCount = countArticleCharacters(article);
   const readingMinutes = Math.max(2, Math.ceil(characterCount / 350));
-  const activeNav: MobileNavView = record.sectionId === "fed" ? "fed" : record.sectionId === "hotspot" ? "hotspots" : "markets";
+  const activeNav: MobileNavView = record.sectionId === "fed" ? "overview" : record.sectionId === "hotspot" ? "hotspots" : "markets";
 
   return (
     <div className="article-shell">

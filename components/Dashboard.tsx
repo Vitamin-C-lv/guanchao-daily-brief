@@ -19,6 +19,7 @@ import {
   Search,
   ShieldCheck,
   Sparkles,
+  Target,
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
@@ -29,6 +30,7 @@ import type { KeyboardEvent, TouchEvent } from "react";
 import MobileBottomNav from "./MobileBottomNav";
 import MarketObserver from "./MarketObserver";
 import MarketObserverTeaser from "./MarketObserverTeaser";
+import PredictionRankingPreview from "./PredictionRankingPreview";
 import SectorRotationIndex from "./SectorRotationIndex";
 import WeeklyTeaser from "./WeeklyTeaser";
 import { sourceEvidenceClassLabel, sourceMetaLabel, sourceTierLabel } from "./SourceLink";
@@ -43,11 +45,11 @@ import type {
   WeeklyReportIndex,
 } from "@/lib/types";
 
-export type DashboardView = "overview" | "fed" | "markets" | "briefs" | "hotspots";
+export type DashboardView = "overview" | "fed" | "predictions" | "markets" | "briefs" | "hotspots";
 
 const navItems = [
   { href: "/", label: "总览", icon: Home, view: "overview" },
-  { href: "/fed", label: "美联储", icon: Landmark, view: "fed" },
+  { href: "/predictions", label: "预测排行", icon: Target, view: "predictions" },
   { href: "/markets", label: "三地市场", icon: Activity, view: "markets" },
   { href: "/briefs", label: "简报", icon: Newspaper, view: "briefs" },
   { href: "/hotspots", label: "热点", icon: Flame, view: "hotspots" },
@@ -309,9 +311,11 @@ export default function Dashboard({
   const isOverview = view === "overview";
   const showFed = isOverview || view === "fed";
   const showMarkets = isOverview || view === "markets";
+  const showPredictions = view === "predictions";
   const showBriefs = isOverview || view === "briefs";
   const showHotspots = isOverview || view === "hotspots";
   const showSearch = isOverview || view === "briefs" || view === "hotspots";
+  const mobileNavView = view === "fed" ? "overview" : view;
 
   const scrollToMarket = (index: number) => {
     const scroller = marketGridRef.current;
@@ -459,7 +463,7 @@ export default function Dashboard({
               <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索政策、市场或热点…" aria-label="搜索简报" />
               {query ? <button type="button" onClick={() => setQuery("")} aria-label="清空搜索">×</button> : <kbd>⌘ K</kbd>}
             </label>
-          ) : <div className="route-title">{navItems.find((item) => item.view === view)?.label}</div>}
+          ) : <div className="route-title">{navItems.find((item) => item.view === view)?.label ?? (view === "fed" ? "美联储政策" : "")}</div>}
           <div className="topbar-actions">
             <span className="verified-pill"><i />{data.meta.status}</span>
             <button type="button" className="icon-button" onClick={() => window.location.reload()} aria-label="刷新页面"><RefreshCw size={17} /></button>
@@ -553,6 +557,7 @@ export default function Dashboard({
           {showMarkets ? (
           <section id="markets" className={`section-block ${isOverview ? "" : "route-section"}`}>
             <SectionHeading eyebrow="THREE MARKETS" title="三地股市简报" description="每个市场使用各自最新完整交易日，避免盘中与收盘数据混用。" action={<span className="updated-label"><RefreshCw size={13} /> 数据截至 {formatCompactDate(data.meta.dataThrough)}</span>} />
+            {view === "markets" ? <PredictionRankingPreview data={sectorRotation} /> : null}
             <div className="market-mobile-tabs" role="tablist" aria-label="切换市场卡片">
               {data.markets.map((market, index) => (
                 <button key={market.id} id={`market-tab-${market.id}`} type="button" role="tab" aria-controls="market-carousel" aria-selected={activeMarketCard === index} tabIndex={activeMarketCard === index ? 0 : -1} className={activeMarketCard === index ? "active" : ""} onClick={() => scrollToMarket(index)} onKeyDown={(event) => handleMarketTabKeyDown(event, index)}>{market.shortName}</button>
@@ -568,16 +573,25 @@ export default function Dashboard({
             >
               {data.markets.map((market) => <MarketCard key={market.id} market={market} />)}
             </div>
-            {view === "markets" ? (
-              <>
-                <MarketObserver data={marketObserver} />
-                <SectorRotationIndex
-                  data={sectorRotation}
-                  activeMarketId={data.markets[activeMarketCard]?.id ?? "a-share"}
-                  detailKeys={sectorDetailKeys}
-                />
-              </>
-            ) : null}
+          </section>
+          ) : null}
+
+          {showPredictions ? (
+          <section id="predictions" className="section-block route-section prediction-route">
+            <SectionHeading eyebrow="FORECAST RANKING" title="板块预测排行榜" description="先看排序、方向与置信度；所有支持证据、反证和失效条件均可下钻查看。" action={<span className="updated-label"><RefreshCw size={13} /> 模型截至 {formatCompactDate(data.meta.dataThrough)}</span>} />
+            <div className="prediction-market-tabs" role="tablist" aria-label="切换预测市场">
+              {data.markets.map((market, index) => (
+                <button key={market.id} type="button" role="tab" aria-selected={activeMarketCard === index} className={activeMarketCard === index ? "active" : ""} onClick={() => setActiveMarketCard(index)}>{market.shortName}</button>
+              ))}
+            </div>
+            <SectorRotationIndex
+              data={sectorRotation}
+              activeMarketId={data.markets[activeMarketCard]?.id ?? "a-share"}
+              detailKeys={sectorDetailKeys}
+              availableHorizons={["oneWeek", "oneMonth"]}
+              initialHorizon="oneWeek"
+            />
+            <MarketObserver data={marketObserver} mode="prediction-support" />
           </section>
           ) : null}
 
@@ -587,6 +601,7 @@ export default function Dashboard({
             <section id="briefs" className="briefs-panel">
               <SectionHeading eyebrow="CURATED BRIEFS" title="今日精选简报" description="只保留会改变政策预期、风险偏好或行业定价的信息。" />
               {weeklyIndex ? <WeeklyTeaser index={weeklyIndex} /> : null}
+              {view === "briefs" ? <MarketObserver data={marketObserver} mode="daily-macro" /> : null}
               <div className="filter-row" role="tablist" aria-label="简报市场筛选">
                 {[
                   ["all", "全部"],
@@ -657,7 +672,7 @@ export default function Dashboard({
         </div>
       </main>
 
-      <MobileBottomNav active={view} />
+      <MobileBottomNav active={mobileNavView} />
     </>
   );
 }

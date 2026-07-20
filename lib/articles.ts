@@ -15,8 +15,8 @@ export function collectArticleRecords(data: DailyBrief): ArticleRecord[] {
     article,
     sectionId: "fed",
     category: "美联储",
-    backHref: "/fed/",
-    backLabel: "返回美联储",
+    backHref: "/#fed",
+    backLabel: "返回总览",
   }));
 
   data.markets.forEach((market) => {
