@@ -148,6 +148,21 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 - 若达到阈值，只能选择一篇：`noticeId` 为 `daily-YYYY-MM-DD-<article-id>`，`kind` 为 `daily`，`publishedAt` 使用生成时间，`expiresAt` 设置为下一次日报自动化运行前，标题不超过42字，摘要不超过180字，`highlights` 1–3条，`href` 必须指向 `/articles/<article-id>/`，`ctaLabel` 使用“阅读重点文章”。
 - 日报和周报的已读/关闭状态彼此独立；不要清空或覆盖 `weekly` 字段。
 
+## 全局覆盖与重点观察快照（每日强制）
+
+日报继续覆盖全球宏观、政策、科技、商业和三地市场，不得收缩成恒生科技或少数行业专页。同时读取 `config/market/priority-watchlist.ts`、`config/market/etf-pools.ts`、`config/market/score-weights.ts`、`content/market-observer.json`、`lib/types.ts` 与 `scripts/validate-market-observer.mjs`，同步更新 `content/market-observer.json`：
+
+- P1 深度采集固定优先检查恒生科技、港股互联网与 AI 巨头、南向资金、恒生科技 ETF，以及 A 股军工、医疗、半导体和 AI 互联网。P1 只提高抓取频率、字段完整度、交叉验证、历史保存和解释深度，**不得给轮动分加分、改权重或改变客观排名**。观察池之外的重大风险仍可成为全局主结论。
+- 每张 `EvidenceConclusionCardData` 只能有一个15–30字的明确结论，并严格按“结论 → 数据 → 解释 → 反证 → 观察”写。结论禁用“可能、或许、不排除、尚难判断、似乎、大概、仍需谨慎、仅供参考”；条件、不确定性和失效边界只写入 `counterEvidence` 与 `watchItems`。没有至少一项事实不得生成结论。
+- 重要宏观 `fact` 必须逐项写全：当前值、前值、市场预期、预期差、统计期、直接来源、公布时间、页面更新时间以及 `official/revised/estimated/delayed` 状态。没有可靠预期值时精确显示“市场预期：暂无可靠数据”，不得隐藏字段，也不得根据价格反推共识预期。
+- 第一版宏观链固定为“原油 → 能源通胀 → 降息预期 → 美国2年期国债收益率 → 美元与人民币 → 科技股估值 → 半导体和港股科技”。每个节点必须有当前可得数据，每条边只能标 `confirmed/partial/unconfirmed/reverse` 并写一条可验证说明。不同统计期必须明示；事实与价格方向冲突时使用结构化状态 `market-unconfirmed`，不得用长段免责声明回避。
+- 政策资金雷达与主题评分分开。中央汇金、证金、中国国新、全国社保基金和基本养老保险基金组合只有官方或法定披露才可确认身份；ETF申赎、权重股强弱、尾盘集中度等只进反证/观察或代理字段。医保基金不得与社保、养老基金混写。未确认身份只写结构化 `identity-unconfirmed` 标签。
+- ETF净流量优先按 `（当日份额－前日份额）×当日NAV` 估算；份额不可得时才用 `当日AUM－前日AUM×（1+当日收益率）`，必须记录方法。成交额绝不能当净流入。单只ETF先归入配置池，再按覆盖率、集中度和同步性聚合；代码身份每日核验，`verify-before-use` 不得直接入数值层。
+- 检测“暴涨、暴跌、崩盘、狂飙、血洗、史诗级、全面爆发”等标题词。只有具备资产、统计期、涨跌幅及适用历史分位时才生成校准标题；缺一项则不发布方向性标题。原始标题、触发词、校准结果和直接来源一并保留。
+- 首页 `homeObservation` 只有出现全局重大事件或重点池显著信号时才设 `significant: true`；内容固定为结论、数据、宏观、反证、观察五行。无显著信号设为 `false`，不得为了每天露出重点板块而硬写。
+- 免责声明只保留页面底部一次。卡片内部只出现数据状态、身份未确认或市场未确认叙事，不重复“仅供参考”“不构成建议”等句子。
+- 更新完成后运行市场观察校验和计算单测，并把精简快照 gzip 归档到本机。快照单份不超过256 KiB、最多800份；不保存新闻全文、PDF、图片、网页副本或检索缓存。
+
 ## 交付检查
 
 完成编辑后依次运行：
@@ -155,14 +170,17 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 1. `pnpm validate:rotation`
 2. `pnpm validate:sector-details`
 3. `pnpm validate:rotation-events`
-4. `pnpm validate:brief`
-5. `pnpm validate:weekly`
-6. `pnpm archive:brief`
-7. `pnpm assets:prune`
-8. `pnpm validate:assets`
-9. `pnpm typecheck`
-10. `pnpm build`
+4. `pnpm validate:market-observer`
+5. `pnpm test:market-observer`
+6. `pnpm validate:brief`
+7. `pnpm validate:weekly`
+8. `pnpm archive:brief`
+9. `pnpm archive:market-observer morning`
+10. `pnpm assets:prune`
+11. `pnpm validate:assets`
+12. `pnpm typecheck`
+13. `pnpm build`
 
-只有十项全部通过才算更新成功。`data/archive/` 是仅保存在本机项目目录的轻量压缩备份，不要把归档文件加入 Git；归档脚本在文件存在时把 `daily-brief.json` 与 `sector-rotation.json` 同包压缩，合并来源 URL，并以覆盖两者的内容哈希去重；旧 brief-only 快照仍可读取。归档最多 400 份、总计不超过 50 MB，且不保存来源网页全文或上游材料。如果项目已经配置 Git 远端，则只提交 `content/daily-brief.json`、`content/sector-rotation.json`、确有更新且通过校验的 `content/sector-details.json`、本次更新的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库仅在版本化强模型流程中单独提交或留在本机，日报不得顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图、视频、检索缓存或模型缓存。提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发 Vercel Git 生产部署。推送后验证 `https://guanchao-daily-brief.vercel.app/` 能返回 HTTP 200 和“每日早报”；如果 Vercel 尚在构建，可以短暂重试，部署失败要保留已经通过校验的本地数据和 Git 提交，并在任务结果中明确报错。未配置远端时只更新本地文件并在任务结果中说明。
+只有十三项全部通过才算更新成功。`data/archive/` 与 `data/market-observer-history/` 都是仅保存在本机项目目录的轻量压缩备份，不要加入 Git。如果项目已经配置 Git 远端，则只提交 `content/daily-brief.json`、`content/market-observer.json`、`content/sector-rotation.json`、确有更新且通过校验的 `content/sector-details.json`、本次更新的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库仅在版本化强模型流程中单独提交或留在本机，日报不得顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图、视频、检索缓存或模型缓存。提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发 Vercel Git 生产部署。推送后验证 `https://guanchao-daily-brief.vercel.app/` 与 `/markets/` 能返回 HTTP 200；如果 Vercel 尚在构建，可以短暂重试，部署失败要保留已经通过校验的本地数据和 Git 提交，并在任务结果中明确报错。未配置远端时只更新本地文件并在任务结果中说明。
 
 任务结果需汇报：版本日期、三地数据截止日、更新条目数、每篇详情字数、引用数、构建结果、Git 推送结果、Vercel 生产网址验证结果，以及任何沿用旧数据或无法核验的项目。

@@ -516,6 +516,116 @@ export interface DailyBrief {
   methodology: string[];
 }
 
+export type MarketDataStatus = "official" | "revised" | "estimated" | "delayed";
+export type MarketNarrativeState = "identity-unconfirmed" | "market-unconfirmed";
+export type EvidenceConclusionLevel = "strong" | "moderate" | "weak";
+export type MacroRelationshipStatus = "confirmed" | "partial" | "unconfirmed" | "reverse";
+
+export interface MarketObserverSource extends SourceLink {
+  id: string;
+  publishedAt: string;
+  accessedAt: string;
+}
+
+export interface MarketObserverFact {
+  label: string;
+  currentValue: string;
+  previousValue: string;
+  expectedValue: string;
+  surprise: string;
+  dataPeriod: string;
+  sourceId: string;
+  releasedAt: string;
+  updatedAt: string;
+  status: MarketDataStatus;
+  note?: string;
+}
+
+export interface MarketObserverWatchItem {
+  indicator: string;
+  trigger?: string;
+  nextReleaseAt?: string;
+}
+
+export interface EvidenceConclusionCardData {
+  id: string;
+  eyebrow: string;
+  subject: string;
+  conclusion: string;
+  conclusionLevel: EvidenceConclusionLevel;
+  facts: MarketObserverFact[];
+  explanation: string[];
+  counterEvidence: string[];
+  watchItems: MarketObserverWatchItem[];
+  states?: MarketNarrativeState[];
+}
+
+export interface PriorityWatchSnapshot extends EvidenceConclusionCardData {
+  watchId: string;
+  market: "A_SHARE" | "HK" | "US" | "GLOBAL";
+  priority: 1 | 2 | 3;
+  direction: "positive" | "negative" | "mixed" | "neutral";
+  significant: boolean;
+}
+
+export interface MacroChainNode {
+  id: string;
+  label: string;
+  role: string;
+  fact: MarketObserverFact;
+}
+
+export interface MacroChainRelationship {
+  from: string;
+  to: string;
+  status: MacroRelationshipStatus;
+  explanation: string;
+}
+
+export interface HeadlineCalibrationResult {
+  id: string;
+  originalHeadline: string;
+  detectedTerms: string[];
+  calibratedHeadline: string;
+  verification: string;
+  relationshipStatus: MacroRelationshipStatus;
+  sourceIds: string[];
+}
+
+export interface MarketObserverSnapshot {
+  schemaVersion: 1;
+  meta: {
+    editionDate: string;
+    generatedAt: string;
+    dataAsOf: string;
+    snapshotCreatedAt: string;
+    snapshotKind: "morning" | "close" | "weekly";
+    modelVersion: string;
+    coverage: "global-with-priority-watch";
+  };
+  homeObservation: {
+    significant: boolean;
+    conclusion: string;
+    data: string;
+    macro: string;
+    counterEvidence: string;
+    watch: string;
+    href: string;
+  };
+  globalOverview: EvidenceConclusionCardData;
+  priorityWatch: PriorityWatchSnapshot[];
+  policyFundRadar: EvidenceConclusionCardData;
+  macroChain: {
+    title: string;
+    conclusion: string;
+    nodes: MacroChainNode[];
+    relationships: MacroChainRelationship[];
+  };
+  headlineCalibrations: HeadlineCalibrationResult[];
+  sources: MarketObserverSource[];
+  disclaimer: string;
+}
+
 export type WeeklyScope = "fed" | "a-share" | "hk" | "us";
 export type WeeklyConfidence = "low" | "medium" | "medium-high";
 

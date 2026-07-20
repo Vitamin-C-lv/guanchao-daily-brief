@@ -26,3 +26,6 @@ data/rotation-model/features/
 data/rotation-model/events/events.jsonl.gz
 data/rotation-model/manifest.json
 models/sector-rotation/candidates/
+
+# 重点观察快照每日两次 gzip 本地沉淀，最多约 800 份，由归档脚本控制。
+data/market-observer-history/
