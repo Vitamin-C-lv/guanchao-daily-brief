@@ -94,6 +94,17 @@
 - `expiresAt` 必须不晚于次日 08:10，且只更新 `daily`、保留 `weekly`。
 - 普通收盘波动、投行观点、公司花絮或未证实传闻本身不能触发弹窗。
 
+## 收盘版市场证据快照
+
+除早报共享规则外，收盘任务必须同步更新 `content/market-observer.json`。保持全球新闻与宏观覆盖，并对恒生科技、港股互联网与AI巨头、南向资金，以及A股军工、医疗、半导体、AI互联网执行P1深度采集。P1只增加采集深度，不改变评分。
+
+- 先更新A/H最新完整收盘和重点池事实，再重算全局结论；不能把早间结论原样沿用到收盘。
+- 每张卡只保留一个明确结论；数据、解释、反证、观察分栏。结论不写“可能、或许、不排除、尚难判断、仍需谨慎”，预测条件保留在预测字段、反证和观察触发中。
+- 宏观链七个节点逐项补齐当前值、前值、预期、预期差、统计期、来源、公布时间、页面更新时间和状态。美国市场尚未收盘时沿用上一完整交易日并标 `delayed`，不能混入盘中或期货。
+- 政策资金只按已披露身份确认；对养老金、社保基金或其他疑似长期资金只保留结构化身份状态和代理证据，不用“偷偷买入”等措辞。
+- 标题校准必须把煽动词转换成可核验涨跌幅和统计期；跨日、跨品种或来源冲突直接写进校准结果。
+- 运行 `pnpm archive:market-observer close` 保存本地gzip快照；不保存网页新闻全文和上游附件。
+
 ## 校验、归档与发布
 
 完成后依次运行：
@@ -101,16 +112,19 @@
 1. `pnpm validate:rotation`
 2. `pnpm validate:sector-details`
 3. `pnpm validate:rotation-events`
-4. `pnpm validate:brief`
-5. `pnpm validate:weekly`
-6. `pnpm archive:brief`
-7. `pnpm assets:prune`
-8. `pnpm validate:assets`
-9. `pnpm typecheck`
-10. `pnpm build`
+4. `pnpm validate:market-observer`
+5. `pnpm test:market-observer`
+6. `pnpm validate:brief`
+7. `pnpm validate:weekly`
+8. `pnpm archive:brief`
+9. `pnpm archive:market-observer close`
+10. `pnpm assets:prune`
+11. `pnpm validate:assets`
+12. `pnpm typecheck`
+13. `pnpm build`
 
 只有全部通过才允许提交。压缩归档在 `sector-rotation.json` 存在时将其与结构化简报同包保存，内容哈希覆盖两者并合并来源 URL；继续兼容旧 brief-only 快照并遵守 400 份 / 50 MB 上限，不保存网页全文、投行报告、上游图片、PDF、视频或检索缓存。
 
-Git 工作树存在无关未提交修改时不得覆盖或一并提交。正常情况下只提交 `content/daily-brief.json`、`content/sector-rotation.json`、确有更新且通过校验的 `content/sector-details.json`、本次变化的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库不得由每日收盘任务改写或顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图或模型缓存。提交信息使用 `content: closing brief YYYY-MM-DD`，推送当前分支触发 Vercel。随后验证首页、A 股、港股、热点、通知 JSON 与被引用生成资产均为 HTTP 200，并确认页面显示本次 `generatedAt`。
+Git 工作树存在无关未提交修改时不得覆盖或一并提交。正常情况下只提交 `content/daily-brief.json`、`content/market-observer.json`、`content/sector-rotation.json`、确有更新且通过校验的 `content/sector-details.json`、本次变化的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库不得由每日收盘任务改写或顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图或模型缓存。提交信息使用 `content: closing brief YYYY-MM-DD`，推送当前分支触发 Vercel。随后验证首页、`/markets/`、A 股、港股、热点、通知 JSON 与被引用生成资产均为 HTTP 200，并确认页面显示本次 `generatedAt`。
 
 任务结果必须用中文汇报：生成时间、A 股/港股/美股各自截止日、收盘文章数、当日新闻数、机构与公司花絮数、投行观点数、明显放量板块、引用数、日报弹窗是否开启、校验/归档/构建、Git 推送和 Vercel 验证结果，以及所有沿用旧数据或无法核验的项目。

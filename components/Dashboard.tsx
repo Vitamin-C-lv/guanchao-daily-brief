@@ -27,6 +27,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, TouchEvent } from "react";
 import MobileBottomNav from "./MobileBottomNav";
+import MarketObserver from "./MarketObserver";
+import MarketObserverTeaser from "./MarketObserverTeaser";
 import SectorRotationIndex from "./SectorRotationIndex";
 import WeeklyTeaser from "./WeeklyTeaser";
 import { sourceEvidenceClassLabel, sourceMetaLabel, sourceTierLabel } from "./SourceLink";
@@ -34,6 +36,7 @@ import type {
   BriefArticle,
   DailyBrief,
   MarketSection,
+  MarketObserverSnapshot,
   SectorRotationIndex as SectorRotationIndexData,
   SourceLink,
   Tone,
@@ -285,12 +288,14 @@ export default function Dashboard({
   weeklyIndex,
   sectorRotation,
   sectorDetailKeys,
+  marketObserver,
 }: {
   data: DailyBrief;
   view: DashboardView;
   weeklyIndex?: WeeklyReportIndex;
   sectorRotation?: SectorRotationIndexData;
   sectorDetailKeys?: string[];
+  marketObserver?: MarketObserverSnapshot;
 }) {
   const pathname = usePathname();
   const normalizedPathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
@@ -524,6 +529,8 @@ export default function Dashboard({
           </section>
           ) : null}
 
+          {isOverview && marketObserver ? <MarketObserverTeaser data={marketObserver} /> : null}
+
           {showFed ? (
           <section className="policy-card">
             <PolicyPathChart path={data.federalReserve.path} />
@@ -562,11 +569,14 @@ export default function Dashboard({
               {data.markets.map((market) => <MarketCard key={market.id} market={market} />)}
             </div>
             {view === "markets" ? (
-              <SectorRotationIndex
-                data={sectorRotation}
-                activeMarketId={data.markets[activeMarketCard]?.id ?? "a-share"}
-                detailKeys={sectorDetailKeys}
-              />
+              <>
+                <MarketObserver data={marketObserver} />
+                <SectorRotationIndex
+                  data={sectorRotation}
+                  activeMarketId={data.markets[activeMarketCard]?.id ?? "a-share"}
+                  detailKeys={sectorDetailKeys}
+                />
+              </>
             ) : null}
           </section>
           ) : null}
