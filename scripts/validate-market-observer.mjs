@@ -36,7 +36,7 @@ function checkCard(card, label, sourceIds) {
 
 check(data.schemaVersion === 1, "schemaVersion must be 1");
 check(data.meta?.coverage === "global-with-priority-watch", "coverage must remain global-with-priority-watch");
-check(data.homeObservation?.href === "/markets/#market-observer", "home observation must link to /markets/#market-observer");
+check(data.homeObservation?.href === "/briefs/#daily-macro", "home observation must link to /briefs/#daily-macro");
 const sourceIds = new Set((data.sources || []).map((source) => source.id));
 check(sourceIds.size === (data.sources || []).length, "source ids must be unique");
 checkCard(data.globalOverview, "globalOverview", sourceIds);

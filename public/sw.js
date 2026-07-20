@@ -1,7 +1,7 @@
-const CACHE_NAME = "guanchao-shell-v6";
+const CACHE_NAME = "guanchao-shell-v7";
 const SHELL = [
   "/",
-  "/fed/",
+  "/predictions/",
   "/markets/",
   "/briefs/",
   "/hotspots/",

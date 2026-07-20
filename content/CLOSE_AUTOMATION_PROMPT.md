@@ -125,6 +125,6 @@
 
 只有全部通过才允许提交。压缩归档在 `sector-rotation.json` 存在时将其与结构化简报同包保存，内容哈希覆盖两者并合并来源 URL；继续兼容旧 brief-only 快照并遵守 400 份 / 50 MB 上限，不保存网页全文、投行报告、上游图片、PDF、视频或检索缓存。
 
-Git 工作树存在无关未提交修改时不得覆盖或一并提交。正常情况下只提交 `content/daily-brief.json`、`content/market-observer.json`、`content/sector-rotation.json`、确有更新且通过校验的 `content/sector-details.json`、本次变化的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库不得由每日收盘任务改写或顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图或模型缓存。提交信息使用 `content: closing brief YYYY-MM-DD`，推送当前分支触发 Vercel。随后验证首页、`/markets/`、A 股、港股、热点、通知 JSON 与被引用生成资产均为 HTTP 200，并确认页面显示本次 `generatedAt`。
+Git 工作树存在无关未提交修改时不得覆盖或一并提交。正常情况下只提交 `content/daily-brief.json`、`content/market-observer.json`、`content/sector-rotation.json`、确有更新且通过校验的 `content/sector-details.json`、本次变化的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库不得由每日收盘任务改写或顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图或模型缓存。提交信息使用 `content: closing brief YYYY-MM-DD`，推送当前分支触发 Vercel。随后验证首页、`/predictions/`、`/briefs/`、`/markets/`、A 股、港股、热点、通知 JSON 与被引用生成资产均为 HTTP 200，并确认页面显示本次 `generatedAt`。预测榜保持结论优先，详细证据默认折叠；宏观链只进入当日简报，不回填到市场长页。
 
 任务结果必须用中文汇报：生成时间、A 股/港股/美股各自截止日、收盘文章数、当日新闻数、机构与公司花絮数、投行观点数、明显放量板块、引用数、日报弹窗是否开启、校验/归档/构建、Git 推送和 Vercel 验证结果，以及所有沿用旧数据或无法核验的项目。

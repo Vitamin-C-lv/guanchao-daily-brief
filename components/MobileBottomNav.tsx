@@ -1,11 +1,11 @@
-import { Activity, Flame, Home, Landmark, Newspaper } from "lucide-react";
+import { Activity, Flame, Home, Newspaper, Target } from "lucide-react";
 import Link from "next/link";
 
-export type MobileNavView = "overview" | "fed" | "markets" | "briefs" | "hotspots";
+export type MobileNavView = "overview" | "predictions" | "markets" | "briefs" | "hotspots";
 
 const items = [
   { href: "/", label: "总览", icon: Home, view: "overview" },
-  { href: "/fed", label: "美联储", icon: Landmark, view: "fed" },
+  { href: "/predictions", label: "预测", icon: Target, view: "predictions" },
   { href: "/markets", label: "市场", icon: Activity, view: "markets" },
   { href: "/briefs", label: "简报", icon: Newspaper, view: "briefs" },
   { href: "/hotspots", label: "热点", icon: Flame, view: "hotspots" },

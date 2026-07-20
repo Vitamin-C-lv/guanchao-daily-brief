@@ -33,7 +33,7 @@ import type {
   SourceLink,
 } from "@/lib/types";
 
-type HorizonKey = "current" | "oneWeek" | "oneMonth";
+export type HorizonKey = "current" | "oneWeek" | "oneMonth";
 
 function sectorDetailHref(market: SectorRotationMarket, code: string | undefined, detailKeys: ReadonlySet<string>) {
   if (!code || market.id === "us" || !detailKeys.has(`${market.id}:${code}`)) return null;
@@ -496,7 +496,12 @@ function ObservedRanking({
       </div>
       {market.id === "a-share" ? <FocusObservations items={items} /> : null}
       <RotationRankingChart items={items} market={market} asOf={horizon.asOf} />
-      <RotationDataCharts charts={horizon.charts} market={market} asOf={horizon.asOf} />
+      {horizon.charts?.length ? (
+        <details className="rotation-supporting-charts">
+          <summary>展开支撑图表 <ChevronDown size={13} /></summary>
+          <RotationDataCharts charts={horizon.charts} market={market} asOf={horizon.asOf} />
+        </details>
+      ) : null}
       <ol id="rotation-observed-list" className={`rotation-ranking observed ${market.mode === "major-index" ? "compact" : ""}`}>
         {visibleItems.map((item) => {
           const detailHref = sectorDetailHref(market, item.code, detailKeys);
@@ -630,32 +635,18 @@ function ForecastRanking({
                 <time dateTime={item.dueDate}><CalendarDays size={11} /> 至 {formatDate(item.dueDate)}</time>
               </div>
               <p className="rotation-claim">{item.claim}</p>
-              {isCompact ? (
-                <details className="rotation-audit-details">
-                  <summary>查看依据与失效条件 <ChevronDown size={13} /></summary>
-                  <div className="rotation-evidence-grid">
-                    <ForecastEvidence title="支持证据" points={item.evidence} sources={market.sources} />
-                    <ForecastEvidence title="反证 / 风险" points={item.counterEvidence} sources={market.sources} counter />
-                  </div>
-                  <dl className="rotation-conditions">
-                    <div><dt>触发</dt><dd>{item.trigger}</dd></div>
-                    <div><dt>失效</dt><dd>{item.invalidation}</dd></div>
-                    <div className="rotation-confidence-explain"><dt>置信度</dt><dd>{item.confidenceBasis}</dd></div>
-                  </dl>
-                </details>
-              ) : (
-                <>
-                  <div className="rotation-evidence-grid">
-                    <ForecastEvidence title="支持证据" points={item.evidence} sources={market.sources} />
-                    <ForecastEvidence title="反证 / 风险" points={item.counterEvidence} sources={market.sources} counter />
-                  </div>
-                  <dl className="rotation-conditions">
-                    <div><dt>触发条件</dt><dd>{item.trigger}</dd></div>
-                    <div><dt>失效条件</dt><dd>{item.invalidation}</dd></div>
-                    <div className="rotation-confidence-explain"><dt>置信度</dt><dd>{item.confidenceBasis}</dd></div>
-                  </dl>
-                </>
-              )}
+              <details className="rotation-audit-details">
+                <summary>查看支持证据、反证与失效条件 <ChevronDown size={13} /></summary>
+                <div className="rotation-evidence-grid">
+                  <ForecastEvidence title="支持证据" points={item.evidence} sources={market.sources} />
+                  <ForecastEvidence title="反证 / 风险" points={item.counterEvidence} sources={market.sources} counter />
+                </div>
+                <dl className="rotation-conditions">
+                  <div><dt>触发</dt><dd>{item.trigger}</dd></div>
+                  <div><dt>失效</dt><dd>{item.invalidation}</dd></div>
+                  <div className="rotation-confidence-explain"><dt>置信度</dt><dd>{item.confidenceBasis}</dd></div>
+                </dl>
+              </details>
             </div>
           </li>
           );
@@ -678,31 +669,37 @@ export default function SectorRotationIndex({
   data,
   activeMarketId,
   detailKeys,
+  availableHorizons = ["current", "oneWeek", "oneMonth"],
+  initialHorizon,
 }: {
   data?: SectorRotationIndexData;
   activeMarketId: MarketSection["id"];
   detailKeys?: string[];
+  availableHorizons?: HorizonKey[];
+  initialHorizon?: HorizonKey;
 }) {
-  const [activeHorizon, setActiveHorizon] = useState<HorizonKey>("current");
+  const tabs = horizonTabs.filter((tab) => availableHorizons.includes(tab.key));
+  const firstHorizon = initialHorizon && availableHorizons.includes(initialHorizon) ? initialHorizon : (tabs[0]?.key ?? "current");
+  const [activeHorizon, setActiveHorizon] = useState<HorizonKey>(firstHorizon);
   const market = useMemo(
     () => data?.markets.find((candidate) => candidate.id === activeMarketId),
     [activeMarketId, data],
   );
   const detailKeySet = useMemo(() => new Set(detailKeys ?? []), [detailKeys]);
-  const activeTab = horizonTabs.find((tab) => tab.key === activeHorizon) ?? horizonTabs[0];
+  const activeTab = tabs.find((tab) => tab.key === activeHorizon) ?? tabs[0] ?? horizonTabs[0];
   const horizon = market?.horizons[activeHorizon];
   const isForecast = activeHorizon !== "current";
   const isUS = activeMarketId === "us";
 
   function handleHorizonKeyDown(event: KeyboardEvent<HTMLButtonElement>, currentIndex: number) {
     let nextIndex = currentIndex;
-    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % horizonTabs.length;
-    else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + horizonTabs.length) % horizonTabs.length;
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabs.length;
+    else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
     else if (event.key === "Home") nextIndex = 0;
     else if (event.key === "End") nextIndex = horizonTabs.length - 1;
     else return;
     event.preventDefault();
-    const nextKey = horizonTabs[nextIndex].key;
+    const nextKey = tabs[nextIndex].key;
     setActiveHorizon(nextKey);
     requestAnimationFrame(() => document.getElementById(`rotation-tab-${nextKey}`)?.focus());
   }
@@ -712,8 +709,8 @@ export default function SectorRotationIndex({
       <header className="rotation-header">
         <div>
           <span className="eyebrow">ROTATION RANKING</span>
-          <h2 id="sector-rotation-title">{isUS ? "三大指数相对强弱" : "行业板块轮动指数"}</h2>
-          <p>{isUS ? "仅比较纳斯达克、道琼斯与标普 500，保持精简。" : "当前为可复核观测；未来窗口仅展示有证据、可失效的条件情景。"}</p>
+          <h2 id="sector-rotation-title">{availableHorizons.includes("current") ? (isUS ? "三大指数相对强弱" : "行业板块轮动指数") : (isUS ? "三大指数预测排行榜" : "行业板块预测排行榜")}</h2>
+          <p>{availableHorizons.includes("current") ? (isUS ? "仅比较纳斯达克、道琼斯与标普 500，保持精简。" : "当前为可复核观测；未来窗口仅展示有证据、可失效的条件情景。") : "先展示方向、综合分与置信度；支持证据、反证和失效条件按需展开。"}</p>
         </div>
         {market ? (
           <div className="rotation-market-meta">
@@ -724,7 +721,7 @@ export default function SectorRotationIndex({
       </header>
 
       <div className="rotation-horizon-tabs" role="tablist" aria-label="选择轮动指数时间窗口">
-        {horizonTabs.map((tab, index) => (
+        {tabs.map((tab, index) => (
           <button
             key={tab.key}
             type="button"
