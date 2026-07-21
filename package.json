@@ -21,6 +21,11 @@
     "rotation:pipeline": "node scripts/run-sector-rotation.mjs pipeline",
     "rotation:events-append": "node scripts/run-sector-rotation.mjs events-append",
     "rotation:events-prune": "node scripts/run-sector-rotation.mjs events-prune",
+    "market:data:daily": "node scripts/run-market-evidence.mjs daily",
+    "market:data:weekly": "node scripts/run-market-evidence.mjs weekly",
+    "market:data:health": "node scripts/run-market-evidence.mjs health",
+    "validate:market-data": "node scripts/validate-market-evidence.mjs",
+    "test:market-data": "node scripts/run-market-evidence.mjs test",
     "validate:brief": "node scripts/validate-brief.mjs",
     "validate:weekly": "node scripts/validate-weekly.mjs",
     "validate:assets": "node scripts/validate-generated-assets.mjs",
@@ -29,7 +34,7 @@
     "archive:brief": "node scripts/archive-brief.mjs",
     "archive:weekly": "node scripts/archive-weekly-report.mjs",
     "context:weekly": "node scripts/collect-week-context.mjs",
-    "check": "pnpm validate:rotation && pnpm validate:sector-details && pnpm validate:rotation-events && pnpm validate:market-observer && pnpm test:market-observer && pnpm validate:brief && pnpm validate:weekly && pnpm validate:assets && pnpm typecheck && pnpm build"
+    "check": "pnpm validate:rotation && pnpm validate:sector-details && pnpm validate:rotation-events && pnpm validate:market-observer && pnpm validate:market-data && pnpm test:market-observer && pnpm test:market-data && pnpm validate:brief && pnpm validate:weekly && pnpm validate:assets && pnpm typecheck && pnpm build"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

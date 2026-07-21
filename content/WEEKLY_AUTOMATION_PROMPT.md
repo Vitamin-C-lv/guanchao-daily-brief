@@ -16,7 +16,7 @@
 1. 先检查 `git status --short` 必须为空，避免与20:00收盘晚报并发写入；若工作树不干净，立即停止，不写文件、不构建、不提交，并明确汇报冲突文件。
 2. 完整读取本提示词、共享研究技能及上述按需 references、`lib/types.ts` 中的 `WeeklyReport` 与 `SectorRotationIndex`、`schemas/sector-rotation.schema.json`、当前冻结模型 model card、现有 `content/sector-rotation.json`、`content/weekly-reports/index.json`、`public/update-notices.json` 和当前 `content/daily-brief.json`。
 3. 检查当前日报 `meta.editionDate` 必须等于当周周五，`meta.generatedAt` 换算为 Asia/Shanghai 后必须不早于当日20:00，并且 `meta.subtitle` 或 `meta.status` 明确包含“收盘更新”；A股、港股 `sessionDate` 必须是当天完整收盘日，或 `status` 明确说明当日休市及沿用日期。不满足说明20:00收盘晚报尚未完成，立即停止并汇报，不得用早间、盘中或不完整的周五数据继续生成周报。
-4. 运行 `pnpm context:weekly`，再读取生成的 `data/weekly-context.json`。它已经按日期去重本周日报归档，并只保留结构化摘要、上游来源 URL 和必要哈希。
+4. 运行 `pnpm context:weekly` 和 `pnpm market:data:weekly`，再读取生成的 `data/weekly-context.json` 与 `data/market-evidence/weekly.json`。前者按日期去重本周日报归档，只保留结构化摘要、上游来源 URL 和必要哈希；后者按不同交易日聚合本周确定性量价、广度与集中度快照。已有结构化字段不得让 Terra 从新闻摘要重新估算；本地不足 5 个交易日时保留 `accumulating` 与实际覆盖，不抓取或保存网页全文来伪造历史。
 5. 如有上一期周报，比较哪些主线延续、增强、减弱或被证伪。不得把旧周报或本地日报当作外部事实的唯一来源，所有重要事实仍需回查本周原始网页。
 6. 首次运行若本地沉淀不足，必须写入 `localSynthesis.coverageGaps` 并主要依靠全网原始来源补齐，不得假装本地已有完整一周。
 
@@ -95,15 +95,17 @@ Terra 每周必须只读审阅冻结模型、当周 `content/sector-rotation.jso
 
 1. `pnpm validate:rotation`
 2. `pnpm validate:rotation-events`
-3. `pnpm validate:brief`
-4. `pnpm validate:weekly`
-5. `pnpm archive:weekly`
-6. `pnpm assets:prune`
-7. `pnpm validate:assets`
-8. `pnpm typecheck`
-9. `pnpm build`
+3. `pnpm validate:market-data`
+4. `pnpm test:market-data`
+5. `pnpm validate:brief`
+6. `pnpm validate:weekly`
+7. `pnpm archive:weekly`
+8. `pnpm assets:prune`
+9. `pnpm validate:assets`
+10. `pnpm typecheck`
+11. `pnpm build`
 
-九项全部通过才可提交。周报轻量归档最多104份、总计20MB，只保存在本机 `data/weekly-archive/`，严禁加入Git。
+十一项全部通过才可提交。周报轻量归档最多104份、总计20MB，只保存在本机 `data/weekly-archive/`；`data/market-evidence/` 同样只保存在本机，严禁加入Git。
 
 提交时只包含本期周报、周报索引、通知 JSON，以及被本期 JSON 实际引用并通过校验的 `public/generated/editorial/` 哈希 WebP；不要改写 `daily-brief.json`、`sector-rotation.json`、冻结模型、model card、历史行情或事件库，不要提交本地上下文、压缩归档、未引用生成图、上游 PDF、报告封面、媒体图片、网页截图或模型缓存。提交信息使用 `content: weekly report <weekEnd>`，推送当前分支触发Vercel。随后验证 `/weekly/`、本期详情页、`/update-notices.json` 与引用生成资产均返回HTTP 200，详情页含报告标题，通知链接指向本期。
 

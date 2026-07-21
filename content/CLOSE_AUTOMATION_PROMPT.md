@@ -50,7 +50,7 @@
 
 ### 收盘版经验模型推理顺序
 
-- 先核验并写好 `daily-brief.json` 中 A 股/港股本次最新完整 `sessionDate`，再执行一次 `pnpm rotation:refresh`：命令以该日期为截止日，只刷新结构化输入、重建当日特征并应用冻结模型，生成 `content/sector-rotation.json`，不得训练。`current` 只写已发生观测；A 股只要同一最新完整交易日存在经身份和单位核验的可比项，就对可用子集排序并标明“`N/12` 项可比”，不因一项缺失整块留白，也不得混入旧交易日或估算补值。
+- 先核验并写好 `daily-brief.json` 中 A 股/港股本次最新完整 `sessionDate`，再执行一次 `pnpm market:data:daily -- --phase close` 并完整读取 `data/market-evidence/latest.json`。命令内部先运行 `rotation:refresh`，以该日期刷新结构化输入、重建当日特征并应用冻结模型，再用中证日频量价、官方成分表和目标日期一致的腾讯批量收盘行情生成逐字段证据包；不得训练。`current` 只写已发生观测；A 股只要同一最新完整交易日存在经身份和单位核验的可比项，就对可用子集排序并标明“`N/12` 项可比”，不因一项缺失整块留白，也不得混入旧交易日或估算补值。`writerPacket` 中已为 `ready` 的窗口不得因 Luna 当次网页检索未命中而降级；单个广度或集中度字段失败时只标该字段和对应行业，不得抹掉已核验量比。
 - `oneWeek` 与 `oneMonth` 只能分别应用已冻结的 5/20 交易日模型；各窗口必须同时具备 `a-core12-v2` 完整 12 项输入、与冻结 artifact/model card 完全一致的 taxonomy hash，并通过该窗口预登记样本外回测门禁。部分覆盖只能用于 `current`，不得进入预测；任一条件失败只把相应预测窗口写为 `insufficient`。`score` 是排序分，不是概率、胜率或收益率；每条可发布预测必须由冻结模型确定生成不可变 `forecastId`，并原样输出 0–100 `confidenceScore` 与 `confidenceBasis`。该分数只是样本外校准证据强度，不是上涨概率；不得由收盘编辑主观调高，单一量价证据的 `confidence` 封顶 `low`。
 - Luna 每日不得调用训练/调参模式，不得改模型权重、特征、观察池、版本、model card 或历史回测。冻结模型缺失、版本/hash 不一致、预测输入不足或推理失败时将对应预测窗口写 `insufficient`，不得用主编主观看法补分。
 - 精简事件记忆只按早报提示词追加或填写已到期后验：100–200 字事实摘要与 URL/`sourceTier`/`evidenceClass`/行业/分类/`knownAt`/5日和20日结果/hash；非空结果还必须保存逐项 `tradingDates`、版本化官方日历的 `calendarSourceUrl` 与 `calendarSha256`，并通过日历 artifact 重算。港股日历 artifact 缺失时后验保持 `null`。禁止保存原文、PDF、图片或长引文，也不得用当天新增事件重新拟合模型。所有读取逐文件、逐行进行，遵守 32 MB 压缩上限。
@@ -113,15 +113,17 @@
 2. `pnpm validate:sector-details`
 3. `pnpm validate:rotation-events`
 4. `pnpm validate:market-observer`
-5. `pnpm test:market-observer`
-6. `pnpm validate:brief`
-7. `pnpm validate:weekly`
-8. `pnpm archive:brief`
-9. `pnpm archive:market-observer close`
-10. `pnpm assets:prune`
-11. `pnpm validate:assets`
-12. `pnpm typecheck`
-13. `pnpm build`
+5. `pnpm validate:market-data`
+6. `pnpm test:market-data`
+7. `pnpm test:market-observer`
+8. `pnpm validate:brief`
+9. `pnpm validate:weekly`
+10. `pnpm archive:brief`
+11. `pnpm archive:market-observer close`
+12. `pnpm assets:prune`
+13. `pnpm validate:assets`
+14. `pnpm typecheck`
+15. `pnpm build`
 
 只有全部通过才允许提交。压缩归档在 `sector-rotation.json` 存在时将其与结构化简报同包保存，内容哈希覆盖两者并合并来源 URL；继续兼容旧 brief-only 快照并遵守 400 份 / 50 MB 上限，不保存网页全文、投行报告、上游图片、PDF、视频或检索缓存。
 
