@@ -40,6 +40,7 @@
 ## 编辑规则
 
 - 先读取现有 `content/daily-brief.json`，保留数据结构和字段名。
+- 核验并写好 A 股、港股最新完整 `sessionDate` 后，先运行 `pnpm market:data:daily -- --phase morning`，再完整读取 `data/market-evidence/latest.json` 的 `writerPacket`、A/H 数据状态与来源目录。该命令会先刷新 12 项结构化行业历史、应用冻结模型，再用中证日频量价、官方成分表和带日期校验的腾讯批量收盘行情计算 A 股量比、成交份额、广度和前三成交集中度。写作模型不得重复从搜索摘要估算这些字段，也不得因新闻检索未命中而把工具已标为 `ready` 的预测窗口改成 `insufficient`。
 - `meta.editionDate` 使用 Asia/Shanghai 当天日期；`generatedAt` 写入带 `+08:00` 的 ISO 时间。
 - `meta.dataThrough` 写三地数据中最晚的完整交易日。
 - 直接引用源页面，不引用搜索结果页、聚合页跳转链接或无法打开的临时链接。
@@ -113,7 +114,7 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 
 ## 冻结经验模型：日报只做推理
 
-行业轮动指数采用“强模型离线构建并版本化、每日 Luna 只更新输入并应用”的两阶段流程。每次日报必须读取 `schemas/sector-rotation.schema.json`、当前 `content/sector-rotation.json` 与冻结模型的 model card；先核验并写好 `daily-brief.json` 中 A 股/港股的最新完整 `sessionDate`，再执行项目提供的 `pnpm rotation:refresh`。该命令以该完整交易日为刷新截止日，只刷新官方结构化输入、重建当日特征并应用冻结模型，不训练或改写模型。严格遵守：
+行业轮动指数采用“强模型离线构建并版本化、每日 Luna 只更新输入并应用”的两阶段流程。每次日报必须读取 `schemas/sector-rotation.schema.json`、当前 `content/sector-rotation.json`、`data/market-evidence/latest.json` 与冻结模型的 model card；先核验并写好 `daily-brief.json` 中 A 股/港股的最新完整 `sessionDate`，再执行项目提供的 `pnpm market:data:daily -- --phase morning`。该命令内部先运行 `rotation:refresh`，以该完整交易日刷新官方结构化输入、重建当日特征并应用冻结模型，随后生成逐字段可审计的写作证据包；全程不训练或改写模型。严格遵守：
 
 - 日报不得训练、微调、回测选参、改权重、增删特征、换行业观察池、覆盖 model card 或改变模型版本；也不得根据当天涨跌手工调高分数。模型文件缺失、版本/哈希不匹配、必要输入不足或推理失败时，对应预测窗口写 `insufficient` 并说明缺口，禁止临时训练一个新模型补位。
 - `current` 只呈现截至各市场最新完整交易日的观测排序，不含未来判断。A 股 12 项中若部分代码在同一最新完整交易日经身份与单位核验后可用，必须对可用子集排序并清楚标注“`N/12` 项可比”，不得因单项缺失让整个当前观察区空白；缺失项不得用旧交易日、相邻行业、个股歧义代码或估算值补齐。只有同日可比项为零或来源冲突无法判定时，`current` 才写 `insufficient`。
@@ -171,16 +172,18 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 2. `pnpm validate:sector-details`
 3. `pnpm validate:rotation-events`
 4. `pnpm validate:market-observer`
-5. `pnpm test:market-observer`
-6. `pnpm validate:brief`
-7. `pnpm validate:weekly`
-8. `pnpm archive:brief`
-9. `pnpm archive:market-observer morning`
-10. `pnpm assets:prune`
-11. `pnpm validate:assets`
-12. `pnpm typecheck`
-13. `pnpm build`
+5. `pnpm validate:market-data`
+6. `pnpm test:market-data`
+7. `pnpm test:market-observer`
+8. `pnpm validate:brief`
+9. `pnpm validate:weekly`
+10. `pnpm archive:brief`
+11. `pnpm archive:market-observer morning`
+12. `pnpm assets:prune`
+13. `pnpm validate:assets`
+14. `pnpm typecheck`
+15. `pnpm build`
 
-只有十三项全部通过才算更新成功。`data/archive/` 与 `data/market-observer-history/` 都是仅保存在本机项目目录的轻量压缩备份，不要加入 Git。如果项目已经配置 Git 远端，则只提交 `content/daily-brief.json`、`content/market-observer.json`、`content/sector-rotation.json`、确有更新且通过校验的 `content/sector-details.json`、本次更新的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库仅在版本化强模型流程中单独提交或留在本机，日报不得顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图、视频、检索缓存或模型缓存。提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发 Vercel Git 生产部署。推送后验证 `https://guanchao-daily-brief.vercel.app/`、`/predictions/`、`/briefs/` 与 `/markets/` 能返回 HTTP 200；如果 Vercel 尚在构建，可以短暂重试，部署失败要保留已经通过校验的本地数据和 Git 提交，并在任务结果中明确报错。未配置远端时只更新本地文件并在任务结果中说明。
+只有十五项全部通过才算更新成功。`data/archive/`、`data/market-observer-history/` 与 `data/market-evidence/` 都是仅保存在本机项目目录的轻量压缩备份，不要加入 Git。如果项目已经配置 Git 远端，则只提交 `content/daily-brief.json`、`content/market-observer.json`、`content/sector-rotation.json`、确有更新且通过校验的 `content/sector-details.json`、本次更新的 `public/update-notices.json`，以及被本次 JSON 实际引用且通过校验的 `public/generated/editorial/` 哈希 WebP。冻结模型、历史行情和事件库仅在版本化强模型流程中单独提交或留在本机，日报不得顺手提交。不得提交未引用生成图、临时输出、上游 PDF、报告封面、媒体图片、网页截图、视频、检索缓存或模型缓存。提交信息使用 `content: daily brief YYYY-MM-DD`，并推送当前分支以触发 Vercel Git 生产部署。推送后验证 `https://guanchao-daily-brief.vercel.app/`、`/predictions/`、`/briefs/` 与 `/markets/` 能返回 HTTP 200；如果 Vercel 尚在构建，可以短暂重试，部署失败要保留已经通过校验的本地数据和 Git 提交，并在任务结果中明确报错。未配置远端时只更新本地文件并在任务结果中说明。
 
 任务结果需汇报：版本日期、三地数据截止日、更新条目数、每篇详情字数、引用数、构建结果、Git 推送结果、Vercel 生产网址验证结果，以及任何沿用旧数据或无法核验的项目。

@@ -4,7 +4,7 @@
 
 ## 数据方式
 
-本站不追求实时行情。页面简报来自 `content/daily-brief.json`，行业轮动指数来自 `content/sector-rotation.json`；每日 AI 自动化完成检索、核验和结构化输入更新后，只应用已冻结的经验模型做推理，再重新构建网站。
+本站不追求实时行情。页面简报来自 `content/daily-brief.json`，行业轮动指数来自 `content/sector-rotation.json`；A/H 定量输入先由 `scripts/market_evidence.py` 从稳定接口生成 `data/market-evidence/latest.json`，AI 负责核验、解释和新闻整合，不再负责从网页摘要猜数。每日只应用已冻结的经验模型做推理，再重新构建网站。
 
 - 每条简报和热点都带原文引用，可点击跳转。
 - 首页条目可进入精读页；每篇正文控制在 1000 字内，并按段标注引用，必要时附条形、发散条形、折线或分组条形等结构化数据图表。
@@ -15,6 +15,7 @@
 - 轮动模块严格区分已核验事实、数据商估算和预测；缺少可靠数据时显示 `insufficient`，不编造北向行业流或将大单算法直接描述成机构资金。
 - 同花顺原始成交额与成交量标为 `vendor-market-data`；“主力资金”等算法字段标为 `vendor-estimate`，不能混为真实机构持仓。
 - 需要实际获取 A 股行情、K 线、成交额/成交量、行业/题材和公告时，自动化可调用本机已安装的 `$a-stock-data`。行情优先 mootdx/腾讯，东财接口严格串行限流；社区技能说明仅是取数工具文档，不作为网站事实引用。
+- 日报和周报的固定量价字段由 `pnpm market:data:daily` / `pnpm market:data:weekly` 采集：中证日频接口提供 25 个交易日行业量价与中证全指分母，中证样本表加目标日期一致的腾讯批量行情提供上涨广度与前三成交集中度；失败会逐字段记录日期、覆盖率和降级原因。完整说明见 `models/market-evidence/README.md`。
 - 同花顺 `ths_hot_reason` 的成交额、成交量只代表当日个股样本。板块“明显放量”仍要求固定成分股、至少 25 个完整交易日同口径序列，并由交易所或另一行情源复核。
 - 三套自动化共用 `.agents/skills/market-evidence-brief/` 的证据研究流程，每次固定扫描 Stanford HAI 2026 AI Index 官方报告及相关章节；无重大新增时不为凑数量写入页面。
 - 每次生成新预测前复盘到期旧预测并记录确认、部分兑现、失效或待验证状态，禁止事后静默改写。
@@ -55,6 +56,8 @@ pnpm dev
 ```powershell
 pnpm validate:rotation
 pnpm validate:rotation-events
+pnpm market:data:health
+pnpm validate:market-data
 pnpm validate:brief
 pnpm assets:prune
 pnpm validate:assets
@@ -68,6 +71,7 @@ pnpm build
 
 ```text
 每日定时触发
+  → 确定性取数工具先生成 A/H 逐字段证据包并检查日期、口径、覆盖率
   → AI 浏览和筛选可信来源
   → 共享证据技能分级来源、扫描 Stanford AI Index、复盘旧预测
   → 刷新 A/H 结构化输入并应用冻结经验模型（不做每日训练）

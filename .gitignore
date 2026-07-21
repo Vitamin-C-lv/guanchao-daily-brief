@@ -29,3 +29,6 @@ models/sector-rotation/candidates/
 
 # 重点观察快照每日两次 gzip 本地沉淀，最多约 800 份，由归档脚本控制。
 data/market-observer-history/
+
+# 日报/周报结构化取数包：只在本机压缩沉淀，不提交行情快照或成分缓存。
+data/market-evidence/

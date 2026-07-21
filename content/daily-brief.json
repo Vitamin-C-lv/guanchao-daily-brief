@@ -280,6 +280,20 @@
               "url": "https://www.crhc.cn/rmzx/tzggs/2026/7/7b8c4ecaa1184480ae758621f455c6e9.htm",
               "tier": "official",
               "evidenceClass": "official-primary"
+            },
+            {
+              "name": "中证全指医药卫生指数",
+              "publisher": "中证指数有限公司",
+              "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991",
+              "tier": "official",
+              "evidenceClass": "official-primary"
+            },
+            {
+              "name": "中证全指能源指数",
+              "publisher": "中证指数有限公司",
+              "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+              "tier": "official",
+              "evidenceClass": "official-primary"
             }
           ],
           "detail": {
@@ -319,7 +333,7 @@
             "rotationAnalysis": {
               "asOf": "2026-07-20",
               "window": "5d_vs_20d",
-              "regime": "权重修复与小盘分化，市场仍处高波动修复阶段；央企增持提供政策线索，但尚不能确认新主线。",
+              "regime": "权重修复、小盘承压；央企增持尚未形成全市场主线。",
               "volumeStatus": "insufficient",
               "volumeLeaders": [],
               "flowSignals": [
@@ -327,29 +341,28 @@
                   "sector": "金融权重、央企核心资产",
                   "direction": "mixed",
                   "evidenceClass": "proxy",
-                  "evidence": "7月20日权重指数相对占优，中国国新公告披露超500亿元再贷款及配套资金使用；两者分别是价格代理与官方行动，不等同全市场机构持仓。",
+                  "evidence": "权重指数占优；中国国新披露超500亿元再贷款及配套资金使用。前者是价格代理，后者是官方行动。",
                   "sourceIndexes": [1, 2]
                 },
                 {
                   "sector": "小盘成长",
                   "direction": "mixed",
                   "evidenceClass": "proxy",
-                  "evidence": "国证2000跌3.12%而沪深300涨1.53%，显示小盘相对承压；缺少恒定成分行业资金净流出额，仅作价格代理。",
+                  "evidence": "国证2000跌3.12%，沪深300涨1.53%，小盘相对承压；仅作价格代理。",
                   "sourceIndexes": [1]
                 }
               ],
               "outlooks": [
                 {
                   "horizon": "1_5d",
-                  "status": "insufficient",
-                  "candidateSectors": [],
-                  "bias": "range",
+                  "status": "active",
+                  "candidateSectors": ["医药医疗", "能源"],
+                  "bias": "strengthening",
                   "confidence": "low",
-                  "reason": "缺少连续2–3日行业成交占比、广度和官方资金序列，不能完成1–5日轮动判断。",
-                  "flowPath": "insufficient：仅有指数结构与公司公告，不能确认行业资金路径。",
-                  "trigger": "成交占比、上涨广度与相对收益连续改善",
-                  "invalidation": "权重修复消失且小盘相对弱势扩大",
-                  "sourceIndexes": [1]
+                  "flowPath": "冻结模型短窗排序：医药医疗5日相对收益+9.90个百分点、额/量比1.55/1.50，列第一；能源为+12.40个百分点、1.27/1.29，列第二。均为强弱代理。",
+                  "trigger": "医药额比不低于1.35、量比不低于1.20且相对收益不转负",
+                  "invalidation": "医药跌破量价阈值；能源量价同步回落",
+                  "sourceIndexes": [3, 4]
                 },
                 {
                   "horizon": "2_4w",
@@ -357,14 +370,14 @@
                   "candidateSectors": [],
                   "bias": "range",
                   "confidence": "low",
-                  "reason": "缺少行业盈利预期、估值位置与至少三日资金持续性，不能完成2–4周判断。",
-                  "flowPath": "insufficient：官方增持公告是政策线索，不足以替代行业盈利与资金持续性证据。",
-                  "trigger": "政策、业绩、行业广度与资金代理同向改善",
-                  "invalidation": "高位科技继续补跌或成交集中度继续上升",
-                  "sourceIndexes": [1]
+                  "reason": "月窗输入已齐，但样本外Rank IC为-0.027、前后组收益差为-0.30%，未过发布门槛。",
+                  "flowPath": "历史检验未证明排序有效，暂不发布方向。",
+                  "trigger": "样本外Rank IC与前后组收益差同时转正",
+                  "invalidation": "回测门槛继续失败",
+                  "sourceIndexes": [3, 4]
                 }
               ],
-              "riskNote": "缺少中证全指二级行业最近5日与此前20日成交额、成交占比、广度和前三大成交集中度序列，volumeStatus 为 insufficient；预测仅为低置信度条件情景。"
+              "riskNote": "12项观察池25日量价已齐；7月20日未归档成分广度与前三成交集中度，故volumeStatus仍不足。短窗低置信度发布，月窗因回测未过不发布。"
             }
           }
         }
