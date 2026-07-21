@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-20T20:08:58+08:00",
+  "generatedAt": "2026-07-21T08:19:36+08:00",
   "model": {
     "id": "guanchao-a-share-sector-rotation",
     "version": "2026.07.18-core12-v2",
@@ -2510,21 +2510,21 @@
       "id": "us",
       "label": "美股三大指数",
       "mode": "major-index",
-      "asOf": "2026-07-17",
+      "asOf": "2026-07-20",
       "status": "ready",
       "taxonomy": {
         "owner": "观潮日报引用的指数发布方/市场数据来源",
         "name": "纳斯达克、道琼斯、标普500三大指数（非行业分类）",
         "version": "daily-brief",
-        "effectiveDate": "2026-07-17"
+        "effectiveDate": "2026-07-20"
       },
       "note": "不扩建美股行业模型；只保留三大指数当前状态。",
       "reason": "本次没有经同口径历史回测的美股三大指数条件模型。",
       "sources": [
         {
-          "name": "美股 7 月 17 日收盘",
+          "name": "美股 7 月 20 日收盘",
           "publisher": "Associated Press",
-          "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-5e44034ea86fa8d9c73184f3559e74a2",
+          "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-5ee6e4b0754464e93a56fbb9e80f9e64",
           "tier": "major-media"
         },
         {
@@ -2538,23 +2538,23 @@
         "current": {
           "kind": "observed",
           "status": "ready",
-          "asOf": "2026-07-17",
+          "asOf": "2026-07-20",
           "note": "仅展示纳斯达克、道琼斯、标普500三大指数当前状态；不称为行业轮动。",
           "items": [
             {
-              "sector": "道琼斯",
+              "sector": "纳斯达克",
               "rank": 1,
               "score": 100.0,
               "direction": "leading",
-              "signal": "2026-07-17完整交易日指数表现。",
+              "signal": "2026-07-20完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "52,146.42"
+                  "value": "25,508.07"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.80%",
+                  "value": "-0.10%",
                   "tone": "negative"
                 }
               ],
@@ -2568,15 +2568,15 @@
               "rank": 2,
               "score": 50.0,
               "direction": "neutral",
-              "signal": "2026-07-17完整交易日指数表现。",
+              "signal": "2026-07-20完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "7,475.69"
+                  "value": "7,443.28"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-1.00%",
+                  "value": "-0.20%",
                   "tone": "negative"
                 }
               ],
@@ -2586,19 +2586,19 @@
               ]
             },
             {
-              "sector": "纳斯达克",
+              "sector": "道琼斯",
               "rank": 3,
               "score": 0.0,
               "direction": "lagging",
-              "signal": "2026-07-17完整交易日指数表现。",
+              "signal": "2026-07-20完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "25,520.24"
+                  "value": "51,839.26"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-1.40%",
+                  "value": "-0.60%",
                   "tone": "negative"
                 }
               ],
@@ -2612,14 +2612,14 @@
         "oneWeek": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-17",
+          "asOf": "2026-07-20",
           "sessions": 5,
           "reason": "未训练并样本外验证三大指数条件模型，不发布一周方向排序。"
         },
         "oneMonth": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-17",
+          "asOf": "2026-07-20",
           "sessions": 20,
           "reason": "未训练并样本外验证三大指数条件模型，不发布一月方向排序。"
         }
