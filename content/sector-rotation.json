@@ -1,14 +1,23 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-21T08:19:36+08:00",
+  "generatedAt": "2026-07-21T10:53:15+08:00",
   "model": {
-    "id": "guanchao-a-share-sector-rotation",
-    "version": "2026.07.18-core12-v2",
-    "trainedAt": "2026-07-18T20:47:22+08:00",
-    "trainingStart": "2016-04-12",
+    "id": "guanchao-a-share-sector-up-probability",
+    "version": "2026-07-20-probability-v1",
+    "trainedAt": "2026-07-21T10:53:14+08:00",
+    "trainingStart": "2024-05-23",
     "trainingEnd": "2026-07-17",
-    "method": "冻结的低内存行业相对强弱模型；每日只刷新输入并推理，不训练、不选参、不打开锁定holdout。模型研究采用最近504交易日主窗口与更早历史压力测试。",
+    "method": "冻结的1/5/20交易日行业上涨概率模型；滚动504日训练并使用时间顺序样本外校准。每日只刷新输入与推理，质量不足时向历史基准收缩而不是输出空白。",
     "features": [
+      "5个交易日价格动量",
+      "20个交易日价格动量",
+      "60个交易日价格动量",
+      "前一交易日收益率的反向值",
+      "20个交易日日收益波动率",
+      "相对60日最高收盘的回撤",
+      "近5日平均成交额/此前20日平均成交额的对数",
+      "近5日平均成交量/此前20日平均成交量的对数",
+      "5日动量与成交额相对放量的交互项",
       "当日行业横截面标准化：5个交易日价格动量",
       "当日行业横截面标准化：20个交易日价格动量",
       "当日行业横截面标准化：60个交易日价格动量",
@@ -17,11 +26,19 @@
       "当日行业横截面标准化：相对60日最高收盘的回撤",
       "当日行业横截面标准化：近5日平均成交额/此前20日平均成交额的对数",
       "当日行业横截面标准化：近5日平均成交量/此前20日平均成交量的对数",
-      "当日行业横截面标准化：5日动量与成交额相对放量的交互项"
+      "当日行业横截面标准化：5日动量与成交额相对放量的交互项",
+      "5日相对动量减20日相对动量，刻画短期趋势加速度",
+      "20日相对动量减60日相对动量，刻画中期趋势变化",
+      "5日相对动量与成交额活跃度的交互项",
+      "20日相对动量与真实成交量活跃度的交互项",
+      "20日相对动量与60日回撤的交互项",
+      "单日反转与20日波动率的交互项",
+      "5日相对动量平方项，用于检测非线性极端状态",
+      "60日回撤平方项，用于检测非线性压力状态"
     ],
     "backtest": {
       "status": "limited",
-      "summary": "5日 limited（IC 0.005，头尾差 0.07%）；20日 insufficient（IC -0.027，头尾差 -0.30%）。score是横截面排名分，confidenceScore是校准证据强度；二者都不是概率或胜率。"
+      "summary": "1日 model-shrunk（Brier 0.250，基准 0.250，AUC 0.515）；5日 historical-base-rate（Brier 0.253，基准 0.253，AUC 0.500）；20日 model-calibrated（Brier 0.251，基准 0.253，AUC 0.509）。概率是同口径历史条件频率；仍需结合赔率、交易成本与失效条件。"
     }
   },
   "markets": [
@@ -1640,111 +1657,32 @@
             }
           ]
         },
-        "oneWeek": {
+        "tomorrow": {
           "kind": "forecast",
           "status": "ready",
           "asOf": "2026-07-20",
-          "dueDate": "2026-07-27",
-          "sessions": 5,
-          "note": "score为模型横截面排名分；confidenceScore为样本外校准证据强度，二者都不是上涨概率或胜率。仅有量价一种证据类别，置信度等级封顶low。",
+          "dueDate": "2026-07-21",
+          "sessions": 1,
+          "note": "上涨概率定义为行业指数在对应第N个完整交易日收盘高于asOf收盘；按概率从高到低排序，并同时展示两年历史基准、概率优势与90%校准区间。仅有量价证据，文字置信度封顶low。",
           "items": [
             {
-              "forecastId": "fr-a-20260720-h5-000991-1fcd948a6798",
-              "sector": "医药医疗",
-              "code": "000991",
-              "rank": 1,
-              "score": 100.0,
-              "direction": "strong-up",
-              "confidence": "low",
-              "confidenceScore": 30,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。30分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若5日与20日相对强势延续且成交额未明显退潮，则医药医疗未来5个交易日相对行业均值可能偏强。",
-              "evidence": [
-                {
-                  "label": "趋势",
-                  "observation": "5日+3.85% / 20日+12.35%",
-                  "sourceIndexes": [
-                    12,
-                    13
-                  ]
-                },
-                {
-                  "label": "活跃度",
-                  "observation": "成交额比1.55x，成交量比1.50x",
-                  "sourceIndexes": [
-                    12,
-                    13
-                  ]
-                }
-              ],
-              "counterEvidence": [
-                {
-                  "label": "反向风险",
-                  "observation": "20日波动率2.63%，60日回撤-2.27%",
-                  "sourceIndexes": [
-                    12,
-                    13
-                  ]
-                }
-              ],
-              "trigger": "5日动量保持为正，且近5日成交额/此前20日均值不低于1.0倍。",
-              "invalidation": "5日动量转负且成交额比低于0.85倍，或行业相对强弱跌出横截面后40%。",
-              "dueDate": "2026-07-27"
-            },
-            {
-              "forecastId": "fr-a-20260720-h5-000986-44ec98884da4",
-              "sector": "能源",
-              "code": "000986",
-              "rank": 2,
-              "score": 90.9,
-              "direction": "strong-up",
-              "confidence": "low",
-              "confidenceScore": 30,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。30分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若5日与20日相对强势延续且成交额未明显退潮，则能源未来5个交易日相对行业均值可能偏强。",
-              "evidence": [
-                {
-                  "label": "趋势",
-                  "observation": "5日+6.35% / 20日+0.94%",
-                  "sourceIndexes": [
-                    2,
-                    3
-                  ]
-                },
-                {
-                  "label": "活跃度",
-                  "observation": "成交额比1.27x，成交量比1.29x",
-                  "sourceIndexes": [
-                    2,
-                    3
-                  ]
-                }
-              ],
-              "counterEvidence": [
-                {
-                  "label": "反向风险",
-                  "observation": "20日波动率2.19%，60日回撤-10.96%",
-                  "sourceIndexes": [
-                    2,
-                    3
-                  ]
-                }
-              ],
-              "trigger": "5日动量保持为正，且近5日成交额/此前20日均值不低于1.0倍。",
-              "invalidation": "5日动量转负且成交额比低于0.85倍，或行业相对强弱跌出横截面后40%。",
-              "dueDate": "2026-07-27"
-            },
-            {
-              "forecastId": "fr-a-20260720-h5-000994-a4de88950fe6",
+              "forecastId": "fr-a-20260720-h1-000994-5609bcbcfc16",
               "sector": "通信服务",
               "code": "000994",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "up",
+              "rank": 1,
+              "upProbability": 50.1,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 45.3,
+                "high": 56.6,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
               "confidence": "low",
-              "confidenceScore": 29,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。29分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若5日与20日相对强势延续且成交额未明显退潮，则通信服务未来5个交易日相对行业均值可能偏强。",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计通信服务未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
               "evidence": [
                 {
                   "label": "趋势",
@@ -1773,64 +1711,228 @@
                   ]
                 }
               ],
-              "trigger": "5日动量保持为正，且近5日成交额/此前20日均值不低于1.0倍。",
-              "invalidation": "5日动量转负且成交额比低于0.85倍，或行业相对强弱跌出横截面后40%。",
-              "dueDate": "2026-07-27"
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
             },
             {
-              "forecastId": "fr-a-20260720-h5-000990-b0af75880058",
-              "sector": "主要消费",
-              "code": "000990",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "up",
+              "forecastId": "fr-a-20260720-h1-000993-2b574d912345",
+              "sector": "信息技术",
+              "code": "000993",
+              "rank": 2,
+              "upProbability": 50.1,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 45.3,
+                "high": 56.6,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
               "confidence": "low",
-              "confidenceScore": 28,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。28分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若5日与20日相对强势延续且成交额未明显退潮，则主要消费未来5个交易日相对行业均值可能偏强。",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计信息技术未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
               "evidence": [
                 {
                   "label": "趋势",
-                  "observation": "5日+6.74% / 20日+7.00%",
+                  "observation": "5日-15.01% / 20日-19.83%",
                   "sourceIndexes": [
-                    10,
-                    11
+                    16,
+                    17
                   ]
                 },
                 {
                   "label": "活跃度",
-                  "observation": "成交额比1.34x，成交量比1.14x",
+                  "observation": "成交额比0.84x，成交量比0.81x",
                   "sourceIndexes": [
-                    10,
-                    11
+                    16,
+                    17
                   ]
                 }
               ],
               "counterEvidence": [
                 {
                   "label": "反向风险",
-                  "observation": "20日波动率1.73%，60日回撤-10.51%",
+                  "observation": "20日波动率3.92%，60日回撤-26.80%",
                   "sourceIndexes": [
-                    10,
-                    11
+                    16,
+                    17
                   ]
                 }
               ],
-              "trigger": "5日动量保持为正，且近5日成交额/此前20日均值不低于1.0倍。",
-              "invalidation": "5日动量转负且成交额比低于0.85倍，或行业相对强弱跌出横截面后40%。",
-              "dueDate": "2026-07-27"
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
             },
             {
-              "forecastId": "fr-a-20260720-h5-000992-9062a4d9e0e1",
+              "forecastId": "fr-a-20260720-h1-000987-215c5d1b7ae7",
+              "sector": "原材料",
+              "code": "000987",
+              "rank": 3,
+              "upProbability": 50.1,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 45.3,
+                "high": 56.6,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计原材料未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-3.38% / 20日-20.60%",
+                  "sourceIndexes": [
+                    4,
+                    5
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.64x，成交量比0.80x",
+                  "sourceIndexes": [
+                    4,
+                    5
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.25%，60日回撤-22.81%",
+                  "sourceIndexes": [
+                    4,
+                    5
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
+            },
+            {
+              "forecastId": "fr-a-20260720-h1-399967-e334917efb0d",
+              "sector": "军工",
+              "code": "399967",
+              "rank": 4,
+              "upProbability": 50.1,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 45.3,
+                "high": 56.6,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计军工未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-11.39% / 20日-18.87%",
+                  "sourceIndexes": [
+                    22,
+                    23
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.72x，成交量比0.82x",
+                  "sourceIndexes": [
+                    22,
+                    23
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.62%，60日回撤-29.50%",
+                  "sourceIndexes": [
+                    22,
+                    23
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
+            },
+            {
+              "forecastId": "fr-a-20260720-h1-399970-064b2a5d96e1",
+              "sector": "移动互联网",
+              "code": "399970",
+              "rank": 5,
+              "upProbability": 50.1,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 45.3,
+                "high": 56.6,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计移动互联网未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-8.61% / 20日-14.07%",
+                  "sourceIndexes": [
+                    24,
+                    25
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.93x，成交量比0.87x",
+                  "sourceIndexes": [
+                    24,
+                    25
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.99%，60日回撤-17.28%",
+                  "sourceIndexes": [
+                    24,
+                    25
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
+            },
+            {
+              "forecastId": "fr-a-20260720-h1-000992-f3003e503d7d",
               "sector": "金融地产",
               "code": "000992",
-              "rank": 5,
-              "score": 63.6,
-              "direction": "up",
+              "rank": 6,
+              "upProbability": 50.1,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 45.2,
+                "high": 55.5,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
               "confidence": "low",
-              "confidenceScore": 27,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。27分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若5日与20日相对强势延续且成交额未明显退潮，则金融地产未来5个交易日相对行业均值可能偏强。",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计金融地产未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
               "evidence": [
                 {
                   "label": "趋势",
@@ -1859,21 +1961,128 @@
                   ]
                 }
               ],
-              "trigger": "5日动量保持为正，且近5日成交额/此前20日均值不低于1.0倍。",
-              "invalidation": "5日动量转负且成交额比低于0.85倍，或行业相对强弱跌出横截面后40%。",
-              "dueDate": "2026-07-27"
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
             },
             {
-              "forecastId": "fr-a-20260720-h5-000989-9a9b50e39d0f",
-              "sector": "可选消费",
-              "code": "000989",
-              "rank": 6,
-              "score": 54.5,
+              "forecastId": "fr-a-20260720-h1-000991-4120c36ccb15",
+              "sector": "医药医疗",
+              "code": "000991",
+              "rank": 7,
+              "upProbability": 50.1,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 45.2,
+                "high": 55.5,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
               "direction": "range",
               "confidence": "low",
-              "confidenceScore": 27,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。27分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若动量与成交活跃度继续相互抵消，则可选消费未来5个交易日可能以区间和方向反复为主。",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计医药医疗未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+3.85% / 20日+12.35%",
+                  "sourceIndexes": [
+                    12,
+                    13
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.55x，成交量比1.50x",
+                  "sourceIndexes": [
+                    12,
+                    13
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.63%，60日回撤-2.27%",
+                  "sourceIndexes": [
+                    12,
+                    13
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
+            },
+            {
+              "forecastId": "fr-a-20260720-h1-000988-86805bd35ff9",
+              "sector": "工业",
+              "code": "000988",
+              "rank": 8,
+              "upProbability": 50.1,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 45.2,
+                "high": 55.5,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计工业未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-4.61% / 20日-16.87%",
+                  "sourceIndexes": [
+                    6,
+                    7
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.72x，成交量比0.87x",
+                  "sourceIndexes": [
+                    6,
+                    7
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.74%，60日回撤-22.12%",
+                  "sourceIndexes": [
+                    6,
+                    7
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
+            },
+            {
+              "forecastId": "fr-a-20260720-h1-000989-59d35e46f0a8",
+              "sector": "可选消费",
+              "code": "000989",
+              "rank": 9,
+              "upProbability": 50.1,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 42.9,
+                "high": 53.1,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计可选消费未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
               "evidence": [
                 {
                   "label": "趋势",
@@ -1904,19 +2113,236 @@
               ],
               "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
               "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
+            },
+            {
+              "forecastId": "fr-a-20260720-h1-000986-3f266d21996c",
+              "sector": "能源",
+              "code": "000986",
+              "rank": 10,
+              "upProbability": 50.0,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": -0.0,
+              "calibrationRange": {
+                "low": 45.4,
+                "high": 55.3,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计能源未来1个交易日收盘上涨概率为50.0%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+6.35% / 20日+0.94%",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.27x，成交量比1.29x",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.19%，60日回撤-10.96%",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
+            },
+            {
+              "forecastId": "fr-a-20260720-h1-000995-6149396da79f",
+              "sector": "公用事业",
+              "code": "000995",
+              "rank": 11,
+              "upProbability": 50.0,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": -0.0,
+              "calibrationRange": {
+                "low": 42.1,
+                "high": 52.0,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计公用事业未来1个交易日收盘上涨概率为50.0%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+4.36% / 20日-2.03%",
+                  "sourceIndexes": [
+                    20,
+                    21
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.03x，成交量比1.04x",
+                  "sourceIndexes": [
+                    20,
+                    21
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.26%，60日回撤-13.37%",
+                  "sourceIndexes": [
+                    20,
+                    21
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
+            },
+            {
+              "forecastId": "fr-a-20260720-h1-000990-df464bfa8f5b",
+              "sector": "主要消费",
+              "code": "000990",
+              "rank": 12,
+              "upProbability": 50.0,
+              "historicalBaseRate": 50.0,
+              "probabilityEdge": -0.0,
+              "calibrationRange": {
+                "low": 42.1,
+                "high": 52.0,
+                "level": "90%"
+              },
+              "probabilityTier": "model-shrunk",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "收缩概率：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.250，基准=0.250。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计主要消费未来1个交易日收盘上涨概率为50.0%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+6.74% / 20日+7.00%",
+                  "sourceIndexes": [
+                    10,
+                    11
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.34x，成交量比1.14x",
+                  "sourceIndexes": [
+                    10,
+                    11
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.73%，60日回撤-10.51%",
+                  "sourceIndexes": [
+                    10,
+                    11
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-21"
+            }
+          ]
+        },
+        "oneWeek": {
+          "kind": "forecast",
+          "status": "ready",
+          "asOf": "2026-07-20",
+          "dueDate": "2026-07-27",
+          "sessions": 5,
+          "note": "上涨概率定义为行业指数在对应第N个完整交易日收盘高于asOf收盘；按概率从高到低排序，并同时展示两年历史基准、概率优势与90%校准区间。仅有量价证据，文字置信度封顶low。",
+          "items": [
+            {
+              "forecastId": "fr-a-20260720-h5-000986-70ac4e84a9f6",
+              "sector": "能源",
+              "code": "000986",
+              "rank": 1,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计能源未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+6.35% / 20日+0.94%",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.27x，成交量比1.29x",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.19%，60日回撤-10.96%",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
               "dueDate": "2026-07-27"
             },
             {
-              "forecastId": "fr-a-20260720-h5-000987-74dfdcc1dfea",
+              "forecastId": "fr-a-20260720-h5-000987-f8bebde95a0e",
               "sector": "原材料",
               "code": "000987",
-              "rank": 7,
-              "score": 45.5,
+              "rank": 2,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
               "direction": "range",
               "confidence": "low",
-              "confidenceScore": 27,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。27分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若动量与成交活跃度继续相互抵消，则原材料未来5个交易日可能以区间和方向反复为主。",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计原材料未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
               "evidence": [
                 {
                   "label": "趋势",
@@ -1950,145 +2376,23 @@
               "dueDate": "2026-07-27"
             },
             {
-              "forecastId": "fr-a-20260720-h5-000995-059a6f522aa4",
-              "sector": "公用事业",
-              "code": "000995",
-              "rank": 8,
-              "score": 36.4,
-              "direction": "down",
-              "confidence": "low",
-              "confidenceScore": 27,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。27分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若量价弱势延续且未出现广泛修复，则公用事业未来5个交易日相对行业均值可能继续偏弱。",
-              "evidence": [
-                {
-                  "label": "趋势",
-                  "observation": "5日+4.36% / 20日-2.03%",
-                  "sourceIndexes": [
-                    20,
-                    21
-                  ]
-                },
-                {
-                  "label": "活跃度",
-                  "observation": "成交额比1.03x，成交量比1.04x",
-                  "sourceIndexes": [
-                    20,
-                    21
-                  ]
-                }
-              ],
-              "counterEvidence": [
-                {
-                  "label": "反向风险",
-                  "observation": "20日波动率1.26%，60日回撤-13.37%",
-                  "sourceIndexes": [
-                    20,
-                    21
-                  ]
-                }
-              ],
-              "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
-              "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
-              "dueDate": "2026-07-27"
-            },
-            {
-              "forecastId": "fr-a-20260720-h5-399967-ec97786fad37",
-              "sector": "军工",
-              "code": "399967",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "down",
-              "confidence": "low",
-              "confidenceScore": 28,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。28分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若量价弱势延续且未出现广泛修复，则军工未来5个交易日相对行业均值可能继续偏弱。",
-              "evidence": [
-                {
-                  "label": "趋势",
-                  "observation": "5日-11.39% / 20日-18.87%",
-                  "sourceIndexes": [
-                    22,
-                    23
-                  ]
-                },
-                {
-                  "label": "活跃度",
-                  "observation": "成交额比0.72x，成交量比0.82x",
-                  "sourceIndexes": [
-                    22,
-                    23
-                  ]
-                }
-              ],
-              "counterEvidence": [
-                {
-                  "label": "反向风险",
-                  "observation": "20日波动率2.62%，60日回撤-29.50%",
-                  "sourceIndexes": [
-                    22,
-                    23
-                  ]
-                }
-              ],
-              "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
-              "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
-              "dueDate": "2026-07-27"
-            },
-            {
-              "forecastId": "fr-a-20260720-h5-399970-e8e4a69d7057",
-              "sector": "移动互联网",
-              "code": "399970",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "down",
-              "confidence": "low",
-              "confidenceScore": 29,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。29分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若量价弱势延续且未出现广泛修复，则移动互联网未来5个交易日相对行业均值可能继续偏弱。",
-              "evidence": [
-                {
-                  "label": "趋势",
-                  "observation": "5日-8.61% / 20日-14.07%",
-                  "sourceIndexes": [
-                    24,
-                    25
-                  ]
-                },
-                {
-                  "label": "活跃度",
-                  "observation": "成交额比0.93x，成交量比0.87x",
-                  "sourceIndexes": [
-                    24,
-                    25
-                  ]
-                }
-              ],
-              "counterEvidence": [
-                {
-                  "label": "反向风险",
-                  "observation": "20日波动率2.99%，60日回撤-17.28%",
-                  "sourceIndexes": [
-                    24,
-                    25
-                  ]
-                }
-              ],
-              "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
-              "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
-              "dueDate": "2026-07-27"
-            },
-            {
-              "forecastId": "fr-a-20260720-h5-000988-b2a98bbd32bb",
+              "forecastId": "fr-a-20260720-h5-000988-2689299cf457",
               "sector": "工业",
               "code": "000988",
-              "rank": 11,
-              "score": 9.1,
-              "direction": "strong-down",
+              "rank": 3,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
               "confidence": "low",
-              "confidenceScore": 30,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。30分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若量价弱势延续且未出现广泛修复，则工业未来5个交易日相对行业均值可能继续偏弱。",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计工业未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
               "evidence": [
                 {
                   "label": "趋势",
@@ -2117,21 +2421,888 @@
                   ]
                 }
               ],
-              "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
-              "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
               "dueDate": "2026-07-27"
             },
             {
-              "forecastId": "fr-a-20260720-h5-000993-d33b1115d085",
+              "forecastId": "fr-a-20260720-h5-000989-3bd140285f15",
+              "sector": "可选消费",
+              "code": "000989",
+              "rank": 4,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计可选消费未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-0.18% / 20日-4.38%",
+                  "sourceIndexes": [
+                    8,
+                    9
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.88x，成交量比0.96x",
+                  "sourceIndexes": [
+                    8,
+                    9
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.46%，60日回撤-14.67%",
+                  "sourceIndexes": [
+                    8,
+                    9
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-27"
+            },
+            {
+              "forecastId": "fr-a-20260720-h5-000990-34525a51874d",
+              "sector": "主要消费",
+              "code": "000990",
+              "rank": 5,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计主要消费未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+6.74% / 20日+7.00%",
+                  "sourceIndexes": [
+                    10,
+                    11
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.34x，成交量比1.14x",
+                  "sourceIndexes": [
+                    10,
+                    11
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.73%，60日回撤-10.51%",
+                  "sourceIndexes": [
+                    10,
+                    11
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-27"
+            },
+            {
+              "forecastId": "fr-a-20260720-h5-000991-17b7ded78036",
+              "sector": "医药医疗",
+              "code": "000991",
+              "rank": 6,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计医药医疗未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+3.85% / 20日+12.35%",
+                  "sourceIndexes": [
+                    12,
+                    13
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.55x，成交量比1.50x",
+                  "sourceIndexes": [
+                    12,
+                    13
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.63%，60日回撤-2.27%",
+                  "sourceIndexes": [
+                    12,
+                    13
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-27"
+            },
+            {
+              "forecastId": "fr-a-20260720-h5-000992-b8ef67de6bcb",
+              "sector": "金融地产",
+              "code": "000992",
+              "rank": 7,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计金融地产未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+3.04% / 20日+1.28%",
+                  "sourceIndexes": [
+                    14,
+                    15
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.91x，成交量比0.98x",
+                  "sourceIndexes": [
+                    14,
+                    15
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.35%，60日回撤-2.30%",
+                  "sourceIndexes": [
+                    14,
+                    15
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-27"
+            },
+            {
+              "forecastId": "fr-a-20260720-h5-000993-1968dabaeefd",
               "sector": "信息技术",
               "code": "000993",
-              "rank": 12,
-              "score": 0.0,
-              "direction": "strong-down",
+              "rank": 8,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
               "confidence": "low",
-              "confidenceScore": 30,
-              "confidenceBasis": "当前冻结基线仅保存总体walk-forward汇总：2310个独立日期/27720项观察，方向一致度0.501，rank IC=0.005；未保存行业分箱校准。30分只表示保守证据强度，不是上涨概率或胜率。",
-              "claim": "若量价弱势延续且未出现广泛修复，则信息技术未来5个交易日相对行业均值可能继续偏弱。",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计信息技术未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-15.01% / 20日-19.83%",
+                  "sourceIndexes": [
+                    16,
+                    17
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.84x，成交量比0.81x",
+                  "sourceIndexes": [
+                    16,
+                    17
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率3.92%，60日回撤-26.80%",
+                  "sourceIndexes": [
+                    16,
+                    17
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-27"
+            },
+            {
+              "forecastId": "fr-a-20260720-h5-000994-b82fa5e8e18e",
+              "sector": "通信服务",
+              "code": "000994",
+              "rank": 9,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计通信服务未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-8.37% / 20日-22.34%",
+                  "sourceIndexes": [
+                    18,
+                    19
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.96x，成交量比1.15x",
+                  "sourceIndexes": [
+                    18,
+                    19
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率3.41%，60日回撤-22.77%",
+                  "sourceIndexes": [
+                    18,
+                    19
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-27"
+            },
+            {
+              "forecastId": "fr-a-20260720-h5-000995-272cfae4858c",
+              "sector": "公用事业",
+              "code": "000995",
+              "rank": 10,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计公用事业未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+4.36% / 20日-2.03%",
+                  "sourceIndexes": [
+                    20,
+                    21
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.03x，成交量比1.04x",
+                  "sourceIndexes": [
+                    20,
+                    21
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.26%，60日回撤-13.37%",
+                  "sourceIndexes": [
+                    20,
+                    21
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-27"
+            },
+            {
+              "forecastId": "fr-a-20260720-h5-399967-29d07df0afe7",
+              "sector": "军工",
+              "code": "399967",
+              "rank": 11,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计军工未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-11.39% / 20日-18.87%",
+                  "sourceIndexes": [
+                    22,
+                    23
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.72x，成交量比0.82x",
+                  "sourceIndexes": [
+                    22,
+                    23
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.62%，60日回撤-29.50%",
+                  "sourceIndexes": [
+                    22,
+                    23
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-27"
+            },
+            {
+              "forecastId": "fr-a-20260720-h5-399970-b639bf4d8430",
+              "sector": "移动互联网",
+              "code": "399970",
+              "rank": 12,
+              "upProbability": 51.9,
+              "historicalBaseRate": 51.9,
+              "probabilityEdge": 0.0,
+              "calibrationRange": {
+                "low": 0.0,
+                "high": 51.9,
+                "level": "90%"
+              },
+              "probabilityTier": "historical-base-rate",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "历史基准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.253，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计移动互联网未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-8.61% / 20日-14.07%",
+                  "sourceIndexes": [
+                    24,
+                    25
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.93x，成交量比0.87x",
+                  "sourceIndexes": [
+                    24,
+                    25
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.99%，60日回撤-17.28%",
+                  "sourceIndexes": [
+                    24,
+                    25
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-07-27"
+            }
+          ]
+        },
+        "oneMonth": {
+          "kind": "forecast",
+          "status": "ready",
+          "asOf": "2026-07-20",
+          "dueDate": "2026-08-17",
+          "sessions": 20,
+          "note": "上涨概率定义为行业指数在对应第N个完整交易日收盘高于asOf收盘；按概率从高到低排序，并同时展示两年历史基准、概率优势与90%校准区间。仅有量价证据，文字置信度封顶low。",
+          "items": [
+            {
+              "forecastId": "fr-a-20260720-h20-000992-c30d172e1c00",
+              "sector": "金融地产",
+              "code": "000992",
+              "rank": 1,
+              "upProbability": 50.0,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -1.0,
+              "calibrationRange": {
+                "low": 46.1,
+                "high": 56.5,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计金融地产未来20个交易日收盘上涨概率为50.0%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+3.04% / 20日+1.28%",
+                  "sourceIndexes": [
+                    14,
+                    15
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.91x，成交量比0.98x",
+                  "sourceIndexes": [
+                    14,
+                    15
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.35%，60日回撤-2.30%",
+                  "sourceIndexes": [
+                    14,
+                    15
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-000995-1cee57ec11bd",
+              "sector": "公用事业",
+              "code": "000995",
+              "rank": 2,
+              "upProbability": 49.1,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -1.9,
+              "calibrationRange": {
+                "low": 49.0,
+                "high": 59.9,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计公用事业未来20个交易日收盘上涨概率为49.1%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+4.36% / 20日-2.03%",
+                  "sourceIndexes": [
+                    20,
+                    21
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.03x，成交量比1.04x",
+                  "sourceIndexes": [
+                    20,
+                    21
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.26%，60日回撤-13.37%",
+                  "sourceIndexes": [
+                    20,
+                    21
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-000989-22e47a965bd1",
+              "sector": "可选消费",
+              "code": "000989",
+              "rank": 3,
+              "upProbability": 49.0,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -2.0,
+              "calibrationRange": {
+                "low": 49.0,
+                "high": 59.9,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计可选消费未来20个交易日收盘上涨概率为49.0%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-0.18% / 20日-4.38%",
+                  "sourceIndexes": [
+                    8,
+                    9
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.88x，成交量比0.96x",
+                  "sourceIndexes": [
+                    8,
+                    9
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.46%，60日回撤-14.67%",
+                  "sourceIndexes": [
+                    8,
+                    9
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-000987-7ac65c82e862",
+              "sector": "原材料",
+              "code": "000987",
+              "rank": 4,
+              "upProbability": 48.9,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -2.1,
+              "calibrationRange": {
+                "low": 48.9,
+                "high": 59.9,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计原材料未来20个交易日收盘上涨概率为48.9%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-3.38% / 20日-20.60%",
+                  "sourceIndexes": [
+                    4,
+                    5
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.64x，成交量比0.80x",
+                  "sourceIndexes": [
+                    4,
+                    5
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.25%，60日回撤-22.81%",
+                  "sourceIndexes": [
+                    4,
+                    5
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-000988-106e18d7585d",
+              "sector": "工业",
+              "code": "000988",
+              "rank": 5,
+              "upProbability": 48.7,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -2.3,
+              "calibrationRange": {
+                "low": 48.7,
+                "high": 59.9,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计工业未来20个交易日收盘上涨概率为48.7%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-4.61% / 20日-16.87%",
+                  "sourceIndexes": [
+                    6,
+                    7
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.72x，成交量比0.87x",
+                  "sourceIndexes": [
+                    6,
+                    7
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.74%，60日回撤-22.12%",
+                  "sourceIndexes": [
+                    6,
+                    7
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-399970-2d21dabe5acc",
+              "sector": "移动互联网",
+              "code": "399970",
+              "rank": 6,
+              "upProbability": 48.1,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -2.9,
+              "calibrationRange": {
+                "low": 42.9,
+                "high": 54.8,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "range",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计移动互联网未来20个交易日收盘上涨概率为48.1%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-8.61% / 20日-14.07%",
+                  "sourceIndexes": [
+                    24,
+                    25
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.93x，成交量比0.87x",
+                  "sourceIndexes": [
+                    24,
+                    25
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.99%，60日回撤-17.28%",
+                  "sourceIndexes": [
+                    24,
+                    25
+                  ]
+                }
+              ],
+              "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+              "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-000990-3dc23680dc56",
+              "sector": "主要消费",
+              "code": "000990",
+              "rank": 7,
+              "upProbability": 47.9,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -3.1,
+              "calibrationRange": {
+                "low": 42.9,
+                "high": 54.8,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "down",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计主要消费未来20个交易日收盘上涨概率为47.9%，较两年历史基准低3.1个百分点；这是条件情景，上行偏弱。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+6.74% / 20日+7.00%",
+                  "sourceIndexes": [
+                    10,
+                    11
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.34x，成交量比1.14x",
+                  "sourceIndexes": [
+                    10,
+                    11
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率1.73%，60日回撤-10.51%",
+                  "sourceIndexes": [
+                    10,
+                    11
+                  ]
+                }
+              ],
+              "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+              "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-000986-47a05f3c9388",
+              "sector": "能源",
+              "code": "000986",
+              "rank": 8,
+              "upProbability": 47.6,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -3.4,
+              "calibrationRange": {
+                "low": 42.9,
+                "high": 54.8,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "down",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计能源未来20个交易日收盘上涨概率为47.6%，较两年历史基准低3.4个百分点；这是条件情景，上行偏弱。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+6.35% / 20日+0.94%",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.27x，成交量比1.29x",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.19%，60日回撤-10.96%",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                }
+              ],
+              "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+              "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-000993-f5d75babe312",
+              "sector": "信息技术",
+              "code": "000993",
+              "rank": 9,
+              "upProbability": 47.2,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -3.8,
+              "calibrationRange": {
+                "low": 42.9,
+                "high": 54.8,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "down",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计信息技术未来20个交易日收盘上涨概率为47.2%，较两年历史基准低3.8个百分点；这是条件情景，上行偏弱。",
               "evidence": [
                 {
                   "label": "趋势",
@@ -2162,16 +3333,159 @@
               ],
               "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
               "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
-              "dueDate": "2026-07-27"
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-399967-16f8c061fd4e",
+              "sector": "军工",
+              "code": "399967",
+              "rank": 10,
+              "upProbability": 47.0,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -3.9,
+              "calibrationRange": {
+                "low": 42.9,
+                "high": 54.8,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "down",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计军工未来20个交易日收盘上涨概率为47.0%，较两年历史基准低3.9个百分点；这是条件情景，上行偏弱。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-11.39% / 20日-18.87%",
+                  "sourceIndexes": [
+                    22,
+                    23
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.72x，成交量比0.82x",
+                  "sourceIndexes": [
+                    22,
+                    23
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.62%，60日回撤-29.50%",
+                  "sourceIndexes": [
+                    22,
+                    23
+                  ]
+                }
+              ],
+              "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+              "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-000991-e6f71711740d",
+              "sector": "医药医疗",
+              "code": "000991",
+              "rank": 11,
+              "upProbability": 46.7,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -4.3,
+              "calibrationRange": {
+                "low": 46.7,
+                "high": 60.4,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "down",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计医药医疗未来20个交易日收盘上涨概率为46.7%，较两年历史基准低4.3个百分点；这是条件情景，上行偏弱。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日+3.85% / 20日+12.35%",
+                  "sourceIndexes": [
+                    12,
+                    13
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比1.55x，成交量比1.50x",
+                  "sourceIndexes": [
+                    12,
+                    13
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率2.63%，60日回撤-2.27%",
+                  "sourceIndexes": [
+                    12,
+                    13
+                  ]
+                }
+              ],
+              "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+              "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+              "dueDate": "2026-08-17"
+            },
+            {
+              "forecastId": "fr-a-20260720-h20-000994-47910e1776be",
+              "sector": "通信服务",
+              "code": "000994",
+              "rank": 12,
+              "upProbability": 45.5,
+              "historicalBaseRate": 51.0,
+              "probabilityEdge": -5.5,
+              "calibrationRange": {
+                "low": 45.5,
+                "high": 60.4,
+                "level": "90%"
+              },
+              "probabilityTier": "model-calibrated",
+              "direction": "down",
+              "confidence": "low",
+              "calibrationBasis": "样本外校准：滚动两年训练，126个独立样本外日期/1512项评估；Brier=0.251，基准=0.253。概率表示同口径历史条件频率，不是收益承诺。",
+              "claim": "若截至2026-07-20的量价状态延续，模型估计通信服务未来20个交易日收盘上涨概率为45.5%，较两年历史基准低5.5个百分点；这是条件情景，上行偏弱。",
+              "evidence": [
+                {
+                  "label": "趋势",
+                  "observation": "5日-8.37% / 20日-22.34%",
+                  "sourceIndexes": [
+                    18,
+                    19
+                  ]
+                },
+                {
+                  "label": "活跃度",
+                  "observation": "成交额比0.96x，成交量比1.15x",
+                  "sourceIndexes": [
+                    18,
+                    19
+                  ]
+                }
+              ],
+              "counterEvidence": [
+                {
+                  "label": "反向风险",
+                  "observation": "20日波动率3.41%，60日回撤-22.77%",
+                  "sourceIndexes": [
+                    18,
+                    19
+                  ]
+                }
+              ],
+              "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+              "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+              "dueDate": "2026-08-17"
             }
           ]
-        },
-        "oneMonth": {
-          "kind": "forecast",
-          "status": "insufficient",
-          "asOf": "2026-07-20",
-          "sessions": 20,
-          "reason": "当前覆盖12/12，冻结训练覆盖12/12，数据截至2026-07-20、页面完整交易日为2026-07-20；样本外rank IC=-0.027，头尾差=-0.30%。任一覆盖、时效或回测门禁未通过时不发布方向排序。"
         }
       }
     },
@@ -2180,7 +3494,7 @@
       "label": "港股",
       "mode": "industry",
       "asOf": "2026-07-20",
-      "status": "ready",
+      "status": "insufficient",
       "taxonomy": {
         "owner": "恒生指数有限公司",
         "name": "恒生综合指数行业指数（一级行业）",
@@ -2188,7 +3502,7 @@
         "effectiveDate": "2026-07-20"
       },
       "note": "以12个恒生综合行业指数为固定当前层；不使用第三方板块冒充官方历史。",
-      "reason": "官方实时行业快照可用；官方历史接口当前未稳定返回，因此一周/月预测保持insufficient。",
+      "reason": "恒生官方当前行业快照不可用：official snapshot date 2026-07-21 does not match daily brief sessionDate 2026-07-20",
       "sources": [
         {
           "name": "Hang Seng Composite Industry Indexes",
@@ -2208,287 +3522,16 @@
       "horizons": {
         "current": {
           "kind": "observed",
-          "status": "ready",
+          "status": "insufficient",
           "asOf": "2026-07-20",
-          "note": "当前score按12个恒生综合行业指数当日涨跌做横截面排序，不预测未来。",
-          "items": [
-            {
-              "sector": "能源",
-              "code": "00011.01",
-              "rank": 1,
-              "score": 100.0,
-              "direction": "leading",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,070.05"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+4.34%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "医疗保健业",
-              "code": "00011.14",
-              "rank": 2,
-              "score": 90.9,
-              "direction": "leading",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "11,300.61"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+3.49%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "资讯科技业",
-              "code": "00011.10",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,327.28"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+3.16%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "非必需性消费",
-              "code": "00011.12",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,490.47"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+2.74%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "原材料",
-              "code": "00011.02",
-              "rank": 5,
-              "score": 63.6,
-              "direction": "strengthening",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "12,935.85"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+2.57%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "金融业",
-              "code": "00011.08",
-              "rank": 6,
-              "score": 54.5,
-              "direction": "neutral",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,468.41"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+1.88%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "必需性消费",
-              "code": "00011.13",
-              "rank": 7,
-              "score": 45.5,
-              "direction": "neutral",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "13,902.33"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+1.54%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "公用事业",
-              "code": "00011.07",
-              "rank": 8,
-              "score": 36.4,
-              "direction": "weakening",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,608.56"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+1.32%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "电讯业",
-              "code": "00011.06",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,627.61"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+1.25%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "工业",
-              "code": "00011.03",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,267.33"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+1.01%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "地产建筑业",
-              "code": "00011.09",
-              "rank": 11,
-              "score": 9.1,
-              "direction": "lagging",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,669.95"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+0.58%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "综合企业",
-              "code": "00011.11",
-              "rank": 12,
-              "score": 0.0,
-              "direction": "lagging",
-              "signal": "2026-07-20恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,067.79"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+0.27%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            }
-          ]
+          "reason": "恒生官方当前行业快照不可用：official snapshot date 2026-07-21 does not match daily brief sessionDate 2026-07-20"
+        },
+        "tomorrow": {
+          "kind": "forecast",
+          "status": "insufficient",
+          "asOf": "2026-07-20",
+          "sessions": 1,
+          "reason": "港股行业连续历史仍在本地沉淀，尚未形成可校准的下一交易日概率。"
         },
         "oneWeek": {
           "kind": "forecast",
@@ -2608,6 +3651,13 @@
               ]
             }
           ]
+        },
+        "tomorrow": {
+          "kind": "forecast",
+          "status": "insufficient",
+          "asOf": "2026-07-20",
+          "sessions": 1,
+          "reason": "未训练并样本外校准三大指数明日上涨概率。"
         },
         "oneWeek": {
           "kind": "forecast",

@@ -52,6 +52,7 @@ TAXONOMY_PATH = MODEL_DIR / "taxonomy.a-core12-v2.json"
 CALENDAR_PATH = MODEL_DIR / "cn-market-calendar-2026.json"
 FEATURE_PATH = FEATURE_DIR / "a-share-features.csv.gz"
 MODEL_PATH = MODEL_DIR / "a-share-v1.json"
+PROBABILITY_MODEL_PATH = MODEL_DIR / "a-share-up-probability-v1.json"
 HOLDOUT_REGISTRY_PATH = MODEL_DIR / "holdout-registry.json"
 CONTENT_PATH = ROOT / "content" / "sector-rotation.json"
 MANIFEST_PATH = DATA_DIR / "manifest.json"
@@ -180,8 +181,10 @@ RAW_FEATURE_FIELDS = [
     "code",
     "name",
     *FEATURES,
+    "raw_forward1",
     "raw_forward5",
     "raw_forward20",
+    "targetDate1",
     "targetDate5",
     "targetDate20",
 ]
@@ -192,10 +195,12 @@ FEATURE_FIELDS = [
     "name",
     *FEATURES,
     *MODEL_FEATURES,
+    "raw_forward1",
     "raw_forward5",
     "raw_forward20",
     "target5",
     "target20",
+    "targetDate1",
     "targetDate5",
     "targetDate20",
 ]
@@ -873,6 +878,7 @@ def build_sector_feature_rows(rows: list[dict[str, Any]]) -> Iterator[dict[str, 
         volume_ratio = safe_log_ratio(volume5, volume20)
         if volatility20 is None or amount_ratio is None or volume_ratio is None:
             continue
+        raw_forward1 = closes[i + 1] / closes[i] - 1 if i + 1 < len(rows) else None
         raw_forward5 = closes[i + 5] / closes[i] - 1 if i + 5 < len(rows) else None
         raw_forward20 = closes[i + 20] / closes[i] - 1 if i + 20 < len(rows) else None
         yield {
@@ -888,8 +894,10 @@ def build_sector_feature_rows(rows: list[dict[str, Any]]) -> Iterator[dict[str, 
             "amountRatio5v20": amount_ratio,
             "volumeRatio5v20": volume_ratio,
             "priceVolumeAcceleration": momentum5 * amount_ratio,
+            "raw_forward1": raw_forward1,
             "raw_forward5": raw_forward5,
             "raw_forward20": raw_forward20,
+            "targetDate1": rows[i + 1]["date"] if i + 1 < len(rows) else "",
             "targetDate5": rows[i + 5]["date"] if i + 5 < len(rows) else "",
             "targetDate20": rows[i + 20]["date"] if i + 20 < len(rows) else "",
         }
@@ -929,8 +937,8 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
     if source_coverage == 0 or len(common_dates) < 61:
         raise RuntimeError("not enough synchronized sector history to build features")
     raw_path = FEATURE_DIR / "a-share-features.raw.csv.gz"
-    target_sums = {5: defaultdict(float), 20: defaultdict(float)}
-    target_counts = {5: defaultdict(int), 20: defaultdict(int)}
+    target_sums = {1: defaultdict(float), 5: defaultdict(float), 20: defaultdict(float)}
+    target_counts = {1: defaultdict(int), 5: defaultdict(int), 20: defaultdict(int)}
     feature_stats: dict[str, dict[str, list[float]]] = defaultdict(
         lambda: {feature: [0.0, 0.0, 0.0] for feature in FEATURES}
     )
@@ -948,12 +956,12 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
             sector_rows = 0
             for feature in build_sector_feature_rows(history):
                 out = {key: feature.get(key, "") for key in RAW_FEATURE_FIELDS}
-                for key in FEATURES + ["raw_forward5", "raw_forward20"]:
+                for key in FEATURES + ["raw_forward1", "raw_forward5", "raw_forward20"]:
                     out[key] = fmt_float(feature.get(key), 14)
                 writer.writerow(out)
                 sector_rows += 1
                 total_rows += 1
-                for horizon in (5, 20):
+                for horizon in (1, 5, 20):
                     value = feature[f"raw_forward{horizon}"]
                     if value is not None:
                         target_sums[horizon][feature["date"]] += value
@@ -999,14 +1007,15 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
                     variance = max(0.0, total_sq / count - mean * mean)
                     scale = math.sqrt(variance) or 1.0
                     out[f"cs_{feature_name}"] = fmt_float((value - mean) / scale, 14)
-                for horizon in (5, 20):
+                for horizon in (1, 5, 20):
                     raw = finite(row.get(f"raw_forward{horizon}"))
                     count = target_counts[horizon].get(row["date"], 0)
                     if raw is not None and count == source_coverage:
                         mean = target_sums[horizon][row["date"]] / count
-                        out[f"target{horizon}"] = fmt_float(raw - mean, 14)
-                        labelled[horizon] += 1
-                    else:
+                        if horizon in (5, 20):
+                            out[f"target{horizon}"] = fmt_float(raw - mean, 14)
+                            labelled[horizon] += 1
+                    elif horizon in (5, 20):
                         out[f"target{horizon}"] = ""
                 writer.writerow(out)
                 final_rows += 1
@@ -1063,8 +1072,12 @@ def iter_features() -> Iterator[dict[str, Any]]:
                     "name": raw["name"],
                     **{feature: float(raw[feature]) for feature in FEATURES},
                     **{feature: float(raw[feature]) for feature in MODEL_FEATURES},
+                    "raw_forward1": finite(raw.get("raw_forward1")),
+                    "raw_forward5": finite(raw.get("raw_forward5")),
+                    "raw_forward20": finite(raw.get("raw_forward20")),
                     "target5": finite(raw.get("target5")),
                     "target20": finite(raw.get("target20")),
+                    "targetDate1": raw.get("targetDate1") or None,
                     "targetDate5": raw.get("targetDate5") or None,
                     "targetDate20": raw.get("targetDate20") or None,
                 }
@@ -1944,6 +1957,63 @@ def forecast_direction(score: float) -> str:
     return "strong-down"
 
 
+def upside_probability_score(model: dict[str, Any], row: dict[str, Any]) -> float:
+    value = float(model["intercept"])
+    for feature in model["featureNames"]:
+        scale = float(model["featureScales"][feature]) or 1.0
+        value += (
+            (model_feature_value(row, feature) - float(model["featureMeans"][feature]))
+            / scale
+            * float(model["coefficients"][feature])
+        )
+    return value
+
+
+def upside_probability(horizon_model: dict[str, Any], row: dict[str, Any]) -> tuple[float, float]:
+    score = upside_probability_score(horizon_model["model"], row)
+    calibrator = horizon_model["calibrator"]
+    scale = float(calibrator["scoreScale"]) or 1.0
+    normalized = (score - float(calibrator["scoreMean"])) / scale
+    logit_value = float(calibrator["intercept"]) + float(calibrator["slope"]) * normalized
+    if logit_value >= 0:
+        exp_value = math.exp(-min(logit_value, 60.0))
+        raw_probability = 1.0 / (1.0 + exp_value)
+    else:
+        exp_value = math.exp(max(logit_value, -60.0))
+        raw_probability = exp_value / (1.0 + exp_value)
+    base_rate = float(calibrator["baseRate"])
+    blend = {
+        "model-calibrated": 1.0,
+        "model-shrunk": 0.35,
+        "historical-base-rate": 0.0,
+    }.get(horizon_model.get("deploymentTier"), 0.0)
+    probability = max(0.02, min(0.98, base_rate + blend * (raw_probability - base_rate)))
+    return probability, base_rate
+
+
+def probability_calibration_range(horizon_model: dict[str, Any], probability: float) -> tuple[float, float]:
+    bins = horizon_model.get("calibrationBins", [])
+    if not bins:
+        return max(0.0, probability - 0.10), min(1.0, probability + 0.10)
+    nearest = min(bins, key=lambda item: abs(float(item["meanPredicted"]) - probability))
+    low = min(probability, float(nearest["wilson90Low"]))
+    high = max(probability, float(nearest["wilson90High"]))
+    return max(0.0, low), min(1.0, high)
+
+
+def probability_direction(probability: float, base_rate: float) -> str:
+    edge = probability - base_rate
+    if edge >= 0.08:
+        return "strong-up"
+    if edge >= 0.03:
+        return "up"
+    if edge <= -0.08:
+        return "strong-down"
+    if edge <= -0.03:
+        return "down"
+    return "range"
+
+
 def tone_for_change(value: float) -> str:
     return "positive" if value > 0 else "negative" if value < 0 else "neutral"
 
@@ -2058,7 +2128,7 @@ def calibrated_confidence(
     return "low", evidence_score, basis
 
 
-def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
+def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any]) -> dict[str, Any]:
     taxonomy_data = read_json(TAXONOMY_PATH)
     taxonomy_hash = canonical_json_sha256(taxonomy_data)
     manifest = load_manifest()
@@ -2160,6 +2230,11 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
         current_ready
         and len(latest) == universe_count
         and artifact_ready
+        and probability_artifact.get("taxonomyHash") == taxonomy_hash
+        and all(
+            probability_artifact.get("horizons", {}).get(str(sessions), {}).get("status") == "ready"
+            for sessions in (1, 5, 20)
+        )
     )
     current_charts: list[dict[str, Any]] = []
     if current_ready:
@@ -2229,15 +2304,9 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
         )
 
     horizons: dict[str, Any] = {}
-    for key, sessions in (("oneWeek", 5), ("oneMonth", 20)):
-        backtest = artifact["backtest"]["horizons"][str(sessions)]
-        if not forecast_inputs_ready or backtest["status"] == "insufficient":
-            ic_display = "n/a" if backtest["rankIc"] is None else f"{backtest['rankIc']:.3f}"
-            spread_display = (
-                "n/a"
-                if backtest["topBottomSpreadPct"] is None
-                else f"{backtest['topBottomSpreadPct']:.2f}%"
-            )
+    for key, sessions in (("tomorrow", 1), ("oneWeek", 5), ("oneMonth", 20)):
+        probability_horizon = probability_artifact.get("horizons", {}).get(str(sessions), {})
+        if not forecast_inputs_ready:
             horizons[key] = {
                 "kind": "forecast",
                 "status": "insufficient",
@@ -2245,46 +2314,54 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
                 "sessions": sessions,
                 "reason": (
                     f"当前覆盖{len(latest)}/{universe_count}，冻结训练覆盖{artifact.get('data', {}).get('coverageCount', 0)}/{universe_count}，数据截至{as_of}、页面完整交易日为{expected_label}；"
-                    f"样本外rank IC={ic_display}，头尾差={spread_display}。"
-                    "任一覆盖、时效或回测门禁未通过时不发布方向排序。"
+                    "上涨概率模型或当日完整横截面尚未就绪。自动化会先重试官方源，再降级为历史基准概率。"
                 ),
             }
             continue
         due_date = trading_due_date(as_of, sessions)
-        model = artifact["models"][str(sessions)]
-        estimates = [(row["code"], predict(model, row)) for row in latest]
-        scores = percentile_scores(estimates)
-        ordered = publish_extremes(
-            sorted(latest, key=lambda row: scores[row["code"]], reverse=True)
-        )
+        probability_rows = []
+        for row in latest:
+            probability, base_rate = upside_probability(probability_horizon, row)
+            probability_rows.append((row, probability, base_rate))
+        ordered = sorted(probability_rows, key=lambda item: item[1], reverse=True)
         items = []
-        for rank, row in enumerate(ordered, start=1):
-            score = scores[row["code"]]
-            direction = forecast_direction(score)
-            confidence, confidence_score, confidence_basis = calibrated_confidence(
-                backtest,
-                score,
+        for rank, (row, probability, base_rate) in enumerate(ordered, start=1):
+            direction = probability_direction(probability, base_rate)
+            low, high = probability_calibration_range(probability_horizon, probability)
+            probability_pct = round(probability * 100, 1)
+            base_rate_pct = round(base_rate * 100, 1)
+            edge_pct = round((probability - base_rate) * 100, 1)
+            deployment_tier = str(probability_horizon["deploymentTier"])
+            tier_label = {
+                "model-calibrated": "样本外校准",
+                "model-shrunk": "收缩概率",
+                "historical-base-rate": "历史基准",
+            }.get(deployment_tier, "历史基准")
+            audit = probability_horizon["audit"]
+            metrics = audit["deployedMetrics"]
+            calibration_basis = (
+                f"{tier_label}：滚动两年训练，{audit['evaluationDates']}个独立样本外日期/"
+                f"{audit['evaluationObservations']}项评估；Brier={metrics['brier']:.3f}，"
+                f"基准={metrics['baselineBrier']:.3f}。概率表示同口径历史条件频率，不是收益承诺。"
             )
             amount_ratio = math.exp(row["amountRatio5v20"])
             volume_ratio = math.exp(row["volumeRatio5v20"])
-            positive = direction in {"strong-up", "up"}
-            negative = direction in {"strong-down", "down"}
-            if positive:
-                claim = f"若5日与20日相对强势延续且成交额未明显退潮，则{row['name']}未来{sessions}个交易日相对行业均值可能偏强。"
+            if edge_pct >= 3:
+                claim = f"若截至{as_of}的量价状态延续，模型估计{row['name']}未来{sessions}个交易日收盘上涨概率为{probability_pct:.1f}%，较两年历史基准高{edge_pct:.1f}个百分点；这是条件情景，上行相对占优。"
                 trigger = "5日动量保持为正，且近5日成交额/此前20日均值不低于1.0倍。"
                 invalidation = "5日动量转负且成交额比低于0.85倍，或行业相对强弱跌出横截面后40%。"
-            elif negative:
-                claim = f"若量价弱势延续且未出现广泛修复，则{row['name']}未来{sessions}个交易日相对行业均值可能继续偏弱。"
+            elif edge_pct <= -3:
+                claim = f"若截至{as_of}的量价状态延续，模型估计{row['name']}未来{sessions}个交易日收盘上涨概率为{probability_pct:.1f}%，较两年历史基准低{abs(edge_pct):.1f}个百分点；这是条件情景，上行偏弱。"
                 trigger = "5日动量维持为负，且相对排名未回到横截面前60%。"
                 invalidation = "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。"
             else:
-                claim = f"若动量与成交活跃度继续相互抵消，则{row['name']}未来{sessions}个交易日可能以区间和方向反复为主。"
+                claim = f"若截至{as_of}的量价状态延续，模型估计{row['name']}未来{sessions}个交易日收盘上涨概率为{probability_pct:.1f}%，接近两年历史基准{base_rate_pct:.1f}%；这是条件情景，当前没有明显概率优势。"
                 trigger = "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。"
                 invalidation = "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。"
             items.append(
                 {
                     "forecastId": immutable_forecast_id(
-                        artifact,
+                        probability_artifact,
                         as_of=as_of,
                         due_date=due_date,
                         sessions=sessions,
@@ -2293,11 +2370,18 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
                     "sector": row["name"],
                     "code": row["code"],
                     "rank": rank,
-                    "score": score,
+                    "upProbability": probability_pct,
+                    "historicalBaseRate": base_rate_pct,
+                    "probabilityEdge": edge_pct,
+                    "calibrationRange": {
+                        "low": round(low * 100, 1),
+                        "high": round(high * 100, 1),
+                        "level": "90%",
+                    },
+                    "probabilityTier": deployment_tier,
                     "direction": direction,
-                    "confidence": confidence,
-                    "confidenceScore": confidence_score,
-                    "confidenceBasis": confidence_basis,
+                    "confidence": "low",
+                    "calibrationBasis": calibration_basis,
                     "claim": claim,
                     "evidence": [
                         {
@@ -2329,7 +2413,7 @@ def a_share_market(artifact: dict[str, Any]) -> dict[str, Any]:
             "asOf": as_of,
             "dueDate": due_date,
             "sessions": sessions,
-            "note": "score为模型横截面排名分；confidenceScore为样本外校准证据强度，二者都不是上涨概率或胜率。仅有量价一种证据类别，置信度等级封顶low。",
+            "note": "上涨概率定义为行业指数在对应第N个完整交易日收盘高于asOf收盘；按概率从高到低排序，并同时展示两年历史基准、概率优势与90%校准区间。仅有量价证据，文字置信度封顶low。",
             "items": items,
         }
 
@@ -2484,6 +2568,13 @@ def hk_market() -> dict[str, Any]:
         ],
         "horizons": {
             "current": current_horizon,
+            "tomorrow": {
+                "kind": "forecast",
+                "status": "insufficient",
+                "asOf": as_of,
+                "sessions": 1,
+                "reason": "港股行业连续历史仍在本地沉淀，尚未形成可校准的下一交易日概率。",
+            },
             "oneWeek": {
                 "kind": "forecast",
                 "status": "insufficient",
@@ -2537,6 +2628,7 @@ def us_market() -> dict[str, Any]:
                     "sources": [],
                     "horizons": {
                         "current": {"kind": "observed", "status": "insufficient", "asOf": expected_as_of or as_of, "reason": "三大指数日期不一致或sessionDate缺失。"},
+                        "tomorrow": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 1, "reason": "未训练并样本外校准三大指数明日概率模型。"},
                         "oneWeek": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 5, "reason": "未训练并样本外验证三大指数条件模型。"},
                         "oneMonth": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 20, "reason": "未训练并样本外验证三大指数条件模型。"},
                     },
@@ -2583,6 +2675,13 @@ def us_market() -> dict[str, Any]:
         "sources": sources,
         "horizons": {
             "current": current,
+            "tomorrow": {
+                "kind": "forecast",
+                "status": "insufficient",
+                "asOf": as_of,
+                "sessions": 1,
+                "reason": "未训练并样本外校准三大指数明日上涨概率。",
+            },
             "oneWeek": {
                 "kind": "forecast",
                 "status": "insufficient",
@@ -2604,41 +2703,39 @@ def us_market() -> dict[str, Any]:
 def infer(_: argparse.Namespace) -> dict[str, Any]:
     if not MODEL_PATH.exists():
         raise SystemExit("frozen model missing; run 'pipeline' once")
+    if not PROBABILITY_MODEL_PATH.exists():
+        raise SystemExit("upside probability model missing; run 'rotation:probability-train' once")
     try:
         ensure_event_memory()
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         raise SystemExit(f"event memory initialization failed: {exc}") from exc
     artifact = read_json(MODEL_PATH)
-    backtest = artifact["backtest"]
+    probability_artifact = read_json(PROBABILITY_MODEL_PATH)
     metrics = []
-    for sessions in (5, 20):
-        result = backtest["horizons"][str(sessions)]
-        ic = "n/a" if result["rankIc"] is None else f"{result['rankIc']:.3f}"
-        spread = "n/a" if result["topBottomSpreadPct"] is None else f"{result['topBottomSpreadPct']:.2f}%"
-        metrics.append(f"{sessions}日 {result['status']}（IC {ic}，头尾差 {spread}）")
-    artifact_feature_ids = [item["id"] for item in artifact.get("features", [])]
-    if not artifact_feature_ids:
-        artifact_feature_ids = list(MODEL_FEATURES)
+    for sessions in (1, 5, 20):
+        result = probability_artifact["horizons"][str(sessions)]
+        audit = result["audit"]["deployedMetrics"]
+        metrics.append(
+            f"{sessions}日 {result['deploymentTier']}（Brier {audit['brier']:.3f}，"
+            f"基准 {audit['baselineBrier']:.3f}，AUC {audit['auc']:.3f}）"
+        )
     payload = {
         "schemaVersion": 1,
         "generatedAt": now_iso(),
         "model": {
-            "id": artifact["id"],
-            "version": artifact["version"],
-            "trainedAt": artifact["trainedAt"],
-            "trainingStart": artifact["trainingStart"],
-            "trainingEnd": artifact["trainingEnd"],
-            "method": "冻结的低内存行业相对强弱模型；每日只刷新输入并推理，不训练、不选参、不打开锁定holdout。模型研究采用最近504交易日主窗口与更早历史压力测试。",
-            "features": [
-                MODEL_FEATURE_DESCRIPTIONS.get(feature, feature)
-                for feature in artifact_feature_ids
-            ],
+            "id": probability_artifact["id"],
+            "version": probability_artifact["version"],
+            "trainedAt": probability_artifact["trainedAt"],
+            "trainingStart": probability_artifact["trainingStart"],
+            "trainingEnd": probability_artifact["trainingEnd"],
+            "method": "冻结的1/5/20交易日行业上涨概率模型；滚动504日训练并使用时间顺序样本外校准。每日只刷新输入与推理，质量不足时向历史基准收缩而不是输出空白。",
+            "features": probability_artifact["features"],
             "backtest": {
-                "status": backtest["status"],
-                "summary": "；".join(metrics) + "。score是横截面排名分，confidenceScore是校准证据强度；二者都不是概率或胜率。",
+                "status": "limited",
+                "summary": "；".join(metrics) + "。概率是同口径历史条件频率；仍需结合赔率、交易成本与失效条件。",
             },
         },
-        "markets": [a_share_market(artifact), hk_market(), us_market()],
+        "markets": [a_share_market(artifact, probability_artifact), hk_market(), us_market()],
     }
     # Avoid serializing null reason fields when a market is ready.
     for market in payload["markets"]:
