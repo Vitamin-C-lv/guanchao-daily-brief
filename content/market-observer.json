@@ -2,27 +2,27 @@
   "schemaVersion": 1,
   "meta": {
     "editionDate": "2026-07-21",
-    "generatedAt": "2026-07-21T08:22:00+08:00",
-    "dataAsOf": "2026-07-21T08:22:00+08:00",
-    "snapshotCreatedAt": "2026-07-21T08:22:00+08:00",
+    "generatedAt": "2026-07-21T20:12:37+08:00",
+    "dataAsOf": "2026-07-21T20:12:37+08:00",
+    "snapshotCreatedAt": "2026-07-21T20:12:37+08:00",
     "snapshotKind": "close",
     "modelVersion": "market-observer-v1.0.0",
     "coverage": "global-with-priority-watch"
   },
   "homeObservation": {
     "significant": true,
-    "conclusion": "A/H权重资产修复，科技估值仍受短端利率约束",
-    "data": "沪深300 +1.53%；恒生科技 +2.79%；纳斯达克 7月20日 -0.10%。",
+    "conclusion": "A股成长普涨、港股科技修复，行业广度仍未确认",
+    "data": "创业板 +7.05%；恒生科技 +1.32%；纳斯达克 7月20日 -0.10%。",
     "macro": "美国2年期国债收益率升至4.18%，美元兑人民币中间价调贬14个基点。",
-    "counterEvidence": "若美债2年期转跌且纳指继续修复，当前估值约束将减弱。",
-    "watch": "7月FOMC前的美国就业、油价、2年期美债与南向资金。",
+    "counterEvidence": "A股医药医疗上涨广度仅37.29%，恒指微跌且港股行业连续成交序列不足。",
+    "watch": "A股上涨广度、医药量能、恒科与南向公开成交，以及7月FOMC前的就业和收益率。",
     "href": "/briefs/#daily-macro"
   },
   "globalOverview": {
     "id": "global-overview-2026-07-21",
     "eyebrow": "GLOBAL MARKET",
     "subject": "全局市场",
-    "conclusion": "A/H权重资产修复，科技估值仍受短端利率约束",
+    "conclusion": "A股成长普涨、港股科技修复，行业广度仍未确认",
     "conclusionLevel": "moderate",
     "facts": [
       {
@@ -40,11 +40,11 @@
       },
       {
         "label": "恒生科技指数",
-        "currentValue": "4752.15（+2.79%）",
+        "currentValue": "4814.83（+1.32%）",
         "previousValue": "上一交易日收盘未单独核验",
         "expectedValue": "市场预期：暂无可靠数据",
-        "surprise": "当日涨幅+2.79%",
-        "dataPeriod": "2026-07-20收盘",
+        "surprise": "当日涨幅+1.32%",
+        "dataPeriod": "2026-07-21收盘",
         "sourceId": "hkex-market-data",
         "releasedAt": "2026-07-20T16:10:00+08:00",
         "updatedAt": "2026-07-20T20:09:20+08:00",
@@ -79,7 +79,7 @@
   },
   "priorityWatch": [
     {
-      "id": "watch-hstech-2026-07-20",
+      "id": "watch-hstech-2026-07-21",
       "watchId": "hk_hstech",
       "market": "HK",
       "priority": 1,
@@ -87,15 +87,15 @@
       "significant": true,
       "eyebrow": "P1 · HK",
       "subject": "恒生科技",
-      "conclusion": "恒生科技强势反弹，尚未获得资金序列确认",
+      "conclusion": "恒生科技修复，尚未获得连续资金序列确认",
       "conclusionLevel": "moderate",
       "facts": [
         {
           "label": "恒生科技指数",
-          "currentValue": "4752.15（+2.79%）",
+          "currentValue": "4814.83（+1.32%）",
           "previousValue": "上一交易日收盘未单独核验",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "当日+2.79%",
+          "surprise": "当日+1.32%",
           "dataPeriod": "2026-07-20收盘",
           "sourceId": "hkex-market-data",
           "releasedAt": "2026-07-20T16:10:00+08:00",
@@ -104,10 +104,10 @@
         },
         {
           "label": "恒生综合资讯科技业",
-          "currentValue": "+3.16%",
+          "currentValue": "+1.06%",
           "previousValue": "上一交易日收盘未单独核验",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "跑赢恒生科技0.37个百分点",
+          "surprise": "行业涨幅低于恒生科技0.26个百分点",
           "dataPeriod": "2026-07-20收盘",
           "sourceId": "hsi-industry",
           "releasedAt": "2026-07-20T16:10:00+08:00",
@@ -124,7 +124,7 @@
       "states": ["market-unconfirmed"]
     },
     {
-      "id": "watch-hk-internet-ai-2026-07-20",
+      "id": "watch-hk-internet-ai-2026-07-21",
       "watchId": "hk_internet_ai",
       "market": "HK",
       "priority": 1,
@@ -182,7 +182,7 @@
       "facts": [
         {
           "label": "医药医疗5日涨跌",
-          "currentValue": "+3.85%",
+          "currentValue": "+12.20%",
           "previousValue": "此前20日+12.35%",
           "expectedValue": "模型不使用市场预期值",
           "surprise": "当前行业轮动排名第1",
@@ -224,7 +224,7 @@
       "facts": [
         {
           "label": "军工5日涨跌",
-          "currentValue": "-11.39%",
+          "currentValue": "-13.09%",
           "previousValue": "此前20日-18.87%",
           "expectedValue": "模型不使用市场预期值",
           "surprise": "当前行业轮动排名第11",
@@ -265,7 +265,7 @@
       "facts": [
         {
           "label": "信息技术行业代理",
-          "currentValue": "5日-15.01%",
+          "currentValue": "5日-9.52%",
           "previousValue": "此前20日-19.83%",
           "expectedValue": "模型不使用市场预期值",
           "surprise": "当前行业轮动排名第12",
@@ -308,7 +308,7 @@
       "facts": [
         {
           "label": "移动互联网5日涨跌",
-          "currentValue": "-8.61%",
+          "currentValue": "-5.47%",
           "previousValue": "此前20日-14.07%",
           "expectedValue": "模型不使用市场预期值",
           "surprise": "当前行业轮动排名第8",

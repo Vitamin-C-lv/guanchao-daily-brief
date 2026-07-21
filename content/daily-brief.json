@@ -1,21 +1,21 @@
 {
   "meta": {
     "editionDate": "2026-07-21",
-    "generatedAt": "2026-07-21T08:22:00+08:00",
-    "dataThrough": "2026-07-20",
-    "title": "每日早报",
+    "generatedAt": "2026-07-21T20:12:37+08:00",
+    "dataThrough": "2026-07-21",
+    "title": "每日收盘晚报",
     "subtitle": "收盘更新｜美联储政策与三地市场重点",
-    "status": "早报更新；A/H沿用7月20日，美股更新至7月20日",
+    "status": "收盘更新；A/H更新至7月21日，美股沿用7月20日",
     "curationNote": "AI 仅做检索、去重和摘要；政策结论优先引用官方原文，市场数据采用各地最新完整交易日；板块轮动前瞻只按可观察证据给出条件情景。"
   },
   "pulse": {
-    "score": 56,
-    "label": "谨慎中有修复",
+    "score": 64,
+    "label": "A/H分化、成长修复",
     "explanation": "规则分数：综合美联储政策取向、三地主指数方向与本期风险事件，仅用于排列阅读优先级，不构成投资信号。",
     "signals": [
       { "label": "美联储", "value": "7月会议前观察窗口", "tone": "warning" },
-      { "label": "A 股", "value": "权重修复、成长分化", "tone": "warning" },
-      { "label": "港股", "value": "恒科涨 2.79%", "tone": "positive" },
+      { "label": "A 股", "value": "成长普涨、医药广度偏低", "tone": "warning" },
+      { "label": "港股", "value": "恒科涨 1.32%、恒指微跌", "tone": "warning" },
       { "label": "美股", "value": "7 月 20 日小幅走弱", "tone": "negative" }
     ]
   },
@@ -218,29 +218,29 @@
       "id": "a-share",
       "name": "A 股市场",
       "shortName": "A股",
-      "sessionDate": "2026-07-20",
+      "sessionDate": "2026-07-21",
       "status": "最新完整交易日",
-      "summary": "上证指数涨 0.85% 报 3796.28 点，深证成指跌 0.71%，创业板指涨 0.42%；两市成交约 2.70 万亿元，沪深300涨 1.53% 而国证2000跌 3.12%。",
+      "summary": "上证指数涨 1.79% 报 3864.37 点，深证成指涨 4.81%，创业板指涨 7.05%；沪深两市成交约 2.96 万亿元，AI与芯片方向修复但行业分化仍在。",
       "leadIndex": "上证指数",
       "indices": [
-        { "name": "上证指数", "value": "3,796.28", "change": 0.85, "date": "2026-07-20" },
-        { "name": "深证成指", "value": "13,610.23", "change": -0.71, "date": "2026-07-20" },
-        { "name": "创业板指", "value": "3,443.10", "change": 0.42, "date": "2026-07-20" }
+        { "name": "上证指数", "value": "3,864.37", "change": 1.79, "date": "2026-07-21" },
+        { "name": "深证成指", "value": "14,264.29", "change": 4.81, "date": "2026-07-21" },
+        { "name": "创业板指", "value": "3,685.97", "change": 7.05, "date": "2026-07-21" }
       ],
       "sparkline": [4031.34, 4041.24, 3990.24, 3970.88, 4036.59, 3996.16, 3913.79, 3967.13, 3882.41, 3796.28],
-      "tone": "warning",
+      "tone": "positive",
       "sources": [
         {
-          "name": "7 月 20 日 A 股收盘",
-          "publisher": "上海证券报",
-          "url": "https://paper.cnstock.com/html/2026-07/21/content_2247017.htm",
-          "tier": "authoritative",
+          "name": "7 月 21 日亚洲与中国市场收盘",
+          "publisher": "Associated Press",
+          "url": "https://apnews.com/article/30c42bb51683c4b43c9f64dfeff7a3ea",
+          "tier": "major-media",
           "evidenceClass": "major-media"
         },
         {
-          "name": "7 月 20 日宽基指数收盘表",
-          "publisher": "金融界",
-          "url": "https://finance.jrj.com.cn/2026/07/20151657842397.shtml",
+          "name": "腾讯指数收盘行情",
+          "publisher": "腾讯证券",
+          "url": "https://qt.gtimg.cn/q=sh000001,sz399001,sz399006,sh000300,sh000905,sh000852",
           "tier": "authoritative",
           "evidenceClass": "vendor-market-data"
         },
@@ -253,131 +253,143 @@
       ],
       "articles": [
         {
-          "id": "a-share-close-0720",
-          "title": "权重修复但小盘承压，A股结构分化",
-          "summary": "上证指数涨 0.85% 报 3796.28 点，深证成指跌 0.71%，创业板指涨 0.42%；两市成交约 2.70 万亿元，沪深300涨 1.53% 而国证2000跌 3.12%。",
-          "impact": "中国国新披露已使用股票回购增持专项再贷款及配套资金超500亿元，市场出现权重修复；但小盘与成长分化，仍需等待广度和量能连续验证。",
-          "publishedAt": "2026-07-20",
-          "tags": ["收盘", "央企增持", "结构分化"],
+          "id": "a-share-close-0721",
+          "title": "A股普涨修复，芯片与成长弹性更强",
+          "summary": "上证指数涨 1.79% 报 3864.37 点，深证成指涨 4.81%，创业板指涨 7.05%；沪深两市成交约 2.96 万亿元。",
+          "impact": "AI与芯片相关权重带动成长指数反弹，但医药医疗虽满足严格放量门槛、收盘上涨成分仅约37%，更接近集中交易而非行业全面启动。",
+          "publishedAt": "2026-07-21",
+          "tags": ["收盘", "AI芯片", "成交放量"],
           "sources": [
             {
-              "name": "7 月 20 日 A 股收盘",
-              "publisher": "上海证券报",
-              "url": "https://paper.cnstock.com/html/2026-07/21/content_2247017.htm",
-              "tier": "authoritative",
+              "name": "7 月 21 日亚洲与中国市场收盘",
+              "publisher": "Associated Press",
+              "url": "https://apnews.com/article/30c42bb51683c4b43c9f64dfeff7a3ea",
+              "tier": "major-media",
               "evidenceClass": "major-media"
             },
             {
-              "name": "7 月 20 日宽基指数收盘表",
-              "publisher": "金融界",
-              "url": "https://finance.jrj.com.cn/2026/07/20151657842397.shtml",
+              "name": "腾讯指数收盘行情",
+              "publisher": "腾讯证券",
+              "url": "https://qt.gtimg.cn/q=sh000001,sz399001,sz399006,sh000300,sh000905,sh000852",
               "tier": "authoritative",
               "evidenceClass": "vendor-market-data"
             },
             {
-              "name": "中国国新增持公告",
-              "publisher": "中国国新控股有限责任公司",
-              "url": "https://www.crhc.cn/rmzx/tzggs/2026/7/7b8c4ecaa1184480ae758621f455c6e9.htm",
-              "tier": "official",
-              "evidenceClass": "official-primary"
-            },
-            {
-              "name": "中证全指医药卫生指数",
+              "name": "中证指数医药医疗官方详情",
               "publisher": "中证指数有限公司",
               "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991",
               "tier": "official",
               "evidenceClass": "official-primary"
             },
             {
-              "name": "中证全指能源指数",
+              "name": "中证全指日频量价与成交口径",
               "publisher": "中证指数有限公司",
-              "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+              "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260615&endDate=20260721",
+              "tier": "official",
+              "evidenceClass": "official-primary"
+            },
+            {
+              "name": "A股市场数据入口",
+              "publisher": "上海证券交易所",
+              "url": "https://www.sse.com.cn/market/stockdata/overview/",
               "tier": "official",
               "evidenceClass": "official-primary"
             }
           ],
           "detail": {
-            "lead": "7月20日，A股权重修复、成长分化：上证报3796.28点涨0.85%，深证成指报13610.23点跌0.71%，创业板报3443.10点涨0.42%；两市成交约2.70万亿元。",
+            "lead": "7月21日，A股三大指数普涨：上证指数报3864.37点涨1.79%，深证成指报14264.29点涨4.81%，创业板指报3685.97点涨7.05%；沪深两市成交约2.96万亿元。",
             "keyPoints": [
-              "上证涨0.85%，深成指跌0.71%，创业板涨0.42%",
-              "沪深300涨1.53%，国证2000跌3.12%",
-              "中国国新公告已使用相关再贷款及配套资金超500亿元"
+              "上证涨1.79%，深成指涨4.81%，创业板涨7.05%",
+              "沪深两市成交约2.96万亿元，成长指数弹性更强",
+              "中证核心12项中医药医疗唯一满足严格明显放量三门槛"
             ],
             "sections": [
               {
                 "heading": "收盘表现",
-                "body": "7月20日上证指数收报3796.28点，涨0.85%；深证成指收报13610.23点，跌0.71%；创业板指收报3443.10点，涨0.42%。三大指数方向并不一致，上海证券报同时记录传统蓝筹走强、科技类行业高位波动，修复并非全市场同步扩散。",
+                "body": "7月21日上证指数收报3864.37点，涨1.79%；深证成指收报14264.29点，涨4.81%；创业板指收报3685.97点，涨7.05%。三大指数同步上行，AP也记录上海综合指数上涨1.8%，但这只说明收盘修复，不等于所有行业趋势反转。",
                 "sourceIndexes": [0]
               },
               {
                 "heading": "成交与结构",
-                "body": "金融界收盘表显示沪深300涨1.53%、国证2000跌3.12%，权重与小盘分化；上海证券报记录沪深两市合计成交约2.70万亿元。单日成交和指数修复不能证明行业资金持续流入。",
+                "body": "腾讯收盘行情显示上海、深圳两市成交额约1.3965万亿元和1.5606万亿元，合计约2.9571万亿元。放量与指数修复是市场事实，但不能单独证明行业资金持续流入；仍要看上涨广度与集中度。",
                 "sourceIndexes": [0, 1]
               },
               {
                 "heading": "后续观察",
-                "body": "中国国新7月19日公告称，相关主体已使用专项再贷款及配套资金超500亿元，并将继续增持央企股票。若权重成交与广度连续改善，可能震荡修复；若小盘继续弱于权重，修复可能只是局部反弹。",
-                "sourceIndexes": [2]
+                "body": "中证12项固定观察池当前排名前列为主要消费、医药医疗和公用事业；医药医疗5日相对收益+9.90个百分点，成交额比1.55倍、真实成交量比1.50倍、成交份额比1.91倍，但上涨广度仅37.29%。若广度回到50%以上且量能延续，修复可能扩散；若广度继续偏低，仍应视为集中交易。",
+                "sourceIndexes": [2, 3]
               }
             ],
             "chart": {
-              "title": "7月20日A股主要指数涨跌",
+              "title": "7月21日A股主要指数涨跌",
               "unit": "%",
               "items": [
-                { "label": "上证指数", "value": 0.85, "display": "+0.85%", "tone": "positive" },
-                { "label": "深证成指", "value": -0.71, "display": "-0.71%", "tone": "negative" },
-                { "label": "创业板指", "value": 0.42, "display": "+0.42%", "tone": "positive" }
+                { "label": "上证指数", "value": 1.79, "display": "+1.79%", "tone": "positive" },
+                { "label": "深证成指", "value": 4.81, "display": "+4.81%", "tone": "positive" },
+                { "label": "创业板指", "value": 7.05, "display": "+7.05%", "tone": "positive" }
               ],
               "sourceIndexes": [0]
             },
             "rotationAnalysis": {
-              "asOf": "2026-07-20",
+              "asOf": "2026-07-21",
               "window": "5d_vs_20d",
-              "regime": "权重修复、小盘承压；央企增持尚未形成全市场主线。",
-              "volumeStatus": "insufficient",
-              "volumeLeaders": [],
+              "regime": "AI与成长指数普涨，但行业广度分化；医药医疗量价放大而上涨广度不足，属于集中交易。",
+              "volumeStatus": "verified",
+              "volumeLeaders": [
+                {
+                  "sector": "医药医疗",
+                  "stage": "diverging",
+                  "historySessions": 25,
+                  "turnoverAmountRatio20d": 1.5488,
+                  "tradingVolumeRatio20d": 1.4999,
+                  "turnoverShareRatio20d": 1.9148,
+                  "breadthPct": 37.2881,
+                  "relativeReturn5d": 9.9031,
+                  "top3ConcentrationPct": 19.243,
+                  "sourceIndexes": [2, 3]
+                }
+              ],
               "flowSignals": [
                 {
-                  "sector": "金融权重、央企核心资产",
-                  "direction": "mixed",
+                  "sector": "AI与成长指数",
+                  "direction": "inflow",
                   "evidenceClass": "proxy",
-                  "evidence": "权重指数占优；中国国新披露超500亿元再贷款及配套资金使用。前者是价格代理，后者是官方行动。",
-                  "sourceIndexes": [1, 2]
+                  "evidence": "深证成指涨4.81%、创业板指涨7.05%；仅为价格与成交代理，不等同持仓。",
+                  "sourceIndexes": [0, 1]
                 },
                 {
-                  "sector": "小盘成长",
+                  "sector": "医药医疗",
                   "direction": "mixed",
                   "evidenceClass": "proxy",
-                  "evidence": "国证2000跌3.12%，沪深300涨1.53%，小盘相对承压；仅作价格代理。",
-                  "sourceIndexes": [1]
+                  "evidence": "医药额比1.55、量比1.50、份额比1.91，但广度37.29%；放量需广度确认。",
+                  "sourceIndexes": [2, 3]
                 }
               ],
               "outlooks": [
                 {
                   "horizon": "1_5d",
                   "status": "active",
-                  "candidateSectors": ["医药医疗", "能源"],
+                  "candidateSectors": ["医药医疗", "金融地产", "能源"],
                   "bias": "strengthening",
                   "confidence": "low",
-                  "flowPath": "冻结模型短窗排序：医药医疗5日相对收益+9.90个百分点、额/量比1.55/1.50，列第一；能源为+12.40个百分点、1.27/1.29，列第二。均为强弱代理。",
-                  "trigger": "医药额比不低于1.35、量比不低于1.20且相对收益不转负",
-                  "invalidation": "医药跌破量价阈值；能源量价同步回落",
-                  "sourceIndexes": [3, 4]
+                  "flowPath": "冻结1日模型12项输入通过；预测分只用于排序。",
+                  "trigger": "医药广度回到50%以上且额比维持1.35倍；金融地产或能源量价同步改善",
+                  "invalidation": "医药广度低于50%且额比跌破1.20倍，或成长再度领跌",
+                  "sourceIndexes": [0, 2, 3]
                 },
                 {
                   "horizon": "2_4w",
-                  "status": "insufficient",
-                  "candidateSectors": [],
+                  "status": "active",
+                  "candidateSectors": ["金融地产", "原材料", "可选消费"],
                   "bias": "range",
                   "confidence": "low",
-                  "reason": "月窗输入已齐，但样本外Rank IC为-0.027、前后组收益差为-0.30%，未过发布门槛。",
-                  "flowPath": "历史检验未证明排序有效，暂不发布方向。",
-                  "trigger": "样本外Rank IC与前后组收益差同时转正",
-                  "invalidation": "回测门槛继续失败",
-                  "sourceIndexes": [3, 4]
+                  "flowPath": "冻结20日模型12项输入与taxonomy hash匹配，只作低置信度排序。",
+                  "trigger": "金融地产相对收益转正、额比回到1.20倍，并有盈利或政策证据",
+                  "invalidation": "行业相对收益继续为负，或门禁/hash/输入失效",
+                  "sourceIndexes": [2, 3]
                 }
               ],
-              "riskNote": "12项观察池25日量价已齐；7月20日未归档成分广度与前三成交集中度，故volumeStatus仍不足。短窗低置信度发布，月窗因回测未过不发布。"
+              "riskNote": "观察池覆盖12/12；只有医药医疗通过三项放量门槛，但广度37.29%低于50%，只能写集中交易。冻结预测只作排序。"
             }
           }
         }
@@ -387,124 +399,125 @@
       "id": "hk",
       "name": "香港市场",
       "shortName": "港股",
-      "sessionDate": "2026-07-20",
+      "sessionDate": "2026-07-21",
       "status": "最新完整交易日",
-      "summary": "恒指涨 2.36% 报 25143.05 点，恒生科技涨 2.79% 报 4752.15 点，国企指数涨 3.01% 报 8381.90 点；科网、能源和创新药方向普遍走强。",
+      "summary": "恒指跌 0.04% 报 25132.29 点，恒生科技涨 1.32% 报 4814.83 点，国企指数跌 0.25% 报 8360.68 点；原材料、工业与科技行业领涨，能源跌 1.37%。",
       "leadIndex": "恒生指数",
       "indices": [
-        { "name": "恒生指数", "value": "25,143.05", "change": 2.36, "date": "2026-07-20" },
-        { "name": "恒生科技", "value": "4,752.15", "change": 2.79, "date": "2026-07-20" },
-        { "name": "国企指数", "value": "8,381.90", "change": 3.01, "date": "2026-07-20" }
+        { "name": "恒生指数", "value": "25,132.29", "change": -0.04, "date": "2026-07-21" },
+        { "name": "恒生科技", "value": "4,814.83", "change": 1.32, "date": "2026-07-21" },
+        { "name": "国企指数", "value": "8,360.68", "change": -0.25, "date": "2026-07-21" }
       ],
-      "sparkline": [23350.03, 23616.32, 23496.89, 24199.46, 24030.18, 24175.12, 24213.72, 24340.73, 25008.60, 25143.05],
-      "tone": "positive",
+      "sparkline": [23350.03, 23616.32, 23496.89, 24199.46, 24030.18, 24175.12, 24213.72, 24340.73, 25143.05, 25132.29],
+      "tone": "warning",
       "sources": [
         {
-          "name": "HKEX 市场数据",
-          "publisher": "香港交易所",
-          "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
-          "tier": "official"
+          "name": "腾讯恒生系列指数收盘行情",
+          "publisher": "腾讯证券",
+          "url": "https://qt.gtimg.cn/q=hkHSI,hkHSCEI,hkHSTECH",
+          "tier": "authoritative",
+          "evidenceClass": "vendor-market-data"
         },
         {
-          "name": "7 月 20 日港股收盘",
-          "publisher": "第一财经 / 新浪财经",
-          "url": "https://finance.sina.com.cn/jjxw/2026-07-20/doc-iniimuye9823069.shtml",
-          "tier": "authoritative",
+          "name": "7 月 21 日港股收盘",
+          "publisher": "香港电台 / Reuters与新华社转述",
+          "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863043-20260721.htm?spTabChangeable=0",
+          "tier": "major-media",
           "evidenceClass": "major-media"
         }
       ],
       "articles": [
         {
-          "id": "hk-close-0720",
-          "title": "恒指涨 2.36%，恒科涨 2.79%",
-          "summary": "恒指涨 2.36% 报 25143.05 点，恒生科技涨 2.79% 报 4752.15 点，国企指数涨 3.01% 报 8381.90 点；科网、能源和创新药方向普遍走强。",
-          "impact": "港股风险偏好明显修复，科技与国企指数同步反弹；仍需观察成交、南向与行业广度能否连续，单日反弹不等同趋势反转。",
-          "publishedAt": "2026-07-20",
-          "tags": ["恒生指数", "互联网", "风险偏好"],
+          "id": "hk-close-0721",
+          "title": "恒指微跌，科技与原材料行业分化走强",
+          "summary": "恒指跌 0.04% 报 25132.29 点，恒生科技涨 1.32% 报 4814.83 点，国企指数跌 0.25% 报 8360.68 点；主板成交约2899.4亿港元。",
+          "impact": "港股不是全面反弹：科技权重与原材料、工业领涨，能源和必需消费走弱；南向公开统计净买约71.67亿港元，但仍只能作为公开可见资金线索。",
+          "publishedAt": "2026-07-21",
+          "tags": ["收盘", "恒生科技", "南向资金"],
           "sources": [
             {
-              "name": "7 月 20 日港股收盘",
-              "publisher": "第一财经 / 新浪财经",
-              "url": "https://finance.sina.com.cn/jjxw/2026-07-20/doc-iniimuye9823069.shtml",
-              "tier": "authoritative",
+              "name": "7 月 21 日港股收盘",
+              "publisher": "香港电台 / Reuters与新华社转述",
+              "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863043-20260721.htm?spTabChangeable=0",
+              "tier": "major-media",
               "evidenceClass": "major-media"
             },
             {
-              "name": "HKEX 市场数据",
+              "name": "HKEX南向日度统计",
               "publisher": "香港交易所",
-              "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
+              "url": "https://www.hkex.com.hk/chi/csm/DailyStat/data_tab_daily_20260721c.js",
               "tier": "official",
               "evidenceClass": "exchange-market-data"
             },
             {
-              "name": "7 月 20 日港股三大指数",
-              "publisher": "华盛通 / 财联社",
-              "url": "https://www.hstong.com/news/detail/26072016113953063",
-              "tier": "authoritative",
-              "evidenceClass": "major-media"
+              "name": "恒生综合行业指数收盘快照",
+              "publisher": "恒生指数有限公司",
+              "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do",
+              "tier": "official",
+              "evidenceClass": "official-primary"
             },
             {
-              "name": "7 月 13 日高盛港股观点（媒体转述）",
-              "publisher": "AASTOCKS（据媒体转述）",
-              "url": "https://www.aastocks.com/sc/%28Z%28%27ontesting%3D%27zzzzz%600975715323%60%27%29%29/mobile/News.aspx?NewsID=NOW.1532942&NewsSource=HK6&NewsType=",
+              "name": "7 月 16 日高盛港股观点（媒体转述）",
+              "publisher": "South China Morning Post（据媒体转述）",
+              "url": "https://www.scmp.com/business/markets/article/3360753/goldman-sachs-backs-hkex-buy-rating-citing-beijings-policy-support-ai-stock-boost",
               "tier": "authoritative",
               "evidenceClass": "major-media"
             }
           ],
           "detail": {
-            "lead": "7月20日，港股三项主要指数集体反弹：恒生指数报25143.05点、涨2.36%，恒生科技指数报4752.15点、涨2.79%，国企指数涨3.01%。",
+            "lead": "7月21日，恒生指数报25132.29点跌0.04%，恒生科技指数报4814.83点涨1.32%，国企指数报8360.68点跌0.25%。",
             "keyPoints": [
-              "恒指、恒生科技、国企指数分别涨2.36%、2.79%、3.01%",
-              "恒指收报25143.05点，恒科报4752.15点",
-              "科网、能源和创新药方向普遍走强，市场风险偏好修复"
+              "恒指、恒生科技、国企指数分别跌0.04%、涨1.32%、跌0.25%",
+              "主板成交约2899.4亿港元，南向公开统计净买约71.67亿港元",
+              "原材料、工业与资讯科技业领涨，能源跌1.37%"
             ],
             "sections": [
               {
                 "heading": "指数与量能",
-                "body": "恒生指数收报25143.05点，涨2.36%；恒生科技指数报4752.15点，涨2.79%；国企指数涨3.01%。三项指数方向一致，国企指数涨幅略高于科技指数，属于完整交易日收盘事实。",
+                "body": "恒生指数报25132.29点，跌0.04%；恒生科技报4814.83点，涨1.32%；国企指数报8360.68点，跌0.25%。科技弹性强于大盘，主板成交约2899.4亿港元。",
                 "sourceIndexes": [0]
               },
               {
-                "heading": "权重股表现",
-                "body": "公开收评显示，科网股、石油股和创新药方向走强，腾讯、阿里、美团等权重股普遍上涨，港股全日成交额约3064.13亿港元。成交放大与指数上涨可以描述风险偏好修复，但南向和行业一级分类资金路径仍未完整核验。",
-                "sourceIndexes": [0, 2]
+                "heading": "行业与南向公开统计",
+                "body": "行业快照显示原材料涨4.87%、工业涨2.45%、资讯科技业涨1.06%，能源跌1.37%。南向公开统计合计成交约1314.83亿港元、净买约71.67亿港元；只是公开线索，不等同完整行业资金流。",
+                "sourceIndexes": [0, 1, 2]
               },
               {
                 "heading": "后续观察",
-                "body": "中国国新公告后A股与港股均修复，但科网、能源和创新药也共同上行，不能把单一公告视为全部原因。7月20日未检索到高盛等主要投行可靠新增；最近可核验的7月13日媒体转述称，高盛建议逐步布局优质港股互联网龙头，并提示AI交易集中风险。若南向成交、广度和科技权重连续改善，可能震荡修复；若成交集中度升高，反弹可能再度分化。",
-                "sourceIndexes": [0, 1, 3]
+                "body": "截至7月21日，未检索到高盛等主要投行可靠新增港股观点；最近可核验的是7月16日媒体转述的高盛港交所买入评级背景，只作日期明确的背景材料。若南向成交与科技广度连续改善，修复或扩散；若恒科再度领跌，行情仍会分化。",
+                "sourceIndexes": [1, 2, 3]
               }
             ],
             "chart": {
-              "title": "7月20日港股主要指数涨跌",
+              "title": "7月21日港股主要指数涨跌",
               "unit": "%",
               "items": [
-                { "label": "恒生指数", "value": 2.36, "display": "+2.36%", "tone": "positive" },
-                { "label": "恒生科技", "value": 2.79, "display": "+2.79%", "tone": "positive" },
-                { "label": "国企指数", "value": 3.01, "display": "+3.01%", "tone": "positive" }
+                { "label": "恒生指数", "value": -0.04, "display": "-0.04%", "tone": "negative" },
+                { "label": "恒生科技", "value": 1.32, "display": "+1.32%", "tone": "positive" },
+                { "label": "国企指数", "value": -0.25, "display": "-0.25%", "tone": "negative" }
               ],
               "sourceIndexes": [0]
             },
             "rotationAnalysis": {
-              "asOf": "2026-07-20",
+              "asOf": "2026-07-21",
               "window": "5d_vs_20d",
-              "regime": "科技、国企和能源方向同步修复，当前属于高波动反弹阶段；行业资金持续性尚待核验。",
+              "regime": "恒科、原材料与工业修复，能源走弱；不能称全面轮动。",
               "volumeStatus": "insufficient",
               "volumeLeaders": [],
               "flowSignals": [
                 {
-                  "sector": "互联网科技、能源、创新药",
+                  "sector": "原材料、工业、资讯科技业",
                   "direction": "inflow",
-                  "evidenceClass": "proxy",
-                  "evidence": "公开收评记录科网、能源和创新药方向上涨，恒科涨2.79%；缺少恒生行业分类一级行业资金净流入额，仅作价格成交代理。",
-                  "sourceIndexes": [0, 2]
+                  "evidenceClass": "official",
+                  "evidence": "行业快照显示原材料涨4.87%、工业涨2.45%、资讯科技业涨1.06%；不等于资金净流入。",
+                  "sourceIndexes": [2]
                 },
                 {
-                  "sector": "国企权重",
-                  "direction": "mixed",
-                  "evidenceClass": "proxy",
-                  "evidence": "国企指数涨3.01%，与中国国新增持公告同日出现；缺少南向与ETF行业申赎序列，不等同确定资金流入。",
-                  "sourceIndexes": [0, 2]
+                  "sector": "南向公开可见部分",
+                  "direction": "inflow",
+                  "evidenceClass": "official",
+                  "evidence": "南向公开统计合计成交约1314.83亿港元、净买约71.67亿港元，只代表公开线索。",
+                  "sourceIndexes": [1]
                 }
               ],
               "outlooks": [
@@ -514,11 +527,11 @@
                   "candidateSectors": [],
                   "bias": "range",
                   "confidence": "low",
-                  "reason": "缺少连续2–3日南向、ETF与行业广度同向数据，不能完成1–5日轮动判断。",
-                  "flowPath": "insufficient：只有价格与成交代理，不能确认行业资金路径。",
-                  "trigger": "南向成交、行业广度和量能同步改善",
-                  "invalidation": "恒科再度领跌且成交集中于少数权重",
-                  "sourceIndexes": [0, 2]
+                  "reason": "缺少恒生一级行业连续5日/20日成交、广度与集中度序列，不能完成同口径判断。",
+                  "flowPath": "insufficient：只有单日行业与南向公开线索。",
+                  "trigger": "南向成交与行业广度连续2–3日改善",
+                  "invalidation": "恒科再度领跌或能源/科技分化扩大",
+                  "sourceIndexes": [1, 2]
                 },
                 {
                   "horizon": "2_4w",
@@ -526,14 +539,14 @@
                   "candidateSectors": [],
                   "bias": "range",
                   "confidence": "low",
-                  "reason": "缺少行业盈利预期、估值位置与资金持续性，不能完成2–4周判断。",
-                  "flowPath": "insufficient：政策线索与单日反弹不足以替代持续性证据。",
-                  "trigger": "业绩验证与南向、ETF申赎及行业广度同时改善",
-                  "invalidation": "科技权重继续下跌或防御板块相对强度消失",
-                  "sourceIndexes": [0, 2]
+                  "reason": "没有可用于walk-forward的连续一级行业历史，且缺少盈利/估值持续性数据。",
+                  "flowPath": "insufficient：单日反弹不足以替代持续性证据。",
+                  "trigger": "业绩、估值与南向/行业广度共同改善",
+                  "invalidation": "科技权重盈利预期下修或南向公开成交转弱",
+                  "sourceIndexes": [1, 2, 3]
                 }
               ],
-              "riskNote": "缺少恒生行业分类一级行业最近5日与此前20日成交额、成交占比、广度和前三大成交集中度序列，volumeStatus 为 insufficient；南向与ETF仅作资金代理。"
+              "riskNote": "港股12/12行业快照ready，但历史是licensed-boundary；南向仅公开可见；7月16日Goldman观点只作背景，未检索到7月21日可靠新增。"
             }
           }
         }
@@ -910,13 +923,64 @@
           }
         ]
       }
+    },
+    {
+      "id": "hot-ai-chip-rebound-0721",
+      "priority": 94,
+      "title": "AI与芯片反弹带动A/H成长修复，但行业仍分化",
+      "summary": "AP报道中国与亚洲股市在芯片反弹带动下走强；A股创业板涨7.05%，港股恒生科技涨1.32%，但恒指微跌，说明修复仍集中在成长与科技。",
+      "impact": "芯片交易修复改善风险偏好，却不能替代盈利和成交广度验证；若上涨集中在少数高弹性标的，A/H轮动仍可能快速反复。",
+      "publishedAt": "2026-07-21",
+      "tags": ["AI", "芯片", "A/H联动"],
+      "affectedMarkets": ["A股", "港股"],
+      "sources": [
+        {
+          "name": "亚洲与中国市场收盘报道",
+          "publisher": "Associated Press",
+          "url": "https://apnews.com/article/30c42bb51683c4b43c9f64dfeff7a3ea",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        },
+        {
+          "name": "7月21日港股收盘",
+          "publisher": "香港电台 / Reuters与新华社转述",
+          "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863043-20260721.htm?spTabChangeable=0",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        }
+      ],
+      "detail": {
+        "lead": "7月21日A股与港股的科技成长表现明显分化：上证指数涨1.79%，深证成指涨4.81%，创业板指涨7.05%；恒生科技涨1.32%，但恒生指数跌0.04%。AP将中国市场上涨与芯片反弹联系起来，香港电台则记录港股收市时科技行业表现较强。",
+        "keyPoints": [
+          "A股创业板涨7.05%，深证成指涨4.81%",
+          "恒生科技涨1.32%，恒指跌0.04%",
+          "成长修复尚未得到广度与持续资金路径确认"
+        ],
+        "sections": [
+          {
+            "heading": "A股弹性更强",
+            "body": "腾讯收盘行情显示上证、深证和创业板三项指数分别涨1.79%、4.81%和7.05%，沪深两市成交约2.96万亿元。指数与成交同步走强是当日事实，但医药医疗上涨广度只有37.29%，因此不能把普涨指数表现外推为所有行业均衡扩散。",
+            "sourceIndexes": [0]
+          },
+          {
+            "heading": "港股科技修复",
+            "body": "恒生科技指数涨1.32%至4814.83点，恒生指数微跌至25132.29点；恒生行业快照显示原材料、工业和资讯科技业领涨，能源跌1.37%。这更接近科技与周期局部修复，而不是港股整体风险偏好全面回升。",
+            "sourceIndexes": [1]
+          },
+          {
+            "heading": "验证条件",
+            "body": "后续需要观察A股上涨广度能否回到50%以上、医药医疗量能是否延续，以及港股科技强势能否与南向公开成交连续同向。若成长指数再度领跌、行业广度继续偏低或成交集中度抬升，当前反弹的失效条件就会被触发。",
+            "sourceIndexes": [0, 1]
+          }
+        ]
+      }
     }
   ],
   "watchlist": [
     {
-      "time": "07.20",
-      "title": "观察科技抛售是否止跌",
-      "note": "重点看 A/H 科技成交与广度、美股 AI 龙头表现，以及油价和利率的联动。",
+      "time": "07.22",
+      "title": "验证成长反弹是否扩散",
+      "note": "观察A股上涨广度是否回到50%以上、医药医疗量能是否延续；港股看恒科与原材料强势能否伴随南向公开成交连续。",
       "tone": "warning"
     },
     {
