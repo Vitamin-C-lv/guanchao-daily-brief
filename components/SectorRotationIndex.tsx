@@ -18,7 +18,6 @@ import { useMemo, useState } from "react";
 import type { KeyboardEvent } from "react";
 import type {
   MarketSection,
-  SectorRotationConfidence,
   SectorRotationChart,
   SectorRotationCandlestickPoint,
   SectorRotationForecastDirection,
@@ -33,7 +32,7 @@ import type {
   SourceLink,
 } from "@/lib/types";
 
-export type HorizonKey = "current" | "oneWeek" | "oneMonth";
+export type HorizonKey = "current" | "tomorrow" | "oneWeek" | "oneMonth";
 
 function sectorDetailHref(market: SectorRotationMarket, code: string | undefined, detailKeys: ReadonlySet<string>) {
   if (!code || market.id === "us" || !detailKeys.has(`${market.id}:${code}`)) return null;
@@ -63,6 +62,7 @@ function compactRankingItems<T extends { rank: number; code?: string; sector: st
 
 const horizonTabs: Array<{ key: HorizonKey; label: string; caption: string }> = [
   { key: "current", label: "当前", caption: "观测" },
+  { key: "tomorrow", label: "明日", caption: "下一交易日" },
   { key: "oneWeek", label: "一周内", caption: "5 个交易日" },
   { key: "oneMonth", label: "一个月内", caption: "20 个交易日" },
 ];
@@ -76,18 +76,18 @@ const observedDirectionLabel: Record<SectorRotationObservedDirection, string> = 
 };
 
 const forecastDirectionLabel: Record<SectorRotationForecastDirection, string> = {
-  "strong-up": "显著偏强",
-  up: "偏强",
-  range: "震荡",
-  down: "偏弱",
-  "strong-down": "显著偏弱",
+  "strong-up": "概率显著领先",
+  up: "概率领先",
+  range: "接近基准",
+  down: "概率落后",
+  "strong-down": "概率显著落后",
 };
 
-const confidenceLabel: Record<SectorRotationConfidence, string> = {
-  low: "低置信度",
-  medium: "中置信度",
-  "medium-high": "中高置信度",
-};
+const probabilityTierLabel = {
+  "model-calibrated": "样本外校准",
+  "model-shrunk": "收缩概率",
+  "historical-base-rate": "历史基准",
+} as const;
 
 function formatDate(date: string) {
   return date ? date.replaceAll("-", ".") : "—";
@@ -184,29 +184,31 @@ function RotationRankingChart({
     <figure className="rotation-summary-chart">
       <figcaption>
         <div>
-          <strong>{forecast ? "条件情景排名" : "当前相对强弱"}</strong>
+          <strong>{forecast ? "上涨概率排名" : "当前相对强弱"}</strong>
           <span>截至 {formatDate(asOf)} · {scopeLabel}</span>
         </div>
-        <em>综合分 / 100</em>
+        <em>{forecast ? "上涨概率" : "综合分 / 100"}</em>
       </figcaption>
       <div
         className="rotation-chart-bars"
         role="img"
-        aria-label={`${forecast ? "预测条件" : "当前观测"}综合分横向排名图，综合分不是收益率或上涨概率`}
+        aria-label={forecast ? "未来对应交易窗口的上涨概率横向排名图" : "当前观测综合分横向排名图，综合分不是收益率"}
       >
         {visibleItems.map((item) => {
-          const score = Math.max(0, Math.min(100, Number.isFinite(item.score) ? item.score : 0));
+          const score = "upProbability" in item
+            ? Math.max(0, Math.min(100, item.upProbability))
+            : Math.max(0, Math.min(100, Number.isFinite(item.score) ? item.score : 0));
           return (
             <div key={`chart-${item.rank}-${item.code ?? item.sector}`} className={`rotation-chart-row direction-${item.direction}`}>
               <span title={item.sector}>{item.sector}</span>
               <i><b style={{ width: `${score}%` }} /></i>
-              <strong>{score.toFixed(0)}</strong>
+              <strong>{score.toFixed(1)}{forecast ? "%" : ""}</strong>
             </div>
           );
         })}
       </div>
       <div className="rotation-chart-note">
-        <span>综合分仅用于横截面排序，不是收益率、上涨概率或交易指令。</span>
+        <span>{forecast ? "概率为同口径样本外条件频率；需同时比较历史基准与校准区间。" : "综合分仅用于当前横截面排序，不是收益率或交易指令。"}</span>
         <SourceRefs indexes={sourceIndexes} sources={market.sources} />
       </div>
       {volumeMetric ? (
@@ -593,7 +595,7 @@ function ForecastRanking({
 }) {
   const [expanded, setExpanded] = useState(false);
   if (horizon.status === "insufficient") {
-    return <InsufficientState title="本期未发布条件排序" reason={horizon.reason} compact={market.mode === "major-index"} />;
+    return <InsufficientState title="本期暂用不了概率模型" reason={horizon.reason} compact={market.mode === "major-index"} />;
   }
 
   const items = [...horizon.items].sort((left, right) => left.rank - right.rank);
@@ -605,7 +607,7 @@ function ForecastRanking({
     <>
       <div className="rotation-context-note forecast">
         <ShieldCheck size={15} />
-        <p><strong>条件情景，不是收益承诺</strong>{horizon.note}</p>
+        <p><strong>上涨概率，不是收益承诺</strong>{horizon.note}</p>
       </div>
       <RotationRankingChart items={items} market={market} asOf={horizon.asOf} forecast />
       <RotationDataCharts charts={horizon.charts} market={market} asOf={horizon.asOf} />
@@ -624,13 +626,19 @@ function ForecastRanking({
                 </div>
               </div>
               <div className="rotation-forecast-score">
-                <ScoreBar score={item.score} forecast />
+                <div className="rotation-probability">
+                  <span>上涨概率</span>
+                  <strong>{item.upProbability.toFixed(1)}%</strong>
+                  <small className={item.probabilityEdge > 0 ? "positive" : item.probabilityEdge < 0 ? "negative" : ""}>
+                    历史 {item.historicalBaseRate.toFixed(1)}% · 优势 {item.probabilityEdge >= 0 ? "+" : ""}{item.probabilityEdge.toFixed(1)}pct
+                  </small>
+                </div>
                 <span
                   className={`rotation-confidence confidence-${item.confidence}`}
-                  title={item.confidenceBasis}
-                  aria-label={`${confidenceLabel[item.confidence]}置信度，证据强度 ${item.confidenceScore} 分（满分 100 分）；该分数不是上涨概率或胜率`}
+                  title={item.calibrationBasis}
+                  aria-label={`${probabilityTierLabel[item.probabilityTier]}，90%校准区间 ${item.calibrationRange.low.toFixed(1)}% 至 ${item.calibrationRange.high.toFixed(1)}%`}
                 >
-                  {confidenceLabel[item.confidence]} · {item.confidenceScore}/100
+                  {probabilityTierLabel[item.probabilityTier]} · 区间 {item.calibrationRange.low.toFixed(1)}–{item.calibrationRange.high.toFixed(1)}%
                 </span>
                 <time dateTime={item.dueDate}><CalendarDays size={11} /> 至 {formatDate(item.dueDate)}</time>
               </div>
@@ -644,7 +652,7 @@ function ForecastRanking({
                 <dl className="rotation-conditions">
                   <div><dt>触发</dt><dd>{item.trigger}</dd></div>
                   <div><dt>失效</dt><dd>{item.invalidation}</dd></div>
-                  <div className="rotation-confidence-explain"><dt>置信度</dt><dd>{item.confidenceBasis}</dd></div>
+                  <div className="rotation-confidence-explain"><dt>概率校准</dt><dd>{item.calibrationBasis}</dd></div>
                 </dl>
               </details>
             </div>
@@ -669,7 +677,7 @@ export default function SectorRotationIndex({
   data,
   activeMarketId,
   detailKeys,
-  availableHorizons = ["current", "oneWeek", "oneMonth"],
+  availableHorizons = ["current", "tomorrow", "oneWeek", "oneMonth"],
   initialHorizon,
 }: {
   data?: SectorRotationIndexData;
@@ -696,7 +704,7 @@ export default function SectorRotationIndex({
     if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % tabs.length;
     else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
     else if (event.key === "Home") nextIndex = 0;
-    else if (event.key === "End") nextIndex = horizonTabs.length - 1;
+    else if (event.key === "End") nextIndex = tabs.length - 1;
     else return;
     event.preventDefault();
     const nextKey = tabs[nextIndex].key;
@@ -709,8 +717,8 @@ export default function SectorRotationIndex({
       <header className="rotation-header">
         <div>
           <span className="eyebrow">ROTATION RANKING</span>
-          <h2 id="sector-rotation-title">{availableHorizons.includes("current") ? (isUS ? "三大指数相对强弱" : "行业板块轮动指数") : (isUS ? "三大指数预测排行榜" : "行业板块预测排行榜")}</h2>
-          <p>{availableHorizons.includes("current") ? (isUS ? "仅比较纳斯达克、道琼斯与标普 500，保持精简。" : "当前为可复核观测；未来窗口仅展示有证据、可失效的条件情景。") : "先展示方向、综合分与置信度；支持证据、反证和失效条件按需展开。"}</p>
+          <h2 id="sector-rotation-title">{availableHorizons.includes("current") ? (isUS ? "三大指数相对强弱" : "行业板块轮动指数") : (isUS ? "三大指数预测排行榜" : "行业板块上涨概率榜")}</h2>
+          <p>{availableHorizons.includes("current") ? (isUS ? "仅比较纳斯达克、道琼斯与标普 500，保持精简。" : "当前为可复核观测；未来窗口给出样本外校准概率。") : "按上涨概率排序；同时展示历史基准、概率优势、校准区间和失效条件。"}</p>
         </div>
         {market ? (
           <div className="rotation-market-meta">

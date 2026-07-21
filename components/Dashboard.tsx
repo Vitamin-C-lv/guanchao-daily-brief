@@ -578,7 +578,7 @@ export default function Dashboard({
 
           {showPredictions ? (
           <section id="predictions" className="section-block route-section prediction-route">
-            <SectionHeading eyebrow="FORECAST RANKING" title="板块预测排行榜" description="先看排序、方向与置信度；所有支持证据、反证和失效条件均可下钻查看。" action={<span className="updated-label"><RefreshCw size={13} /> 模型截至 {formatCompactDate(data.meta.dataThrough)}</span>} />
+            <SectionHeading eyebrow="FORECAST RANKING" title="板块上涨概率榜" description="默认先看下一交易日；概率、历史基准、校准区间与失效条件均可下钻查看。" action={<span className="updated-label"><RefreshCw size={13} /> 模型截至 {formatCompactDate(data.meta.dataThrough)}</span>} />
             <div className="prediction-market-tabs" role="tablist" aria-label="切换预测市场">
               {data.markets.map((market, index) => (
                 <button key={market.id} type="button" role="tab" aria-selected={activeMarketCard === index} className={activeMarketCard === index ? "active" : ""} onClick={() => setActiveMarketCard(index)}>{market.shortName}</button>
@@ -588,8 +588,8 @@ export default function Dashboard({
               data={sectorRotation}
               activeMarketId={data.markets[activeMarketCard]?.id ?? "a-share"}
               detailKeys={sectorDetailKeys}
-              availableHorizons={["oneWeek", "oneMonth"]}
-              initialHorizon="oneWeek"
+              availableHorizons={["tomorrow", "oneWeek", "oneMonth"]}
+              initialHorizon="tomorrow"
             />
             <MarketObserver data={marketObserver} mode="prediction-support" />
           </section>

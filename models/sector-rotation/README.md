@@ -8,8 +8,9 @@
 - 当前层可在同一最新完整交易日内对已核验的可用子集排序，并明确标注 `N/12`；5日和20日预测必须完整覆盖12项、taxonomy hash 与冻结模型一致，且对应期限的 walk-forward 回测通过发布门禁。
 - 历史输入以中证官方接口为首选，日期参数使用 `YYYYMMDD`、逐代码串行并优先复用有效缓存；官方源不可用时才扩大至独立可信市场数据源交叉核验。百度 `000xxx` 代码与个股存在歧义，禁止作为这些指数的降级源。
 - 历史压缩为单指数 `csv.gz`，一次只读取一个行业；派生特征和训练采用流式多遍扫描，不把全部年月数据同时放进内存。
-- 当前层是观察分，不是预测。5日和20日前瞻是横截面排名分，不是上涨概率、收益保证或个股建议。
-- 每条可发布预测由模型版本、市场、`asOf`、期限、`dueDate` 和行业代码生成不可变 `forecastId`。`confidenceScore` 为 0–100 的同口径样本外证据强度，附 `confidenceBasis`；它同样不是上涨概率或胜率。只有量价一类证据时，文字置信度等级始终封顶 `low`。
+- 当前层仍是横截面观察分，不是预测。未来层使用独立的 `a-share-up-probability-v1.json`，分别估计下一个完整交易日、5 日和 20 日后行业指数收盘高于 `asOf` 收盘的概率。
+- 概率模型使用最近 504 个交易日滚动训练、时间顺序样本外 Platt 校准，并保留最后 126 个交易日作分层审计。页面同时展示上涨概率、两年历史基准、概率优势和 90% 校准区间；弱模型按门禁收缩或退回历史基准，不输出空白，也不伪造强边际。
+- 每条可发布预测由概率模型版本、市场、`asOf`、期限、`dueDate` 和行业代码生成不可变 `forecastId`，并带 `probabilityTier` 与 `calibrationBasis`。只有量价一类证据时，文字置信度等级始终封顶 `low`。
 - 数值层只学习当时可得的量价数据。新闻、机构观点与长期资金线索是独立事件覆盖层，不泄漏进量价基础模型，也不会触发日常重训。
 
 ## 两年主窗口与锁定保留集
@@ -37,6 +38,7 @@
 pnpm rotation:pipeline
 pnpm rotation:refresh
 pnpm rotation:infer
+pnpm rotation:probability-train
 pnpm rotation:train --candidate-output models/sector-rotation/candidates/<version>.json --version <version>
 pnpm rotation:events-append --input event.json
 pnpm rotation:events-prune

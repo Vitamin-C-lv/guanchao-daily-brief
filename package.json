@@ -16,6 +16,7 @@
     "rotation:fetch": "node scripts/run-sector-rotation.mjs fetch",
     "rotation:features": "node scripts/run-sector-rotation.mjs features",
     "rotation:train": "node scripts/run-sector-rotation.mjs train",
+    "rotation:probability-train": "node scripts/run-sector-rotation.mjs probability-train",
     "rotation:infer": "node scripts/run-sector-rotation.mjs infer",
     "rotation:refresh": "node scripts/run-sector-rotation.mjs refresh",
     "rotation:pipeline": "node scripts/run-sector-rotation.mjs pipeline",

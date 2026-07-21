@@ -132,17 +132,29 @@
     "forecastItem": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["forecastId", "sector", "rank", "score", "direction", "confidence", "confidenceScore", "confidenceBasis", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "dueDate"],
+      "required": ["forecastId", "sector", "rank", "upProbability", "historicalBaseRate", "probabilityEdge", "calibrationRange", "probabilityTier", "direction", "confidence", "calibrationBasis", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "dueDate"],
       "properties": {
         "forecastId": { "type": "string", "minLength": 12, "maxLength": 100, "pattern": "^fr-[a-z0-9-]+$" },
         "sector": { "type": "string", "minLength": 1, "maxLength": 60 },
         "code": { "type": "string", "minLength": 1, "maxLength": 30 },
         "rank": { "type": "integer", "minimum": 1 },
-        "score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "upProbability": { "type": "number", "minimum": 0, "maximum": 100 },
+        "historicalBaseRate": { "type": "number", "minimum": 0, "maximum": 100 },
+        "probabilityEdge": { "type": "number", "minimum": -100, "maximum": 100 },
+        "calibrationRange": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["low", "high", "level"],
+          "properties": {
+            "low": { "type": "number", "minimum": 0, "maximum": 100 },
+            "high": { "type": "number", "minimum": 0, "maximum": 100 },
+            "level": { "const": "90%" }
+          }
+        },
+        "probabilityTier": { "enum": ["model-calibrated", "model-shrunk", "historical-base-rate"] },
         "direction": { "enum": ["strong-up", "up", "range", "down", "strong-down"] },
         "confidence": { "enum": ["low", "medium", "medium-high"] },
-        "confidenceScore": { "type": "integer", "minimum": 0, "maximum": 100 },
-        "confidenceBasis": { "type": "string", "minLength": 20, "maxLength": 300 },
+        "calibrationBasis": { "type": "string", "minLength": 20, "maxLength": 360 },
         "claim": { "type": "string", "minLength": 1, "maxLength": 280 },
         "evidence": {
           "type": "array",
@@ -284,7 +296,7 @@
         "status": { "const": "ready" },
         "asOf": { "$ref": "#/$defs/date" },
         "dueDate": { "$ref": "#/$defs/date" },
-        "sessions": { "enum": [5, 20] },
+        "sessions": { "enum": [1, 5, 20] },
         "note": { "type": "string", "minLength": 1, "maxLength": 300 },
         "items": {
           "type": "array",
@@ -304,7 +316,7 @@
         "status": { "const": "insufficient" },
         "asOf": { "$ref": "#/$defs/date" },
         "dueDate": { "$ref": "#/$defs/date" },
-        "sessions": { "enum": [5, 20] },
+        "sessions": { "enum": [1, 5, 20] },
         "reason": { "type": "string", "minLength": 1, "maxLength": 300 }
       }
     },
@@ -329,12 +341,18 @@
         "horizons": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["current", "oneWeek", "oneMonth"],
+          "required": ["current", "tomorrow", "oneWeek", "oneMonth"],
           "properties": {
             "current": {
               "oneOf": [
                 { "$ref": "#/$defs/observedReady" },
                 { "$ref": "#/$defs/observedInsufficient" }
+              ]
+            },
+            "tomorrow": {
+              "oneOf": [
+                { "$ref": "#/$defs/forecastReady" },
+                { "$ref": "#/$defs/forecastInsufficient" }
               ]
             },
             "oneWeek": {

@@ -253,13 +253,21 @@ export interface SectorRotationForecastItem {
   sector: string;
   code?: string;
   rank: number;
-  /** A model ranking score, not a probability or promised return. */
-  score: number;
+  /** Calibrated probability, in percentage points, that the sector index closes above its as-of close. */
+  upProbability: number;
+  /** Same-horizon two-year historical positive-close frequency, in percentage points. */
+  historicalBaseRate: number;
+  /** upProbability minus historicalBaseRate, in percentage points. */
+  probabilityEdge: number;
+  calibrationRange: {
+    low: number;
+    high: number;
+    level: "90%";
+  };
+  probabilityTier: "model-calibrated" | "model-shrunk" | "historical-base-rate";
   direction: SectorRotationForecastDirection;
   confidence: SectorRotationConfidence;
-  /** Calibrated evidence-strength score, not an upside probability or hit-rate claim. */
-  confidenceScore: number;
-  confidenceBasis: string;
+  calibrationBasis: string;
   claim: string;
   evidence: SectorRotationEvidencePoint[];
   counterEvidence: SectorRotationEvidencePoint[];
@@ -336,7 +344,7 @@ export type SectorRotationForecastHorizon =
       status: "ready";
       asOf: string;
       dueDate: string;
-      sessions: 5 | 20;
+      sessions: 1 | 5 | 20;
       note: string;
       items: SectorRotationForecastItem[];
       charts?: SectorRotationChart[];
@@ -346,7 +354,7 @@ export type SectorRotationForecastHorizon =
       status: "insufficient";
       asOf: string;
       dueDate?: string;
-      sessions: 5 | 20;
+      sessions: 1 | 5 | 20;
       reason: string;
       items?: never;
       charts?: never;
@@ -369,6 +377,7 @@ export interface SectorRotationMarket {
   sources: SourceLink[];
   horizons: {
     current: SectorRotationObservedHorizon;
+    tomorrow: SectorRotationForecastHorizon;
     oneWeek: SectorRotationForecastHorizon;
     oneMonth: SectorRotationForecastHorizon;
   };

@@ -3,13 +3,16 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const script = path.join(root, "scripts", "sector_rotation.py");
 const userArgs = process.argv.slice(2);
 
 if (userArgs.length === 0) {
-  console.error("用法: node scripts/run-sector-rotation.mjs <fetch|features|train|infer|refresh|pipeline|events-append|events-prune> [...参数]");
+  console.error("用法: node scripts/run-sector-rotation.mjs <fetch|features|train|probability-train|infer|refresh|pipeline|events-append|events-prune> [...参数]");
   process.exit(2);
 }
+
+const probabilityTrain = userArgs[0] === "probability-train";
+const script = path.join(root, "scripts", probabilityTrain ? "sector_probability.py" : "sector_rotation.py");
+const scriptArgs = probabilityTrain ? ["train", ...userArgs.slice(1)] : userArgs;
 
 const candidates = [];
 if (process.env.CODEX_PYTHON) {
@@ -20,7 +23,7 @@ candidates.push(
   { command: "py", prefix: ["-3"], label: "py -3" },
   {
     command: "uv",
-    prefix: ["run", "--no-project", "--python", "3.12", "--with", "requests", "python"],
+    prefix: ["run", "--no-project", "--python", "3.12", "--with", "requests", ...(probabilityTrain ? ["--with", "numpy"] : []), "python"],
     label: "uv managed Python",
   },
 );
@@ -45,7 +48,7 @@ if (!selected) {
   process.exit(1);
 }
 
-const result = spawnSync(selected.command, [...selected.prefix, script, ...userArgs], {
+const result = spawnSync(selected.command, [...selected.prefix, script, ...scriptArgs], {
   cwd: root,
   stdio: "inherit",
   windowsHide: true,

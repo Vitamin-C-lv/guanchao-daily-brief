@@ -7,6 +7,7 @@ const root = process.cwd();
 const rotationPath = path.resolve(root, "content", "sector-rotation.json");
 const schemaPath = path.resolve(root, "schemas", "sector-rotation.schema.json");
 const modelArtifactPath = path.resolve(root, "models", "sector-rotation", "a-share-v1.json");
+const probabilityArtifactPath = path.resolve(root, "models", "sector-rotation", "a-share-up-probability-v1.json");
 const aShareTaxonomyPath = path.resolve(root, "models", "sector-rotation", "taxonomy.a-core12-v2.json");
 const dailyBriefPath = path.resolve(root, "content", "daily-brief.json");
 const aShareCalendarPath = path.resolve(root, "models", "sector-rotation", "cn-market-calendar-2026.json");
@@ -133,18 +134,18 @@ function validateSourceIndexes(indexes, sources, label) {
   return [...unique];
 }
 
-function validateRanksAndScores(items, label) {
+function validateRanksAndValues(items, label, valueKey) {
   const sectors = new Set();
   const codes = new Set();
-  let previousScore = Infinity;
+  let previousValue = Infinity;
   items.forEach((item, index) => {
     const itemLabel = `${label}[${index}]`;
     if (!Number.isInteger(item?.rank) || item.rank !== index + 1) fail(`${itemLabel}.rank 必须按展示顺序连续为 ${index + 1}`);
-    if (Number.isFinite(item?.score)) {
-      requireFiniteRange(item.score, 0, 100, `${itemLabel}.score`);
-      if (item.score > previousScore) fail(`${label} 必须按 score 从高到低排序`);
-      previousScore = item.score;
-    } else fail(`${itemLabel}.score 必须是有限数值`);
+    if (Number.isFinite(item?.[valueKey])) {
+      requireFiniteRange(item[valueKey], 0, 100, `${itemLabel}.${valueKey}`);
+      if (item[valueKey] > previousValue) fail(`${label} 必须按 ${valueKey} 从高到低排序`);
+      previousValue = item[valueKey];
+    } else fail(`${itemLabel}.${valueKey} 必须是有限数值`);
     if (typeof item?.sector === "string") {
       const key = item.sector.trim().toLowerCase();
       if (sectors.has(key)) fail(`${label} 含重复行业/指数 ${item.sector}`);
@@ -322,7 +323,7 @@ function validateConfidence(item, evidenceIndexes, sources, label) {
 }
 
 function validateForecastItem(item, sources, horizonDueDate, label, context) {
-  if (!exactKeys(item, ["forecastId", "sector", "code", "rank", "score", "direction", "confidence", "confidenceScore", "confidenceBasis", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "dueDate"], label)) return;
+  if (!exactKeys(item, ["forecastId", "sector", "code", "rank", "upProbability", "historicalBaseRate", "probabilityEdge", "calibrationRange", "probabilityTier", "direction", "confidence", "calibrationBasis", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "dueDate"], label)) return;
   if (requireString(item.forecastId, `${label}.forecastId`, { max: 100 })) {
     if (!/^fr-[a-z0-9-]+$/.test(item.forecastId)) fail(`${label}.forecastId 格式非法`);
     if (seenForecastIds.has(item.forecastId)) fail(`${label}.forecastId 与其他预测重复`);
@@ -332,14 +333,25 @@ function validateForecastItem(item, sources, horizonDueDate, label, context) {
   if (item.code !== undefined) requireString(item.code, `${label}.code`, { max: 30 });
   if (!["strong-up", "up", "range", "down", "strong-down"].includes(item.direction)) fail(`${label}.direction 非法`);
   if (!["low", "medium", "medium-high"].includes(item.confidence)) fail(`${label}.confidence 非法`);
-  if (!Number.isInteger(item.confidenceScore)) fail(`${label}.confidenceScore 必须是整数`);
-  else requireFiniteRange(item.confidenceScore, 0, 100, `${label}.confidenceScore`);
-  if (item.confidence === "low" && item.confidenceScore > 49) fail(`${label}.confidence=low 时 confidenceScore 不得超过49`);
-  if (requireString(item.confidenceBasis, `${label}.confidenceBasis`, { max: 300 })) {
-    if (item.confidenceBasis.length < 20) fail(`${label}.confidenceBasis 少于20字符`);
-    if (!/(不是|并非|不代表).*(概率|胜率)/.test(item.confidenceBasis)) {
-      fail(`${label}.confidenceBasis 必须明确说明分数不是概率或胜率`);
-    }
+  requireFiniteRange(item.upProbability, 0, 100, `${label}.upProbability`);
+  requireFiniteRange(item.historicalBaseRate, 0, 100, `${label}.historicalBaseRate`);
+  requireFiniteRange(item.probabilityEdge, -100, 100, `${label}.probabilityEdge`);
+  if (Number.isFinite(item.upProbability) && Number.isFinite(item.historicalBaseRate)
+    && Math.abs(item.probabilityEdge - (item.upProbability - item.historicalBaseRate)) > 0.11) {
+    fail(`${label}.probabilityEdge 必须等于上涨概率减历史基准（允许0.1个百分点舍入）`);
+  }
+  if (!["model-calibrated", "model-shrunk", "historical-base-rate"].includes(item.probabilityTier)) fail(`${label}.probabilityTier 非法`);
+  if (!exactKeys(item.calibrationRange, ["low", "high", "level"], `${label}.calibrationRange`)) return;
+  requireFiniteRange(item.calibrationRange.low, 0, 100, `${label}.calibrationRange.low`);
+  requireFiniteRange(item.calibrationRange.high, 0, 100, `${label}.calibrationRange.high`);
+  if (item.calibrationRange.level !== "90%") fail(`${label}.calibrationRange.level 必须为90%`);
+  if (Number.isFinite(item.calibrationRange.low) && Number.isFinite(item.calibrationRange.high)) {
+    if (item.calibrationRange.low > item.calibrationRange.high) fail(`${label}.calibrationRange low不得高于high`);
+    if (item.upProbability < item.calibrationRange.low || item.upProbability > item.calibrationRange.high) fail(`${label}.upProbability 必须位于90%校准区间内`);
+  }
+  if (requireString(item.calibrationBasis, `${label}.calibrationBasis`, { max: 360 })) {
+    if (item.calibrationBasis.length < 20) fail(`${label}.calibrationBasis 少于20字符`);
+    if (!/(样本外|校准|历史基准)/.test(item.calibrationBasis)) fail(`${label}.calibrationBasis 必须说明样本外校准或历史基准`);
   }
   requireString(item.claim, `${label}.claim`, { max: 280 });
   requireString(item.trigger, `${label}.trigger`, { max: 220 });
@@ -348,8 +360,8 @@ function validateForecastItem(item, sources, horizonDueDate, label, context) {
   if (typeof horizonDueDate === "string" && item.dueDate !== horizonDueDate) fail(`${label}.dueDate 必须与所属窗口 dueDate 一致`);
   if (context?.market?.id === "a-share" && typeof item.code === "string") {
     const identity = [
-      modelArtifact?.id,
-      modelArtifact?.version,
+      probabilityArtifact?.id,
+      probabilityArtifact?.version,
       "a-share",
       context.horizon.asOf,
       context.horizon.dueDate,
@@ -416,8 +428,8 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
       if (!expectedDueDate) fail(`${label} 缺少覆盖该窗口的A股官方交易日历，必须降级 insufficient`);
       else if (horizon.dueDate !== expectedDueDate) fail(`${label}.dueDate 应为第 ${sessions} 个A股交易日 ${expectedDueDate}`);
     }
-    if (!/(排名分|排序分)/.test(`${market.note}${horizon.note}`) || !/(非概率|不代表.*概率|不是.*概率)/.test(`${market.note}${horizon.note}`)) {
-      fail(`${label}.note 必须说明 score 是排名分而非预测概率`);
+    if (!/(上涨概率|概率)/.test(`${market.note}${horizon.note}`) || !/(历史基准|样本外|校准)/.test(`${market.note}${horizon.note}`)) {
+      fail(`${label}.note 必须说明上涨概率的历史基准或样本外校准口径`);
     }
     requireString(horizon.note, `${label}.note`, { max: 300 });
   }
@@ -426,7 +438,7 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
     fail(`${label}.items 必须包含 3–${kind === "observed" ? 50 : 30} 项`);
     return;
   }
-  validateRanksAndScores(horizon.items, `${label}.items`);
+  validateRanksAndValues(horizon.items, `${label}.items`, kind === "observed" ? "score" : "upProbability");
   horizon.items.forEach((item, index) => {
     if (kind === "observed") validateObservedItem(item, sources, `${label}.items[${index}]`);
     else validateForecastItem(item, sources, horizon.dueDate, `${label}.items[${index}]`, { market, horizon, sessions });
@@ -485,8 +497,9 @@ function validateMarket(market, label) {
   else market.sources.forEach((source, index) => validateSource(source, `${label}.sources[${index}]`));
   const sources = Array.isArray(market.sources) ? market.sources : [];
 
-  if (!exactKeys(market.horizons, ["current", "oneWeek", "oneMonth"], `${label}.horizons`)) return;
+  if (!exactKeys(market.horizons, ["current", "tomorrow", "oneWeek", "oneMonth"], `${label}.horizons`)) return;
   validateHorizon(market.horizons.current, market, sources, `${label}.horizons.current`, { kind: "observed" });
+  validateHorizon(market.horizons.tomorrow, market, sources, `${label}.horizons.tomorrow`, { kind: "forecast", sessions: 1 });
   validateHorizon(market.horizons.oneWeek, market, sources, `${label}.horizons.oneWeek`, { kind: "forecast", sessions: 5 });
   validateHorizon(market.horizons.oneMonth, market, sources, `${label}.horizons.oneMonth`, { kind: "forecast", sessions: 20 });
 
@@ -513,7 +526,7 @@ function validateMarket(market, label) {
         fail(`${label}.horizons.current 部分覆盖必须在note明确写出${currentItems.length}/${fixedUniverseCount}`);
       }
     }
-    for (const [horizonKey, sessions, horizon] of [["oneWeek", 5, market.horizons.oneWeek], ["oneMonth", 20, market.horizons.oneMonth]]) {
+    for (const [horizonKey, sessions, horizon] of [["tomorrow", 1, market.horizons.tomorrow], ["oneWeek", 5, market.horizons.oneWeek], ["oneMonth", 20, market.horizons.oneMonth]]) {
       if (horizon?.status !== "ready") continue;
       const forecastCodes = new Set(horizon.items.map((item) => item.code));
       if (horizon.items.length !== fixedUniverseCount || forecastCodes.size !== fixedUniverseCount
@@ -525,11 +538,11 @@ function validateMarket(market, label) {
         || [...fixedCodes].some((code) => !currentCodes.has(code))) {
         fail(`${label}.horizons.${horizonKey} 发布预测时当前截面必须完整覆盖冻结观察池，部分当前观测不得升级为预测`);
       }
-      if (modelArtifact?.backtest?.horizons?.[String(sessions)]?.status === "insufficient") {
-        fail(`${label}.horizons.${horizonKey} 对应样本外回测未通过发布门槛`);
-      }
+      const probabilityHorizon = probabilityArtifact?.horizons?.[String(sessions)];
+      if (probabilityHorizon?.status !== "ready") fail(`${label}.horizons.${horizonKey} 对应上涨概率模型未就绪`);
     }
     validateDirectCodeEvidence(market.horizons.current, sources, `${label}.horizons.current`);
+    validateDirectCodeEvidence(market.horizons.tomorrow, sources, `${label}.horizons.tomorrow`);
     validateDirectCodeEvidence(market.horizons.oneWeek, sources, `${label}.horizons.oneWeek`);
     validateDirectCodeEvidence(market.horizons.oneMonth, sources, `${label}.horizons.oneMonth`);
   } else if (market.id === "hk") {
@@ -541,6 +554,7 @@ function validateMarket(market, label) {
   } else if (market.id === "us") {
     if (market.mode !== "major-index") fail(`${label}.mode 必须是 major-index，美股不得作为行业轮动模型`);
     validateUsItems(market.horizons.current, `${label}.horizons.current`);
+    validateUsItems(market.horizons.tomorrow, `${label}.horizons.tomorrow`);
     validateUsItems(market.horizons.oneWeek, `${label}.horizons.oneWeek`);
     validateUsItems(market.horizons.oneMonth, `${label}.horizons.oneMonth`);
   }
@@ -549,15 +563,17 @@ function validateMarket(market, label) {
 let data;
 let aShareCalendar;
 let modelArtifact;
+let probabilityArtifact;
 let aShareTaxonomy;
 let dailyBrief;
 try {
-  const [info, raw, schemaRaw, calendarRaw, modelRaw, taxonomyRaw, dailyBriefRaw] = await Promise.all([
+  const [info, raw, schemaRaw, calendarRaw, modelRaw, probabilityRaw, taxonomyRaw, dailyBriefRaw] = await Promise.all([
     stat(rotationPath),
     readFile(rotationPath, "utf8"),
     readFile(schemaPath, "utf8"),
     readFile(aShareCalendarPath, "utf8"),
     readFile(modelArtifactPath, "utf8"),
+    readFile(probabilityArtifactPath, "utf8"),
     readFile(aShareTaxonomyPath, "utf8"),
     readFile(dailyBriefPath, "utf8"),
   ]);
@@ -565,6 +581,7 @@ try {
   JSON.parse(schemaRaw);
   aShareCalendar = JSON.parse(calendarRaw);
   modelArtifact = JSON.parse(modelRaw);
+  probabilityArtifact = JSON.parse(probabilityRaw);
   aShareTaxonomy = JSON.parse(taxonomyRaw);
   dailyBrief = JSON.parse(dailyBriefRaw);
   data = JSON.parse(raw);
@@ -612,6 +629,40 @@ if (!isObject(modelArtifact) || !isObject(modelArtifact.backtest) || !isObject(m
   }
 }
 
+if (!isObject(probabilityArtifact) || !isObject(probabilityArtifact.horizons)) {
+  fail("A股上涨概率 artifact 缺少 horizons，不能验证明日/一周/一月概率");
+} else {
+  if (probabilityArtifact.schemaVersion !== 1) fail("A股上涨概率 artifact.schemaVersion 必须为1");
+  requireString(probabilityArtifact.id, "probabilityArtifact.id", { max: 80 });
+  requireString(probabilityArtifact.version, "probabilityArtifact.version", { max: 60 });
+  requireIsoShanghai(probabilityArtifact.trainedAt, "probabilityArtifact.trainedAt");
+  requireDate(probabilityArtifact.trainingStart, "probabilityArtifact.trainingStart");
+  requireDate(probabilityArtifact.trainingEnd, "probabilityArtifact.trainingEnd");
+  if (probabilityArtifact.taxonomyHash !== canonicalJsonSha256(aShareTaxonomy)) fail("A股上涨概率 artifact taxonomyHash 与当前固定观察池不一致");
+  for (const sessions of [1, 5, 20]) {
+    const horizon = probabilityArtifact.horizons[String(sessions)];
+    const label = `probabilityArtifact.horizons.${sessions}`;
+    if (!isObject(horizon) || horizon.status !== "ready") {
+      fail(`${label} 必须存在且ready`);
+      continue;
+    }
+    if (horizon.horizonSessions !== sessions) fail(`${label}.horizonSessions 必须为${sessions}`);
+    if (!["model-calibrated", "model-shrunk", "historical-base-rate"].includes(horizon.deploymentTier)) fail(`${label}.deploymentTier 非法`);
+    requireString(horizon.eventDefinition, `${label}.eventDefinition`, { max: 180 });
+    if (!isObject(horizon.model) || horizon.model.trainingDates !== 504 || horizon.model.horizonSessions !== sessions) fail(`${label}.model 必须是504交易日对应窗口模型`);
+    if (horizon.model?.trainingTargetDateMax >= horizon.model?.trainingEnd && horizon.model.trainingTargetDateMax > probabilityArtifact.asOf) {
+      fail(`${label}.model.trainingTargetDateMax 不得越过artifact asOf`);
+    }
+    const metrics = horizon.audit?.deployedMetrics;
+    if (!isObject(metrics) || metrics.observations < 1000) fail(`${label}.audit.deployedMetrics 样本不足`);
+    for (const key of ["brier", "baselineBrier", "brierSkill", "logLoss", "ece10", "auc"]) {
+      if (!Number.isFinite(metrics?.[key])) fail(`${label}.audit.deployedMetrics.${key} 必须是有限数值`);
+    }
+    if (horizon.audit?.evaluationDates < 100) fail(`${label}.audit.evaluationDates 必须至少100个独立交易日`);
+    if (!Array.isArray(horizon.calibrationBins) || horizon.calibrationBins.length < 5) fail(`${label}.calibrationBins 不足`);
+  }
+}
+
 if (exactKeys(data, ["schemaVersion", "generatedAt", "model", "markets"], "rotation")) {
   if (data.schemaVersion !== 1) fail("rotation.schemaVersion 必须是 1");
   requireIsoShanghai(data.generatedAt, "rotation.generatedAt");
@@ -632,10 +683,9 @@ if (exactKeys(data, ["schemaVersion", "generatedAt", "model", "markets"], "rotat
       requireString(data.model.backtest.summary, "rotation.model.backtest.summary", { max: 1000 });
     }
     for (const key of ["id", "version", "trainedAt", "trainingStart", "trainingEnd"]) {
-      if (data.model[key] !== modelArtifact?.[key]) fail(`rotation.model.${key} 与冻结 artifact 不一致`);
+      if (data.model[key] !== probabilityArtifact?.[key]) fail(`rotation.model.${key} 与上涨概率 artifact 不一致`);
     }
-    if (data.model.backtest?.status !== modelArtifact?.backtest?.status) fail("rotation.model.backtest.status 与冻结 artifact 不一致");
-    if (Array.isArray(modelArtifact?.features) && data.model.features?.length !== modelArtifact.features.length) fail("rotation.model.features 数量与冻结 artifact 不一致");
+    if (data.model.backtest?.status !== "limited") fail("rotation.model.backtest.status 必须标记为limited，概率质量由逐窗口审计字段表达");
   }
 
   if (!Array.isArray(data.markets) || data.markets.length !== 3) {
@@ -649,7 +699,7 @@ if (exactKeys(data, ["schemaVersion", "generatedAt", "model", "markets"], "rotat
     const aShareMarket = data.markets.find((market) => market.id === "a-share");
     const artifactCoverageComplete = modelArtifact?.data?.coverageCount === modelArtifact?.data?.universeCount
       && modelArtifact?.data?.trainingCoverageComplete === true;
-    if (!artifactCoverageComplete && [aShareMarket?.horizons?.oneWeek, aShareMarket?.horizons?.oneMonth].some((horizon) => horizon?.status === "ready")) {
+    if (!artifactCoverageComplete && [aShareMarket?.horizons?.tomorrow, aShareMarket?.horizons?.oneWeek, aShareMarket?.horizons?.oneMonth].some((horizon) => horizon?.status === "ready")) {
       fail("A股冻结模型训练分类不完整时不得发布预测窗口");
     }
     const dailyMarkets = new Map((dailyBrief?.markets ?? []).map((market) => [market.id, market]));
@@ -682,5 +732,5 @@ if (errors.length) {
   process.exit(1);
 }
 
-const readyForecasts = data.markets.reduce((count, market) => count + [market.horizons.oneWeek, market.horizons.oneMonth].filter((horizon) => horizon.status === "ready").length, 0);
+const readyForecasts = data.markets.reduce((count, market) => count + [market.horizons.tomorrow, market.horizons.oneWeek, market.horizons.oneMonth].filter((horizon) => horizon.status === "ready").length, 0);
 console.log(`行业轮动数据校验通过：${data.markets.length} 个市场，${readyForecasts} 个可用预测窗口，文件上限 ${MAX_ROTATION_BYTES / 1024} KB。`);
