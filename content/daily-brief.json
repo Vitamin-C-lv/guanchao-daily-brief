@@ -1,22 +1,22 @@
 {
   "meta": {
-    "editionDate": "2026-07-21",
-    "generatedAt": "2026-07-21T20:12:37+08:00",
+    "editionDate": "2026-07-22",
+    "generatedAt": "2026-07-22T08:15:02+08:00",
     "dataThrough": "2026-07-21",
-    "title": "每日收盘晚报",
-    "subtitle": "收盘更新｜美联储政策与三地市场重点",
-    "status": "收盘更新；A/H更新至7月21日，美股沿用7月20日",
+    "title": "每日早报",
+    "subtitle": "早报更新｜美联储政策与三地市场重点",
+    "status": "早报更新；A/H/美股均为7月21日最新完整交易日",
     "curationNote": "AI 仅做检索、去重和摘要；政策结论优先引用官方原文，市场数据采用各地最新完整交易日；板块轮动前瞻只按可观察证据给出条件情景。"
   },
   "pulse": {
-    "score": 64,
-    "label": "A/H分化、成长修复",
+    "score": 68,
+    "label": "三地成长修复、广度待验",
     "explanation": "规则分数：综合美联储政策取向、三地主指数方向与本期风险事件，仅用于排列阅读优先级，不构成投资信号。",
     "signals": [
-      { "label": "美联储", "value": "7月会议前观察窗口", "tone": "warning" },
+      { "label": "美联储", "value": "7月28–29日会议前6天", "tone": "warning" },
       { "label": "A 股", "value": "成长普涨、医药广度偏低", "tone": "warning" },
       { "label": "港股", "value": "恒科涨 1.32%、恒指微跌", "tone": "warning" },
-      { "label": "美股", "value": "7 月 20 日小幅走弱", "tone": "negative" }
+      { "label": "美股", "value": "芯片带动三大指数上涨", "tone": "positive" }
     ]
   },
   "federalReserve": {
@@ -26,7 +26,7 @@
     "lastDecision": "维持目标利率区间不变",
     "lastDecisionDate": "2026-06-17",
     "nextMeeting": "2026-07-28 / 29",
-    "countdownDays": 7,
+    "countdownDays": 6,
     "takeaway": "利率维持不变，但 6 月纪要显示年内路径分歧明显：部分官员仍看到加息理由。7 月会议前，应同时观察通胀、就业、能源价格和收益率。",
     "path": [
       { "label": "24.09", "lower": 4.75, "upper": 5.00 },
@@ -316,7 +316,7 @@
               },
               {
                 "heading": "后续观察",
-                "body": "中证12项固定观察池当前排名前列为主要消费、医药医疗和公用事业；医药医疗5日相对收益+9.90个百分点，成交额比1.55倍、真实成交量比1.50倍、成交份额比1.91倍，但上涨广度仅37.29%。若广度回到50%以上且量能延续，修复可能扩散；若广度继续偏低，仍应视为集中交易。",
+                "body": "中证12项固定观察池当前排名前列为主要消费、医药医疗和公用事业；医药医疗5日相对收益+6.30个百分点，成交额比1.53倍、真实成交量比1.48倍、成交份额比1.84倍，但上涨广度仅37.29%。若广度回到50%以上且量能延续，修复可能扩散；若广度继续偏低，仍应视为集中交易。",
                 "sourceIndexes": [2, 3]
               }
             ],
@@ -340,11 +340,11 @@
                   "sector": "医药医疗",
                   "stage": "diverging",
                   "historySessions": 25,
-                  "turnoverAmountRatio20d": 1.5488,
-                  "tradingVolumeRatio20d": 1.4999,
-                  "turnoverShareRatio20d": 1.9148,
+                  "turnoverAmountRatio20d": 1.5291,
+                  "tradingVolumeRatio20d": 1.4764,
+                  "turnoverShareRatio20d": 1.8441,
                   "breadthPct": 37.2881,
-                  "relativeReturn5d": 9.9031,
+                  "relativeReturn5d": 6.299,
                   "top3ConcentrationPct": 19.243,
                   "sourceIndexes": [2, 3]
                 }
@@ -361,7 +361,7 @@
                   "sector": "医药医疗",
                   "direction": "mixed",
                   "evidenceClass": "proxy",
-                  "evidence": "医药额比1.55、量比1.50、份额比1.91，但广度37.29%；放量需广度确认。",
+                  "evidence": "医药额比1.53、量比1.48、份额比1.84，但广度37.29%；放量需广度确认。",
                   "sourceIndexes": [2, 3]
                 }
               ],
@@ -556,23 +556,24 @@
       "id": "us",
       "name": "美国市场",
       "shortName": "美股",
-      "sessionDate": "2026-07-20",
+      "sessionDate": "2026-07-21",
       "status": "最新完整交易日",
-      "summary": "标普 500 跌 0.2% 报 7443.28 点，道指跌 0.6% 报 51839.26 点，纳指跌不足 0.1% 报 25508.07 点；AI 股较前周回撤后趋稳，但收益率上行仍构成压力。",
+      "summary": "标普 500 涨 0.9% 报 7509.20 点，道指涨 0.7% 报 52224.64 点，纳指涨 1.3% 报 25837.21 点；芯片与 AI 股反弹，但油价走高推升收益率。",
       "leadIndex": "标普 500",
       "indices": [
-        { "name": "标普 500", "value": "7,443.28", "change": -0.2, "date": "2026-07-20" },
-        { "name": "纳斯达克", "value": "25,508.07", "change": -0.1, "date": "2026-07-20" },
-        { "name": "道琼斯", "value": "51,839.26", "change": -0.6, "date": "2026-07-20" }
+        { "name": "标普 500", "value": "7,509.20", "change": 0.9, "date": "2026-07-21" },
+        { "name": "纳斯达克", "value": "25,837.21", "change": 1.3, "date": "2026-07-21" },
+        { "name": "道琼斯", "value": "52,224.64", "change": 0.7, "date": "2026-07-21" }
       ],
-      "sparkline": [7537.43, 7503.85, 7482.71, 7543.64, 7575.39, 7515.34, 7543.59, 7572.40, 7533.77, 7443.28],
-      "tone": "negative",
+      "sparkline": [7537.43, 7503.85, 7482.71, 7543.64, 7575.39, 7515.34, 7543.59, 7572.40, 7443.28, 7509.20],
+      "tone": "positive",
       "sources": [
         {
-          "name": "美股 7 月 20 日收盘",
+          "name": "美股 7 月 21 日收盘",
           "publisher": "Associated Press",
-          "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-5ee6e4b0754464e93a56fbb9e80f9e64",
-          "tier": "major-media"
+          "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-ccf404ea3258636974afa17f714db8e8",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
         },
         {
           "name": "美国国债收益率",
@@ -583,18 +584,19 @@
       ],
       "articles": [
         {
-          "id": "us-close-0720",
-          "title": "美股窄幅走弱，AI 股止住部分跌势",
-          "summary": "标普 500 跌 0.2%，道指跌 0.6%，纳指跌不足 0.1%；AP称AI股在前周急跌后趋稳，但上升的债券收益率继续压制大盘。",
-          "impact": "三大指数仍受利率折现与能源价格影响；AI 龙头短线止跌不等于估值压力消失，后续仍看业绩兑现和收益率变化。",
-          "publishedAt": "2026-07-20",
-          "tags": ["半导体", "市场广度", "美债收益率"],
+          "id": "us-close-0721",
+          "title": "美股反弹，芯片与 AI 股重新领涨",
+          "summary": "标普 500 涨 0.9%，道指涨 0.7%，纳指涨 1.3%；AP称芯片和 AI 股连续第二日走强，但油价接近92美元并推升美债收益率。",
+          "impact": "风险偏好短线修复，但油价与收益率上行仍是高估值科技资产的反证；后续要看业绩兑现和通胀路径。",
+          "publishedAt": "2026-07-21",
+          "tags": ["半导体", "AI", "美债收益率"],
           "sources": [
             {
-              "name": "7 月 17 日美股收盘",
+              "name": "7 月 21 日美股收盘",
               "publisher": "Associated Press",
-              "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-5e44034ea86fa8d9c73184f3559e74a2",
-              "tier": "major-media"
+              "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-ccf404ea3258636974afa17f714db8e8",
+              "tier": "major-media",
+              "evidenceClass": "major-media"
             },
             {
               "name": "台积电第二季业绩",
@@ -604,36 +606,36 @@
             }
           ],
           "detail": {
-            "lead": "7月20日美股三大指数小幅走弱：标普500跌0.2%报7443.28点，道指跌0.6%报51839.26点，纳指跌不足0.1%报25508.07点。AP称AI股在前周急跌后趋稳，但收益率上行仍构成压力。",
+            "lead": "7月21日美股三大指数反弹：标普500涨0.9%报7509.20点，道指涨0.7%报52224.64点，纳指涨1.3%报25837.21点。AP称芯片和AI股连续第二日走强，但油价走高推升收益率。",
             "keyPoints": [
-              "标普500跌0.2%，纳指跌不足0.1%，道指跌0.6%",
-              "AI 股在前周急跌后趋稳，纳指跌不足0.1%",
-              "上升的债券收益率继续给大盘和高估值资产施压"
+              "标普500涨0.9%，纳指涨1.3%，道指涨0.7%",
+              "芯片与AI股连续第二日走强，英伟达和美光成为主要推动力",
+              "布伦特原油接近92美元，油价和收益率上行构成反证"
             ],
             "sections": [
               {
-                "heading": "指数下跌，市场广度却不差",
-                "body": "标普500收于7443.28点，跌14.41点；道指收于51839.26点，跌307.16点；纳指收于25508.07点，跌12.17点。三大指数均收低，但跌幅较前一交易日明显收窄。",
+                "heading": "三大指数同步反弹",
+                "body": "标普500收于7509.20点，涨65.92点；道指收于52224.64点，涨385.38点；纳指收于25837.21点，涨329.13点。三大指数同步上行，AI与芯片权重贡献明显。",
                 "sourceIndexes": [0]
               },
               {
-                "heading": "AI与存储权重集中回撤",
-                "body": "AP称英伟达和闪迪等AI相关股票在前周急跌后趋稳，市场仍在消化高涨幅资产的估值压力。短线止跌是交易事实，不等于产业需求已经被证伪或估值约束已经解除。",
+                "heading": "芯片权重重新领涨",
+                "body": "AP称美光和英伟达是推动市场上行的主要力量，AI股票在前周下跌后连续第二日走强。反弹是收盘事实，但不等于产业需求已经被完全定价或估值约束已经消失。",
                 "sourceIndexes": [0]
               },
               {
-                "heading": "业绩强劲为何仍然下跌",
-                "body": "AP指出债券收益率继续上行，并与油价上涨同时增加大盘压力。收益率上行可能抬高高估值资产的折现率，但不能单独推出美联储路径；后续仍需结合官方通胀、就业和收益率数据观察。",
+                "heading": "油价与收益率是反证",
+                "body": "AP指出布伦特原油一度接近92美元，较月初不足72美元明显走高，并推动债券收益率上行。收益率上行可能抬高高估值资产的折现率，但不能单独推出美联储路径；后续仍需结合官方通胀、就业和收益率数据观察。",
                 "sourceIndexes": [0, 1]
               }
             ],
             "chart": {
-              "title": "7月20日美股主要指数涨跌",
+              "title": "7月21日美股主要指数涨跌",
               "unit": "%",
               "items": [
-                { "label": "标普500", "value": -0.2, "display": "-0.2%", "tone": "negative" },
-                { "label": "道琼斯", "value": -0.6, "display": "-0.6%", "tone": "negative" },
-                { "label": "纳斯达克", "value": -0.1, "display": "-0.1%", "tone": "negative" }
+                { "label": "标普500", "value": 0.9, "display": "+0.9%", "tone": "positive" },
+                { "label": "道琼斯", "value": 0.7, "display": "+0.7%", "tone": "positive" },
+                { "label": "纳斯达克", "value": 1.3, "display": "+1.3%", "tone": "positive" }
               ],
               "sourceIndexes": [0]
             }

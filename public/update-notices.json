@@ -1,21 +1,6 @@
 {
   "schemaVersion": 1,
-  "daily": {
-    "noticeId": "daily-2026-07-21-hot-state-capital-0720",
-    "kind": "daily",
-    "importance": 100,
-    "publishedAt": "2026-07-21T08:22:00+08:00",
-    "expiresAt": "2026-07-22T08:00:00+08:00",
-    "title": "中国国新披露超500亿元增持",
-    "summary": "正式公告披露已使用股票回购增持专项再贷款及配套资金超500亿元，A股权重修复但小盘分化。",
-    "selectionReason": "公司正式公告与人民日报独立报道共同支持，且事件直接影响A股稳市场预期与当日权重结构。",
-    "highlights": [
-      "中国国新公告披露已使用相关再贷款及配套资金超500亿元。",
-      "后续仍将继续使用再贷款并配合自有资金增持央企股票。"
-    ],
-    "href": "/articles/hot-state-capital-0720/",
-    "ctaLabel": "阅读重点文章"
-  },
+  "daily": null,
   "weekly": {
     "noticeId": "weekly-2026-W29-r1",
     "kind": "weekly",

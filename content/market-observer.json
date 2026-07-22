@@ -1,28 +1,28 @@
 {
   "schemaVersion": 1,
   "meta": {
-    "editionDate": "2026-07-21",
-    "generatedAt": "2026-07-21T20:12:37+08:00",
-    "dataAsOf": "2026-07-21T20:12:37+08:00",
-    "snapshotCreatedAt": "2026-07-21T20:12:37+08:00",
-    "snapshotKind": "close",
+    "editionDate": "2026-07-22",
+    "generatedAt": "2026-07-22T08:15:02+08:00",
+    "dataAsOf": "2026-07-22T08:15:02+08:00",
+    "snapshotCreatedAt": "2026-07-22T08:15:02+08:00",
+    "snapshotKind": "morning",
     "modelVersion": "market-observer-v1.0.0",
     "coverage": "global-with-priority-watch"
   },
   "homeObservation": {
     "significant": true,
-    "conclusion": "A股成长普涨、港股科技修复，行业广度仍未确认",
-    "data": "创业板 +7.05%；恒生科技 +1.32%；纳斯达克 7月20日 -0.10%。",
+    "conclusion": "A股成长普涨、港股科技与美股芯片修复，行业广度仍未确认",
+    "data": "创业板 +7.05%；恒生科技 +1.32%；纳斯达克 7月21日 +1.30%。",
     "macro": "美国2年期国债收益率升至4.18%，美元兑人民币中间价调贬14个基点。",
     "counterEvidence": "A股医药医疗上涨广度仅37.29%，恒指微跌且港股行业连续成交序列不足。",
     "watch": "A股上涨广度、医药量能、恒科与南向公开成交，以及7月FOMC前的就业和收益率。",
     "href": "/briefs/#daily-macro"
   },
   "globalOverview": {
-    "id": "global-overview-2026-07-21",
+    "id": "global-overview-2026-07-22",
     "eyebrow": "GLOBAL MARKET",
     "subject": "全局市场",
-    "conclusion": "A股成长普涨、港股科技修复，行业广度仍未确认",
+    "conclusion": "A股成长普涨、港股科技与美股芯片修复，行业广度仍未确认",
     "conclusionLevel": "moderate",
     "facts": [
       {
@@ -68,7 +68,7 @@
       "美国2年期收益率未随通胀改善回落，短端折现率没有确认快速宽松交易。"
     ],
     "counterEvidence": [
-      "纳斯达克7月20日下跌0.10%，中国科技与美国科技仍没有形成同步上涨。",
+      "油价接近92美元并推升收益率，美股AI反弹仍面临折现率反证。",
       "南向资金和恒生科技ETF净申购尚无可核验连续序列，资金确认链仍缺一环。"
     ],
     "watchItems": [
@@ -150,11 +150,11 @@
         },
         {
           "label": "纳斯达克",
-          "currentValue": "25508.07（-0.10%）",
+          "currentValue": "25837.21（+1.30%）",
           "previousValue": "上一交易日收盘未单独核验",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "当日-0.10%",
-          "dataPeriod": "2026-07-20收盘",
+          "surprise": "当日+1.30%",
+          "dataPeriod": "2026-07-21收盘",
           "sourceId": "ap-us-close",
           "releasedAt": "2026-07-20T16:30:00-04:00",
           "updatedAt": "2026-07-20T20:09:20+08:00",
@@ -461,11 +461,11 @@
         "role": "风险资产定价",
         "fact": {
           "label": "纳斯达克指数",
-          "currentValue": "25508.07（-0.10%）",
+          "currentValue": "25837.21（+1.30%）",
           "previousValue": "上一交易日收盘未单独核验",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "当日-0.10%",
-          "dataPeriod": "2026-07-20收盘",
+          "surprise": "当日+1.30%",
+          "dataPeriod": "2026-07-21收盘",
           "sourceId": "ap-us-close",
           "releasedAt": "2026-07-20T16:30:00-04:00",
           "updatedAt": "2026-07-20T20:09:20+08:00",
@@ -643,13 +643,13 @@
     },
     {
       "id": "ap-us-close",
-      "name": "7月20日美股收盘",
+      "name": "7月21日美股收盘",
       "publisher": "Associated Press",
-      "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-5ee6e4b0754464e93a56fbb9e80f9e64",
+      "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-ccf404ea3258636974afa17f714db8e8",
       "tier": "major-media",
       "evidenceClass": "major-media",
-      "publishedAt": "2026-07-20T16:30:00-04:00",
-      "accessedAt": "2026-07-21T08:22:00+08:00"
+      "publishedAt": "2026-07-21T16:30:00-04:00",
+      "accessedAt": "2026-07-22T08:15:02+08:00"
     },
     {
       "id": "tsmc-q2",
