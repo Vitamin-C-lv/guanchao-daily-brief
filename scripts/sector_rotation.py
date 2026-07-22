@@ -53,12 +53,27 @@ CALENDAR_PATH = MODEL_DIR / "cn-market-calendar-2026.json"
 FEATURE_PATH = FEATURE_DIR / "a-share-features.csv.gz"
 MODEL_PATH = MODEL_DIR / "a-share-v1.json"
 PROBABILITY_MODEL_PATH = MODEL_DIR / "a-share-up-probability-v1.json"
+MULTI_TARGET_MODEL_PATH = MODEL_DIR / "a-share-relative-probability-v2.json"
 HOLDOUT_REGISTRY_PATH = MODEL_DIR / "holdout-registry.json"
 CONTENT_PATH = ROOT / "content" / "sector-rotation.json"
 MANIFEST_PATH = DATA_DIR / "manifest.json"
 EVENT_PATH = EVENT_DIR / "events.jsonl.gz"
 EVENT_SEED_PATH = MODEL_DIR / "long-money-events.seed.jsonl"
 DAILY_BRIEF_PATH = ROOT / "content" / "daily-brief.json"
+PREDICTION_HISTORY_PATH = ROOT / "content" / "prediction-history.json"
+
+# The benchmark is deliberately separate from the ranked universe.  Focus
+# sectors may receive deeper collection, but neither they nor their ETFs are
+# allowed to alter this market-wide reference return.
+A_SHARE_BENCHMARK = {
+    "code": "000985",
+    "name": "中证全指",
+    "shortName": "中证全指",
+    "market": "sh",
+    "role": "benchmark",
+    "factsheetUrl": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000985",
+}
+BENCHMARK_HISTORY_PATH = HISTORY_DIR / f"{A_SHARE_BENCHMARK['code']}.csv.gz"
 
 CSI_API = "https://www.csindex.com.cn/csindex-home/perf/index-perf"
 CSI_REFERER = "https://www.csindex.com.cn/"
@@ -184,6 +199,12 @@ RAW_FEATURE_FIELDS = [
     "raw_forward1",
     "raw_forward5",
     "raw_forward20",
+    "benchmark_forward1",
+    "benchmark_forward5",
+    "benchmark_forward20",
+    "excess_forward1",
+    "excess_forward5",
+    "excess_forward20",
     "targetDate1",
     "targetDate5",
     "targetDate20",
@@ -198,6 +219,12 @@ FEATURE_FIELDS = [
     "raw_forward1",
     "raw_forward5",
     "raw_forward20",
+    "benchmark_forward1",
+    "benchmark_forward5",
+    "benchmark_forward20",
+    "excess_forward1",
+    "excess_forward5",
+    "excess_forward20",
     "target5",
     "target20",
     "targetDate1",
@@ -603,6 +630,178 @@ def verify_latest_with_tencent(
     }
 
 
+def fetch_official_benchmark_history(
+    args: argparse.Namespace,
+    session: requests.Session,
+    manifest: dict[str, Any],
+) -> dict[str, Any]:
+    """Maintain a separate CSI All Share benchmark series.
+
+    The benchmark never enters the ranked universe and has no vendor fallback:
+    mixing a sector source with a different benchmark source can manufacture
+    relative returns.  A failed refresh therefore preserves the last official
+    cache and records a hard data state instead of substituting zero.
+    """
+    index = A_SHARE_BENCHMARK
+    cached_by_date = existing_history_rows(BENCHMARK_HISTORY_PATH)
+    by_date = {} if args.refresh else dict(cached_by_date)
+    metadata = manifest.get("aShareBenchmark", {})
+    if by_date and max(by_date) >= args.end:
+        ordered = [by_date[key] for key in sorted(by_date)]
+        if (
+            len(ordered) >= 2
+            and ordered[0]["date"] == args.start
+            and all(
+                ordered[0][field] == ordered[1][field]
+                for field in ("close", "trading_volume", "trading_value_yi")
+            )
+        ):
+            ordered.pop(0)
+            write_history(BENCHMARK_HISTORY_PATH, ordered)
+            by_date = {row["date"]: row for row in ordered}
+            metadata = {
+                **(metadata if isinstance(metadata, dict) else {}),
+                "rows": len(ordered),
+                "firstDate": ordered[0]["date"],
+                "sha256": sha256_path(BENCHMARK_HISTORY_PATH),
+                "compressedBytes": BENCHMARK_HISTORY_PATH.stat().st_size,
+            }
+            manifest["aShareBenchmark"] = metadata
+        return metadata or {
+            "code": index["code"],
+            "name": index["shortName"],
+            "rows": len(by_date),
+            "firstDate": min(by_date),
+            "lastDate": max(by_date),
+            "source": CSI_API,
+            "status": "ready",
+        }
+    fetch_start = (
+        (date.fromisoformat(max(by_date)) + timedelta(days=1)).isoformat()
+        if by_date
+        else args.start
+    )
+    headers = {
+        "Referer": CSI_REFERER,
+        "X-Requested-With": "XMLHttpRequest",
+        "Accept": "application/json",
+    }
+    try:
+        for chunk_start, chunk_end in request_chunks(fetch_start, args.end):
+            payload = fetch_json_with_retry(
+                session,
+                CSI_API,
+                params={
+                    "indexCode": index["code"],
+                    "startDate": chunk_start.replace("-", ""),
+                    "endDate": chunk_end.replace("-", ""),
+                },
+                headers=headers,
+                attempts=2,
+            )
+            if str(payload.get("code")) != "200" or not isinstance(payload.get("data"), list):
+                raise ValueError(f"unexpected CSI benchmark payload code={payload.get('code')!r}")
+            for raw in payload["data"]:
+                if not isinstance(raw, dict):
+                    continue
+                trading_date = parse_yyyymmdd(raw.get("tradeDate"))
+                close = finite(raw.get("close"))
+                open_value = finite(raw.get("open"))
+                high = finite(raw.get("high"))
+                low = finite(raw.get("low"))
+                volume = finite(raw.get("tradingVol"))
+                amount = finite(raw.get("tradingValue"))
+                if (
+                    not trading_date
+                    or close is None
+                    or close <= 0
+                    or not valid_ohlc(
+                        open_value,
+                        high,
+                        low,
+                        close,
+                        tolerance=CSI_OHLC_TOLERANCE_POINTS,
+                    )
+                    or volume is None
+                    or volume <= 0
+                    or amount is None
+                    or amount <= 0
+                ):
+                    continue
+                by_date[trading_date] = {
+                    "date": trading_date,
+                    "code": index["code"],
+                    "name": index["shortName"],
+                    "close": fmt_float(close, 12),
+                    "change_pct": fmt_float(finite(raw.get("changePct")), 10),
+                    "trading_volume": fmt_float(volume, 14),
+                    "trading_value_yi": fmt_float(amount, 12),
+                    "constituents": fmt_float(finite(raw.get("consNumber")), 10),
+                }
+            time.sleep(args.interval + random.uniform(0.05, 0.20))
+        rows = [by_date[key] for key in sorted(by_date)]
+        if (
+            len(rows) >= 2
+            and rows[0]["date"] == args.start
+            and all(
+                rows[0][field] == rows[1][field]
+                for field in ("close", "trading_volume", "trading_value_yi")
+            )
+        ):
+            # CSI echoes the next trading session on a non-trading start date.
+            rows.pop(0)
+        if len(rows) < args.min_rows or rows[-1]["date"] < args.end:
+            raise ValueError(
+                f"benchmark has {len(rows)} rows through {rows[-1]['date'] if rows else 'none'}"
+            )
+        write_history(BENCHMARK_HISTORY_PATH, rows)
+        verification = verify_latest_with_tencent(
+            session,
+            index,
+            rows[-1]["date"],
+            float(rows[-1]["close"]),
+        )
+        result = {
+            "code": index["code"],
+            "name": index["shortName"],
+            "rows": len(rows),
+            "firstDate": rows[0]["date"],
+            "lastDate": rows[-1]["date"],
+            "retrievedAt": now_iso(),
+            "source": CSI_API,
+            "evidenceClass": "official-primary",
+            "verification": verification,
+            "sha256": sha256_path(BENCHMARK_HISTORY_PATH),
+            "compressedBytes": BENCHMARK_HISTORY_PATH.stat().st_size,
+            "status": "ready",
+            "failure": None,
+        }
+    except Exception as exc:
+        if cached_by_date:
+            result = {
+                **(metadata if isinstance(metadata, dict) else {}),
+                "code": index["code"],
+                "name": index["shortName"],
+                "rows": len(cached_by_date),
+                "firstDate": min(cached_by_date),
+                "lastDate": max(cached_by_date),
+                "source": CSI_API,
+                "status": "stale",
+                "failure": str(exc),
+            }
+        else:
+            result = {
+                "code": index["code"],
+                "name": index["shortName"],
+                "rows": 0,
+                "source": CSI_API,
+                "status": "failed",
+                "failure": str(exc),
+            }
+    manifest["aShareBenchmark"] = result
+    return result
+
+
 def fetch_a_share_history(args: argparse.Namespace) -> dict[str, Any]:
     taxonomy = read_json(TAXONOMY_PATH)
     indices = taxonomy["indices"]
@@ -795,6 +994,7 @@ def fetch_a_share_history(args: argparse.Namespace) -> dict[str, Any]:
             failures.append({"code": code, "error": str(exc)})
             print(f"[fetch {position:02d}/{len(indices)}] {code} FAILED: {exc}", file=sys.stderr)
 
+    benchmark = fetch_official_benchmark_history(args, session, manifest)
     manifest.update(
         {
             "schemaVersion": 1,
@@ -817,6 +1017,7 @@ def fetch_a_share_history(args: argparse.Namespace) -> dict[str, Any]:
                 "failures": failures,
                 "preservedOfficialCacheCodes": sorted(set(preserved_official_cache_codes)),
                 "stoppedForRateLimit": rate_limited,
+                "benchmarkStatus": benchmark.get("status"),
             },
         }
     )
@@ -917,6 +1118,22 @@ def gzip_csv_writer(path: Path, fields: list[str]):
 def build_features(_: argparse.Namespace) -> dict[str, Any]:
     taxonomy = read_json(TAXONOMY_PATH)
     FEATURE_DIR.mkdir(parents=True, exist_ok=True)
+    if not BENCHMARK_HISTORY_PATH.exists():
+        raise RuntimeError(
+            "official CSI All Share benchmark history is missing; run rotation:fetch before features"
+        )
+    benchmark_history = read_history(BENCHMARK_HISTORY_PATH)
+    if len(benchmark_history) < 81:
+        raise RuntimeError("official CSI All Share benchmark has fewer than 81 valid sessions")
+    benchmark_dates = [row["date"] for row in benchmark_history]
+    benchmark_closes = [row["close"] for row in benchmark_history]
+    benchmark_forward: dict[int, dict[str, float]] = {1: {}, 5: {}, 20: {}}
+    for position, trading_date in enumerate(benchmark_dates):
+        for horizon in (1, 5, 20):
+            if position + horizon < len(benchmark_history):
+                benchmark_forward[horizon][trading_date] = (
+                    benchmark_closes[position + horizon] / benchmark_closes[position] - 1
+                )
     available_paths: dict[str, Path] = {}
     date_counts: dict[str, int] = defaultdict(int)
     for index in taxonomy["indices"]:
@@ -933,7 +1150,7 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
     source_coverage = len(available_paths)
     common_dates = {
         trading_date for trading_date, count in date_counts.items() if count == source_coverage
-    }
+    } & set(benchmark_dates)
     if source_coverage == 0 or len(common_dates) < 61:
         raise RuntimeError("not enough synchronized sector history to build features")
     raw_path = FEATURE_DIR / "a-share-features.raw.csv.gz"
@@ -955,8 +1172,21 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
             ]  # bounded: one sector only, synchronized across the available cross-section
             sector_rows = 0
             for feature in build_sector_feature_rows(history):
+                for horizon in (1, 5, 20):
+                    benchmark_return = benchmark_forward[horizon].get(feature["date"])
+                    sector_return = feature.get(f"raw_forward{horizon}")
+                    feature[f"benchmark_forward{horizon}"] = benchmark_return
+                    feature[f"excess_forward{horizon}"] = (
+                        sector_return - benchmark_return
+                        if sector_return is not None and benchmark_return is not None
+                        else None
+                    )
                 out = {key: feature.get(key, "") for key in RAW_FEATURE_FIELDS}
-                for key in FEATURES + ["raw_forward1", "raw_forward5", "raw_forward20"]:
+                for key in FEATURES + [
+                    "raw_forward1", "raw_forward5", "raw_forward20",
+                    "benchmark_forward1", "benchmark_forward5", "benchmark_forward20",
+                    "excess_forward1", "excess_forward5", "excess_forward20",
+                ]:
                     out[key] = fmt_float(feature.get(key), 14)
                 writer.writerow(out)
                 sector_rows += 1
@@ -1017,6 +1247,10 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
                             labelled[horizon] += 1
                     elif horizon in (5, 20):
                         out[f"target{horizon}"] = ""
+                    for prefix in ("benchmark_forward", "excess_forward"):
+                        out[f"{prefix}{horizon}"] = fmt_float(
+                            finite(row.get(f"{prefix}{horizon}")), 14
+                        )
                 writer.writerow(out)
                 final_rows += 1
     finally:
@@ -1048,6 +1282,14 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
             coverage == source_coverage
             and final_rows == len(complete_feature_dates) * source_coverage
         ),
+        "benchmark": {
+            "code": A_SHARE_BENCHMARK["code"],
+            "name": A_SHARE_BENCHMARK["shortName"],
+            "source": CSI_API,
+            "firstDate": benchmark_dates[0],
+            "lastDate": benchmark_dates[-1],
+            "joinedDates": len(common_dates),
+        },
         "labelled5": labelled[5],
         "labelled20": labelled[20],
         "streamingPolicy": "one sector in memory; cross-sectional targets by date accumulators",
@@ -1075,6 +1317,12 @@ def iter_features() -> Iterator[dict[str, Any]]:
                     "raw_forward1": finite(raw.get("raw_forward1")),
                     "raw_forward5": finite(raw.get("raw_forward5")),
                     "raw_forward20": finite(raw.get("raw_forward20")),
+                    "benchmark_forward1": finite(raw.get("benchmark_forward1")),
+                    "benchmark_forward5": finite(raw.get("benchmark_forward5")),
+                    "benchmark_forward20": finite(raw.get("benchmark_forward20")),
+                    "excess_forward1": finite(raw.get("excess_forward1")),
+                    "excess_forward5": finite(raw.get("excess_forward5")),
+                    "excess_forward20": finite(raw.get("excess_forward20")),
                     "target5": finite(raw.get("target5")),
                     "target20": finite(raw.get("target20")),
                     "targetDate1": raw.get("targetDate1") or None,
@@ -2014,6 +2262,36 @@ def probability_direction(probability: float, base_rate: float) -> str:
     return "range"
 
 
+def relative_target_prediction(horizon_model: dict[str, Any], row: dict[str, Any]) -> dict[str, Any]:
+    """Apply one frozen multi-target horizon without retraining or null fallback."""
+    probabilities: dict[str, Any] = {}
+    for target in ("absoluteUp", "outperformance", "topQuartile"):
+        model = horizon_model["models"][target]
+        score = upside_probability_score(model, row)
+        raw_probability = 1.0 / (1.0 + math.exp(-max(-60.0, min(60.0, score))))
+        audit = horizon_model["calibrations"][target]
+        calibrator = audit["calibrator"]
+        if audit.get("enabled"):
+            scale = float(calibrator["scoreScale"]) or 1.0
+            normalized = (score - float(calibrator["scoreMean"])) / scale
+            calibrated = 1.0 / (
+                1.0 + math.exp(-max(-60.0, min(60.0, float(calibrator["intercept"]) + float(calibrator["slope"]) * normalized)))
+            )
+        else:
+            calibrated = raw_probability
+        probabilities[target] = {
+            "rawScore": score,
+            "rawProbability": raw_probability,
+            "calibratedProbability": calibrated,
+            "calibrationApplied": bool(audit.get("enabled")),
+            "historicalBaseRate": float(calibrator["baseRate"]),
+        }
+    return {
+        "probabilities": probabilities,
+        "expectedExcessReturn": upside_probability_score(horizon_model["models"]["expectedExcess"], row),
+    }
+
+
 def tone_for_change(value: float) -> str:
     return "positive" if value > 0 else "negative" if value < 0 else "neutral"
 
@@ -2231,6 +2509,7 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
         and len(latest) == universe_count
         and artifact_ready
         and probability_artifact.get("taxonomyHash") == taxonomy_hash
+        and probability_artifact.get("schemaVersion") == 2
         and all(
             probability_artifact.get("horizons", {}).get(str(sessions), {}).get("status") == "ready"
             for sessions in (1, 5, 20)
@@ -2314,48 +2593,103 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
                 "sessions": sessions,
                 "reason": (
                     f"当前覆盖{len(latest)}/{universe_count}，冻结训练覆盖{artifact.get('data', {}).get('coverageCount', 0)}/{universe_count}，数据截至{as_of}、页面完整交易日为{expected_label}；"
-                    "上涨概率模型或当日完整横截面尚未就绪。自动化会先重试官方源，再降级为历史基准概率。"
+                    "多目标相对收益模型或当日完整横截面尚未就绪；不会用50%或0填补失败。"
                 ),
             }
             continue
         due_date = trading_due_date(as_of, sessions)
-        probability_rows = []
-        for row in latest:
-            probability, base_rate = upside_probability(probability_horizon, row)
-            probability_rows.append((row, probability, base_rate))
-        ordered = sorted(probability_rows, key=lambda item: item[1], reverse=True)
+        daily_predictions = [
+            (row, relative_target_prediction(probability_horizon, row)) for row in latest
+        ]
+        daily_top = [
+            float(prediction["probabilities"]["topQuartile"]["calibratedProbability"])
+            for _, prediction in daily_predictions
+        ]
+        daily_outperformance = [
+            float(prediction["probabilities"]["outperformance"]["calibratedProbability"])
+            for _, prediction in daily_predictions
+        ]
+        daily_reasons = list(probability_horizon.get("abstainReasons", []))
+        if daily_top and max(daily_top) - min(daily_top) < 0.03:
+            daily_reasons.append("当日最高与最低进入前25%概率差小于3个百分点")
+        if daily_top and statistics.pstdev(daily_top) < 0.01:
+            daily_reasons.append("当日横截面预测标准差低于1个百分点")
+        if daily_outperformance and all(0.47 <= value <= 0.53 for value in daily_outperformance):
+            daily_reasons.append("当日全部跑赢基准概率落在47%—53%区间")
+        daily_reasons = list(dict.fromkeys(daily_reasons))
+        if probability_horizon.get("publicationStatus") != "published" or daily_reasons:
+            diagnostic = probability_horizon.get("audit", {}).get("rankingMetrics", {})
+            horizons[key] = {
+                "kind": "forecast",
+                "status": "abstained",
+                "asOf": as_of,
+                "dueDate": due_date,
+                "sessions": sessions,
+                "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
+                "abstainReasons": daily_reasons or ["样本外质量闸门未通过"],
+                "note": "基于资金可得性、相对强度与流动性证据排序；当前概率模型未通过样本外质量检验。观察分不是上涨概率。",
+                "observationItems": current_items,
+                "availableEvidence": [
+                    f"12项中证固定观察池的同日量价横截面完整，基准为{A_SHARE_BENCHMARK['shortName']}。",
+                    (
+                        f"样本外RankIC={float(diagnostic.get('rankIc') or 0):.3f}，"
+                        f"Top-Bottom扣费后收益差={float(diagnostic.get('topBottomSpreadAfterCosts') or 0) * 100:+.2f}%。"
+                    ),
+                ],
+                "nextWatch": [
+                    "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+                    "Brier Skill、RankIC、扣费后Top-Bottom收益差及多数walk-forward窗口必须同时为正。",
+                ],
+                "diagnostics": {
+                    "modelVersion": probability_artifact.get("version"),
+                    "dataCompleteness": probability_artifact.get("dataDiagnostics", {}).get("enhancedFeatureGroups", {}).get("completeness", 0),
+                    "rankIc": diagnostic.get("rankIc"),
+                    "topBottomSpreadAfterCosts": diagnostic.get("topBottomSpreadAfterCosts"),
+                    "predictionCrossSectionStd": diagnostic.get("predictionCrossSectionStd"),
+                },
+            }
+            continue
+        probability_rows = daily_predictions
+        ordered = sorted(
+            probability_rows,
+            key=lambda item: (
+                float(item[1]["probabilities"]["topQuartile"]["calibratedProbability"]),
+                float(item[1]["expectedExcessReturn"]),
+            ),
+            reverse=True,
+        )
         items = []
-        for rank, (row, probability, base_rate) in enumerate(ordered, start=1):
+        for rank, (row, prediction) in enumerate(ordered, start=1):
+            probabilities = prediction["probabilities"]
+            top_quartile = probabilities["topQuartile"]
+            outperformance = probabilities["outperformance"]
+            absolute = probabilities["absoluteUp"]
+            probability = float(top_quartile["calibratedProbability"])
+            base_rate = float(top_quartile["historicalBaseRate"])
             direction = probability_direction(probability, base_rate)
-            low, high = probability_calibration_range(probability_horizon, probability)
             probability_pct = round(probability * 100, 1)
             base_rate_pct = round(base_rate * 100, 1)
             edge_pct = round((probability - base_rate) * 100, 1)
-            deployment_tier = str(probability_horizon["deploymentTier"])
-            tier_label = {
-                "model-calibrated": "样本外校准",
-                "model-shrunk": "收缩概率",
-                "historical-base-rate": "历史基准",
-            }.get(deployment_tier, "历史基准")
+            expected_excess_pct = round(float(prediction["expectedExcessReturn"]) * 100, 2)
             audit = probability_horizon["audit"]
-            metrics = audit["deployedMetrics"]
+            metrics = audit["rankingMetrics"]
             calibration_basis = (
-                f"{tier_label}：滚动两年训练，{audit['evaluationDates']}个独立样本外日期/"
-                f"{audit['evaluationObservations']}项评估；Brier={metrics['brier']:.3f}，"
-                f"基准={metrics['baselineBrier']:.3f}。概率表示同口径历史条件频率，不是收益承诺。"
+                f"滚动两年训练，{audit['evaluationDates']}个独立样本外日期/"
+                f"{audit['evaluationObservations']}项评估；RankIC={float(metrics['rankIc']):.3f}，"
+                f"扣费后Top-Bottom={float(metrics['topBottomSpreadAfterCosts']) * 100:+.2f}%。"
             )
             amount_ratio = math.exp(row["amountRatio5v20"])
             volume_ratio = math.exp(row["volumeRatio5v20"])
             if edge_pct >= 3:
-                claim = f"若截至{as_of}的量价状态延续，模型估计{row['name']}未来{sessions}个交易日收盘上涨概率为{probability_pct:.1f}%，较两年历史基准高{edge_pct:.1f}个百分点；这是条件情景，上行相对占优。"
+                claim = f"{row['name']}未来{sessions}个交易日进入观察池前25%的概率为{probability_pct:.1f}%，跑赢中证全指概率为{float(outperformance['calibratedProbability']) * 100:.1f}%，预期相对收益{expected_excess_pct:+.2f}%。"
                 trigger = "5日动量保持为正，且近5日成交额/此前20日均值不低于1.0倍。"
                 invalidation = "5日动量转负且成交额比低于0.85倍，或行业相对强弱跌出横截面后40%。"
             elif edge_pct <= -3:
-                claim = f"若截至{as_of}的量价状态延续，模型估计{row['name']}未来{sessions}个交易日收盘上涨概率为{probability_pct:.1f}%，较两年历史基准低{abs(edge_pct):.1f}个百分点；这是条件情景，上行偏弱。"
+                claim = f"{row['name']}未来{sessions}个交易日进入观察池前25%的概率为{probability_pct:.1f}%，低于历史基准{abs(edge_pct):.1f}个百分点，预期相对收益{expected_excess_pct:+.2f}%。"
                 trigger = "5日动量维持为负，且相对排名未回到横截面前60%。"
                 invalidation = "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。"
             else:
-                claim = f"若截至{as_of}的量价状态延续，模型估计{row['name']}未来{sessions}个交易日收盘上涨概率为{probability_pct:.1f}%，接近两年历史基准{base_rate_pct:.1f}%；这是条件情景，当前没有明显概率优势。"
+                claim = f"{row['name']}未来{sessions}个交易日进入观察池前25%的概率为{probability_pct:.1f}%，接近历史基准{base_rate_pct:.1f}%，预期相对收益{expected_excess_pct:+.2f}%。"
                 trigger = "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。"
                 invalidation = "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。"
             items.append(
@@ -2370,15 +2704,17 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
                     "sector": row["name"],
                     "code": row["code"],
                     "rank": rank,
-                    "upProbability": probability_pct,
+                    "rankingTarget": "top-quartile",
+                    "topQuartileProbability": probability_pct,
+                    "outperformanceProbability": round(float(outperformance["calibratedProbability"]) * 100, 1),
+                    "absoluteUpProbability": round(float(absolute["calibratedProbability"]) * 100, 1),
+                    "expectedExcessReturn": expected_excess_pct,
+                    "rawScore": float(top_quartile["rawScore"]),
+                    "rawProbability": round(float(top_quartile["rawProbability"]) * 100, 4),
+                    "calibratedProbability": round(float(top_quartile["calibratedProbability"]) * 100, 4),
                     "historicalBaseRate": base_rate_pct,
-                    "probabilityEdge": edge_pct,
-                    "calibrationRange": {
-                        "low": round(low * 100, 1),
-                        "high": round(high * 100, 1),
-                        "level": "90%",
-                    },
-                    "probabilityTier": deployment_tier,
+                    "effectiveEdge": edge_pct,
+                    "probabilityTier": "model-calibrated",
                     "direction": direction,
                     "confidence": "low",
                     "calibrationBasis": calibration_basis,
@@ -2413,7 +2749,7 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
             "asOf": as_of,
             "dueDate": due_date,
             "sessions": sessions,
-            "note": "上涨概率定义为行业指数在对应第N个完整交易日收盘高于asOf收盘；按概率从高到低排序，并同时展示两年历史基准、概率优势与90%校准区间。仅有量价证据，文字置信度封顶low。",
+            "note": "主榜按进入固定观察池前25%的样本外校准概率排序；同时展示跑赢中证全指概率、绝对上涨概率和预期相对收益。",
             "items": items,
         }
 
@@ -2429,7 +2765,7 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
             "version": "a-core12-v2",
             "effectiveDate": "2026-07-18",
         },
-        "note": "固定12项精简观察池；医疗、军工、互联网仅作重点编排、不参与加分。当前允许同日可复核子集，一周/月仍须完整池walk-forward门禁。",
+        "note": "固定12项精简观察池；医疗、军工、互联网只提升采集与解释深度，不参与加分。预测以中证全指为基准并受严格弃权门禁约束。",
         "reason": None if current_ready else (
             f"最新同日可比数据仅{len(latest)}/{universe_count}项，数据截至{as_of}，"
             f"页面完整交易日为{expected_label}；少于3项时不生成横截面排序。"
@@ -2536,6 +2872,50 @@ def hk_market() -> dict[str, Any]:
         }
         market_status = "insufficient"
         reason = current_horizon["reason"]
+    if current_horizon["status"] == "ready":
+        hk_forecasts = {
+            key: {
+                "kind": "forecast",
+                "status": "abstained",
+                "asOf": as_of,
+                "sessions": sessions,
+                "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
+                "abstainReasons": [
+                    "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+                    "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+                    "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果",
+                ],
+                "note": "基于官方行业当日相对表现生成证据观察榜；观察分不是上涨概率。",
+                "observationItems": current_horizon["items"],
+                "availableEvidence": [
+                    "恒生指数公司12个一级行业同日官方点位与涨跌幅完整。",
+                    "重点关注池只提高南向、ETF与公司事件的采集深度，不改变横截面分数。",
+                ],
+                "nextWatch": [
+                    "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+                    "补齐HKMA隔夜及1个月HIBOR、总结余、USD/HKD，并联接美国2年期与USD/CNH。",
+                ],
+                "diagnostics": {
+                    "modelVersion": "hk-relative-model-not-trained",
+                    "dataCompleteness": 0.0,
+                    "rankIc": None,
+                    "topBottomSpreadAfterCosts": None,
+                    "predictionCrossSectionStd": None,
+                },
+            }
+            for key, sessions in (("tomorrow", 1), ("oneWeek", 5), ("oneMonth", 20))
+        }
+    else:
+        hk_forecasts = {
+            key: {
+                "kind": "forecast",
+                "status": "insufficient",
+                "asOf": as_of,
+                "sessions": sessions,
+                "reason": "恒生官方当前行业快照不可用，无法生成可复核观察榜。",
+            }
+            for key, sessions in (("tomorrow", 1), ("oneWeek", 5), ("oneMonth", 20))
+        }
     return {
         "id": "hk",
         "label": "港股",
@@ -2568,27 +2948,7 @@ def hk_market() -> dict[str, Any]:
         ],
         "horizons": {
             "current": current_horizon,
-            "tomorrow": {
-                "kind": "forecast",
-                "status": "insufficient",
-                "asOf": as_of,
-                "sessions": 1,
-                "reason": "港股行业连续历史仍在本地沉淀，尚未形成可校准的下一交易日概率。",
-            },
-            "oneWeek": {
-                "kind": "forecast",
-                "status": "insufficient",
-                "asOf": as_of,
-                "sessions": 5,
-                "reason": "官方12行业历史日频接口当前无法稳定返回，不能完成同口径walk-forward回测。",
-            },
-            "oneMonth": {
-                "kind": "forecast",
-                "status": "insufficient",
-                "asOf": as_of,
-                "sessions": 20,
-                "reason": "官方12行业历史日频接口当前无法稳定返回，不能完成同口径walk-forward回测。",
-            },
+            **hk_forecasts,
         },
     }
 
@@ -2703,21 +3063,23 @@ def us_market() -> dict[str, Any]:
 def infer(_: argparse.Namespace) -> dict[str, Any]:
     if not MODEL_PATH.exists():
         raise SystemExit("frozen model missing; run 'pipeline' once")
-    if not PROBABILITY_MODEL_PATH.exists():
-        raise SystemExit("upside probability model missing; run 'rotation:probability-train' once")
+    if not MULTI_TARGET_MODEL_PATH.exists():
+        raise SystemExit("relative multi-target model missing; run 'rotation:probability-train' once")
     try:
         ensure_event_memory()
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         raise SystemExit(f"event memory initialization failed: {exc}") from exc
     artifact = read_json(MODEL_PATH)
-    probability_artifact = read_json(PROBABILITY_MODEL_PATH)
+    probability_artifact = read_json(MULTI_TARGET_MODEL_PATH)
     metrics = []
     for sessions in (1, 5, 20):
         result = probability_artifact["horizons"][str(sessions)]
-        audit = result["audit"]["deployedMetrics"]
+        audit = result["audit"]["rankingMetrics"]
+        top_audit = result["calibrations"]["topQuartile"]
+        probability_audit = top_audit["calibratedMetrics" if top_audit["enabled"] else "rawMetrics"]
         metrics.append(
-            f"{sessions}日 {result['deploymentTier']}（Brier {audit['brier']:.3f}，"
-            f"基准 {audit['baselineBrier']:.3f}，AUC {audit['auc']:.3f}）"
+            f"{sessions}日 {result['publicationStatus']}（Brier Skill {probability_audit['brierSkill']:.3f}，"
+            f"AUC {probability_audit['auc']:.3f}，RankIC {audit['rankIc']:.3f}）"
         )
     payload = {
         "schemaVersion": 1,
@@ -2728,11 +3090,11 @@ def infer(_: argparse.Namespace) -> dict[str, Any]:
             "trainedAt": probability_artifact["trainedAt"],
             "trainingStart": probability_artifact["trainingStart"],
             "trainingEnd": probability_artifact["trainingEnd"],
-            "method": "冻结的1/5/20交易日行业上涨概率模型；滚动504日训练并使用时间顺序样本外校准。每日只刷新输入与推理，质量不足时向历史基准收缩而不是输出空白。",
+            "method": "冻结的1/5/20交易日多目标模型；分别估计绝对上涨、跑赢中证全指、进入前25%和预期相对收益。使用purged walk-forward与embargo；质量不足时弃权并展示非概率观察榜。",
             "features": probability_artifact["features"],
             "backtest": {
-                "status": "limited",
-                "summary": "；".join(metrics) + "。概率是同口径历史条件频率；仍需结合赔率、交易成本与失效条件。",
+                "status": "limited" if any(result["publicationStatus"] == "abstained" for result in probability_artifact["horizons"].values()) else "passed",
+                "summary": "；".join(metrics) + "。未通过闸门的周期不会发布概率排名。",
             },
         },
         "markets": [a_share_market(artifact, probability_artifact), hk_market(), us_market()],
@@ -2743,6 +3105,20 @@ def infer(_: argparse.Namespace) -> dict[str, Any]:
             market.pop("reason", None)
     write_json_atomic(CONTENT_PATH, payload)
     print(f"[infer] wrote {CONTENT_PATH.relative_to(ROOT)}", flush=True)
+    history_script = ROOT / "scripts" / "prediction_history.py"
+    if history_script.exists():
+        result = subprocess.run(
+            [sys.executable, str(history_script)],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=60,
+            check=False,
+        )
+        if result.returncode != 0:
+            raise RuntimeError(f"prediction history update failed: {result.stderr.strip()}")
+        if result.stdout.strip():
+            print(result.stdout.strip(), flush=True)
     return payload
 
 

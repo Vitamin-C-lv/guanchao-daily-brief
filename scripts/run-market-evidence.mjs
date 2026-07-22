@@ -17,6 +17,18 @@ const skipRotation = userArgs.includes("--skip-rotation-refresh");
 const collectorArgs = userArgs.filter((arg) => arg !== "--skip-rotation-refresh");
 
 if (command === "daily" && !skipRotation) {
+  const signals = spawnSync(process.execPath, [rotationRunner, "signals"], {
+    cwd: root,
+    stdio: "inherit",
+    windowsHide: true,
+  });
+  if (signals.error || signals.status !== 0) {
+    console.warn(
+      `港股宏观辅助信号刷新失败；继续刷新基础行情，但港股概率模型必须按数据完整度门禁弃权。${
+        signals.error ? ` ${signals.error.message}` : ""
+      }`,
+    );
+  }
   const rotation = spawnSync(process.execPath, [rotationRunner, "refresh"], {
     cwd: root,
     stdio: "inherit",

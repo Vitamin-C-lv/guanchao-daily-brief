@@ -7,8 +7,9 @@ const root = process.cwd();
 const rotationPath = path.resolve(root, "content", "sector-rotation.json");
 const schemaPath = path.resolve(root, "schemas", "sector-rotation.schema.json");
 const modelArtifactPath = path.resolve(root, "models", "sector-rotation", "a-share-v1.json");
-const probabilityArtifactPath = path.resolve(root, "models", "sector-rotation", "a-share-up-probability-v1.json");
+const probabilityArtifactPath = path.resolve(root, "models", "sector-rotation", "a-share-relative-probability-v2.json");
 const aShareTaxonomyPath = path.resolve(root, "models", "sector-rotation", "taxonomy.a-core12-v2.json");
+const featureSourceRegistryPath = path.resolve(root, "models", "sector-rotation", "feature-source-registry-v2.json");
 const dailyBriefPath = path.resolve(root, "content", "daily-brief.json");
 const aShareCalendarPath = path.resolve(root, "models", "sector-rotation", "cn-market-calendar-2026.json");
 const MAX_ROTATION_BYTES = 384 * 1024;
@@ -323,7 +324,7 @@ function validateConfidence(item, evidenceIndexes, sources, label) {
 }
 
 function validateForecastItem(item, sources, horizonDueDate, label, context) {
-  if (!exactKeys(item, ["forecastId", "sector", "code", "rank", "upProbability", "historicalBaseRate", "probabilityEdge", "calibrationRange", "probabilityTier", "direction", "confidence", "calibrationBasis", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "dueDate"], label)) return;
+  if (!exactKeys(item, ["forecastId", "sector", "code", "rank", "rankingTarget", "topQuartileProbability", "outperformanceProbability", "absoluteUpProbability", "expectedExcessReturn", "rawScore", "rawProbability", "calibratedProbability", "historicalBaseRate", "effectiveEdge", "probabilityTier", "direction", "confidence", "calibrationBasis", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "dueDate"], label)) return;
   if (requireString(item.forecastId, `${label}.forecastId`, { max: 100 })) {
     if (!/^fr-[a-z0-9-]+$/.test(item.forecastId)) fail(`${label}.forecastId 格式非法`);
     if (seenForecastIds.has(item.forecastId)) fail(`${label}.forecastId 与其他预测重复`);
@@ -333,25 +334,24 @@ function validateForecastItem(item, sources, horizonDueDate, label, context) {
   if (item.code !== undefined) requireString(item.code, `${label}.code`, { max: 30 });
   if (!["strong-up", "up", "range", "down", "strong-down"].includes(item.direction)) fail(`${label}.direction 非法`);
   if (!["low", "medium", "medium-high"].includes(item.confidence)) fail(`${label}.confidence 非法`);
-  requireFiniteRange(item.upProbability, 0, 100, `${label}.upProbability`);
+  if (item.rankingTarget !== "top-quartile") fail(`${label}.rankingTarget 必须是 top-quartile`);
+  requireFiniteRange(item.topQuartileProbability, 0, 100, `${label}.topQuartileProbability`);
+  requireFiniteRange(item.outperformanceProbability, 0, 100, `${label}.outperformanceProbability`);
+  requireFiniteRange(item.absoluteUpProbability, 0, 100, `${label}.absoluteUpProbability`);
+  requireFiniteRange(item.expectedExcessReturn, -100, 100, `${label}.expectedExcessReturn`);
+  if (!Number.isFinite(item.rawScore)) fail(`${label}.rawScore 必须是有限数值`);
+  requireFiniteRange(item.rawProbability, 0, 100, `${label}.rawProbability`);
+  requireFiniteRange(item.calibratedProbability, 0, 100, `${label}.calibratedProbability`);
   requireFiniteRange(item.historicalBaseRate, 0, 100, `${label}.historicalBaseRate`);
-  requireFiniteRange(item.probabilityEdge, -100, 100, `${label}.probabilityEdge`);
-  if (Number.isFinite(item.upProbability) && Number.isFinite(item.historicalBaseRate)
-    && Math.abs(item.probabilityEdge - (item.upProbability - item.historicalBaseRate)) > 0.11) {
-    fail(`${label}.probabilityEdge 必须等于上涨概率减历史基准（允许0.1个百分点舍入）`);
+  requireFiniteRange(item.effectiveEdge, -100, 100, `${label}.effectiveEdge`);
+  if (Number.isFinite(item.topQuartileProbability) && Number.isFinite(item.historicalBaseRate)
+    && Math.abs(item.effectiveEdge - (item.topQuartileProbability - item.historicalBaseRate)) > 0.11) {
+    fail(`${label}.effectiveEdge 必须等于前四分位概率减历史基准（允许0.1个百分点舍入）`);
   }
-  if (!["model-calibrated", "model-shrunk", "historical-base-rate"].includes(item.probabilityTier)) fail(`${label}.probabilityTier 非法`);
-  if (!exactKeys(item.calibrationRange, ["low", "high", "level"], `${label}.calibrationRange`)) return;
-  requireFiniteRange(item.calibrationRange.low, 0, 100, `${label}.calibrationRange.low`);
-  requireFiniteRange(item.calibrationRange.high, 0, 100, `${label}.calibrationRange.high`);
-  if (item.calibrationRange.level !== "90%") fail(`${label}.calibrationRange.level 必须为90%`);
-  if (Number.isFinite(item.calibrationRange.low) && Number.isFinite(item.calibrationRange.high)) {
-    if (item.calibrationRange.low > item.calibrationRange.high) fail(`${label}.calibrationRange low不得高于high`);
-    if (item.upProbability < item.calibrationRange.low || item.upProbability > item.calibrationRange.high) fail(`${label}.upProbability 必须位于90%校准区间内`);
-  }
+  if (item.probabilityTier !== "model-calibrated") fail(`${label}.probabilityTier 必须为 model-calibrated`);
   if (requireString(item.calibrationBasis, `${label}.calibrationBasis`, { max: 360 })) {
     if (item.calibrationBasis.length < 20) fail(`${label}.calibrationBasis 少于20字符`);
-    if (!/(样本外|校准|历史基准)/.test(item.calibrationBasis)) fail(`${label}.calibrationBasis 必须说明样本外校准或历史基准`);
+    if (!/(样本外|校准|RankIC|Top-Bottom)/.test(item.calibrationBasis)) fail(`${label}.calibrationBasis 必须说明样本外质量`);
   }
   requireString(item.claim, `${label}.claim`, { max: 280 });
   requireString(item.trigger, `${label}.trigger`, { max: 220 });
@@ -388,9 +388,7 @@ function validateForecastItem(item, sources, horizonDueDate, label, context) {
 
   const forecastText = `${item.claim}${item.trigger}${item.invalidation}${JSON.stringify(item.evidence ?? [])}${JSON.stringify(item.counterEvidence ?? [])}`;
   if (absolutePromisePattern.test(forecastText)) fail(`${label} 含确定性投资措辞`);
-  if (!/(若|如果|一旦|前提|条件|情景)/.test(`${item.claim}${item.trigger}`) || !/(可能|倾向|有望|或将|情景|风险)/.test(item.claim)) {
-    fail(`${label}.claim 必须使用有前提的条件式表达，不得写成确定结果`);
-  }
+  if (!/(若|如果|一旦|前提|条件|情景|维持|保持)/.test(`${item.claim}${item.trigger}`)) fail(`${label} 必须提供可验证的条件或触发项`);
 }
 
 function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
@@ -399,7 +397,7 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
     return;
   }
   if (horizon.kind !== kind) fail(`${label}.kind 必须是 ${kind}`);
-  if (!["ready", "insufficient"].includes(horizon.status)) fail(`${label}.status 必须是 ready 或 insufficient`);
+  if (!["ready", "abstained", "insufficient"].includes(horizon.status)) fail(`${label}.status 必须是 ready、abstained 或 insufficient`);
   requireDate(horizon.asOf, `${label}.asOf`);
   if (horizon.asOf !== market.asOf) fail(`${label}.asOf 必须与 market.asOf 一致`);
 
@@ -411,6 +409,32 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
     if (kind === "forecast") {
       if (horizon.sessions !== sessions) fail(`${label}.sessions 必须是 ${sessions}`);
       if (horizon.dueDate !== undefined) requireDate(horizon.dueDate, `${label}.dueDate`);
+    }
+    return;
+  }
+
+  if (horizon.status === "abstained") {
+    if (kind !== "forecast") fail(`${label} 只有预测窗口可以abstained`);
+    exactKeys(horizon, ["kind", "status", "asOf", "dueDate", "sessions", "reason", "abstainReasons", "note", "observationItems", "availableEvidence", "nextWatch", "diagnostics"], label);
+    if (horizon.sessions !== sessions) fail(`${label}.sessions 必须是 ${sessions}`);
+    if (horizon.dueDate !== undefined) requireDate(horizon.dueDate, `${label}.dueDate`);
+    requireString(horizon.reason, `${label}.reason`, { max: 300 });
+    requireString(horizon.note, `${label}.note`, { max: 400 });
+    if (!Array.isArray(horizon.abstainReasons) || !horizon.abstainReasons.length) fail(`${label}.abstainReasons 不得为空`);
+    if (!Array.isArray(horizon.observationItems) || horizon.observationItems.length < 3) fail(`${label}.observationItems 至少3项`);
+    else {
+      validateRanksAndValues(horizon.observationItems, `${label}.observationItems`, "score");
+      horizon.observationItems.forEach((item, index) => validateObservedItem(item, sources, `${label}.observationItems[${index}]`));
+    }
+    if (!Array.isArray(horizon.availableEvidence) || !horizon.availableEvidence.length) fail(`${label}.availableEvidence 不得为空`);
+    if (!Array.isArray(horizon.nextWatch) || !horizon.nextWatch.length) fail(`${label}.nextWatch 不得为空`);
+    if (!isObject(horizon.diagnostics)) fail(`${label}.diagnostics 必须是对象`);
+    else {
+      requireString(horizon.diagnostics.modelVersion, `${label}.diagnostics.modelVersion`, { max: 80 });
+      requireFiniteRange(horizon.diagnostics.dataCompleteness, 0, 1, `${label}.diagnostics.dataCompleteness`);
+      for (const key of ["rankIc", "topBottomSpreadAfterCosts", "predictionCrossSectionStd"]) {
+        if (horizon.diagnostics[key] !== null && !Number.isFinite(horizon.diagnostics[key])) fail(`${label}.diagnostics.${key} 必须是数值或null`);
+      }
     }
     return;
   }
@@ -428,8 +452,8 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
       if (!expectedDueDate) fail(`${label} 缺少覆盖该窗口的A股官方交易日历，必须降级 insufficient`);
       else if (horizon.dueDate !== expectedDueDate) fail(`${label}.dueDate 应为第 ${sessions} 个A股交易日 ${expectedDueDate}`);
     }
-    if (!/(上涨概率|概率)/.test(`${market.note}${horizon.note}`) || !/(历史基准|样本外|校准)/.test(`${market.note}${horizon.note}`)) {
-      fail(`${label}.note 必须说明上涨概率的历史基准或样本外校准口径`);
+    if (!/(前25%|前四分位|概率)/.test(`${market.note}${horizon.note}`) || !/(基准|样本外|校准)/.test(`${market.note}${horizon.note}`)) {
+      fail(`${label}.note 必须说明主目标和样本外校准口径`);
     }
     requireString(horizon.note, `${label}.note`, { max: 300 });
   }
@@ -438,7 +462,7 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
     fail(`${label}.items 必须包含 3–${kind === "observed" ? 50 : 30} 项`);
     return;
   }
-  validateRanksAndValues(horizon.items, `${label}.items`, kind === "observed" ? "score" : "upProbability");
+  validateRanksAndValues(horizon.items, `${label}.items`, kind === "observed" ? "score" : "topQuartileProbability");
   horizon.items.forEach((item, index) => {
     if (kind === "observed") validateObservedItem(item, sources, `${label}.items[${index}]`);
     else validateForecastItem(item, sources, horizon.dueDate, `${label}.items[${index}]`, { market, horizon, sessions });
@@ -566,8 +590,9 @@ let modelArtifact;
 let probabilityArtifact;
 let aShareTaxonomy;
 let dailyBrief;
+let featureSourceRegistry;
 try {
-  const [info, raw, schemaRaw, calendarRaw, modelRaw, probabilityRaw, taxonomyRaw, dailyBriefRaw] = await Promise.all([
+  const [info, raw, schemaRaw, calendarRaw, modelRaw, probabilityRaw, taxonomyRaw, dailyBriefRaw, registryRaw] = await Promise.all([
     stat(rotationPath),
     readFile(rotationPath, "utf8"),
     readFile(schemaPath, "utf8"),
@@ -576,6 +601,7 @@ try {
     readFile(probabilityArtifactPath, "utf8"),
     readFile(aShareTaxonomyPath, "utf8"),
     readFile(dailyBriefPath, "utf8"),
+    readFile(featureSourceRegistryPath, "utf8"),
   ]);
   if (info.size > MAX_ROTATION_BYTES) fail(`sector-rotation.json 为 ${info.size} 字节，超过 ${MAX_ROTATION_BYTES} 字节低内存上限`);
   JSON.parse(schemaRaw);
@@ -584,6 +610,7 @@ try {
   probabilityArtifact = JSON.parse(probabilityRaw);
   aShareTaxonomy = JSON.parse(taxonomyRaw);
   dailyBrief = JSON.parse(dailyBriefRaw);
+  featureSourceRegistry = JSON.parse(registryRaw);
   data = JSON.parse(raw);
 } catch (error) {
   console.error(`行业轮动数据无法读取或解析：${error.message}`);
@@ -630,15 +657,24 @@ if (!isObject(modelArtifact) || !isObject(modelArtifact.backtest) || !isObject(m
 }
 
 if (!isObject(probabilityArtifact) || !isObject(probabilityArtifact.horizons)) {
-  fail("A股上涨概率 artifact 缺少 horizons，不能验证明日/一周/一月概率");
+  fail("A股多目标相对收益 artifact 缺少 horizons");
 } else {
-  if (probabilityArtifact.schemaVersion !== 1) fail("A股上涨概率 artifact.schemaVersion 必须为1");
+  if (probabilityArtifact.schemaVersion !== 2) fail("A股多目标 artifact.schemaVersion 必须为2");
   requireString(probabilityArtifact.id, "probabilityArtifact.id", { max: 80 });
   requireString(probabilityArtifact.version, "probabilityArtifact.version", { max: 60 });
   requireIsoShanghai(probabilityArtifact.trainedAt, "probabilityArtifact.trainedAt");
   requireDate(probabilityArtifact.trainingStart, "probabilityArtifact.trainingStart");
   requireDate(probabilityArtifact.trainingEnd, "probabilityArtifact.trainingEnd");
-  if (probabilityArtifact.taxonomyHash !== canonicalJsonSha256(aShareTaxonomy)) fail("A股上涨概率 artifact taxonomyHash 与当前固定观察池不一致");
+  if (probabilityArtifact.taxonomyHash !== canonicalJsonSha256(aShareTaxonomy)) fail("A股多目标 artifact taxonomyHash 与当前固定观察池不一致");
+  if (probabilityArtifact.benchmark?.code !== "000985") fail("A股相对收益基准必须是中证全指000985");
+  if (!isObject(probabilityArtifact.dataDiagnostics)) fail("A股多目标 artifact 缺少dataDiagnostics");
+  else {
+    const diagnostics = probabilityArtifact.dataDiagnostics;
+    if (diagnostics.expectedFeatureCount < 1) fail("dataDiagnostics.expectedFeatureCount 非法");
+    if (!Array.isArray(diagnostics.sectors) || diagnostics.sectors.length !== 12) fail("dataDiagnostics.sectors 必须覆盖12项");
+    if (!Array.isArray(diagnostics.sourceHealth?.failures)) fail("dataDiagnostics 必须保存数据源失败记录");
+    if (diagnostics.enhancedFeatureGroups?.missingIsNeverZero !== true) fail("dataDiagnostics 必须声明缺失值不填0");
+  }
   for (const sessions of [1, 5, 20]) {
     const horizon = probabilityArtifact.horizons[String(sessions)];
     const label = `probabilityArtifact.horizons.${sessions}`;
@@ -647,20 +683,49 @@ if (!isObject(probabilityArtifact) || !isObject(probabilityArtifact.horizons)) {
       continue;
     }
     if (horizon.horizonSessions !== sessions) fail(`${label}.horizonSessions 必须为${sessions}`);
-    if (!["model-calibrated", "model-shrunk", "historical-base-rate"].includes(horizon.deploymentTier)) fail(`${label}.deploymentTier 非法`);
-    requireString(horizon.eventDefinition, `${label}.eventDefinition`, { max: 180 });
-    if (!isObject(horizon.model) || horizon.model.trainingDates !== 504 || horizon.model.horizonSessions !== sessions) fail(`${label}.model 必须是504交易日对应窗口模型`);
-    if (horizon.model?.trainingTargetDateMax >= horizon.model?.trainingEnd && horizon.model.trainingTargetDateMax > probabilityArtifact.asOf) {
-      fail(`${label}.model.trainingTargetDateMax 不得越过artifact asOf`);
+    if (!["published", "abstained"].includes(horizon.publicationStatus)) fail(`${label}.publicationStatus 非法`);
+    if (horizon.primaryTarget !== "topQuartileProbability") fail(`${label}.primaryTarget 必须为topQuartileProbability`);
+    for (const target of ["absoluteUp", "outperformance", "topQuartile", "expectedExcess"]) {
+      const model = horizon.models?.[target];
+      if (!isObject(model) || model.trainingDates !== 504 || model.horizonSessions !== sessions) fail(`${label}.models.${target} 必须是独立504交易日模型`);
     }
-    const metrics = horizon.audit?.deployedMetrics;
-    if (!isObject(metrics) || metrics.observations < 1000) fail(`${label}.audit.deployedMetrics 样本不足`);
-    for (const key of ["brier", "baselineBrier", "brierSkill", "logLoss", "ece10", "auc"]) {
-      if (!Number.isFinite(metrics?.[key])) fail(`${label}.audit.deployedMetrics.${key} 必须是有限数值`);
+    for (const target of ["absoluteUp", "outperformance", "topQuartile"]) {
+      const calibration = horizon.calibrations?.[target];
+      if (!isObject(calibration) || !isObject(calibration.rawMetrics) || !isObject(calibration.calibratedMetrics)) fail(`${label}.calibrations.${target} 不完整`);
+      for (const key of ["brier", "baselineBrier", "brierSkill", "auc"]) {
+        if (!Number.isFinite(calibration?.rawMetrics?.[key])) fail(`${label}.calibrations.${target}.rawMetrics.${key} 必须是有限数值`);
+      }
+    }
+    const metrics = horizon.audit?.rankingMetrics;
+    for (const key of ["rankIc", "crossSectionSpearman", "topQuartileHitRate", "topBottomSpread", "topBottomSpreadAfterCosts", "predictionCrossSectionStd", "positiveWindowShare"]) {
+      if (!Number.isFinite(metrics?.[key])) fail(`${label}.audit.rankingMetrics.${key} 必须是有限数值`);
     }
     if (horizon.audit?.evaluationDates < 100) fail(`${label}.audit.evaluationDates 必须至少100个独立交易日`);
-    if (!Array.isArray(horizon.calibrationBins) || horizon.calibrationBins.length < 5) fail(`${label}.calibrationBins 不足`);
+    if (!Array.isArray(horizon.audit?.rankingMetrics?.windows) || !horizon.audit.rankingMetrics.windows.length) fail(`${label} 缺少walk-forward窗口指标`);
+    if (horizon.publicationStatus === "abstained" && (!Array.isArray(horizon.abstainReasons) || !horizon.abstainReasons.length)) fail(`${label} 弃权时必须列明原因`);
+    if (horizon.publicationStatus === "published" && horizon.audit?.qualityGate?.passed !== true) fail(`${label} 质量闸门未通过不得发布`);
   }
+}
+
+if (!isObject(featureSourceRegistry) || featureSourceRegistry.schemaVersion !== 2) {
+  fail("行业轮动特征数据源清单缺失或版本错误");
+} else {
+  if (featureSourceRegistry.policy?.coverage !== "global") fail("重点观察不得把网站改成局部市场覆盖");
+  if (featureSourceRegistry.policy?.focusChangesScore !== false) fail("重点观察池不得改变模型评分");
+  if (featureSourceRegistry.policy?.nullPolicy !== "preserve-null-never-zero") fail("特征缺失必须保留null，禁止填0");
+  const featureIds = new Set((featureSourceRegistry.features ?? []).map((item) => item?.id));
+  for (const required of [
+    "relative-strength-5-20", "turnover-and-volume-change", "constituent-breadth-above-ma20",
+    "etf-subscription-1-3-5", "etf-flow-as-fund-size", "leader-contribution",
+    "internal-return-dispersion", "policy-and-news-event-map", "crowding-risk",
+    "southbound-flow-1-3-5-20", "southbound-flow-as-hk-turnover", "hk-short-selling-ratio",
+    "hk-company-buybacks", "us-2y-treasury", "hibor-overnight-1m", "hk-aggregate-balance",
+    "usd-hkd", "usd-cnh", "top5-weight-contribution", "equal-vs-cap-weight-gap",
+  ]) {
+    if (!featureIds.has(required)) fail(`特征数据源清单缺少 ${required}`);
+  }
+  const usdCnh = (featureSourceRegistry.features ?? []).find((item) => item?.id === "usd-cnh");
+  if (usdCnh?.status !== "source-required" || usdCnh?.primary !== null) fail("USD/CNH 未有合格源时必须保持缺失，禁止用USD/CNY冒充");
 }
 
 if (exactKeys(data, ["schemaVersion", "generatedAt", "model", "markets"], "rotation")) {

@@ -253,18 +253,24 @@ export interface SectorRotationForecastItem {
   sector: string;
   code?: string;
   rank: number;
-  /** Calibrated probability, in percentage points, that the sector index closes above its as-of close. */
-  upProbability: number;
-  /** Same-horizon two-year historical positive-close frequency, in percentage points. */
+  rankingTarget: "top-quartile";
+  /** Probability of finishing in the fixed cross-section's top quartile. */
+  topQuartileProbability: number;
+  /** Probability of outperforming the owning market's benchmark. */
+  outperformanceProbability: number;
+  /** Auxiliary absolute-up probability. */
+  absoluteUpProbability: number;
+  /** Model estimate of sector return minus benchmark return, in percentage points. */
+  expectedExcessReturn: number;
+  /** Publication-time raw model score retained for audit. */
+  rawScore: number;
+  rawProbability: number;
+  calibratedProbability: number;
+  /** Same-horizon historical top-quartile frequency, in percentage points. */
   historicalBaseRate: number;
-  /** upProbability minus historicalBaseRate, in percentage points. */
-  probabilityEdge: number;
-  calibrationRange: {
-    low: number;
-    high: number;
-    level: "90%";
-  };
-  probabilityTier: "model-calibrated" | "model-shrunk" | "historical-base-rate";
+  /** topQuartileProbability minus historicalBaseRate, in percentage points. */
+  effectiveEdge: number;
+  probabilityTier: "model-calibrated";
   direction: SectorRotationForecastDirection;
   confidence: SectorRotationConfidence;
   calibrationBasis: string;
@@ -341,6 +347,28 @@ export type SectorRotationObservedHorizon =
 export type SectorRotationForecastHorizon =
   | {
       kind: "forecast";
+      status: "abstained";
+      asOf: string;
+      dueDate?: string;
+      sessions: 1 | 5 | 20;
+      reason: string;
+      abstainReasons: string[];
+      note: string;
+      observationItems: SectorRotationObservedItem[];
+      availableEvidence: string[];
+      nextWatch: string[];
+      diagnostics: {
+        modelVersion: string;
+        dataCompleteness: number;
+        rankIc: number | null;
+        topBottomSpreadAfterCosts: number | null;
+        predictionCrossSectionStd: number | null;
+      };
+      items?: never;
+      charts?: never;
+    }
+  | {
+      kind: "forecast";
       status: "ready";
       asOf: string;
       dueDate: string;
@@ -400,6 +428,75 @@ export interface SectorRotationIndex {
     };
   };
   markets: SectorRotationMarket[];
+}
+
+export type SectorPredictionResult =
+  | "correct"
+  | "wrong"
+  | "near-neutral"
+  | "pending"
+  | "model-abstained"
+  | "data-insufficient";
+
+export interface SectorPredictionHistoryRecord {
+  prediction_id: string;
+  prediction_date: string;
+  market: "a-share" | "hk";
+  sector_id: string;
+  sector_name: string;
+  horizon: 1 | 5 | 20;
+  due_date: string | null;
+  ranking_target: "top-quartile" | "absolute-up-legacy" | "evidence-observation";
+  raw_score: number | null;
+  raw_probability: number | null;
+  calibrated_probability: number | null;
+  relative_outperformance_probability: number | null;
+  top_quartile_probability: number | null;
+  absolute_up_probability: number | null;
+  expected_excess_return: number | null;
+  historical_base: number | null;
+  effective_edge: number | null;
+  prediction_status: "published" | "model-abstained";
+  abstain_reason: string[];
+  model_version: string;
+  data_as_of: string;
+  created_at: string;
+  data_completeness: number | null;
+  observation_score: number | null;
+  claim: string;
+  evidence: SectorRotationEvidencePoint[];
+  counter_evidence: SectorRotationEvidencePoint[];
+  trigger: string;
+  invalidation: string;
+  source_urls: string[];
+  realized_absolute_return?: number;
+  realized_benchmark_return?: number;
+  realized_excess_return?: number;
+  realized_sector_rank?: number;
+  realized_sector_count?: number;
+  realized_top_quartile?: boolean;
+  result: SectorPredictionResult;
+  evaluated_at?: string;
+}
+
+export interface SectorPredictionHistoryIndex {
+  schemaVersion: 1;
+  generatedAt: string;
+  policy: {
+    immutablePublicationSnapshots: true;
+    historicalPredictionsRecomputed: false;
+    localLedger: string;
+    publicRecordLimit: number;
+  };
+  summary: {
+    records: number;
+    published: number;
+    abstained: number;
+    evaluated: number;
+    firstDate: string | null;
+    lastDate: string | null;
+  };
+  records: SectorPredictionHistoryRecord[];
 }
 
 export type SectorDetailMarketId = "a-share" | "hk";

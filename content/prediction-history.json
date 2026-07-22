@@ -1,0 +1,5180 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-22T09:07:30+08:00",
+  "policy": {
+    "immutablePublicationSnapshots": true,
+    "historicalPredictionsRecomputed": false,
+    "localLedger": "gzip JSONL; forecast fields append-only; evaluations stored separately",
+    "publicRecordLimit": 24000
+  },
+  "summary": {
+    "records": 108,
+    "published": 36,
+    "abstained": 72,
+    "evaluated": 0,
+    "firstDate": "2026-07-21",
+    "lastDate": "2026-07-21"
+  },
+  "records": [
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计能源未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.16%，60日回撤-12.45%",
+          "sourceIndexes": [
+            2,
+            3
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+0.74% / 20日+1.62%",
+          "sourceIndexes": [
+            2,
+            3
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.31x，成交量比1.31x",
+          "sourceIndexes": [
+            2,
+            3
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-000986-f39443581583",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000986",
+      "sector_name": "能源",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 72.7,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-000986-d2e0806ee6349841",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000986",
+      "sector_name": "能源",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计原材料未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.19%，60日回撤-20.04%",
+          "sourceIndexes": [
+            4,
+            5
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-4.30% / 20日-12.62%",
+          "sourceIndexes": [
+            4,
+            5
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.65x，成交量比0.82x",
+          "sourceIndexes": [
+            4,
+            5
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-000987-0fd77c891c01",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000987",
+      "sector_name": "原材料",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000987",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000987&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 18.2,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-000987-af254748d34ce643",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000987",
+      "sector_name": "原材料",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000987",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000987&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计工业未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.87%，60日回撤-19.66%",
+          "sourceIndexes": [
+            6,
+            7
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-2.55% / 20日-11.54%",
+          "sourceIndexes": [
+            6,
+            7
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.74x，成交量比0.93x",
+          "sourceIndexes": [
+            6,
+            7
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-000988-c09f90127a73",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000988",
+      "sector_name": "工业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000988",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000988&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 36.4,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-000988-da83dec734770ba2",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000988",
+      "sector_name": "工业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000988",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000988&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计可选消费未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.45%，60日回撤-13.67%",
+          "sourceIndexes": [
+            8,
+            9
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-0.14% / 20日-1.68%",
+          "sourceIndexes": [
+            8,
+            9
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.92x，成交量比1.01x",
+          "sourceIndexes": [
+            8,
+            9
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-000989-9e521b8e9f5c",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000989",
+      "sector_name": "可选消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000989",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000989&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 54.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-000989-64f71dcc09971b93",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000989",
+      "sector_name": "可选消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000989",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000989&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计主要消费未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.72%，60日回撤-11.50%",
+          "sourceIndexes": [
+            10,
+            11
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+5.16% / 20日+7.39%",
+          "sourceIndexes": [
+            10,
+            11
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.51x，成交量比1.24x",
+          "sourceIndexes": [
+            10,
+            11
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-000990-93c49adaab9a",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000990",
+      "sector_name": "主要消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000990",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000990&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 100.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-000990-58983847e1d065b8",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000990",
+      "sector_name": "主要消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000990",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000990&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计医药医疗未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.63%，60日回撤-1.94%",
+          "sourceIndexes": [
+            12,
+            13
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+1.63% / 20日+12.20%",
+          "sourceIndexes": [
+            12,
+            13
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.53x，成交量比1.48x",
+          "sourceIndexes": [
+            12,
+            13
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-000991-bb2d40d659e0",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000991",
+      "sector_name": "医药医疗",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 90.9,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-000991-25863de8a1ea15f4",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000991",
+      "sector_name": "医药医疗",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计金融地产未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.37%，60日回撤-3.38%",
+          "sourceIndexes": [
+            14,
+            15
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+1.59% / 20日-0.04%",
+          "sourceIndexes": [
+            14,
+            15
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.98x，成交量比1.05x",
+          "sourceIndexes": [
+            14,
+            15
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-000992-55731f8cfe67",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000992",
+      "sector_name": "金融地产",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000992",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000992&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 63.6,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-000992-b88dc52d9599d228",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000992",
+      "sector_name": "金融地产",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000992",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000992&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50,
+      "abstain_reason": [],
+      "calibrated_probability": 50,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计信息技术未来1个交易日收盘上涨概率为50.0%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率4.52%，60日回撤-19.81%",
+          "sourceIndexes": [
+            16,
+            17
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-9.00% / 20日-9.52%",
+          "sourceIndexes": [
+            16,
+            17
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.83x，成交量比0.82x",
+          "sourceIndexes": [
+            16,
+            17
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-000993-852cc7ecf411",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000993",
+      "sector_name": "信息技术",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000993",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000993&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 0.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-000993-2e4992d318825bc3",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000993",
+      "sector_name": "信息技术",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000993",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000993&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计通信服务未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率3.76%，60日回撤-17.89%",
+          "sourceIndexes": [
+            18,
+            19
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-5.73% / 20日-14.96%",
+          "sourceIndexes": [
+            18,
+            19
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.98x，成交量比1.19x",
+          "sourceIndexes": [
+            18,
+            19
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-000994-12d396d6cda0",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000994",
+      "sector_name": "通信服务",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000994",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000994&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 27.3,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-000994-5cd48a2693cfb195",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000994",
+      "sector_name": "通信服务",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000994",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000994&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计公用事业未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.25%，60日回撤-13.70%",
+          "sourceIndexes": [
+            20,
+            21
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+3.04% / 20日-1.58%",
+          "sourceIndexes": [
+            20,
+            21
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.21x，成交量比1.22x",
+          "sourceIndexes": [
+            20,
+            21
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-000995-1c4aa565bcd7",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000995",
+      "sector_name": "公用事业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000995",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000995&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 81.8,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-000995-16e63fe51ddb9d2d",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000995",
+      "sector_name": "公用事业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000995",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000995&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计军工未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.71%，60日回撤-27.19%",
+          "sourceIndexes": [
+            22,
+            23
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-6.09% / 20日-13.09%",
+          "sourceIndexes": [
+            22,
+            23
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.68x，成交量比0.79x",
+          "sourceIndexes": [
+            22,
+            23
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-399967-7842f2e87753",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399967",
+      "sector_name": "军工",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399967factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399967&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 9.1,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-399967-bde0c5697a5641bf",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399967",
+      "sector_name": "军工",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399967factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399967&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计移动互联网未来1个交易日收盘上涨概率为50.1%，接近两年历史基准50.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率3.32%，60日回撤-11.84%",
+          "sourceIndexes": [
+            24,
+            25
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-22",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-3.77% / 20日-5.47%",
+          "sourceIndexes": [
+            24,
+            25
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.92x，成交量比0.89x",
+          "sourceIndexes": [
+            24,
+            25
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 50,
+      "horizon": 1,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h1-399970-4c4d25c267bc",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399970",
+      "sector_name": "移动互联网",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399970factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399970&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-22",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 45.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h1-399970-1688c5fe5f495b8b",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399970",
+      "sector_name": "移动互联网",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399970factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399970&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计能源未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.16%，60日回撤-12.45%",
+          "sourceIndexes": [
+            2,
+            3
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+0.74% / 20日+1.62%",
+          "sourceIndexes": [
+            2,
+            3
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.31x，成交量比1.31x",
+          "sourceIndexes": [
+            2,
+            3
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-000986-dfa327f4686b",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000986",
+      "sector_name": "能源",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 72.7,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-000986-d629785d9acc950f",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000986",
+      "sector_name": "能源",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计原材料未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.19%，60日回撤-20.04%",
+          "sourceIndexes": [
+            4,
+            5
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-4.30% / 20日-12.62%",
+          "sourceIndexes": [
+            4,
+            5
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.65x，成交量比0.82x",
+          "sourceIndexes": [
+            4,
+            5
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-000987-b2ef41ec6b5c",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000987",
+      "sector_name": "原材料",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000987",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000987&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 18.2,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-000987-8f33feeccdbc3e14",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000987",
+      "sector_name": "原材料",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000987",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000987&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计工业未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.87%，60日回撤-19.66%",
+          "sourceIndexes": [
+            6,
+            7
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-2.55% / 20日-11.54%",
+          "sourceIndexes": [
+            6,
+            7
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.74x，成交量比0.93x",
+          "sourceIndexes": [
+            6,
+            7
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-000988-8be639a53ae7",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000988",
+      "sector_name": "工业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000988",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000988&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 36.4,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-000988-b22eead0acf0ebf2",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000988",
+      "sector_name": "工业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000988",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000988&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计可选消费未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.45%，60日回撤-13.67%",
+          "sourceIndexes": [
+            8,
+            9
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-0.14% / 20日-1.68%",
+          "sourceIndexes": [
+            8,
+            9
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.92x，成交量比1.01x",
+          "sourceIndexes": [
+            8,
+            9
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-000989-e6a8857796df",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000989",
+      "sector_name": "可选消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000989",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000989&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 54.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-000989-199fc126c6e8c1ef",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000989",
+      "sector_name": "可选消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000989",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000989&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计主要消费未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.72%，60日回撤-11.50%",
+          "sourceIndexes": [
+            10,
+            11
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+5.16% / 20日+7.39%",
+          "sourceIndexes": [
+            10,
+            11
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.51x，成交量比1.24x",
+          "sourceIndexes": [
+            10,
+            11
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-000990-9aa3a9d86200",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000990",
+      "sector_name": "主要消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000990",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000990&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 100.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-000990-8734857ee25ac175",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000990",
+      "sector_name": "主要消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000990",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000990&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计医药医疗未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.63%，60日回撤-1.94%",
+          "sourceIndexes": [
+            12,
+            13
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+1.63% / 20日+12.20%",
+          "sourceIndexes": [
+            12,
+            13
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.53x，成交量比1.48x",
+          "sourceIndexes": [
+            12,
+            13
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-000991-cc20480a16ba",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000991",
+      "sector_name": "医药医疗",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 90.9,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-000991-0c91d383099171e3",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000991",
+      "sector_name": "医药医疗",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计金融地产未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.37%，60日回撤-3.38%",
+          "sourceIndexes": [
+            14,
+            15
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+1.59% / 20日-0.04%",
+          "sourceIndexes": [
+            14,
+            15
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.98x，成交量比1.05x",
+          "sourceIndexes": [
+            14,
+            15
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-000992-1676e14cce7a",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000992",
+      "sector_name": "金融地产",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000992",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000992&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 63.6,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-000992-ddd73ce1692ae6b7",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000992",
+      "sector_name": "金融地产",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000992",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000992&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计信息技术未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率4.52%，60日回撤-19.81%",
+          "sourceIndexes": [
+            16,
+            17
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-9.00% / 20日-9.52%",
+          "sourceIndexes": [
+            16,
+            17
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.83x，成交量比0.82x",
+          "sourceIndexes": [
+            16,
+            17
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-000993-cee0fe481ce0",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000993",
+      "sector_name": "信息技术",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000993",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000993&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 0.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-000993-acff7faa61ab6b1a",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000993",
+      "sector_name": "信息技术",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000993",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000993&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计通信服务未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率3.76%，60日回撤-17.89%",
+          "sourceIndexes": [
+            18,
+            19
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-5.73% / 20日-14.96%",
+          "sourceIndexes": [
+            18,
+            19
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.98x，成交量比1.19x",
+          "sourceIndexes": [
+            18,
+            19
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-000994-7b1d2e554139",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000994",
+      "sector_name": "通信服务",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000994",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000994&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 27.3,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-000994-5483486d15cded62",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000994",
+      "sector_name": "通信服务",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000994",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000994&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计公用事业未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.25%，60日回撤-13.70%",
+          "sourceIndexes": [
+            20,
+            21
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+3.04% / 20日-1.58%",
+          "sourceIndexes": [
+            20,
+            21
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.21x，成交量比1.22x",
+          "sourceIndexes": [
+            20,
+            21
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-000995-4ddf281ed868",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000995",
+      "sector_name": "公用事业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000995",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000995&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 81.8,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-000995-7559a621c9df31a9",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000995",
+      "sector_name": "公用事业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000995",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000995&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计军工未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.71%，60日回撤-27.19%",
+          "sourceIndexes": [
+            22,
+            23
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-6.09% / 20日-13.09%",
+          "sourceIndexes": [
+            22,
+            23
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.68x，成交量比0.79x",
+          "sourceIndexes": [
+            22,
+            23
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-399967-5186b40b9f8a",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399967",
+      "sector_name": "军工",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399967factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399967&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 9.1,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-399967-c129a979757e0a05",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399967",
+      "sector_name": "军工",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399967factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399967&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 51.9,
+      "abstain_reason": [],
+      "calibrated_probability": 51.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计移动互联网未来5个交易日收盘上涨概率为51.9%，接近两年历史基准51.9%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率3.32%，60日回撤-11.84%",
+          "sourceIndexes": [
+            24,
+            25
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-07-28",
+      "effective_edge": 0,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-3.77% / 20日-5.47%",
+          "sourceIndexes": [
+            24,
+            25
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.92x，成交量比0.89x",
+          "sourceIndexes": [
+            24,
+            25
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51.9,
+      "horizon": 5,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h5-399970-3eac4fc78cdd",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399970",
+      "sector_name": "移动互联网",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399970factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399970&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-07-28",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 45.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h5-399970-90bd39a22450cb99",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399970",
+      "sector_name": "移动互联网",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399970factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399970&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 47.4,
+      "abstain_reason": [],
+      "calibrated_probability": 47.4,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计能源未来20个交易日收盘上涨概率为47.4%，较两年历史基准低3.6个百分点；这是条件情景，上行偏弱。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.16%，60日回撤-12.45%",
+          "sourceIndexes": [
+            2,
+            3
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -3.6,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+0.74% / 20日+1.62%",
+          "sourceIndexes": [
+            2,
+            3
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.31x，成交量比1.31x",
+          "sourceIndexes": [
+            2,
+            3
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-000986-acc556b78641",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000986",
+      "sector_name": "能源",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 72.7,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-000986-b19718ee9b8335c5",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000986",
+      "sector_name": "能源",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 49.1,
+      "abstain_reason": [],
+      "calibrated_probability": 49.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计原材料未来20个交易日收盘上涨概率为49.1%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.19%，60日回撤-20.04%",
+          "sourceIndexes": [
+            4,
+            5
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -1.9,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-4.30% / 20日-12.62%",
+          "sourceIndexes": [
+            4,
+            5
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.65x，成交量比0.82x",
+          "sourceIndexes": [
+            4,
+            5
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-000987-668f2e5e79a7",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000987",
+      "sector_name": "原材料",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000987",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000987&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 18.2,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-000987-d8e8307d800ab022",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000987",
+      "sector_name": "原材料",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000987",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000987&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 48.7,
+      "abstain_reason": [],
+      "calibrated_probability": 48.7,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计工业未来20个交易日收盘上涨概率为48.7%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.87%，60日回撤-19.66%",
+          "sourceIndexes": [
+            6,
+            7
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -2.3,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-2.55% / 20日-11.54%",
+          "sourceIndexes": [
+            6,
+            7
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.74x，成交量比0.93x",
+          "sourceIndexes": [
+            6,
+            7
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-000988-0a38b0cd19c4",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000988",
+      "sector_name": "工业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000988",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000988&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 36.4,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-000988-f101e58f9ba80d43",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000988",
+      "sector_name": "工业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000988",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000988&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 49,
+      "abstain_reason": [],
+      "calibrated_probability": 49,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计可选消费未来20个交易日收盘上涨概率为49.0%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.45%，60日回撤-13.67%",
+          "sourceIndexes": [
+            8,
+            9
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -2,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-0.14% / 20日-1.68%",
+          "sourceIndexes": [
+            8,
+            9
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.92x，成交量比1.01x",
+          "sourceIndexes": [
+            8,
+            9
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-000989-51db2831c8f8",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000989",
+      "sector_name": "可选消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000989",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000989&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 54.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-000989-9ace1d1c45375b3d",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000989",
+      "sector_name": "可选消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000989",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000989&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 47.9,
+      "abstain_reason": [],
+      "calibrated_probability": 47.9,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计主要消费未来20个交易日收盘上涨概率为47.9%，较两年历史基准低3.1个百分点；这是条件情景，上行偏弱。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.72%，60日回撤-11.50%",
+          "sourceIndexes": [
+            10,
+            11
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -3.1,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+5.16% / 20日+7.39%",
+          "sourceIndexes": [
+            10,
+            11
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.51x，成交量比1.24x",
+          "sourceIndexes": [
+            10,
+            11
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-000990-6e69eb5357d7",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000990",
+      "sector_name": "主要消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000990",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000990&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 100.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-000990-64a1187403ff34d6",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000990",
+      "sector_name": "主要消费",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000990",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000990&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 46.6,
+      "abstain_reason": [],
+      "calibrated_probability": 46.6,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计医药医疗未来20个交易日收盘上涨概率为46.6%，较两年历史基准低4.4个百分点；这是条件情景，上行偏弱。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.63%，60日回撤-1.94%",
+          "sourceIndexes": [
+            12,
+            13
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -4.4,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+1.63% / 20日+12.20%",
+          "sourceIndexes": [
+            12,
+            13
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.53x，成交量比1.48x",
+          "sourceIndexes": [
+            12,
+            13
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-000991-a0903b21c82f",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000991",
+      "sector_name": "医药医疗",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 90.9,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-000991-04c603dcc20b8709",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000991",
+      "sector_name": "医药医疗",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 50.1,
+      "abstain_reason": [],
+      "calibrated_probability": 50.1,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计金融地产未来20个交易日收盘上涨概率为50.1%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.37%，60日回撤-3.38%",
+          "sourceIndexes": [
+            14,
+            15
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -0.9,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+1.59% / 20日-0.04%",
+          "sourceIndexes": [
+            14,
+            15
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.98x，成交量比1.05x",
+          "sourceIndexes": [
+            14,
+            15
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-000992-256f2de3932f",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000992",
+      "sector_name": "金融地产",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000992",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000992&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 63.6,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-000992-377147497878ba12",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000992",
+      "sector_name": "金融地产",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000992",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000992&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 47.5,
+      "abstain_reason": [],
+      "calibrated_probability": 47.5,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计信息技术未来20个交易日收盘上涨概率为47.5%，较两年历史基准低3.5个百分点；这是条件情景，上行偏弱。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率4.52%，60日回撤-19.81%",
+          "sourceIndexes": [
+            16,
+            17
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -3.5,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-9.00% / 20日-9.52%",
+          "sourceIndexes": [
+            16,
+            17
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.83x，成交量比0.82x",
+          "sourceIndexes": [
+            16,
+            17
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-000993-1e5ea499aca0",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000993",
+      "sector_name": "信息技术",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000993",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000993&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 0.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-000993-88dd6911227791b5",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000993",
+      "sector_name": "信息技术",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000993",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000993&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 46,
+      "abstain_reason": [],
+      "calibrated_probability": 46,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计通信服务未来20个交易日收盘上涨概率为46.0%，较两年历史基准低5.0个百分点；这是条件情景，上行偏弱。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率3.76%，60日回撤-17.89%",
+          "sourceIndexes": [
+            18,
+            19
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -5,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-5.73% / 20日-14.96%",
+          "sourceIndexes": [
+            18,
+            19
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.98x，成交量比1.19x",
+          "sourceIndexes": [
+            18,
+            19
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-000994-5fd9766bd70f",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000994",
+      "sector_name": "通信服务",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000994",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000994&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 27.3,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-000994-f368615d8eac79df",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000994",
+      "sector_name": "通信服务",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000994",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000994&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 48.6,
+      "abstain_reason": [],
+      "calibrated_probability": 48.6,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计公用事业未来20个交易日收盘上涨概率为48.6%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率1.25%，60日回撤-13.70%",
+          "sourceIndexes": [
+            20,
+            21
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -2.4,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日+3.04% / 20日-1.58%",
+          "sourceIndexes": [
+            20,
+            21
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比1.21x，成交量比1.22x",
+          "sourceIndexes": [
+            20,
+            21
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-000995-f83562b3b4bb",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000995",
+      "sector_name": "公用事业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000995",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000995&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 81.8,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-000995-dcfd1775f2844dff",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "000995",
+      "sector_name": "公用事业",
+      "source_urls": [
+        "https://www.csindex.com.cn/zh-CN/indices/index-detail/000995",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000995&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 47.5,
+      "abstain_reason": [],
+      "calibrated_probability": 47.5,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计军工未来20个交易日收盘上涨概率为47.5%，较两年历史基准低3.5个百分点；这是条件情景，上行偏弱。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率2.71%，60日回撤-27.19%",
+          "sourceIndexes": [
+            22,
+            23
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -3.5,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-6.09% / 20日-13.09%",
+          "sourceIndexes": [
+            22,
+            23
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.68x，成交量比0.79x",
+          "sourceIndexes": [
+            22,
+            23
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "5日动量转正并伴随成交额比升至1.20倍以上，或相对排名回到前40%。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-399967-f479ba5395d3",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399967",
+      "sector_name": "军工",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399967factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399967&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日动量维持为负，且相对排名未回到横截面前60%。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 9.1,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-399967-cc04533e931e9f22",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399967",
+      "sector_name": "军工",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399967factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399967&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": 48.2,
+      "abstain_reason": [],
+      "calibrated_probability": 48.2,
+      "claim": "若截至2026-07-21的量价状态延续，模型估计移动互联网未来20个交易日收盘上涨概率为48.2%，接近两年历史基准51.0%；这是条件情景，当前没有明显概率优势。",
+      "counter_evidence": [
+        {
+          "label": "反向风险",
+          "observation": "20日波动率3.32%，60日回撤-11.84%",
+          "sourceIndexes": [
+            24,
+            25
+          ]
+        }
+      ],
+      "created_at": "2026-07-21T20:10:01+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 1.0,
+      "due_date": "2026-08-18",
+      "effective_edge": -2.8,
+      "evidence": [
+        {
+          "label": "趋势",
+          "observation": "5日-3.77% / 20日-5.47%",
+          "sourceIndexes": [
+            24,
+            25
+          ]
+        },
+        {
+          "label": "活跃度",
+          "observation": "成交额比0.92x，成交量比0.89x",
+          "sourceIndexes": [
+            24,
+            25
+          ]
+        }
+      ],
+      "expected_excess_return": null,
+      "historical_base": 51,
+      "horizon": 20,
+      "invalidation": "动量同向并伴随成交额比突破1.20倍或跌破0.85倍。",
+      "market": "a-share",
+      "model_version": "2026-07-20-probability-v1",
+      "observation_score": null,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "fr-a-20260721-h20-399970-19a80247367f",
+      "prediction_status": "published",
+      "ranking_target": "absolute-up-legacy",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399970",
+      "sector_name": "移动互联网",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399970factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399970&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "5日与20日动量方向分化，且成交额比维持0.85–1.20倍。",
+      "result": "pending"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "calibrated_probability": null,
+      "claim": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.5,
+      "due_date": "2026-08-18",
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "a-share",
+      "model_version": "2026-07-21-relative-v2",
+      "observation_score": 45.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-a-share-20260721-h20-399970-621f79582b079abc",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "399970",
+      "sector_name": "移动互联网",
+      "source_urls": [
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/399970factsheet.pdf",
+        "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399970&startDate=20260717&endDate=20260717"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "ETF申赎、市场广度、融资与机构行为完成两年同口径回填后，生产级特征完整度需达到80%。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 0.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.01-d1cee95a69b85801",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.01",
+      "sector_name": "能源",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 100.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.02-202cb372c0a97169",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.02",
+      "sector_name": "原材料",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 90.9,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.03-7752dbcf22421ccf",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.03",
+      "sector_name": "工业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 45.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.06-2f136d334bfa2ea1",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.06",
+      "sector_name": "电讯业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 36.4,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.07-10c4df8f7f1278aa",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.07",
+      "sector_name": "公用事业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 18.2,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.08-f50e3e3f8388c384",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.08",
+      "sector_name": "金融业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 54.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.09-5495b04880f9220c",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.09",
+      "sector_name": "地产建筑业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 81.8,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.10-7017752aa5876a26",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.10",
+      "sector_name": "资讯科技业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 72.7,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.11-be5d2464a3b6f2f0",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.11",
+      "sector_name": "综合企业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 27.3,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.12-b5c148a02dc8abe3",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.12",
+      "sector_name": "非必需性消费",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 9.1,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.13-821b71ab7d4d4eac",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.13",
+      "sector_name": "必需性消费",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 1,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 63.6,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h1-00011.14-1ef730e56926095e",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.14",
+      "sector_name": "医疗保健业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 0.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.01-2d1049340af9721a",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.01",
+      "sector_name": "能源",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 100.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.02-63a58e2737179437",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.02",
+      "sector_name": "原材料",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 90.9,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.03-225c411e1b6d570a",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.03",
+      "sector_name": "工业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 45.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.06-8a0d21f220838e0e",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.06",
+      "sector_name": "电讯业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 36.4,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.07-7fa2a397073f116d",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.07",
+      "sector_name": "公用事业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 18.2,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.08-30ff00ef1ab6a1ad",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.08",
+      "sector_name": "金融业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 54.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.09-65806ea8ed6e0c04",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.09",
+      "sector_name": "地产建筑业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 81.8,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.10-cc98dda174feba52",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.10",
+      "sector_name": "资讯科技业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 72.7,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.11-cac97eec73119783",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.11",
+      "sector_name": "综合企业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 27.3,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.12-a5b009ead5bc9e08",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.12",
+      "sector_name": "非必需性消费",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 9.1,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.13-0f5351f9dba3e385",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.13",
+      "sector_name": "必需性消费",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 5,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 63.6,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h5-00011.14-4525005492151c28",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.14",
+      "sector_name": "医疗保健业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 0.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.01-37037ea953085da5",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.01",
+      "sector_name": "能源",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 100.0,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.02-4771e88ee30a1b60",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.02",
+      "sector_name": "原材料",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 90.9,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.03-b4d149b27a2a66fb",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.03",
+      "sector_name": "工业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 45.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.06-381678db0abd862e",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.06",
+      "sector_name": "电讯业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 36.4,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.07-957b2879efc6a44c",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.07",
+      "sector_name": "公用事业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 18.2,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.08-d313e1d1ac7085bc",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.08",
+      "sector_name": "金融业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 54.5,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.09-d78c7e0b104b650d",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.09",
+      "sector_name": "地产建筑业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 81.8,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.10-35455e2bdb8ae0e3",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.10",
+      "sector_name": "资讯科技业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 72.7,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.11-9278ec266750437e",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.11",
+      "sector_name": "综合企业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 27.3,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.12-efa2a9c908dae1e1",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.12",
+      "sector_name": "非必需性消费",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 9.1,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.13-46ea59590b09c9ce",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.13",
+      "sector_name": "必需性消费",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    },
+    {
+      "absolute_up_probability": null,
+      "abstain_reason": [
+        "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
+        "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
+        "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
+      ],
+      "calibrated_probability": null,
+      "claim": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+      "counter_evidence": [],
+      "created_at": "2026-07-22T09:02:57+08:00",
+      "data_as_of": "2026-07-21",
+      "data_completeness": 0.0,
+      "due_date": null,
+      "effective_edge": null,
+      "evidence": [],
+      "expected_excess_return": null,
+      "historical_base": null,
+      "horizon": 20,
+      "invalidation": "质量闸门通过前不发布概率。",
+      "market": "hk",
+      "model_version": "hk-relative-model-not-trained",
+      "observation_score": 63.6,
+      "prediction_date": "2026-07-21",
+      "prediction_id": "ab-hk-20260721-h20-00011.14-4bd121226b6428d5",
+      "prediction_status": "model-abstained",
+      "ranking_target": "evidence-observation",
+      "raw_probability": null,
+      "raw_score": null,
+      "relative_outperformance_probability": null,
+      "sector_id": "00011.14",
+      "sector_name": "医疗保健业",
+      "source_urls": [
+        "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
+        "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
+      ],
+      "top_quartile_probability": null,
+      "trigger": "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
+      "evaluated_at": "2026-07-22T09:06:54+08:00",
+      "result": "model-abstained"
+    }
+  ]
+}

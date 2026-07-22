@@ -40,7 +40,9 @@
 - 每次来源变更都写入版本化来源账本：`sourceId`、变更日期、原来源、问题与证据、剔除/降级原因、替代来源、逐字段映射、单位换算、重叠区间核对结果、生效版本、回滚条件和回滚入口。替代源未通过重叠期一致性与完整性检查时，保持原源或输出 `insufficient`。
 - 新特征必须解释当时可得性、计算窗口、缺失处理、经济含义、潜在泄漏和预期失效状态；未改善候选也保留记录。不得用未来成分、后验新闻、搜索热度修订值或当天收盘后才发布的信息预测当天。
 - 当前代码预登记的第一层比较只包含9项可解释线性ridge与17项小型交互ridge；复杂候选至少须在holdout之前的504日选择段把rank IC提高0.01、头尾差保持为正，并不触发旧制度压力否决，才有资格打开holdout。若要引入树模型、状态切换、贝叶斯/集成或GPU算法，先作为下一期全新候选写明新增复杂度、资源上限、失败模式和独立门槛，等待新的未见样本；不得因为本周结果不理想在同一次审计里循环加模型直到命中。
-- 每条线上预测必须使用由概率模型版本、市场、`asOf`、1/5/20交易日期限、`dueDate` 和行业代码确定生成的不可变 `forecastId`。周六审计必须对 `upProbability` 计算 Brier、相对历史基准的 Brier Skill、Log Loss、10桶 ECE、AUC和90%校准覆盖；只允许通过预登记样本外门禁的窗口使用 `model-calibrated`，轻微退化窗口使用固定收缩，方向辨识弱于随机或校准失败时退回 `historical-base-rate`。附 `calibrationBasis`；只有量价一类证据时文字 `confidence` 一律封顶 `low`。
+- 每条线上预测必须使用由模型版本、市场、`asOf`、1/5/20交易日期限、`dueDate` 和行业代码确定生成的不可变 `forecastId`。三个周期必须分别训练绝对上涨、跑赢基准、进入行业前25%与预期相对收益模型，保存 `rawScore`、`rawProbability` 与 `calibratedProbability`。周六审计至少报告 AUC、Brier/Brier Skill、RankIC、横截面Spearman、Top Quartile命中率、Top-Bottom毛/扣费后收益、横截面标准差、walk-forward窗口和市场状态稳定性；原始模型没有区分度或校准后塌缩时禁止启用校准。
+- 满足任一条件即停止发布概率：最高最低差小于3个百分点、全部位于47%–53%、横截面标准差不足、数据完整度低于80%、Brier未优于历史基准、RankIC不大于0、扣费后Top-Bottom不大于0、或多数walk-forward窗口方向不一致。此时保留不可覆盖弃权快照并生成证据观察榜，禁止默认50%或强制Top/Bottom。
+- 数据审计必须逐行业输出实际特征数、缺失数/比例、特征向量差异、每个特征横截面标准差、指数/ETF/资金映射及源失败/fallback。`null` 永不静默填0；重点观察池只改变采集深度，不得影响标签、样本权重、先验或评分。
 - ETF资金特征只能使用份额变化乘NAV或剔除当日收益后的AUM变化；成交额不得充当净流入。ETF代码身份、复权、合并/清盘和份额发布时间必须版本化，重点池ETF配置不得因回测结果临时增删。
 - 每个候选在 `models/sector-rotation/audits/experiments.jsonl` 追加一行紧凑实验记录，至少包含 `experimentId`、运行时间、市场、数据截止日与数据哈希、来源映射及剔除原因、特征集、模型类别、全部超参数/随机种子、训练窗口、purge/embargo、样本外窗口、交易成本、主要/辅助指标、分年度/状态结果、多重检验、失败原因、artifact SHA-256、`promoted` 与回滚版本。只存结构化参数和汇总指标，不含新闻原文、行情全表或长日志。该账本最多 2 MB / 2,000 行；接近上限时把最旧未晋级试验压缩为按年度的小型汇总 JSON，保留实验 ID、配置/数据/artifact hash、主要指标与失败原因，晋级版本及其直接对照试验不得删除。
 
@@ -66,7 +68,7 @@
 1. 每次生成 `models/sector-rotation/audits/YYYY-MM-DD.json`，至少记录基线版本/hash、到期样本、指标与分层、偏差归因、全部候选 ID、预登记门槛、多重检验、数据覆盖、来源变更、GPU/内存、升级或保留决定和回滚版本，并与 `experiments.jsonl` 的实验 ID 互相引用。不得嵌入原始新闻、行情全表或长日志。
 2. 候选未通过时不得修改冻结 artifact、线上 `content/sector-rotation.json` 或每日内容；保留基线并提交小型审计报告/合法来源账本变更。候选通过时才保存版本化 release、更新当前冻结 artifact/model card，并让下一次每日 `rotation:infer` 应用新版本；本流程不与 08:10 早报争写 `content/daily-brief.json`。
    2026-07-19 的 v2 首次审计已经按504日选择段/252日锁定holdout执行并记录于 `models/sector-rotation/a-share-v2-audit.json`，两个期限均未通过门禁，冻结基线因此保持不变。后续每周只能做monitoring/research；必须等满252个从未被打开的全新已到期日，才能打开下一段holdout。不得滚动重用、重叠或重命名旧holdout。
-3. 依次运行 `pnpm validate:rotation-events`、候选与基线的可复现训练/样本外测试、`pnpm validate:rotation`、`pnpm validate:brief`、`pnpm validate:weekly`、`pnpm validate:assets`、`pnpm typecheck` 和 `pnpm build`。任何失败均不得升级。
+3. 依次运行 `pnpm validate:rotation-events`、候选与基线的可复现训练/样本外测试、`pnpm validate:rotation`、`pnpm validate:prediction-history`、`pnpm validate:brief`、`pnpm validate:weekly`、`pnpm validate:assets`、`pnpm typecheck` 和 `pnpm build`。任何失败均不得升级。
 4. 检查 Git diff，只提交本次审计报告、通过门禁的新版本 artifact/model card、必要的来源账本/最小代码修改；不得提交本地 `data/rotation-model/`、`data/archive/`、网页全文、上游 PDF/图片、模型缓存、临时候选或无关工作树修改。提交信息使用 `model: weekly audit YYYY-MM-DD`，推送当前分支触发 Vercel。
 5. 推送后验证 `https://guanchao-daily-brief.vercel.app/` 及 `/markets` 返回 HTTP 200。若本周未升级，要明确说明“保留冻结基线”，不能把审计完成描述成精度提升；若部署失败，保留已通过校验的本地提交并报告失败，不强推或绕过门禁。
 

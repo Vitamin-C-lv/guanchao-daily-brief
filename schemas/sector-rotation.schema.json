@@ -132,26 +132,23 @@
     "forecastItem": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["forecastId", "sector", "rank", "upProbability", "historicalBaseRate", "probabilityEdge", "calibrationRange", "probabilityTier", "direction", "confidence", "calibrationBasis", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "dueDate"],
+      "required": ["forecastId", "sector", "rank", "rankingTarget", "topQuartileProbability", "outperformanceProbability", "absoluteUpProbability", "expectedExcessReturn", "rawScore", "rawProbability", "calibratedProbability", "historicalBaseRate", "effectiveEdge", "probabilityTier", "direction", "confidence", "calibrationBasis", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "dueDate"],
       "properties": {
         "forecastId": { "type": "string", "minLength": 12, "maxLength": 100, "pattern": "^fr-[a-z0-9-]+$" },
         "sector": { "type": "string", "minLength": 1, "maxLength": 60 },
         "code": { "type": "string", "minLength": 1, "maxLength": 30 },
         "rank": { "type": "integer", "minimum": 1 },
-        "upProbability": { "type": "number", "minimum": 0, "maximum": 100 },
+        "rankingTarget": { "const": "top-quartile" },
+        "topQuartileProbability": { "type": "number", "minimum": 0, "maximum": 100 },
+        "outperformanceProbability": { "type": "number", "minimum": 0, "maximum": 100 },
+        "absoluteUpProbability": { "type": "number", "minimum": 0, "maximum": 100 },
+        "expectedExcessReturn": { "type": "number", "minimum": -100, "maximum": 100 },
+        "rawScore": { "type": "number" },
+        "rawProbability": { "type": "number", "minimum": 0, "maximum": 100 },
+        "calibratedProbability": { "type": "number", "minimum": 0, "maximum": 100 },
         "historicalBaseRate": { "type": "number", "minimum": 0, "maximum": 100 },
-        "probabilityEdge": { "type": "number", "minimum": -100, "maximum": 100 },
-        "calibrationRange": {
-          "type": "object",
-          "additionalProperties": false,
-          "required": ["low", "high", "level"],
-          "properties": {
-            "low": { "type": "number", "minimum": 0, "maximum": 100 },
-            "high": { "type": "number", "minimum": 0, "maximum": 100 },
-            "level": { "const": "90%" }
-          }
-        },
-        "probabilityTier": { "enum": ["model-calibrated", "model-shrunk", "historical-base-rate"] },
+        "effectiveEdge": { "type": "number", "minimum": -100, "maximum": 100 },
+        "probabilityTier": { "const": "model-calibrated" },
         "direction": { "enum": ["strong-up", "up", "range", "down", "strong-down"] },
         "confidence": { "enum": ["low", "medium", "medium-high"] },
         "calibrationBasis": { "type": "string", "minLength": 20, "maxLength": 360 },
@@ -320,6 +317,48 @@
         "reason": { "type": "string", "minLength": 1, "maxLength": 300 }
       }
     },
+    "forecastAbstained": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "status", "asOf", "sessions", "reason", "abstainReasons", "note", "observationItems", "availableEvidence", "nextWatch", "diagnostics"],
+      "properties": {
+        "kind": { "const": "forecast" },
+        "status": { "const": "abstained" },
+        "asOf": { "$ref": "#/$defs/date" },
+        "dueDate": { "$ref": "#/$defs/date" },
+        "sessions": { "enum": [1, 5, 20] },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 300 },
+        "abstainReasons": {
+          "type": "array", "minItems": 1, "maxItems": 12,
+          "items": { "type": "string", "minLength": 1, "maxLength": 240 }
+        },
+        "note": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "observationItems": {
+          "type": "array", "minItems": 3, "maxItems": 50,
+          "items": { "$ref": "#/$defs/observedItem" }
+        },
+        "availableEvidence": {
+          "type": "array", "minItems": 1, "maxItems": 8,
+          "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+        },
+        "nextWatch": {
+          "type": "array", "minItems": 1, "maxItems": 8,
+          "items": { "type": "string", "minLength": 1, "maxLength": 300 }
+        },
+        "diagnostics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["modelVersion", "dataCompleteness", "rankIc", "topBottomSpreadAfterCosts", "predictionCrossSectionStd"],
+          "properties": {
+            "modelVersion": { "type": "string", "minLength": 1, "maxLength": 80 },
+            "dataCompleteness": { "type": "number", "minimum": 0, "maximum": 1 },
+            "rankIc": { "type": ["number", "null"] },
+            "topBottomSpreadAfterCosts": { "type": ["number", "null"] },
+            "predictionCrossSectionStd": { "type": ["number", "null"] }
+          }
+        }
+      }
+    },
     "market": {
       "type": "object",
       "additionalProperties": false,
@@ -352,18 +391,21 @@
             "tomorrow": {
               "oneOf": [
                 { "$ref": "#/$defs/forecastReady" },
+                { "$ref": "#/$defs/forecastAbstained" },
                 { "$ref": "#/$defs/forecastInsufficient" }
               ]
             },
             "oneWeek": {
               "oneOf": [
                 { "$ref": "#/$defs/forecastReady" },
+                { "$ref": "#/$defs/forecastAbstained" },
                 { "$ref": "#/$defs/forecastInsufficient" }
               ]
             },
             "oneMonth": {
               "oneOf": [
                 { "$ref": "#/$defs/forecastReady" },
+                { "$ref": "#/$defs/forecastAbstained" },
                 { "$ref": "#/$defs/forecastInsufficient" }
               ]
             }

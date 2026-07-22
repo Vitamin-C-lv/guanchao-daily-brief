@@ -1,0 +1,3478 @@
+{
+  "schemaVersion": 2,
+  "id": "guanchao-a-share-sector-relative-probability",
+  "version": "2026-07-21-relative-v2",
+  "trainedAt": "2026-07-22T08:56:02+08:00",
+  "asOf": "2026-07-21",
+  "trainingStart": "2024-05-24",
+  "trainingEnd": "2026-07-20",
+  "taxonomyHash": "2cdb81a8cfbc2c2705bcbba45f14b601265f368accb68a94db74c062ac3c363a",
+  "featureDataSha256": "83d693e8f4c01dc7f50cd53f53aae66a860a428dac1449617aea0ad8a54432be",
+  "benchmark": {
+    "code": "000985",
+    "name": "中证全指",
+    "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+  },
+  "method": {
+    "label": "multi-target sector rotation relative to CSI All Share",
+    "estimator": "independent rolling ridge logistic/linear models for 1, 5 and 20 sessions",
+    "validation": "purged walk-forward time-series validation with horizon embargo",
+    "calibration": "Platt calibration is enabled only after raw OOS discrimination and dispersion checks",
+    "fallback": "strict abstention; evidence observation ranking replaces failed probability publication",
+    "focusPolicy": "deeper collection never changes model priors, feature weights or scores"
+  },
+  "features": [
+    "5个交易日价格动量",
+    "20个交易日价格动量",
+    "60个交易日价格动量",
+    "前一交易日收益率的反向值",
+    "20个交易日日收益波动率",
+    "相对60日最高收盘的回撤",
+    "近5日平均成交额/此前20日平均成交额的对数",
+    "近5日平均成交量/此前20日平均成交量的对数",
+    "5日动量与成交额相对放量的交互项",
+    "当日行业横截面标准化：5个交易日价格动量",
+    "当日行业横截面标准化：20个交易日价格动量",
+    "当日行业横截面标准化：60个交易日价格动量",
+    "当日行业横截面标准化：前一交易日收益率的反向值",
+    "当日行业横截面标准化：20个交易日日收益波动率",
+    "当日行业横截面标准化：相对60日最高收盘的回撤",
+    "当日行业横截面标准化：近5日平均成交额/此前20日平均成交额的对数",
+    "当日行业横截面标准化：近5日平均成交量/此前20日平均成交量的对数",
+    "当日行业横截面标准化：5日动量与成交额相对放量的交互项",
+    "5日相对动量减20日相对动量，刻画短期趋势加速度",
+    "20日相对动量减60日相对动量，刻画中期趋势变化",
+    "5日相对动量与成交额活跃度的交互项",
+    "20日相对动量与真实成交量活跃度的交互项",
+    "20日相对动量与60日回撤的交互项",
+    "单日反转与20日波动率的交互项",
+    "5日相对动量平方项，用于检测非线性极端状态",
+    "60日回撤平方项，用于检测非线性压力状态"
+  ],
+  "dataDiagnostics": {
+    "asOf": "2026-07-21",
+    "expectedFeatureCount": 26,
+    "sectors": [
+      {
+        "code": "000986",
+        "name": "能源",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "000986",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "000987",
+        "name": "原材料",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "000987",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "000988",
+        "name": "工业",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "000988",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "000989",
+        "name": "可选消费",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "000989",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "000990",
+        "name": "主要消费",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "000990",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "000991",
+        "name": "医药医疗",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "000991",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "000992",
+        "name": "金融地产",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "000992",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "000993",
+        "name": "信息技术",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "000993",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "000994",
+        "name": "通信服务",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "000994",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "000995",
+        "name": "公用事业",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "000995",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "399967",
+        "name": "军工",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "399967",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      },
+      {
+        "code": "399970",
+        "name": "移动互联网",
+        "featureCount": 26,
+        "missingCount": 0,
+        "missingRatio": 0.0,
+        "missingFeatures": [],
+        "mapping": {
+          "industryIndex": "mapped",
+          "indexCode": "399970",
+          "historySource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+          "etf": "not-yet-backfilled",
+          "institutionFlow": "not-yet-backfilled"
+        }
+      }
+    ],
+    "crossSection": {
+      "sectorCount": 12,
+      "exactDuplicateVectors": [],
+      "minimumPairwiseDistance": 1.9428931973133807,
+      "medianPairwiseDistance": 5.756829285145942,
+      "featureStandardDeviation": [
+        {
+          "feature": "momentum5",
+          "crossSectionStd": 0.04085788992457805
+        },
+        {
+          "feature": "momentum20",
+          "crossSectionStd": 0.0825092441301316
+        },
+        {
+          "feature": "momentum60",
+          "crossSectionStd": 0.11192005794565325
+        },
+        {
+          "feature": "reversal1",
+          "crossSectionStd": 0.03427796268388308
+        },
+        {
+          "feature": "volatility20",
+          "crossSectionStd": 0.009768648895609555
+        },
+        {
+          "feature": "drawdown60",
+          "crossSectionStd": 0.06838543710064009
+        },
+        {
+          "feature": "amountRatio5v20",
+          "crossSectionStd": 0.2766730286671472
+        },
+        {
+          "feature": "volumeRatio5v20",
+          "crossSectionStd": 0.1982801449163868
+        },
+        {
+          "feature": "priceVolumeAcceleration",
+          "crossSectionStd": 0.008229621681577115
+        },
+        {
+          "feature": "cs_momentum5",
+          "crossSectionStd": 0.9999999999999959
+        },
+        {
+          "feature": "cs_momentum20",
+          "crossSectionStd": 0.9999999999999782
+        },
+        {
+          "feature": "cs_momentum60",
+          "crossSectionStd": 1.0000000000000029
+        },
+        {
+          "feature": "cs_reversal1",
+          "crossSectionStd": 0.9999999999999962
+        },
+        {
+          "feature": "cs_volatility20",
+          "crossSectionStd": 1.0000000000000153
+        },
+        {
+          "feature": "cs_drawdown60",
+          "crossSectionStd": 0.999999999999989
+        },
+        {
+          "feature": "cs_amountRatio5v20",
+          "crossSectionStd": 1.0000000000000107
+        },
+        {
+          "feature": "cs_volumeRatio5v20",
+          "crossSectionStd": 0.9999999999999823
+        },
+        {
+          "feature": "cs_priceVolumeAcceleration",
+          "crossSectionStd": 1.000000000000007
+        },
+        {
+          "feature": "nl_momentum_acceleration",
+          "crossSectionStd": 0.606085404593748
+        },
+        {
+          "feature": "nl_medium_trend_acceleration",
+          "crossSectionStd": 1.2968785222870756
+        },
+        {
+          "feature": "nl_momentum5_x_amount",
+          "crossSectionStd": 0.7471481501295228
+        },
+        {
+          "feature": "nl_momentum20_x_volume",
+          "crossSectionStd": 1.0396669896350976
+        },
+        {
+          "feature": "nl_trend_x_drawdown",
+          "crossSectionStd": 0.992879692440792
+        },
+        {
+          "feature": "nl_reversal_x_volatility",
+          "crossSectionStd": 1.2051648042872813
+        },
+        {
+          "feature": "nl_momentum5_squared",
+          "crossSectionStd": 0.9813159134004705
+        },
+        {
+          "feature": "nl_drawdown_squared",
+          "crossSectionStd": 1.270774711911061
+        }
+      ]
+    },
+    "mappings": {
+      "benchmark": {
+        "code": "000985",
+        "name": "中证全指",
+        "status": "ready",
+        "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+      },
+      "focusPolicy": "focus changes collection depth only; no score bonus or prior override"
+    },
+    "sourceHealth": {
+      "failures": [],
+      "fallbackEligibleCodes": [
+        "399967",
+        "399970"
+      ],
+      "fallbackOrSourceBySector": [
+        {
+          "code": "000986",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "000987",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "000988",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "000989",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "000990",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "000991",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "000992",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "000993",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "000994",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "000995",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "399967",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        },
+        {
+          "code": "399970",
+          "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+        }
+      ]
+    },
+    "enhancedFeatureGroups": {
+      "weights": {
+        "priceRelativeStrength": 0.25,
+        "turnoverAndVolume": 0.25,
+        "marketBreadth": 0.2,
+        "etfAndInstitutionFlow": 0.2,
+        "policyAndEventMapping": 0.1
+      },
+      "available": [
+        "priceRelativeStrength",
+        "turnoverAndVolume"
+      ],
+      "completeness": 0.5,
+      "missingIsNeverZero": true
+    }
+  },
+  "horizons": {
+    "1": {
+      "horizonSessions": 1,
+      "status": "ready",
+      "publicationStatus": "abstained",
+      "primaryTarget": "topQuartileProbability",
+      "secondaryRankingTarget": "expectedExcessReturn",
+      "eventDefinitions": {
+        "absoluteUp": "第1个后续完整交易日行业指数收益率大于0",
+        "outperformance": "第1个后续完整交易日行业收益率大于中证全指收益率",
+        "topQuartile": "未来1个交易日相对收益进入固定12项观察池前25%",
+        "expectedExcess": "行业未来1个交易日收益率减中证全指收益率"
+      },
+      "models": {
+        "absoluteUp": {
+          "type": "rolling-standardized-ridge-logistic",
+          "horizonSessions": 1,
+          "ridge": 40.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-06-21",
+          "trainingEnd": "2026-07-20",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": 0.5009920634920635,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.0034006043002861265,
+            "momentum20": 0.014366935173148068,
+            "momentum60": 0.04548158690252457,
+            "reversal1": -0.0006500841105670828,
+            "volatility20": 0.014530782310801831,
+            "drawdown60": -0.06840298682225447,
+            "amountRatio5v20": 0.011887301232481256,
+            "volumeRatio5v20": 0.0027840832621990165,
+            "priceVolumeAcceleration": 0.005515123745035912,
+            "cs_momentum5": -4.684304091002768e-16,
+            "cs_momentum20": -2.5940081946061654e-16,
+            "cs_momentum60": -8.732359338858912e-16,
+            "cs_reversal1": 6.1256849093487885e-16,
+            "cs_volatility20": -1.4642901823462218e-15,
+            "cs_drawdown60": 1.36455735012419e-16,
+            "cs_amountRatio5v20": -3.7073748318795864e-16,
+            "cs_volumeRatio5v20": 1.6231137539245427e-16,
+            "cs_priceVolumeAcceleration": 3.8536560773736626e-16,
+            "nl_momentum_acceleration": -2.7917116002809824e-16,
+            "nl_medium_trend_acceleration": 5.383700540047386e-16,
+            "nl_momentum5_x_amount": 0.4208476445558674,
+            "nl_momentum20_x_volume": 0.39522127108090277,
+            "nl_trend_x_drawdown": 0.6209523395824124,
+            "nl_reversal_x_volatility": -0.03435848741666748,
+            "nl_momentum5_squared": 0.9999999999999961,
+            "nl_drawdown_squared": 0.9999999999999978
+          },
+          "featureScales": {
+            "momentum5": 0.04089611157975566,
+            "momentum20": 0.08080639539505292,
+            "momentum60": 0.1380007647353746,
+            "reversal1": 0.017146666668318,
+            "volatility20": 0.007458058196288269,
+            "drawdown60": 0.05037153123542655,
+            "amountRatio5v20": 0.2939566900177653,
+            "volumeRatio5v20": 0.2739211995222752,
+            "priceVolumeAcceleration": 0.030176386599519576,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.0000826822110638,
+            "cs_momentum60": 1.0000826822110644,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.0000826822110631,
+            "cs_drawdown60": 1.0000826822110627,
+            "cs_amountRatio5v20": 1.0000826822110644,
+            "cs_volumeRatio5v20": 1.0000826822110644,
+            "cs_priceVolumeAcceleration": 1.000082682211064,
+            "nl_momentum_acceleration": 1.0157776015433886,
+            "nl_medium_trend_acceleration": 0.9581616164483023,
+            "nl_momentum5_x_amount": 1.0979975827050623,
+            "nl_momentum20_x_volume": 1.0750209884267612,
+            "nl_trend_x_drawdown": 1.0581223611679533,
+            "nl_reversal_x_volatility": 1.1040331567500825,
+            "nl_momentum5_squared": 1.2574273060894943,
+            "nl_drawdown_squared": 1.1991603465740956
+          },
+          "intercept": 0.003965472523495241,
+          "coefficients": {
+            "momentum5": 0.005700883146836977,
+            "momentum20": -0.12077337106949719,
+            "momentum60": -0.02674948117108126,
+            "reversal1": 0.038201710582835995,
+            "volatility20": 0.09556831062256027,
+            "drawdown60": 0.061738757029855776,
+            "amountRatio5v20": 0.0361979672230025,
+            "volumeRatio5v20": 0.05734430647118177,
+            "priceVolumeAcceleration": -0.027025910099288102,
+            "cs_momentum5": 0.03784732820827648,
+            "cs_momentum20": 0.05225528397685833,
+            "cs_momentum60": 0.04275248582732637,
+            "cs_reversal1": 0.013657368471064855,
+            "cs_volatility20": -0.027765244145690482,
+            "cs_drawdown60": -0.034234810330261316,
+            "cs_amountRatio5v20": -0.08826868607124642,
+            "cs_volumeRatio5v20": 0.022915937331853882,
+            "cs_priceVolumeAcceleration": 0.05394436359971753,
+            "nl_momentum_acceleration": -0.0141853364637392,
+            "nl_medium_trend_acceleration": 0.009918560396023911,
+            "nl_momentum5_x_amount": -0.007531091579928888,
+            "nl_momentum20_x_volume": -0.030597187915466374,
+            "nl_trend_x_drawdown": 0.021685590959598725,
+            "nl_reversal_x_volatility": 0.016582112065309164,
+            "nl_momentum5_squared": -0.07563247164273437,
+            "nl_drawdown_squared": 0.03784782478265949
+          }
+        },
+        "outperformance": {
+          "type": "rolling-standardized-ridge-logistic",
+          "horizonSessions": 1,
+          "ridge": 40.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-06-21",
+          "trainingEnd": "2026-07-20",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": 0.4661044973544973,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.0034006043002861265,
+            "momentum20": 0.014366935173148068,
+            "momentum60": 0.04548158690252457,
+            "reversal1": -0.0006500841105670828,
+            "volatility20": 0.014530782310801831,
+            "drawdown60": -0.06840298682225447,
+            "amountRatio5v20": 0.011887301232481256,
+            "volumeRatio5v20": 0.0027840832621990165,
+            "priceVolumeAcceleration": 0.005515123745035912,
+            "cs_momentum5": -4.684304091002768e-16,
+            "cs_momentum20": -2.5940081946061654e-16,
+            "cs_momentum60": -8.732359338858912e-16,
+            "cs_reversal1": 6.1256849093487885e-16,
+            "cs_volatility20": -1.4642901823462218e-15,
+            "cs_drawdown60": 1.36455735012419e-16,
+            "cs_amountRatio5v20": -3.7073748318795864e-16,
+            "cs_volumeRatio5v20": 1.6231137539245427e-16,
+            "cs_priceVolumeAcceleration": 3.8536560773736626e-16,
+            "nl_momentum_acceleration": -2.7917116002809824e-16,
+            "nl_medium_trend_acceleration": 5.383700540047386e-16,
+            "nl_momentum5_x_amount": 0.4208476445558674,
+            "nl_momentum20_x_volume": 0.39522127108090277,
+            "nl_trend_x_drawdown": 0.6209523395824124,
+            "nl_reversal_x_volatility": -0.03435848741666748,
+            "nl_momentum5_squared": 0.9999999999999961,
+            "nl_drawdown_squared": 0.9999999999999978
+          },
+          "featureScales": {
+            "momentum5": 0.04089611157975566,
+            "momentum20": 0.08080639539505292,
+            "momentum60": 0.1380007647353746,
+            "reversal1": 0.017146666668318,
+            "volatility20": 0.007458058196288269,
+            "drawdown60": 0.05037153123542655,
+            "amountRatio5v20": 0.2939566900177653,
+            "volumeRatio5v20": 0.2739211995222752,
+            "priceVolumeAcceleration": 0.030176386599519576,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.0000826822110638,
+            "cs_momentum60": 1.0000826822110644,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.0000826822110631,
+            "cs_drawdown60": 1.0000826822110627,
+            "cs_amountRatio5v20": 1.0000826822110644,
+            "cs_volumeRatio5v20": 1.0000826822110644,
+            "cs_priceVolumeAcceleration": 1.000082682211064,
+            "nl_momentum_acceleration": 1.0157776015433886,
+            "nl_medium_trend_acceleration": 0.9581616164483023,
+            "nl_momentum5_x_amount": 1.0979975827050623,
+            "nl_momentum20_x_volume": 1.0750209884267612,
+            "nl_trend_x_drawdown": 1.0581223611679533,
+            "nl_reversal_x_volatility": 1.1040331567500825,
+            "nl_momentum5_squared": 1.2574273060894943,
+            "nl_drawdown_squared": 1.1991603465740956
+          },
+          "intercept": -0.13634157754518333,
+          "coefficients": {
+            "momentum5": 0.04796537405874485,
+            "momentum20": 0.010002315335708473,
+            "momentum60": 0.004955191690205525,
+            "reversal1": -0.00615394111187771,
+            "volatility20": -0.06579185243494667,
+            "drawdown60": -0.06631741392686542,
+            "amountRatio5v20": 0.03091261016419501,
+            "volumeRatio5v20": -0.085763988428028,
+            "priceVolumeAcceleration": 0.01563237727212894,
+            "cs_momentum5": -0.007737188288272699,
+            "cs_momentum20": 0.004086378579156215,
+            "cs_momentum60": 0.022455140344021973,
+            "cs_reversal1": 0.040741741040635174,
+            "cs_volatility20": 0.07886413123075725,
+            "cs_drawdown60": 0.08854660112926778,
+            "cs_amountRatio5v20": -0.09247654821727229,
+            "cs_volumeRatio5v20": 0.12972131188001562,
+            "cs_priceVolumeAcceleration": 0.009141262478518708,
+            "nl_momentum_acceleration": -0.011640879310698378,
+            "nl_medium_trend_acceleration": -0.019172423753311418,
+            "nl_momentum5_x_amount": -0.015167268189389689,
+            "nl_momentum20_x_volume": -0.016385435357368274,
+            "nl_trend_x_drawdown": 0.030061858519197147,
+            "nl_reversal_x_volatility": 0.02854796256393072,
+            "nl_momentum5_squared": -0.00773964239719232,
+            "nl_drawdown_squared": 0.013447870004109958
+          }
+        },
+        "topQuartile": {
+          "type": "rolling-standardized-ridge-logistic",
+          "horizonSessions": 1,
+          "ridge": 40.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-06-21",
+          "trainingEnd": "2026-07-20",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": 0.25,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.0034006043002861265,
+            "momentum20": 0.014366935173148068,
+            "momentum60": 0.04548158690252457,
+            "reversal1": -0.0006500841105670828,
+            "volatility20": 0.014530782310801831,
+            "drawdown60": -0.06840298682225447,
+            "amountRatio5v20": 0.011887301232481256,
+            "volumeRatio5v20": 0.0027840832621990165,
+            "priceVolumeAcceleration": 0.005515123745035912,
+            "cs_momentum5": -4.684304091002768e-16,
+            "cs_momentum20": -2.5940081946061654e-16,
+            "cs_momentum60": -8.732359338858912e-16,
+            "cs_reversal1": 6.1256849093487885e-16,
+            "cs_volatility20": -1.4642901823462218e-15,
+            "cs_drawdown60": 1.36455735012419e-16,
+            "cs_amountRatio5v20": -3.7073748318795864e-16,
+            "cs_volumeRatio5v20": 1.6231137539245427e-16,
+            "cs_priceVolumeAcceleration": 3.8536560773736626e-16,
+            "nl_momentum_acceleration": -2.7917116002809824e-16,
+            "nl_medium_trend_acceleration": 5.383700540047386e-16,
+            "nl_momentum5_x_amount": 0.4208476445558674,
+            "nl_momentum20_x_volume": 0.39522127108090277,
+            "nl_trend_x_drawdown": 0.6209523395824124,
+            "nl_reversal_x_volatility": -0.03435848741666748,
+            "nl_momentum5_squared": 0.9999999999999961,
+            "nl_drawdown_squared": 0.9999999999999978
+          },
+          "featureScales": {
+            "momentum5": 0.04089611157975566,
+            "momentum20": 0.08080639539505292,
+            "momentum60": 0.1380007647353746,
+            "reversal1": 0.017146666668318,
+            "volatility20": 0.007458058196288269,
+            "drawdown60": 0.05037153123542655,
+            "amountRatio5v20": 0.2939566900177653,
+            "volumeRatio5v20": 0.2739211995222752,
+            "priceVolumeAcceleration": 0.030176386599519576,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.0000826822110638,
+            "cs_momentum60": 1.0000826822110644,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.0000826822110631,
+            "cs_drawdown60": 1.0000826822110627,
+            "cs_amountRatio5v20": 1.0000826822110644,
+            "cs_volumeRatio5v20": 1.0000826822110644,
+            "cs_priceVolumeAcceleration": 1.000082682211064,
+            "nl_momentum_acceleration": 1.0157776015433886,
+            "nl_medium_trend_acceleration": 0.9581616164483023,
+            "nl_momentum5_x_amount": 1.0979975827050623,
+            "nl_momentum20_x_volume": 1.0750209884267612,
+            "nl_trend_x_drawdown": 1.0581223611679533,
+            "nl_reversal_x_volatility": 1.1040331567500825,
+            "nl_momentum5_squared": 1.2574273060894943,
+            "nl_drawdown_squared": 1.1991603465740956
+          },
+          "intercept": -1.112915217295001,
+          "coefficients": {
+            "momentum5": 0.01651720984824719,
+            "momentum20": 0.01918529306277309,
+            "momentum60": -0.012267758786615266,
+            "reversal1": -0.014705145326656231,
+            "volatility20": 0.011216662431299406,
+            "drawdown60": -0.05191100188212722,
+            "amountRatio5v20": 0.03826005730803321,
+            "volumeRatio5v20": -0.0229721934810137,
+            "priceVolumeAcceleration": -0.04295560105432294,
+            "cs_momentum5": 0.043809785599551,
+            "cs_momentum20": 0.06394192322581711,
+            "cs_momentum60": 0.07099363918127019,
+            "cs_reversal1": 0.031801884235551255,
+            "cs_volatility20": 0.07630227918061643,
+            "cs_drawdown60": 0.034469381008183315,
+            "cs_amountRatio5v20": -0.1651518059395751,
+            "cs_volumeRatio5v20": 0.2077664124735175,
+            "cs_priceVolumeAcceleration": 0.025801564605298238,
+            "nl_momentum_acceleration": -0.01982107320079704,
+            "nl_medium_trend_acceleration": -0.007360239531467073,
+            "nl_momentum5_x_amount": 0.006559179282953135,
+            "nl_momentum20_x_volume": -0.008618008674726792,
+            "nl_trend_x_drawdown": 0.015623762878021448,
+            "nl_reversal_x_volatility": 0.0266588249738416,
+            "nl_momentum5_squared": 0.03260538726078099,
+            "nl_drawdown_squared": 0.03519499410988831
+          }
+        },
+        "expectedExcess": {
+          "type": "rolling-standardized-ridge-linear",
+          "horizonSessions": 1,
+          "ridge": 80.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-06-21",
+          "trainingEnd": "2026-07-20",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": null,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.0034006043002861265,
+            "momentum20": 0.014366935173148068,
+            "momentum60": 0.04548158690252457,
+            "reversal1": -0.0006500841105670828,
+            "volatility20": 0.014530782310801831,
+            "drawdown60": -0.06840298682225447,
+            "amountRatio5v20": 0.011887301232481256,
+            "volumeRatio5v20": 0.0027840832621990165,
+            "priceVolumeAcceleration": 0.005515123745035912,
+            "cs_momentum5": -4.684304091002768e-16,
+            "cs_momentum20": -2.5940081946061654e-16,
+            "cs_momentum60": -8.732359338858912e-16,
+            "cs_reversal1": 6.1256849093487885e-16,
+            "cs_volatility20": -1.4642901823462218e-15,
+            "cs_drawdown60": 1.36455735012419e-16,
+            "cs_amountRatio5v20": -3.7073748318795864e-16,
+            "cs_volumeRatio5v20": 1.6231137539245427e-16,
+            "cs_priceVolumeAcceleration": 3.8536560773736626e-16,
+            "nl_momentum_acceleration": -2.7917116002809824e-16,
+            "nl_medium_trend_acceleration": 5.383700540047386e-16,
+            "nl_momentum5_x_amount": 0.4208476445558674,
+            "nl_momentum20_x_volume": 0.39522127108090277,
+            "nl_trend_x_drawdown": 0.6209523395824124,
+            "nl_reversal_x_volatility": -0.03435848741666748,
+            "nl_momentum5_squared": 0.9999999999999961,
+            "nl_drawdown_squared": 0.9999999999999978
+          },
+          "featureScales": {
+            "momentum5": 0.04089611157975566,
+            "momentum20": 0.08080639539505292,
+            "momentum60": 0.1380007647353746,
+            "reversal1": 0.017146666668318,
+            "volatility20": 0.007458058196288269,
+            "drawdown60": 0.05037153123542655,
+            "amountRatio5v20": 0.2939566900177653,
+            "volumeRatio5v20": 0.2739211995222752,
+            "priceVolumeAcceleration": 0.030176386599519576,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.0000826822110638,
+            "cs_momentum60": 1.0000826822110644,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.0000826822110631,
+            "cs_drawdown60": 1.0000826822110627,
+            "cs_amountRatio5v20": 1.0000826822110644,
+            "cs_volumeRatio5v20": 1.0000826822110644,
+            "cs_priceVolumeAcceleration": 1.000082682211064,
+            "nl_momentum_acceleration": 1.0157776015433886,
+            "nl_medium_trend_acceleration": 0.9581616164483023,
+            "nl_momentum5_x_amount": 1.0979975827050623,
+            "nl_momentum20_x_volume": 1.0750209884267612,
+            "nl_trend_x_drawdown": 1.0581223611679533,
+            "nl_reversal_x_volatility": 1.1040331567500825,
+            "nl_momentum5_squared": 1.2574273060894943,
+            "nl_drawdown_squared": 1.1991603465740956
+          },
+          "intercept": -9.222810954856518e-05,
+          "coefficients": {
+            "momentum5": 0.0002616872415388694,
+            "momentum20": 3.077177113428312e-05,
+            "momentum60": 0.00012114642540175101,
+            "reversal1": -1.5978718832079207e-05,
+            "volatility20": -0.00027861312257743067,
+            "drawdown60": -0.0005088065641363301,
+            "amountRatio5v20": 0.0004257714157576583,
+            "volumeRatio5v20": -0.0005065607415254293,
+            "priceVolumeAcceleration": -0.00016110398049221228,
+            "cs_momentum5": 0.00012267711599800492,
+            "cs_momentum20": 0.00019385175962740995,
+            "cs_momentum60": 0.00010172339223403342,
+            "cs_reversal1": 0.0001233702363807964,
+            "cs_volatility20": 0.000539193074636275,
+            "cs_drawdown60": 0.0002561715892406038,
+            "cs_amountRatio5v20": -0.0008181050826974693,
+            "cs_volumeRatio5v20": 0.0008836618592724564,
+            "cs_priceVolumeAcceleration": 0.00028246043202826836,
+            "nl_momentum_acceleration": -7.007491442820992e-05,
+            "nl_medium_trend_acceleration": 9.615912721696287e-05,
+            "nl_momentum5_x_amount": -9.100241602117936e-05,
+            "nl_momentum20_x_volume": -0.00019056532950755654,
+            "nl_trend_x_drawdown": 0.0001432695412662893,
+            "nl_reversal_x_volatility": 3.1417548093963255e-05,
+            "nl_momentum5_squared": -0.00022297343010279803,
+            "nl_drawdown_squared": -5.109715232219895e-05
+          }
+        }
+      },
+      "calibrations": {
+        "absoluteUp": {
+          "enabled": false,
+          "reason": "calibration disabled: raw OOS discrimination or post-calibration dispersion is insufficient",
+          "calibrator": {
+            "method": "platt-on-purged-time-ordered-oof",
+            "scoreMean": -0.06172928583410878,
+            "scoreScale": 0.38288608876156144,
+            "intercept": 0.03880619505869498,
+            "slope": 0.007240238051180447,
+            "baseRate": 0.5097001763668431,
+            "observations": 4536,
+            "dates": 378
+          },
+          "rawMetrics": {
+            "brier": 0.2514628648259236,
+            "baselineBrier": 0.25058166842411406,
+            "brierSkill": -0.0035166036180991345,
+            "auc": 0.5163043859587575,
+            "observations": 1512
+          },
+          "calibratedMetrics": {
+            "brier": 0.25060195735939544,
+            "baselineBrier": 0.25058166842411406,
+            "brierSkill": -8.096735650697795e-05,
+            "auc": 0.5163043859587575,
+            "observations": 1512
+          },
+          "rawCrossSectionStd": 0.02869257920871498,
+          "calibratedCrossSectionStd": 0.0005483402321694121
+        },
+        "outperformance": {
+          "enabled": false,
+          "reason": "calibration disabled: raw OOS discrimination or post-calibration dispersion is insufficient",
+          "calibrator": {
+            "method": "platt-on-purged-time-ordered-oof",
+            "scoreMean": -0.08865033377770047,
+            "scoreScale": 0.15774042835682708,
+            "intercept": -0.12626994517947232,
+            "slope": 0.002168059533944843,
+            "baseRate": 0.46847442680776014,
+            "observations": 4536,
+            "dates": 378
+          },
+          "rawMetrics": {
+            "brier": 0.24929849793425918,
+            "baselineBrier": 0.2484084311593865,
+            "brierSkill": -0.0035830779604320018,
+            "auc": 0.5002994581568879,
+            "observations": 1512
+          },
+          "calibratedMetrics": {
+            "brier": 0.2484063756312282,
+            "baselineBrier": 0.2484084311593865,
+            "brierSkill": 8.274792239193474e-06,
+            "auc": 0.5002994581568879,
+            "observations": 1512
+          },
+          "rawCrossSectionStd": 0.024755135164015646,
+          "calibratedCrossSectionStd": 0.0003415457528976574
+        },
+        "topQuartile": {
+          "enabled": false,
+          "reason": "calibration disabled: raw OOS discrimination or post-calibration dispersion is insufficient",
+          "calibrator": {
+            "method": "platt-on-purged-time-ordered-oof",
+            "scoreMean": -1.1054087455423502,
+            "scoreScale": 0.27349030485277964,
+            "intercept": -1.1007051018945915,
+            "slope": 0.09157440595336788,
+            "baseRate": 0.25,
+            "observations": 4536,
+            "dates": 378
+          },
+          "rawMetrics": {
+            "brier": 0.18447062447800666,
+            "baselineBrier": 0.1875,
+            "brierSkill": 0.0161566694506311,
+            "auc": 0.5956136912927036,
+            "observations": 1512
+          },
+          "calibratedMetrics": {
+            "brier": 0.18596532219818146,
+            "baselineBrier": 0.1875,
+            "brierSkill": 0.008184948276365511,
+            "auc": 0.5956136912927036,
+            "observations": 1512
+          },
+          "rawCrossSectionStd": 0.046994092031221166,
+          "calibratedCrossSectionStd": 0.015210831087331721
+        }
+      },
+      "latestPredictions": [
+        {
+          "date": "2026-07-21",
+          "code": "000991",
+          "name": "医药医疗",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.26928817913327735,
+              "rawProbability": 0.5669181456416359,
+              "calibratedProbability": 0.5669181456416359,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.01345597826180554,
+              "rawProbability": 0.4966360561916403,
+              "calibratedProbability": 0.4966360561916403,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -0.5957864249567681,
+              "rawProbability": 0.3553082839144994,
+              "calibratedProbability": 0.3553082839144994,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": 0.0003024482026000426
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000990",
+          "name": "主要消费",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": -0.03049806290883674,
+              "rawProbability": 0.49237607520156434,
+              "calibratedProbability": 0.49237607520156434,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.18862334979490508,
+              "rawProbability": 0.45298347911812564,
+              "calibratedProbability": 0.45298347911812564,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -0.9290712369748563,
+              "rawProbability": 0.2831131783725794,
+              "calibratedProbability": 0.2831131783725794,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": 0.0003312303766665521
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000994",
+          "name": "通信服务",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.12110472123373159,
+              "rawProbability": 0.530239231068283,
+              "calibratedProbability": 0.530239231068283,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.2032194119286538,
+              "rawProbability": 0.449369273393136,
+              "calibratedProbability": 0.449369273393136,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -0.9496854869875245,
+              "rawProbability": 0.27894807748309114,
+              "calibratedProbability": 0.27894807748309114,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -7.653731308807694e-05
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000986",
+          "name": "能源",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.1281559214680934,
+              "rawProbability": 0.5319952017425478,
+              "calibratedProbability": 0.5319952017425478,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.14212393395069547,
+              "rawProbability": 0.4645287041084313,
+              "calibratedProbability": 0.4645287041084313,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -0.95996092946863,
+              "rawProbability": 0.27688601751510133,
+              "calibratedProbability": 0.27688601751510133,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": 0.00031932908128547356
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000993",
+          "name": "信息技术",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": -0.16534584576442365,
+              "rawProbability": 0.4587574574500722,
+              "calibratedProbability": 0.4587574574500722,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.36944127870305876,
+              "rawProbability": 0.40867603522612417,
+              "calibratedProbability": 0.40867603522612417,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -0.9896865609931074,
+              "rawProbability": 0.27097399216860535,
+              "calibratedProbability": 0.27097399216860535,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.0009067552745382681
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000995",
+          "name": "公用事业",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": -0.013815732465479378,
+              "rawProbability": 0.4965461218215508,
+              "calibratedProbability": 0.4965461218215508,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.14530380898528295,
+              "rawProbability": 0.463737826182291,
+              "calibratedProbability": 0.463737826182291,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -1.0502836400333955,
+              "rawProbability": 0.25917063786592937,
+              "calibratedProbability": 0.25917063786592937,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": 0.0001665199661992419
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000992",
+          "name": "金融地产",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.1822910931149861,
+              "rawProbability": 0.5454469924658306,
+              "calibratedProbability": 0.5454469924658306,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.08849205238102911,
+              "rawProbability": 0.47789141242924904,
+              "calibratedProbability": 0.47789141242924904,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -1.069445430597835,
+              "rawProbability": 0.2555085622432599,
+              "calibratedProbability": 0.2555085622432599,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.0004939912330071722
+        },
+        {
+          "date": "2026-07-21",
+          "code": "399970",
+          "name": "移动互联网",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.013910627364901725,
+              "rawProbability": 0.5034776007634845,
+              "calibratedProbability": 0.5034776007634845,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.2497945594161862,
+              "rawProbability": 0.43787406568959414,
+              "calibratedProbability": 0.43787406568959414,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -1.1160679262649076,
+              "rawProbability": 0.24674137105349392,
+              "calibratedProbability": 0.24674137105349392,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.0006172694049040384
+        },
+        {
+          "date": "2026-07-21",
+          "code": "399967",
+          "name": "军工",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.1185735309493783,
+              "rawProbability": 0.5296087001206972,
+              "calibratedProbability": 0.5296087001206972,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.23015985154562515,
+              "rawProbability": 0.4427127067601963,
+              "calibratedProbability": 0.4427127067601963,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -1.163055604079128,
+              "rawProbability": 0.23811250940598258,
+              "calibratedProbability": 0.23811250940598258,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.00010789265428995059
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000989",
+          "name": "可选消费",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": -0.006945597619539001,
+              "rawProbability": 0.49826360757559907,
+              "calibratedProbability": 0.49826360757559907,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.18031249644124134,
+              "rawProbability": 0.45504361400731275,
+              "calibratedProbability": 0.45504361400731275,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -1.187711292899134,
+              "rawProbability": 0.23366851908474914,
+              "calibratedProbability": 0.23366851908474914,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -2.9681198487805194e-05
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000988",
+          "name": "工业",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.0552078691478293,
+              "rawProbability": 0.5137984627602871,
+              "calibratedProbability": 0.5137984627602871,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.18344881900851387,
+              "rawProbability": 0.4542659823954983,
+              "calibratedProbability": 0.4542659823954983,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -1.2208178971604526,
+              "rawProbability": 0.22779254789460315,
+              "calibratedProbability": 0.22779254789460315,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -4.42222080137681e-05
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000987",
+          "name": "原材料",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.06691013679846324,
+              "rawProbability": 0.5167212962749094,
+              "calibratedProbability": 0.5167212962749094,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5097001763668431
+            },
+            "outperformance": {
+              "rawScore": -0.22568542105908604,
+              "rawProbability": 0.4438169112401879,
+              "calibratedProbability": 0.4438169112401879,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.46847442680776014
+            },
+            "topQuartile": {
+              "rawScore": -1.2596118253237962,
+              "rawProbability": 0.22104072156652574,
+              "calibratedProbability": 0.22104072156652574,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.00023761397418906082
+        }
+      ],
+      "abstainReasons": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "audit": {
+        "validation": "rolling 504-session training; purged chronological 63-session test blocks; labels must mature before each block; embargo=1 sessions",
+        "calibrationDates": 378,
+        "evaluationDates": 126,
+        "evaluationObservations": 1512,
+        "rankingMetrics": {
+          "rankIc": 0.05971805971805971,
+          "crossSectionSpearman": 0.05971805971805971,
+          "topQuartileHitRate": 0.3439153439153439,
+          "topBottomSpread": 0.002137145170077221,
+          "topBottomSpreadAfterCosts": -0.001862854829922779,
+          "transactionCostPerLeg": 0.002,
+          "predictionCrossSectionStd": 0.046994092031221166,
+          "positiveWindowShare": 1.0,
+          "windows": [
+            {
+              "start": "2026-01-09",
+              "end": "2026-04-16",
+              "rankIc": 0.05883005883005883,
+              "topBottomSpread": 0.0017259638599596728
+            },
+            {
+              "start": "2026-04-17",
+              "end": "2026-07-20",
+              "rankIc": 0.0606060606060606,
+              "topBottomSpread": 0.00254832648019477
+            }
+          ],
+          "regimes": {
+            "risk-on": {
+              "dates": 67,
+              "rankIc": 0.04540235883519465
+            },
+            "risk-off": {
+              "dates": 59,
+              "rankIc": 0.07597487258504208
+            }
+          }
+        },
+        "qualityGate": {
+          "passed": false,
+          "reasons": [
+            "生产级差异特征完整度仅50%，低于80%",
+            "扣除交易成本后的Top-Bottom收益差不大于0",
+            "原始前四分位模型未满足概率校准启用条件"
+          ],
+          "thresholds": {
+            "minimumProbabilitySpread": 0.03,
+            "minimumCrossSectionStd": 0.01,
+            "minimumDataCompleteness": 0.8,
+            "brierSkillMustBePositive": true,
+            "rankIcMustBePositive": true,
+            "topBottomAfterCostsMustBePositive": true,
+            "positiveWindowShareMustExceed": 0.5
+          }
+        }
+      }
+    },
+    "5": {
+      "horizonSessions": 5,
+      "status": "ready",
+      "publicationStatus": "abstained",
+      "primaryTarget": "topQuartileProbability",
+      "secondaryRankingTarget": "expectedExcessReturn",
+      "eventDefinitions": {
+        "absoluteUp": "第5个后续完整交易日行业指数收益率大于0",
+        "outperformance": "第5个后续完整交易日行业收益率大于中证全指收益率",
+        "topQuartile": "未来5个交易日相对收益进入固定12项观察池前25%",
+        "expectedExcess": "行业未来5个交易日收益率减中证全指收益率"
+      },
+      "models": {
+        "absoluteUp": {
+          "type": "rolling-standardized-ridge-logistic",
+          "horizonSessions": 5,
+          "ridge": 40.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-06-17",
+          "trainingEnd": "2026-07-14",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": 0.5198412698412699,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.0035653803202378583,
+            "momentum20": 0.014554253922836418,
+            "momentum60": 0.04571399886858333,
+            "reversal1": -0.0006972084043815822,
+            "volatility20": 0.014429201460723686,
+            "drawdown60": -0.06773804503827893,
+            "amountRatio5v20": 0.01249394601032497,
+            "volumeRatio5v20": 0.002689348065111439,
+            "priceVolumeAcceleration": 0.005466849474074609,
+            "cs_momentum5": -3.696911420437187e-16,
+            "cs_momentum20": -1.889838961394839e-16,
+            "cs_momentum60": -8.364854958022343e-16,
+            "cs_reversal1": 5.118719234484156e-16,
+            "cs_volatility20": -1.1882029751643045e-15,
+            "cs_drawdown60": 1.7861226900798235e-17,
+            "cs_amountRatio5v20": -3.249531743041422e-16,
+            "cs_volumeRatio5v20": 1.3599681345792777e-16,
+            "cs_priceVolumeAcceleration": 4.1119371282413205e-16,
+            "nl_momentum_acceleration": -2.763442032524323e-16,
+            "nl_medium_trend_acceleration": 2.893959322621626e-16,
+            "nl_momentum5_x_amount": 0.42090397140622154,
+            "nl_momentum20_x_volume": 0.39492015054787644,
+            "nl_trend_x_drawdown": 0.6209789901483554,
+            "nl_reversal_x_volatility": -0.041326483019393304,
+            "nl_momentum5_squared": 0.9999999999999961,
+            "nl_drawdown_squared": 0.9999999999999987
+          },
+          "featureScales": {
+            "momentum5": 0.040452333913820436,
+            "momentum20": 0.08030607076139182,
+            "momentum60": 0.1374710390216888,
+            "reversal1": 0.016953455866236707,
+            "volatility20": 0.007405822671559602,
+            "drawdown60": 0.04944183724688365,
+            "amountRatio5v20": 0.29368734372215816,
+            "volumeRatio5v20": 0.2737596535169695,
+            "priceVolumeAcceleration": 0.030164149550994085,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.000082682211064,
+            "cs_momentum60": 1.0000826822110644,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.000082682211063,
+            "cs_drawdown60": 1.000082682211063,
+            "cs_amountRatio5v20": 1.0000826822110644,
+            "cs_volumeRatio5v20": 1.0000826822110644,
+            "cs_priceVolumeAcceleration": 1.000082682211064,
+            "nl_momentum_acceleration": 1.0176621406426525,
+            "nl_medium_trend_acceleration": 0.9555649653733198,
+            "nl_momentum5_x_amount": 1.099339796650544,
+            "nl_momentum20_x_volume": 1.0727619327186342,
+            "nl_trend_x_drawdown": 1.0574543050395202,
+            "nl_reversal_x_volatility": 1.102526695531436,
+            "nl_momentum5_squared": 1.2570399552325564,
+            "nl_drawdown_squared": 1.1979688223305942
+          },
+          "intercept": 0.0802299856729002,
+          "coefficients": {
+            "momentum5": -0.06948226080341986,
+            "momentum20": -0.07221332421619425,
+            "momentum60": -0.17960292562589383,
+            "reversal1": -0.03434717225890019,
+            "volatility20": 0.2057495073829889,
+            "drawdown60": 0.15853139931655708,
+            "amountRatio5v20": 0.23547980690201167,
+            "volumeRatio5v20": -0.14252013049214868,
+            "priceVolumeAcceleration": -0.15651677554430163,
+            "cs_momentum5": 0.056032220105027834,
+            "cs_momentum20": 0.056958108714570965,
+            "cs_momentum60": 0.06742800402439228,
+            "cs_reversal1": -0.005540376696121342,
+            "cs_volatility20": 0.04535494051759152,
+            "cs_drawdown60": -0.04968964503227549,
+            "cs_amountRatio5v20": -0.1561141856698824,
+            "cs_volumeRatio5v20": 0.12447786739225979,
+            "cs_priceVolumeAcceleration": 0.04168300739742247,
+            "nl_momentum_acceleration": -0.0009098944797862574,
+            "nl_medium_trend_acceleration": -0.010957665217271434,
+            "nl_momentum5_x_amount": 0.04155054593051206,
+            "nl_momentum20_x_volume": -0.1356739624292011,
+            "nl_trend_x_drawdown": 0.10615372563116288,
+            "nl_reversal_x_volatility": -0.061327644846228546,
+            "nl_momentum5_squared": -0.15162255334294814,
+            "nl_drawdown_squared": -0.005432912888618324
+          }
+        },
+        "outperformance": {
+          "type": "rolling-standardized-ridge-logistic",
+          "horizonSessions": 5,
+          "ridge": 40.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-06-17",
+          "trainingEnd": "2026-07-14",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": 0.4591600529100529,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.0035653803202378583,
+            "momentum20": 0.014554253922836418,
+            "momentum60": 0.04571399886858333,
+            "reversal1": -0.0006972084043815822,
+            "volatility20": 0.014429201460723686,
+            "drawdown60": -0.06773804503827893,
+            "amountRatio5v20": 0.01249394601032497,
+            "volumeRatio5v20": 0.002689348065111439,
+            "priceVolumeAcceleration": 0.005466849474074609,
+            "cs_momentum5": -3.696911420437187e-16,
+            "cs_momentum20": -1.889838961394839e-16,
+            "cs_momentum60": -8.364854958022343e-16,
+            "cs_reversal1": 5.118719234484156e-16,
+            "cs_volatility20": -1.1882029751643045e-15,
+            "cs_drawdown60": 1.7861226900798235e-17,
+            "cs_amountRatio5v20": -3.249531743041422e-16,
+            "cs_volumeRatio5v20": 1.3599681345792777e-16,
+            "cs_priceVolumeAcceleration": 4.1119371282413205e-16,
+            "nl_momentum_acceleration": -2.763442032524323e-16,
+            "nl_medium_trend_acceleration": 2.893959322621626e-16,
+            "nl_momentum5_x_amount": 0.42090397140622154,
+            "nl_momentum20_x_volume": 0.39492015054787644,
+            "nl_trend_x_drawdown": 0.6209789901483554,
+            "nl_reversal_x_volatility": -0.041326483019393304,
+            "nl_momentum5_squared": 0.9999999999999961,
+            "nl_drawdown_squared": 0.9999999999999987
+          },
+          "featureScales": {
+            "momentum5": 0.040452333913820436,
+            "momentum20": 0.08030607076139182,
+            "momentum60": 0.1374710390216888,
+            "reversal1": 0.016953455866236707,
+            "volatility20": 0.007405822671559602,
+            "drawdown60": 0.04944183724688365,
+            "amountRatio5v20": 0.29368734372215816,
+            "volumeRatio5v20": 0.2737596535169695,
+            "priceVolumeAcceleration": 0.030164149550994085,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.000082682211064,
+            "cs_momentum60": 1.0000826822110644,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.000082682211063,
+            "cs_drawdown60": 1.000082682211063,
+            "cs_amountRatio5v20": 1.0000826822110644,
+            "cs_volumeRatio5v20": 1.0000826822110644,
+            "cs_priceVolumeAcceleration": 1.000082682211064,
+            "nl_momentum_acceleration": 1.0176621406426525,
+            "nl_medium_trend_acceleration": 0.9555649653733198,
+            "nl_momentum5_x_amount": 1.099339796650544,
+            "nl_momentum20_x_volume": 1.0727619327186342,
+            "nl_trend_x_drawdown": 1.0574543050395202,
+            "nl_reversal_x_volatility": 1.102526695531436,
+            "nl_momentum5_squared": 1.2570399552325564,
+            "nl_drawdown_squared": 1.1979688223305942
+          },
+          "intercept": -0.1665146148601974,
+          "coefficients": {
+            "momentum5": 0.07100381710414293,
+            "momentum20": 0.09909083477565242,
+            "momentum60": 0.020852971517010817,
+            "reversal1": -0.02206111051033216,
+            "volatility20": -0.18742088104861357,
+            "drawdown60": -0.21092994608497762,
+            "amountRatio5v20": -0.003027901866728828,
+            "volumeRatio5v20": -0.010074372105578986,
+            "priceVolumeAcceleration": -0.039543303763176024,
+            "cs_momentum5": -0.03716946217142325,
+            "cs_momentum20": 0.024467014975378728,
+            "cs_momentum60": 0.03024280172524439,
+            "cs_reversal1": -0.018572465910635765,
+            "cs_volatility20": 0.20998191525049922,
+            "cs_drawdown60": 0.11683594108997222,
+            "cs_amountRatio5v20": -0.09235231970239369,
+            "cs_volumeRatio5v20": 0.1507281005077069,
+            "cs_priceVolumeAcceleration": -0.06406249276002876,
+            "nl_momentum_acceleration": -0.060571746678213245,
+            "nl_medium_trend_acceleration": -0.006044868233973127,
+            "nl_momentum5_x_amount": 0.03614131484309877,
+            "nl_momentum20_x_volume": -0.02864220300779122,
+            "nl_trend_x_drawdown": 0.07475986487211077,
+            "nl_reversal_x_volatility": 0.027728799531574557,
+            "nl_momentum5_squared": -0.11369280025555101,
+            "nl_drawdown_squared": 0.014147028189531214
+          }
+        },
+        "topQuartile": {
+          "type": "rolling-standardized-ridge-logistic",
+          "horizonSessions": 5,
+          "ridge": 40.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-06-17",
+          "trainingEnd": "2026-07-14",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": 0.25,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.0035653803202378583,
+            "momentum20": 0.014554253922836418,
+            "momentum60": 0.04571399886858333,
+            "reversal1": -0.0006972084043815822,
+            "volatility20": 0.014429201460723686,
+            "drawdown60": -0.06773804503827893,
+            "amountRatio5v20": 0.01249394601032497,
+            "volumeRatio5v20": 0.002689348065111439,
+            "priceVolumeAcceleration": 0.005466849474074609,
+            "cs_momentum5": -3.696911420437187e-16,
+            "cs_momentum20": -1.889838961394839e-16,
+            "cs_momentum60": -8.364854958022343e-16,
+            "cs_reversal1": 5.118719234484156e-16,
+            "cs_volatility20": -1.1882029751643045e-15,
+            "cs_drawdown60": 1.7861226900798235e-17,
+            "cs_amountRatio5v20": -3.249531743041422e-16,
+            "cs_volumeRatio5v20": 1.3599681345792777e-16,
+            "cs_priceVolumeAcceleration": 4.1119371282413205e-16,
+            "nl_momentum_acceleration": -2.763442032524323e-16,
+            "nl_medium_trend_acceleration": 2.893959322621626e-16,
+            "nl_momentum5_x_amount": 0.42090397140622154,
+            "nl_momentum20_x_volume": 0.39492015054787644,
+            "nl_trend_x_drawdown": 0.6209789901483554,
+            "nl_reversal_x_volatility": -0.041326483019393304,
+            "nl_momentum5_squared": 0.9999999999999961,
+            "nl_drawdown_squared": 0.9999999999999987
+          },
+          "featureScales": {
+            "momentum5": 0.040452333913820436,
+            "momentum20": 0.08030607076139182,
+            "momentum60": 0.1374710390216888,
+            "reversal1": 0.016953455866236707,
+            "volatility20": 0.007405822671559602,
+            "drawdown60": 0.04944183724688365,
+            "amountRatio5v20": 0.29368734372215816,
+            "volumeRatio5v20": 0.2737596535169695,
+            "priceVolumeAcceleration": 0.030164149550994085,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.000082682211064,
+            "cs_momentum60": 1.0000826822110644,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.000082682211063,
+            "cs_drawdown60": 1.000082682211063,
+            "cs_amountRatio5v20": 1.0000826822110644,
+            "cs_volumeRatio5v20": 1.0000826822110644,
+            "cs_priceVolumeAcceleration": 1.000082682211064,
+            "nl_momentum_acceleration": 1.0176621406426525,
+            "nl_medium_trend_acceleration": 0.9555649653733198,
+            "nl_momentum5_x_amount": 1.099339796650544,
+            "nl_momentum20_x_volume": 1.0727619327186342,
+            "nl_trend_x_drawdown": 1.0574543050395202,
+            "nl_reversal_x_volatility": 1.102526695531436,
+            "nl_momentum5_squared": 1.2570399552325564,
+            "nl_drawdown_squared": 1.1979688223305942
+          },
+          "intercept": -1.1397200009941273,
+          "coefficients": {
+            "momentum5": -0.0027532275207512503,
+            "momentum20": 0.07869733306909431,
+            "momentum60": -0.0444982783530232,
+            "reversal1": -0.019094833484935268,
+            "volatility20": -0.039124677541624214,
+            "drawdown60": -0.12583824211494507,
+            "amountRatio5v20": 0.011262693663700207,
+            "volumeRatio5v20": 0.025467780709790007,
+            "priceVolumeAcceleration": -0.04822188047723189,
+            "cs_momentum5": 0.030500396819422723,
+            "cs_momentum20": 0.08152527609906705,
+            "cs_momentum60": 0.12204235839656857,
+            "cs_reversal1": -0.05805451777005786,
+            "cs_volatility20": 0.23291173965754475,
+            "cs_drawdown60": 0.02372670064657682,
+            "cs_amountRatio5v20": -0.11744983060612628,
+            "cs_volumeRatio5v20": 0.23109184625377685,
+            "cs_priceVolumeAcceleration": -0.02649963516142755,
+            "nl_momentum_acceleration": -0.05014345733374348,
+            "nl_medium_trend_acceleration": -0.042404686031601635,
+            "nl_momentum5_x_amount": -0.010538159010549338,
+            "nl_momentum20_x_volume": -0.020465437043241365,
+            "nl_trend_x_drawdown": 0.11538362816549712,
+            "nl_reversal_x_volatility": -0.010282235004172429,
+            "nl_momentum5_squared": -0.14971658941970392,
+            "nl_drawdown_squared": -0.0006139312750371435
+          }
+        },
+        "expectedExcess": {
+          "type": "rolling-standardized-ridge-linear",
+          "horizonSessions": 5,
+          "ridge": 80.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-06-17",
+          "trainingEnd": "2026-07-14",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": null,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.0035653803202378583,
+            "momentum20": 0.014554253922836418,
+            "momentum60": 0.04571399886858333,
+            "reversal1": -0.0006972084043815822,
+            "volatility20": 0.014429201460723686,
+            "drawdown60": -0.06773804503827893,
+            "amountRatio5v20": 0.01249394601032497,
+            "volumeRatio5v20": 0.002689348065111439,
+            "priceVolumeAcceleration": 0.005466849474074609,
+            "cs_momentum5": -3.696911420437187e-16,
+            "cs_momentum20": -1.889838961394839e-16,
+            "cs_momentum60": -8.364854958022343e-16,
+            "cs_reversal1": 5.118719234484156e-16,
+            "cs_volatility20": -1.1882029751643045e-15,
+            "cs_drawdown60": 1.7861226900798235e-17,
+            "cs_amountRatio5v20": -3.249531743041422e-16,
+            "cs_volumeRatio5v20": 1.3599681345792777e-16,
+            "cs_priceVolumeAcceleration": 4.1119371282413205e-16,
+            "nl_momentum_acceleration": -2.763442032524323e-16,
+            "nl_medium_trend_acceleration": 2.893959322621626e-16,
+            "nl_momentum5_x_amount": 0.42090397140622154,
+            "nl_momentum20_x_volume": 0.39492015054787644,
+            "nl_trend_x_drawdown": 0.6209789901483554,
+            "nl_reversal_x_volatility": -0.041326483019393304,
+            "nl_momentum5_squared": 0.9999999999999961,
+            "nl_drawdown_squared": 0.9999999999999987
+          },
+          "featureScales": {
+            "momentum5": 0.040452333913820436,
+            "momentum20": 0.08030607076139182,
+            "momentum60": 0.1374710390216888,
+            "reversal1": 0.016953455866236707,
+            "volatility20": 0.007405822671559602,
+            "drawdown60": 0.04944183724688365,
+            "amountRatio5v20": 0.29368734372215816,
+            "volumeRatio5v20": 0.2737596535169695,
+            "priceVolumeAcceleration": 0.030164149550994085,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.000082682211064,
+            "cs_momentum60": 1.0000826822110644,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.000082682211063,
+            "cs_drawdown60": 1.000082682211063,
+            "cs_amountRatio5v20": 1.0000826822110644,
+            "cs_volumeRatio5v20": 1.0000826822110644,
+            "cs_priceVolumeAcceleration": 1.000082682211064,
+            "nl_momentum_acceleration": 1.0176621406426525,
+            "nl_medium_trend_acceleration": 0.9555649653733198,
+            "nl_momentum5_x_amount": 1.099339796650544,
+            "nl_momentum20_x_volume": 1.0727619327186342,
+            "nl_trend_x_drawdown": 1.0574543050395202,
+            "nl_reversal_x_volatility": 1.102526695531436,
+            "nl_momentum5_squared": 1.2570399552325564,
+            "nl_drawdown_squared": 1.1979688223305942
+          },
+          "intercept": -0.0005039689582299177,
+          "coefficients": {
+            "momentum5": 0.0003675432032372059,
+            "momentum20": 0.0005600177660451074,
+            "momentum60": 0.0003898102526760652,
+            "reversal1": -0.0006078300339450996,
+            "volatility20": -0.001476036586304641,
+            "drawdown60": -0.0014780375853394965,
+            "amountRatio5v20": 0.0006026530376401785,
+            "volumeRatio5v20": -0.0012501066713947186,
+            "priceVolumeAcceleration": -0.00045662496327284613,
+            "cs_momentum5": -0.0006238540449366422,
+            "cs_momentum20": 0.00033192110466117274,
+            "cs_momentum60": 7.147362677688622e-05,
+            "cs_reversal1": -0.00022948703829056436,
+            "cs_volatility20": 0.0033037522155066703,
+            "cs_drawdown60": 0.0008891354097594604,
+            "cs_amountRatio5v20": -0.001468597750482049,
+            "cs_volumeRatio5v20": 0.003425473690755122,
+            "cs_priceVolumeAcceleration": -0.0007322143323817264,
+            "nl_momentum_acceleration": -0.0009392647491009029,
+            "nl_medium_trend_acceleration": 0.0002725811657985948,
+            "nl_momentum5_x_amount": 0.0006519490109392314,
+            "nl_momentum20_x_volume": -0.0003358644750344546,
+            "nl_trend_x_drawdown": 0.0014037349578933838,
+            "nl_reversal_x_volatility": 0.0002900373486770175,
+            "nl_momentum5_squared": -0.0023288376063844967,
+            "nl_drawdown_squared": 0.00014069999543433326
+          }
+        }
+      },
+      "calibrations": {
+        "absoluteUp": {
+          "enabled": false,
+          "reason": "calibration disabled: raw OOS discrimination or post-calibration dispersion is insufficient",
+          "calibrator": {
+            "method": "platt-on-purged-time-ordered-oof",
+            "scoreMean": -0.0326051450557807,
+            "scoreScale": 0.824005417639366,
+            "intercept": 0.15197487133502302,
+            "slope": -0.014682352683142903,
+            "baseRate": 0.5379188712522046,
+            "observations": 4536,
+            "dates": 378
+          },
+          "rawMetrics": {
+            "brier": 0.25509216778571564,
+            "baselineBrier": 0.254046017126558,
+            "brierSkill": -0.004117957333046762,
+            "auc": 0.5379180496174617,
+            "observations": 1512
+          },
+          "calibratedMetrics": {
+            "brier": 0.25398435178107076,
+            "baselineBrier": 0.254046017126558,
+            "brierSkill": 0.00024273297485521983,
+            "auc": 0.46208195038253824,
+            "observations": 1512
+          },
+          "rawCrossSectionStd": 0.05511275649603137,
+          "calibratedCrossSectionStd": 0.0010013582428646643
+        },
+        "outperformance": {
+          "enabled": false,
+          "reason": "calibration disabled: raw OOS discrimination or post-calibration dispersion is insufficient",
+          "calibrator": {
+            "method": "platt-on-purged-time-ordered-oof",
+            "scoreMean": -0.05969055362323037,
+            "scoreScale": 0.33025890462409613,
+            "intercept": -0.19284360035777318,
+            "slope": -0.01389589297549031,
+            "baseRate": 0.4519400352733686,
+            "observations": 4536,
+            "dates": 378
+          },
+          "rawMetrics": {
+            "brier": 0.24991649322034207,
+            "baselineBrier": 0.2504661901340326,
+            "brierSkill": 0.0021946950739992754,
+            "auc": 0.5308317052015525,
+            "observations": 1512
+          },
+          "calibratedMetrics": {
+            "brier": 0.25049267977103173,
+            "baselineBrier": 0.2504661901340326,
+            "brierSkill": -0.00010576132844497543,
+            "auc": 0.4691682947984475,
+            "observations": 1512
+          },
+          "rawCrossSectionStd": 0.0383407481167504,
+          "calibratedCrossSectionStd": 0.00162701845994243
+        },
+        "topQuartile": {
+          "enabled": false,
+          "reason": "calibration disabled: raw OOS discrimination or post-calibration dispersion is insufficient",
+          "calibrator": {
+            "method": "platt-on-purged-time-ordered-oof",
+            "scoreMean": -1.1217954216742771,
+            "scoreScale": 0.38380199893755956,
+            "intercept": -1.100014626244242,
+            "slope": 0.07471607895915106,
+            "baseRate": 0.25,
+            "observations": 4536,
+            "dates": 378
+          },
+          "rawMetrics": {
+            "brier": 0.17922477363109313,
+            "baselineBrier": 0.1875,
+            "brierSkill": 0.044134540634169994,
+            "auc": 0.6541833468641228,
+            "observations": 1512
+          },
+          "calibratedMetrics": {
+            "brier": 0.18538890770186173,
+            "baselineBrier": 0.1875,
+            "brierSkill": 0.011259158923404122,
+            "auc": 0.6541833468641228,
+            "observations": 1512
+          },
+          "rawCrossSectionStd": 0.056063518264073985,
+          "calibratedCrossSectionStd": 0.010651112890184378
+        }
+      },
+      "latestPredictions": [
+        {
+          "date": "2026-07-21",
+          "code": "000991",
+          "name": "医药医疗",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.6516012997035375,
+              "rawProbability": 0.6573712211228309,
+              "calibratedProbability": 0.6573712211228309,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": 0.1562719464148909,
+              "rawProbability": 0.5389886739349611,
+              "calibratedProbability": 0.5389886739349611,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -0.32700327416701785,
+              "rawProbability": 0.4189699508628844,
+              "calibratedProbability": 0.4189699508628844,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": 0.007831003210635843
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000994",
+          "name": "通信服务",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 1.0208988512841541,
+              "rawProbability": 0.7351476478174007,
+              "calibratedProbability": 0.7351476478174007,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.11342241948242134,
+              "rawProbability": 0.4716747548064503,
+              "calibratedProbability": 0.4716747548064503,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -0.44351337727495765,
+              "rawProbability": 0.3909041209388436,
+              "calibratedProbability": 0.3909041209388436,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": 0.004329235303409892
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000993",
+          "name": "信息技术",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.7925259356626544,
+              "rawProbability": 0.6883734404584756,
+              "calibratedProbability": 0.6883734404584756,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.4483086784067482,
+              "rawProbability": 0.3897629680804559,
+              "calibratedProbability": 0.3897629680804559,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -0.5989996232997045,
+              "rawProbability": 0.3545725975324981,
+              "calibratedProbability": 0.3545725975324981,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.0011498809660673648
+        },
+        {
+          "date": "2026-07-21",
+          "code": "399970",
+          "name": "移动互联网",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.7581971330225616,
+              "rawProbability": 0.6809621839415864,
+              "calibratedProbability": 0.6809621839415864,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.21508795746220355,
+              "rawProbability": 0.44643435975532547,
+              "calibratedProbability": 0.44643435975532547,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -0.7289572958912401,
+              "rawProbability": 0.3254235833499612,
+              "calibratedProbability": 0.3254235833499612,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": 0.0012667147488413203
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000986",
+          "name": "能源",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.2768301097713936,
+              "rawProbability": 0.5687689124076027,
+              "calibratedProbability": 0.5687689124076027,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.05805347252587578,
+              "rawProbability": 0.48549070658157456,
+              "calibratedProbability": 0.48549070658157456,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -0.8768984855196548,
+              "rawProbability": 0.2938209009303169,
+              "calibratedProbability": 0.2938209009303169,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": 0.0010107147963953056
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000988",
+          "name": "工业",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.12211289241622482,
+              "rawProbability": 0.5304903443042025,
+              "calibratedProbability": 0.5304903443042025,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.11541584628591099,
+              "rawProbability": 0.4711780256827582,
+              "calibratedProbability": 0.4711780256827582,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -1.138717843725631,
+              "rawProbability": 0.24255584419951925,
+              "calibratedProbability": 0.24255584419951925,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.0005265993702321561
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000989",
+          "name": "可选消费",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.1016751344271782,
+              "rawProbability": 0.5253969082926012,
+              "calibratedProbability": 0.5253969082926012,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.07728226244490363,
+              "rawProbability": 0.48068904473292495,
+              "calibratedProbability": 0.48068904473292495,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -1.1641077041342542,
+              "rawProbability": 0.23792169532817503,
+              "calibratedProbability": 0.23792169532817503,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.0010799277711040138
+        },
+        {
+          "date": "2026-07-21",
+          "code": "399967",
+          "name": "军工",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.15434176564514954,
+              "rawProbability": 0.5385090268955245,
+              "calibratedProbability": 0.5385090268955245,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.19209745316161025,
+              "rawProbability": 0.45212277442029364,
+              "calibratedProbability": 0.45212277442029364,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -1.1748534568257818,
+              "rawProbability": 0.23597881986190647,
+              "calibratedProbability": 0.23597881986190647,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.0004515969078713846
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000995",
+          "name": "公用事业",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": -0.07597803471306924,
+              "rawProbability": 0.48101462345625284,
+              "calibratedProbability": 0.48101462345625284,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.1907688966852058,
+              "rawProbability": 0.45245188906985456,
+              "calibratedProbability": 0.45245188906985456,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -1.224549652703103,
+              "rawProbability": 0.2271367874051118,
+              "calibratedProbability": 0.2271367874051118,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.0038287919446413792
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000992",
+          "name": "金融地产",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.27507706547393235,
+              "rawProbability": 0.5683388900348183,
+              "calibratedProbability": 0.5683388900348183,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.27908917389496724,
+              "rawProbability": 0.4306770913454754,
+              "calibratedProbability": 0.4306770913454754,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -1.2869876717662094,
+              "rawProbability": 0.2163631150348903,
+              "calibratedProbability": 0.2163631150348903,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.003338383020856896
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000987",
+          "name": "原材料",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.12092278103280525,
+              "rawProbability": 0.5301939121369823,
+              "calibratedProbability": 0.5301939121369823,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.2891459687976911,
+              "rawProbability": 0.4282129608906983,
+              "calibratedProbability": 0.4282129608906983,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -1.2957800397918506,
+              "rawProbability": 0.21487608599511465,
+              "calibratedProbability": 0.21487608599511465,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.002081005377069131
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000990",
+          "name": "主要消费",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": -0.031586319514632616,
+              "rawProbability": 0.49210407658775035,
+              "calibratedProbability": 0.49210407658775035,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5379188712522046
+            },
+            "outperformance": {
+              "rawScore": -0.38010282095937187,
+              "rawProbability": 0.4061020981400877,
+              "calibratedProbability": 0.4061020981400877,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4519400352733686
+            },
+            "topQuartile": {
+              "rawScore": -1.389948785078265,
+              "rawProbability": 0.19941593314504108,
+              "calibratedProbability": 0.19941593314504108,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.00548467936059929
+        }
+      ],
+      "abstainReasons": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "audit": {
+        "validation": "rolling 504-session training; purged chronological 63-session test blocks; labels must mature before each block; embargo=5 sessions",
+        "calibrationDates": 378,
+        "evaluationDates": 126,
+        "evaluationObservations": 1512,
+        "rankingMetrics": {
+          "rankIc": 0.10495060495060494,
+          "crossSectionSpearman": 0.10495060495060494,
+          "topQuartileHitRate": 0.3862433862433862,
+          "topBottomSpread": 0.010604641569257642,
+          "topBottomSpreadAfterCosts": 0.006604641569257642,
+          "transactionCostPerLeg": 0.002,
+          "predictionCrossSectionStd": 0.056063518264073985,
+          "positiveWindowShare": 1.0,
+          "windows": [
+            {
+              "start": "2026-01-05",
+              "end": "2026-04-10",
+              "rankIc": 0.07958707958707958,
+              "topBottomSpread": 0.0077743970303259715
+            },
+            {
+              "start": "2026-04-13",
+              "end": "2026-07-14",
+              "rankIc": 0.1303141303141303,
+              "topBottomSpread": 0.013434886108189313
+            }
+          ],
+          "regimes": {
+            "risk-on": {
+              "dates": 71,
+              "rankIc": 0.1323746675859352
+            },
+            "risk-off": {
+              "dates": 55,
+              "rankIc": 0.06954863318499682
+            }
+          }
+        },
+        "qualityGate": {
+          "passed": false,
+          "reasons": [
+            "生产级差异特征完整度仅50%，低于80%",
+            "原始前四分位模型未满足概率校准启用条件"
+          ],
+          "thresholds": {
+            "minimumProbabilitySpread": 0.03,
+            "minimumCrossSectionStd": 0.01,
+            "minimumDataCompleteness": 0.8,
+            "brierSkillMustBePositive": true,
+            "rankIcMustBePositive": true,
+            "topBottomAfterCostsMustBePositive": true,
+            "positiveWindowShareMustExceed": 0.5
+          }
+        }
+      }
+    },
+    "20": {
+      "horizonSessions": 20,
+      "status": "ready",
+      "publicationStatus": "abstained",
+      "primaryTarget": "topQuartileProbability",
+      "secondaryRankingTarget": "expectedExcessReturn",
+      "eventDefinitions": {
+        "absoluteUp": "第20个后续完整交易日行业指数收益率大于0",
+        "outperformance": "第20个后续完整交易日行业收益率大于中证全指收益率",
+        "topQuartile": "未来20个交易日相对收益进入固定12项观察池前25%",
+        "expectedExcess": "行业未来20个交易日收益率减中证全指收益率"
+      },
+      "models": {
+        "absoluteUp": {
+          "type": "rolling-standardized-ridge-logistic",
+          "horizonSessions": 20,
+          "ridge": 40.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-05-24",
+          "trainingEnd": "2026-06-23",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": 0.5099206349206349,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.003612731768366052,
+            "momentum20": 0.014612556396364466,
+            "momentum60": 0.04479378959016797,
+            "reversal1": -0.0007169842844530416,
+            "volatility20": 0.014135420513492482,
+            "drawdown60": -0.06597271633129982,
+            "amountRatio5v20": 0.0072428182874189105,
+            "volumeRatio5v20": -0.0016340641049273485,
+            "priceVolumeAcceleration": 0.005453543839423835,
+            "cs_momentum5": -3.9030360366369176e-16,
+            "cs_momentum20": -4.2380487714155074e-16,
+            "cs_momentum60": -7.984500773660021e-16,
+            "cs_reversal1": 5.356165246777913e-16,
+            "cs_volatility20": -1.2858798388222154e-15,
+            "cs_drawdown60": 5.808111193640865e-17,
+            "cs_amountRatio5v20": -4.783454092850596e-16,
+            "cs_volumeRatio5v20": 1.7161185093317616e-16,
+            "cs_priceVolumeAcceleration": 4.040574826517936e-16,
+            "nl_momentum_acceleration": -1.442849367320392e-16,
+            "nl_medium_trend_acceleration": 2.6343932914013927e-16,
+            "nl_momentum5_x_amount": 0.426831116528122,
+            "nl_momentum20_x_volume": 0.39289702579007385,
+            "nl_trend_x_drawdown": 0.6212807688646855,
+            "nl_reversal_x_volatility": -0.04515775736837495,
+            "nl_momentum5_squared": 0.9999999999999963,
+            "nl_drawdown_squared": 0.999999999999999
+          },
+          "featureScales": {
+            "momentum5": 0.039847307734591456,
+            "momentum20": 0.07911774065154514,
+            "momentum60": 0.13238609180760455,
+            "reversal1": 0.016540807257493302,
+            "volatility20": 0.00725872471144916,
+            "drawdown60": 0.048053314308609464,
+            "amountRatio5v20": 0.2933665000768578,
+            "volumeRatio5v20": 0.27384081894939316,
+            "priceVolumeAcceleration": 0.030118897356236483,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.0000826822110636,
+            "cs_momentum60": 1.000082682211064,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.000082682211063,
+            "cs_drawdown60": 1.0000826822110631,
+            "cs_amountRatio5v20": 1.0000826822110642,
+            "cs_volumeRatio5v20": 1.0000826822110647,
+            "cs_priceVolumeAcceleration": 1.0000826822110642,
+            "nl_momentum_acceleration": 1.010852973672146,
+            "nl_medium_trend_acceleration": 0.9629382158448868,
+            "nl_momentum5_x_amount": 1.1089090929143024,
+            "nl_momentum20_x_volume": 1.0765017897950844,
+            "nl_trend_x_drawdown": 1.0655211763098902,
+            "nl_reversal_x_volatility": 1.102382293480489,
+            "nl_momentum5_squared": 1.2605058445391928,
+            "nl_drawdown_squared": 1.2019166166721933
+          },
+          "intercept": 0.04255845338177292,
+          "coefficients": {
+            "momentum5": -0.08080153319202715,
+            "momentum20": 0.04475954777920764,
+            "momentum60": -0.34140586112797616,
+            "reversal1": -0.02260889008982782,
+            "volatility20": 0.01616861577863332,
+            "drawdown60": -0.1391830761074131,
+            "amountRatio5v20": 0.560458051642186,
+            "volumeRatio5v20": -0.15420743143070534,
+            "priceVolumeAcceleration": -0.03892700564538569,
+            "cs_momentum5": 0.07768758835279707,
+            "cs_momentum20": 0.08887674865971572,
+            "cs_momentum60": 0.15237708216652254,
+            "cs_reversal1": -0.02061786350867616,
+            "cs_volatility20": 0.18039399602225284,
+            "cs_drawdown60": -0.007539548774611817,
+            "cs_amountRatio5v20": -0.3030305194218104,
+            "cs_volumeRatio5v20": 0.20574843119784794,
+            "cs_priceVolumeAcceleration": 0.03656309004523513,
+            "nl_momentum_acceleration": -0.011069943644509314,
+            "nl_medium_trend_acceleration": -0.06594980115007705,
+            "nl_momentum5_x_amount": -0.03115047252607405,
+            "nl_momentum20_x_volume": -0.0940171057642006,
+            "nl_trend_x_drawdown": 0.15063503593853328,
+            "nl_reversal_x_volatility": -0.014802307996854811,
+            "nl_momentum5_squared": -0.09779677682732202,
+            "nl_drawdown_squared": -0.01336267245367537
+          }
+        },
+        "outperformance": {
+          "type": "rolling-standardized-ridge-logistic",
+          "horizonSessions": 20,
+          "ridge": 40.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-05-24",
+          "trainingEnd": "2026-06-23",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": 0.4330357142857143,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.003612731768366052,
+            "momentum20": 0.014612556396364466,
+            "momentum60": 0.04479378959016797,
+            "reversal1": -0.0007169842844530416,
+            "volatility20": 0.014135420513492482,
+            "drawdown60": -0.06597271633129982,
+            "amountRatio5v20": 0.0072428182874189105,
+            "volumeRatio5v20": -0.0016340641049273485,
+            "priceVolumeAcceleration": 0.005453543839423835,
+            "cs_momentum5": -3.9030360366369176e-16,
+            "cs_momentum20": -4.2380487714155074e-16,
+            "cs_momentum60": -7.984500773660021e-16,
+            "cs_reversal1": 5.356165246777913e-16,
+            "cs_volatility20": -1.2858798388222154e-15,
+            "cs_drawdown60": 5.808111193640865e-17,
+            "cs_amountRatio5v20": -4.783454092850596e-16,
+            "cs_volumeRatio5v20": 1.7161185093317616e-16,
+            "cs_priceVolumeAcceleration": 4.040574826517936e-16,
+            "nl_momentum_acceleration": -1.442849367320392e-16,
+            "nl_medium_trend_acceleration": 2.6343932914013927e-16,
+            "nl_momentum5_x_amount": 0.426831116528122,
+            "nl_momentum20_x_volume": 0.39289702579007385,
+            "nl_trend_x_drawdown": 0.6212807688646855,
+            "nl_reversal_x_volatility": -0.04515775736837495,
+            "nl_momentum5_squared": 0.9999999999999963,
+            "nl_drawdown_squared": 0.999999999999999
+          },
+          "featureScales": {
+            "momentum5": 0.039847307734591456,
+            "momentum20": 0.07911774065154514,
+            "momentum60": 0.13238609180760455,
+            "reversal1": 0.016540807257493302,
+            "volatility20": 0.00725872471144916,
+            "drawdown60": 0.048053314308609464,
+            "amountRatio5v20": 0.2933665000768578,
+            "volumeRatio5v20": 0.27384081894939316,
+            "priceVolumeAcceleration": 0.030118897356236483,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.0000826822110636,
+            "cs_momentum60": 1.000082682211064,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.000082682211063,
+            "cs_drawdown60": 1.0000826822110631,
+            "cs_amountRatio5v20": 1.0000826822110642,
+            "cs_volumeRatio5v20": 1.0000826822110647,
+            "cs_priceVolumeAcceleration": 1.0000826822110642,
+            "nl_momentum_acceleration": 1.010852973672146,
+            "nl_medium_trend_acceleration": 0.9629382158448868,
+            "nl_momentum5_x_amount": 1.1089090929143024,
+            "nl_momentum20_x_volume": 1.0765017897950844,
+            "nl_trend_x_drawdown": 1.0655211763098902,
+            "nl_reversal_x_volatility": 1.102382293480489,
+            "nl_momentum5_squared": 1.2605058445391928,
+            "nl_drawdown_squared": 1.2019166166721933
+          },
+          "intercept": -0.28655856862464085,
+          "coefficients": {
+            "momentum5": -0.08264455288858112,
+            "momentum20": 0.1823402411041867,
+            "momentum60": 0.15346839981907345,
+            "reversal1": -0.03445818503233251,
+            "volatility20": -0.4189267133736111,
+            "drawdown60": -0.10798531624187935,
+            "amountRatio5v20": -0.17178296062596413,
+            "volumeRatio5v20": 0.0683893396013792,
+            "priceVolumeAcceleration": 0.061060665521153086,
+            "cs_momentum5": 0.044878402482144926,
+            "cs_momentum20": 0.043889103930647336,
+            "cs_momentum60": -0.04886117490746077,
+            "cs_reversal1": 0.016409022365195414,
+            "cs_volatility20": 0.5093776539003744,
+            "cs_drawdown60": 0.0529741814060584,
+            "cs_amountRatio5v20": -0.12959663737742275,
+            "cs_volumeRatio5v20": 0.22233526462962014,
+            "cs_priceVolumeAcceleration": 0.07512545324018899,
+            "nl_momentum_acceleration": 0.0009787579150005677,
+            "nl_medium_trend_acceleration": 0.09632803653436815,
+            "nl_momentum5_x_amount": -0.011650931096932915,
+            "nl_momentum20_x_volume": -0.05421342549640951,
+            "nl_trend_x_drawdown": 0.15037995287558686,
+            "nl_reversal_x_volatility": 0.030856206691690157,
+            "nl_momentum5_squared": -0.08785608865933593,
+            "nl_drawdown_squared": -0.08566353083882049
+          }
+        },
+        "topQuartile": {
+          "type": "rolling-standardized-ridge-logistic",
+          "horizonSessions": 20,
+          "ridge": 40.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-05-24",
+          "trainingEnd": "2026-06-23",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": 0.25,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.003612731768366052,
+            "momentum20": 0.014612556396364466,
+            "momentum60": 0.04479378959016797,
+            "reversal1": -0.0007169842844530416,
+            "volatility20": 0.014135420513492482,
+            "drawdown60": -0.06597271633129982,
+            "amountRatio5v20": 0.0072428182874189105,
+            "volumeRatio5v20": -0.0016340641049273485,
+            "priceVolumeAcceleration": 0.005453543839423835,
+            "cs_momentum5": -3.9030360366369176e-16,
+            "cs_momentum20": -4.2380487714155074e-16,
+            "cs_momentum60": -7.984500773660021e-16,
+            "cs_reversal1": 5.356165246777913e-16,
+            "cs_volatility20": -1.2858798388222154e-15,
+            "cs_drawdown60": 5.808111193640865e-17,
+            "cs_amountRatio5v20": -4.783454092850596e-16,
+            "cs_volumeRatio5v20": 1.7161185093317616e-16,
+            "cs_priceVolumeAcceleration": 4.040574826517936e-16,
+            "nl_momentum_acceleration": -1.442849367320392e-16,
+            "nl_medium_trend_acceleration": 2.6343932914013927e-16,
+            "nl_momentum5_x_amount": 0.426831116528122,
+            "nl_momentum20_x_volume": 0.39289702579007385,
+            "nl_trend_x_drawdown": 0.6212807688646855,
+            "nl_reversal_x_volatility": -0.04515775736837495,
+            "nl_momentum5_squared": 0.9999999999999963,
+            "nl_drawdown_squared": 0.999999999999999
+          },
+          "featureScales": {
+            "momentum5": 0.039847307734591456,
+            "momentum20": 0.07911774065154514,
+            "momentum60": 0.13238609180760455,
+            "reversal1": 0.016540807257493302,
+            "volatility20": 0.00725872471144916,
+            "drawdown60": 0.048053314308609464,
+            "amountRatio5v20": 0.2933665000768578,
+            "volumeRatio5v20": 0.27384081894939316,
+            "priceVolumeAcceleration": 0.030118897356236483,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.0000826822110636,
+            "cs_momentum60": 1.000082682211064,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.000082682211063,
+            "cs_drawdown60": 1.0000826822110631,
+            "cs_amountRatio5v20": 1.0000826822110642,
+            "cs_volumeRatio5v20": 1.0000826822110647,
+            "cs_priceVolumeAcceleration": 1.0000826822110642,
+            "nl_momentum_acceleration": 1.010852973672146,
+            "nl_medium_trend_acceleration": 0.9629382158448868,
+            "nl_momentum5_x_amount": 1.1089090929143024,
+            "nl_momentum20_x_volume": 1.0765017897950844,
+            "nl_trend_x_drawdown": 1.0655211763098902,
+            "nl_reversal_x_volatility": 1.102382293480489,
+            "nl_momentum5_squared": 1.2605058445391928,
+            "nl_drawdown_squared": 1.2019166166721933
+          },
+          "intercept": -1.166129373746886,
+          "coefficients": {
+            "momentum5": -0.08371361303705849,
+            "momentum20": 0.1812540962770698,
+            "momentum60": -0.02389261646496357,
+            "reversal1": -0.03871524966085407,
+            "volatility20": -0.11082286762048801,
+            "drawdown60": -0.19851882438694257,
+            "amountRatio5v20": -0.08033221209802015,
+            "volumeRatio5v20": 0.09443135892826784,
+            "priceVolumeAcceleration": 0.028842762471223173,
+            "cs_momentum5": 0.047819408522650354,
+            "cs_momentum20": 0.06933190322522982,
+            "cs_momentum60": 0.03012228075917231,
+            "cs_reversal1": 0.04036968009407762,
+            "cs_volatility20": 0.3685538778499897,
+            "cs_drawdown60": 0.1438648663758357,
+            "cs_amountRatio5v20": -0.24821080819951777,
+            "cs_volumeRatio5v20": 0.3993023075820939,
+            "cs_priceVolumeAcceleration": 0.07282740381393102,
+            "nl_momentum_acceleration": -0.021283286455645967,
+            "nl_medium_trend_acceleration": 0.04072209801117268,
+            "nl_momentum5_x_amount": 0.026515510910984825,
+            "nl_momentum20_x_volume": -0.08024715806603755,
+            "nl_trend_x_drawdown": 0.14706423230615115,
+            "nl_reversal_x_volatility": 0.0018238635152757429,
+            "nl_momentum5_squared": -0.09858194654166584,
+            "nl_drawdown_squared": -0.12761866008380032
+          }
+        },
+        "expectedExcess": {
+          "type": "rolling-standardized-ridge-linear",
+          "horizonSessions": 20,
+          "ridge": 80.0,
+          "trainingRows": 6048,
+          "trainingDates": 504,
+          "trainingStart": "2024-05-24",
+          "trainingEnd": "2026-06-23",
+          "trainingTargetDateMax": "2026-07-21",
+          "baseRate": null,
+          "featureNames": [
+            "momentum5",
+            "momentum20",
+            "momentum60",
+            "reversal1",
+            "volatility20",
+            "drawdown60",
+            "amountRatio5v20",
+            "volumeRatio5v20",
+            "priceVolumeAcceleration",
+            "cs_momentum5",
+            "cs_momentum20",
+            "cs_momentum60",
+            "cs_reversal1",
+            "cs_volatility20",
+            "cs_drawdown60",
+            "cs_amountRatio5v20",
+            "cs_volumeRatio5v20",
+            "cs_priceVolumeAcceleration",
+            "nl_momentum_acceleration",
+            "nl_medium_trend_acceleration",
+            "nl_momentum5_x_amount",
+            "nl_momentum20_x_volume",
+            "nl_trend_x_drawdown",
+            "nl_reversal_x_volatility",
+            "nl_momentum5_squared",
+            "nl_drawdown_squared"
+          ],
+          "featureMeans": {
+            "momentum5": 0.003612731768366052,
+            "momentum20": 0.014612556396364466,
+            "momentum60": 0.04479378959016797,
+            "reversal1": -0.0007169842844530416,
+            "volatility20": 0.014135420513492482,
+            "drawdown60": -0.06597271633129982,
+            "amountRatio5v20": 0.0072428182874189105,
+            "volumeRatio5v20": -0.0016340641049273485,
+            "priceVolumeAcceleration": 0.005453543839423835,
+            "cs_momentum5": -3.9030360366369176e-16,
+            "cs_momentum20": -4.2380487714155074e-16,
+            "cs_momentum60": -7.984500773660021e-16,
+            "cs_reversal1": 5.356165246777913e-16,
+            "cs_volatility20": -1.2858798388222154e-15,
+            "cs_drawdown60": 5.808111193640865e-17,
+            "cs_amountRatio5v20": -4.783454092850596e-16,
+            "cs_volumeRatio5v20": 1.7161185093317616e-16,
+            "cs_priceVolumeAcceleration": 4.040574826517936e-16,
+            "nl_momentum_acceleration": -1.442849367320392e-16,
+            "nl_medium_trend_acceleration": 2.6343932914013927e-16,
+            "nl_momentum5_x_amount": 0.426831116528122,
+            "nl_momentum20_x_volume": 0.39289702579007385,
+            "nl_trend_x_drawdown": 0.6212807688646855,
+            "nl_reversal_x_volatility": -0.04515775736837495,
+            "nl_momentum5_squared": 0.9999999999999963,
+            "nl_drawdown_squared": 0.999999999999999
+          },
+          "featureScales": {
+            "momentum5": 0.039847307734591456,
+            "momentum20": 0.07911774065154514,
+            "momentum60": 0.13238609180760455,
+            "reversal1": 0.016540807257493302,
+            "volatility20": 0.00725872471144916,
+            "drawdown60": 0.048053314308609464,
+            "amountRatio5v20": 0.2933665000768578,
+            "volumeRatio5v20": 0.27384081894939316,
+            "priceVolumeAcceleration": 0.030118897356236483,
+            "cs_momentum5": 1.0000826822110618,
+            "cs_momentum20": 1.0000826822110636,
+            "cs_momentum60": 1.000082682211064,
+            "cs_reversal1": 1.0000826822110618,
+            "cs_volatility20": 1.000082682211063,
+            "cs_drawdown60": 1.0000826822110631,
+            "cs_amountRatio5v20": 1.0000826822110642,
+            "cs_volumeRatio5v20": 1.0000826822110647,
+            "cs_priceVolumeAcceleration": 1.0000826822110642,
+            "nl_momentum_acceleration": 1.010852973672146,
+            "nl_medium_trend_acceleration": 0.9629382158448868,
+            "nl_momentum5_x_amount": 1.1089090929143024,
+            "nl_momentum20_x_volume": 1.0765017897950844,
+            "nl_trend_x_drawdown": 1.0655211763098902,
+            "nl_reversal_x_volatility": 1.102382293480489,
+            "nl_momentum5_squared": 1.2605058445391928,
+            "nl_drawdown_squared": 1.2019166166721933
+          },
+          "intercept": -0.003100539676762244,
+          "coefficients": {
+            "momentum5": -0.003293586235567221,
+            "momentum20": 0.005630356881300198,
+            "momentum60": 0.0028585693286067903,
+            "reversal1": -0.000466660342620535,
+            "volatility20": -0.0071362515139074285,
+            "drawdown60": -0.0004491984667267873,
+            "amountRatio5v20": -0.0021341886561939472,
+            "volumeRatio5v20": -0.0019563745925788986,
+            "priceVolumeAcceleration": 0.0015958123155029756,
+            "cs_momentum5": 0.0012655773228474646,
+            "cs_momentum20": 0.0010661228154052896,
+            "cs_momentum60": -0.0008562447251804676,
+            "cs_reversal1": 0.0006250280444713429,
+            "cs_volatility20": 0.013842865934827477,
+            "cs_drawdown60": 0.0012446100769731713,
+            "cs_amountRatio5v20": -0.006861134332568152,
+            "cs_volumeRatio5v20": 0.011199079136253794,
+            "cs_priceVolumeAcceleration": 0.0025615616147786507,
+            "nl_momentum_acceleration": 0.00019732938812804464,
+            "nl_medium_trend_acceleration": 0.0019965211210317036,
+            "nl_momentum5_x_amount": 0.00024217883165579388,
+            "nl_momentum20_x_volume": -0.0009320916130237956,
+            "nl_trend_x_drawdown": 0.005091660089258587,
+            "nl_reversal_x_volatility": 0.0006448953013326212,
+            "nl_momentum5_squared": -0.005408291257576848,
+            "nl_drawdown_squared": -0.0008251733584371881
+          }
+        }
+      },
+      "calibrations": {
+        "absoluteUp": {
+          "enabled": false,
+          "reason": "calibration disabled: raw OOS discrimination or post-calibration dispersion is insufficient",
+          "calibrator": {
+            "method": "platt-on-purged-time-ordered-oof",
+            "scoreMean": -0.40901291460035116,
+            "scoreScale": 0.8179591472850649,
+            "intercept": 0.11251327122148636,
+            "slope": -0.12634127786306795,
+            "baseRate": 0.5279982363315696,
+            "observations": 4536,
+            "dates": 378
+          },
+          "rawMetrics": {
+            "brier": 0.2679769855704753,
+            "baselineBrier": 0.2532652264152117,
+            "brierSkill": -0.05808835015962521,
+            "auc": 0.49492899177669575,
+            "observations": 1512
+          },
+          "calibratedMetrics": {
+            "brier": 0.2514426009519391,
+            "baselineBrier": 0.2532652264152117,
+            "brierSkill": 0.007196508928882905,
+            "auc": 0.5050710082233042,
+            "observations": 1512
+          },
+          "rawCrossSectionStd": 0.06614252468163682,
+          "calibratedCrossSectionStd": 0.010875081796330148
+        },
+        "outperformance": {
+          "enabled": false,
+          "reason": "calibration disabled: raw OOS discrimination or post-calibration dispersion is insufficient",
+          "calibrator": {
+            "method": "platt-on-purged-time-ordered-oof",
+            "scoreMean": -0.047729679420863355,
+            "scoreScale": 0.3737957332822605,
+            "intercept": -0.24212899512200226,
+            "slope": 0.12589493325317938,
+            "baseRate": 0.4400352733686067,
+            "observations": 4536,
+            "dates": 378
+          },
+          "rawMetrics": {
+            "brier": 0.23697203702451042,
+            "baselineBrier": 0.24304641838445482,
+            "brierSkill": 0.02499268000047561,
+            "auc": 0.6092549025272322,
+            "observations": 1512
+          },
+          "calibratedMetrics": {
+            "brier": 0.23898472880521054,
+            "baselineBrier": 0.24304641838445482,
+            "brierSkill": 0.016711579649034025,
+            "auc": 0.6092549025272322,
+            "observations": 1512
+          },
+          "rawCrossSectionStd": 0.05974744057963755,
+          "calibratedCrossSectionStd": 0.020240442150833055
+        },
+        "topQuartile": {
+          "enabled": false,
+          "reason": "calibration disabled: raw OOS discrimination or post-calibration dispersion is insufficient",
+          "calibrator": {
+            "method": "platt-on-purged-time-ordered-oof",
+            "scoreMean": -1.1538604340904588,
+            "scoreScale": 0.36199194730880235,
+            "intercept": -1.0986180294591612,
+            "slope": 0.0047913199016134875,
+            "baseRate": 0.25,
+            "observations": 4536,
+            "dates": 378
+          },
+          "rawMetrics": {
+            "brier": 0.17824907666013987,
+            "baselineBrier": 0.1875,
+            "brierSkill": 0.04933825781258738,
+            "auc": 0.6512438994802311,
+            "observations": 1512
+          },
+          "calibratedMetrics": {
+            "brier": 0.18733916037906495,
+            "baselineBrier": 0.1875,
+            "brierSkill": 0.0008578113116536334,
+            "auc": 0.6512438994802311,
+            "observations": 1512
+          },
+          "rawCrossSectionStd": 0.05489930153174769,
+          "calibratedCrossSectionStd": 0.0007240222262429385
+        }
+      },
+      "latestPredictions": [
+        {
+          "date": "2026-07-21",
+          "code": "000991",
+          "name": "医药医疗",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.9067363858878539,
+              "rawProbability": 0.7123318623831287,
+              "calibratedProbability": 0.7123318623831287,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -0.3123508349722929,
+              "rawProbability": 0.4225410306764778,
+              "calibratedProbability": 0.4225410306764778,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -0.3695763482741105,
+              "rawProbability": 0.4086433947252447,
+              "calibratedProbability": 0.4086433947252447,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": 0.015638275723556375
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000994",
+          "name": "通信服务",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 1.0624812927308513,
+              "rawProbability": 0.7431644379525045,
+              "calibratedProbability": 0.7431644379525045,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -0.9956355510410779,
+              "rawProbability": 0.26980038897403325,
+              "calibratedProbability": 0.26980038897403325,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -0.5303975274102386,
+              "rawProbability": 0.3704241758488285,
+              "calibratedProbability": 0.3704241758488285,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.015270279067600725
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000986",
+          "name": "能源",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.6710975372733347,
+              "rawProbability": 0.6617488725810048,
+              "calibratedProbability": 0.6617488725810048,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -0.7300109233729026,
+              "rawProbability": 0.3251923303632692,
+              "calibratedProbability": 0.3251923303632692,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -0.739804996422638,
+              "rawProbability": 0.32304678714648194,
+              "calibratedProbability": 0.32304678714648194,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.011840643844635318
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000990",
+          "name": "主要消费",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.5489627915849907,
+              "rawProbability": 0.6338949172683678,
+              "calibratedProbability": 0.6338949172683678,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -0.6904164763000353,
+              "rawProbability": 0.3339404324263002,
+              "calibratedProbability": 0.3339404324263002,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -0.9076139206928234,
+              "rawProbability": 0.2874883509251041,
+              "calibratedProbability": 0.2874883509251041,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.01813767454978538
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000993",
+          "name": "信息技术",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.6940681018185904,
+              "rawProbability": 0.6668712844146542,
+              "calibratedProbability": 0.6668712844146542,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -1.284423848119653,
+              "rawProbability": 0.21679812773613616,
+              "calibratedProbability": 0.21679812773613616,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -0.948841725966625,
+              "rawProbability": 0.2791178198893467,
+              "calibratedProbability": 0.2791178198893467,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.026316210340442493
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000988",
+          "name": "工业",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.3638150155316709,
+              "rawProbability": 0.5899636270199391,
+              "calibratedProbability": 0.5899636270199391,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -0.7328578602844013,
+              "rawProbability": 0.3245679032184412,
+              "calibratedProbability": 0.3245679032184412,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -1.0736732626569188,
+              "rawProbability": 0.2547051590340711,
+              "calibratedProbability": 0.2547051590340711,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.018126043276232233
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000987",
+          "name": "原材料",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.25504319817850074,
+              "rawProbability": 0.5634174121028681,
+              "calibratedProbability": 0.5634174121028681,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -0.7350870073067413,
+              "rawProbability": 0.32407941286239406,
+              "calibratedProbability": 0.32407941286239406,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -1.0851898113614218,
+              "rawProbability": 0.25252515002581855,
+              "calibratedProbability": 0.25252515002581855,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.016537065136137345
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000989",
+          "name": "可选消费",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.28653214008143807,
+              "rawProbability": 0.5711469322356231,
+              "calibratedProbability": 0.5711469322356231,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -0.6907323892290058,
+              "rawProbability": 0.33387016942608755,
+              "calibratedProbability": 0.33387016942608755,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -1.0930016105511464,
+              "rawProbability": 0.2510534770635129,
+              "calibratedProbability": 0.2510534770635129,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.01864944042568254
+        },
+        {
+          "date": "2026-07-21",
+          "code": "399967",
+          "name": "军工",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.679965244534563,
+              "rawProbability": 0.663730940300426,
+              "calibratedProbability": 0.663730940300426,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -0.8127433445516911,
+              "rawProbability": 0.30730621389955154,
+              "calibratedProbability": 0.30730621389955154,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -1.1070287068003382,
+              "rawProbability": 0.24842524434650018,
+              "calibratedProbability": 0.24842524434650018,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.01576328686469388
+        },
+        {
+          "date": "2026-07-21",
+          "code": "399970",
+          "name": "移动互联网",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.4930945405974301,
+              "rawProbability": 0.6208351555973934,
+              "calibratedProbability": 0.6208351555973934,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -1.1107251615179217,
+              "rawProbability": 0.24773572075714004,
+              "calibratedProbability": 0.24773572075714004,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -1.1417035424837838,
+              "rawProbability": 0.2420077258583103,
+              "calibratedProbability": 0.2420077258583103,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.020553222546123316
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000995",
+          "name": "公用事业",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": 0.3592082430224803,
+              "rawProbability": 0.5888487585182783,
+              "calibratedProbability": 0.5888487585182783,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -0.8410246810871421,
+              "rawProbability": 0.3013190182149823,
+              "calibratedProbability": 0.3013190182149823,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -1.1419190656168232,
+              "rawProbability": 0.24196819249603727,
+              "calibratedProbability": 0.24196819249603727,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.02452310788301697
+        },
+        {
+          "date": "2026-07-21",
+          "code": "000992",
+          "name": "金融地产",
+          "probabilities": {
+            "absoluteUp": {
+              "rawScore": -0.01767740773732081,
+              "rawProbability": 0.4955807631459549,
+              "calibratedProbability": 0.4955807631459549,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.5279982363315696
+            },
+            "outperformance": {
+              "rawScore": -1.0003804022515215,
+              "rawProbability": 0.2688666363220629,
+              "calibratedProbability": 0.2688666363220629,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.4400352733686067
+            },
+            "topQuartile": {
+              "rawScore": -1.5413792116565719,
+              "rawProbability": 0.17633486743109017,
+              "calibratedProbability": 0.17633486743109017,
+              "calibrationApplied": false,
+              "historicalBaseRate": 0.25
+            }
+          },
+          "expectedExcessReturn": -0.018968775075191992
+        }
+      ],
+      "abstainReasons": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "audit": {
+        "validation": "rolling 504-session training; purged chronological 63-session test blocks; labels must mature before each block; embargo=20 sessions",
+        "calibrationDates": 378,
+        "evaluationDates": 126,
+        "evaluationObservations": 1512,
+        "rankingMetrics": {
+          "rankIc": 0.10811410811410811,
+          "crossSectionSpearman": 0.10811410811410811,
+          "topQuartileHitRate": 0.4417989417989418,
+          "topBottomSpread": 0.03419307979998138,
+          "topBottomSpreadAfterCosts": 0.03019307979998138,
+          "transactionCostPerLeg": 0.002,
+          "predictionCrossSectionStd": 0.05489930153174769,
+          "positiveWindowShare": 1.0,
+          "windows": [
+            {
+              "start": "2025-12-11",
+              "end": "2026-03-19",
+              "rankIc": 0.059829059829059825,
+              "topBottomSpread": 0.013664765117223449
+            },
+            {
+              "start": "2026-03-20",
+              "end": "2026-06-23",
+              "rankIc": 0.1563991563991564,
+              "topBottomSpread": 0.05472139448273931
+            }
+          ],
+          "regimes": {
+            "risk-off": {
+              "dates": 48,
+              "rankIc": -0.0168997668997669
+            },
+            "risk-on": {
+              "dates": 78,
+              "rankIc": 0.18504572350726198
+            }
+          }
+        },
+        "qualityGate": {
+          "passed": false,
+          "reasons": [
+            "生产级差异特征完整度仅50%，低于80%",
+            "原始前四分位模型未满足概率校准启用条件"
+          ],
+          "thresholds": {
+            "minimumProbabilitySpread": 0.03,
+            "minimumCrossSectionStd": 0.01,
+            "minimumDataCompleteness": 0.8,
+            "brierSkillMustBePositive": true,
+            "rankIcMustBePositive": true,
+            "topBottomAfterCostsMustBePositive": true,
+            "positiveWindowShareMustExceed": 0.5
+          }
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Current numerical history contains price, volume and turnover features; ETF, breadth and institution-flow backfills remain incomplete and therefore trigger abstention.",
+    "Historical predictions are stored separately as immutable publication-time snapshots and are never regenerated by this training command."
+  ]
+}

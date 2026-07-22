@@ -40,7 +40,7 @@
 
 Terra 每周必须只读审阅冻结模型、当周 `content/sector-rotation.json`、已到期预测与本机压缩事件记忆；逐文件、逐行汇总，禁止把多年行情和全部事件一次性装入上下文或内存。复盘结果可在 `methodology` 中说明，只有达到周报信息阈值时才写入 `highValueInsights`，不得为模型自评挤占重大市场事实。
 
-- 分别审阅 A 股的 1/5/20 交易日上涨概率与港股现有可用窗口：覆盖率、到期项、Brier 分数、对历史基准的 Brier Skill、Log Loss、10 桶 ECE、AUC 和校准分箱；并单列 `model-calibrated`、`model-shrunk`、`historical-base-rate` 三类占比。A 股 `current` 可复盘同一最新完整交易日的可用子集，但必须记录“`N/12` 项可比”；概率只在 `a-core12-v2` 全 12 项完整且 taxonomy hash 匹配时算已发布。交易日未到或标签不完整时保持 `pending`，不报虚假精度。
+- 分别审阅 A/H 的独立 1/5/20 交易日模型及四项目标：绝对上涨、跑赢基准、进入行业前25%、预期相对收益。至少报告 AUC、Brier/Brier Skill、RankIC、横截面Spearman、Top Quartile命中率、Top-Bottom毛收益与扣费后收益、预测横截面标准差、walk-forward窗口方向一致性和不同市场状态稳定性。单列已发布概率、模型弃权和数据不足的占比；弃权日不得纳入概率准确率分母。
 - 检查输入漂移、观察池/taxonomy 版本变化、数据源口径变化、极端行情与连续失败；阈值只能使用冻结 model card 中预先登记的门槛。没有预设阈值时只描述观测，不临时挑选一个对结果有利的阈值。
 - 精简事件库只允许保存日期、标题、直达 URL、来源等级/证据类别、行业标签、事件分类、100–200 字事实摘要、`knownAt`、5/20 日后验和 hash。非空后验必须带逐项 `tradingDates`、版本化官方日历的 `calendarSourceUrl` 与 `calendarSha256` 并通过校验；缺少对应市场版本化日历时保持 `null`。周报只读汇总到期事件；不得保存全文、长引文、PDF、图片、视频或检索缓存，也不得把事件库直接拿来周度重训。
 - 对后来出现的前十大股东、中央汇金/证金/全国社保基金/基本养老保险基金组合等官方披露，以 `truthAt` 记录披露时间，同时保留此前代理的 `knownAt`。统计 ETF 申赎、宽基成交份额、权重股相对强弱、尾盘集中度这些弱代理的命中、误报和提前期，并记录替代解释；不得把代理倒写成当时已经知道长期资金买入。医保基金与社保/养老严格分开。
@@ -63,7 +63,7 @@ Terra 每周必须只读审阅冻结模型、当周 `content/sector-rotation.jso
 - `crossMarketThemes` 收录 2–5 条跨市场传导链，明确利率、汇率、商品、盈利和风险偏好如何连接A股、港股与美股。
 - 三地市场必须分别给出周度表现、板块轮动、可观察资金线索、下周条件情景、置信度、触发和失效条件。
 - A 股轮动固定使用 `a-core12-v2`（`000986`–`000995`、`399967`、`399970`），港股固定使用恒生一级行业；医疗 `000991`、军工 `399967`、互联网 `399970` 固定重点展示，但不得加分、改权重或改变原始排名。当前观察允许对同一最新完整交易日的可用子集排序并标 `N/12`；缺失项不得用旧日、相邻板块或歧义代码补齐。“明显放量”必须遵循共享技能的三门槛：5日对前20日成交额比≥1.35、真实成交量比≥1.20、成交额份额比≥1.15，并具备至少25个口径一致的完整交易日。每个候选写入实际参与计算的 `historySessions`，`verified` 时必须 `historySessions >= 25`，不得用自然日或计划窗口冒充。数据不完整、额量背离或成分无法标准化必须写 `insufficient`，不得编造；同花顺原始成交额/成交量标为 `vendor-market-data`，其主力/大单算法标为 `vendor-estimate`。
-- 周报引用的明日/5日/20日上涨概率必须原样来自冻结概率 artifact 的每日推理，完整保留历史基准、概率优势、校准区间与概率层级；Terra 不得重算、重训或主观调高概率，`current` 的部分覆盖不得降级进入预测。
+- 周报引用的明日/5日/20日前25%概率、跑赢基准概率、绝对上涨概率或预期相对收益必须原样来自当日不可覆盖快照；Terra 不得重算、重训、覆盖历史或主观调高。模型弃权时只能引用证据观察榜，并明确说明观察分不是概率。
 - 预测只允许使用“若……则……”“可能”“倾向于”等条件式措辞。禁止目标价、个股买卖建议、必涨、稳赚、确定流入、主力锁定或收益承诺。
 - 生成新预测前先复盘上一期与本周日报中已到期预测，按 `confirmed`、`partial`、`invalidated`、`pending` 记录结果，不得静默改写。每条新预测必须含不可变 ID、as-of、窗口/到期日、证据、至少一条反证、触发、失效、置信度和引用，并严格执行 `prediction-policy.md` 的来源数量与类别门槛。增加预测数量只能增加可证伪情景，不能降低门槛或抬高置信度。
 - Stanford AI Index 数字必须注明章节、图表/表格编号或页码、数据年份、单位、地域和报告标明的原始提供者。它可支持结构性与2–4周以上情景，但不能单独支持1–5日市场预测。
@@ -94,18 +94,19 @@ Terra 每周必须只读审阅冻结模型、当周 `content/sector-rotation.jso
 依次运行：
 
 1. `pnpm validate:rotation`
-2. `pnpm validate:rotation-events`
-3. `pnpm validate:market-data`
-4. `pnpm test:market-data`
-5. `pnpm validate:brief`
-6. `pnpm validate:weekly`
-7. `pnpm archive:weekly`
-8. `pnpm assets:prune`
-9. `pnpm validate:assets`
-10. `pnpm typecheck`
-11. `pnpm build`
+2. `pnpm validate:prediction-history`
+3. `pnpm validate:rotation-events`
+4. `pnpm validate:market-data`
+5. `pnpm test:market-data`
+6. `pnpm validate:brief`
+7. `pnpm validate:weekly`
+8. `pnpm archive:weekly`
+9. `pnpm assets:prune`
+10. `pnpm validate:assets`
+11. `pnpm typecheck`
+12. `pnpm build`
 
-十一项全部通过才可提交。周报轻量归档最多104份、总计20MB，只保存在本机 `data/weekly-archive/`；`data/market-evidence/` 同样只保存在本机，严禁加入Git。
+十二项全部通过才可提交。周报轻量归档最多104份、总计20MB，只保存在本机 `data/weekly-archive/`；`data/market-evidence/` 同样只保存在本机，严禁加入Git。
 
 提交时只包含本期周报、周报索引、通知 JSON，以及被本期 JSON 实际引用并通过校验的 `public/generated/editorial/` 哈希 WebP；不要改写 `daily-brief.json`、`sector-rotation.json`、冻结模型、model card、历史行情或事件库，不要提交本地上下文、压缩归档、未引用生成图、上游 PDF、报告封面、媒体图片、网页截图或模型缓存。提交信息使用 `content: weekly report <weekEnd>`，推送当前分支触发Vercel。随后验证 `/weekly/`、本期详情页、`/update-notices.json` 与引用生成资产均返回HTTP 200，详情页含报告标题，通知链接指向本期。
 

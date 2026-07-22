@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 2,
+  "policy": {
+    "coverage": "global",
+    "focusChangesScore": false,
+    "focusEffect": ["collection-frequency", "collection-depth", "explanation-depth", "history-retention"],
+    "nullPolicy": "preserve-null-never-zero",
+    "failurePolicy": "record-source-and-fallback-status-never-return-50"
+  },
+  "focusPools": {
+    "hk": ["恒生科技", "港股互联网", "港股AI", "港股云计算龙头", "南向资金", "相关ETF"],
+    "a-share": ["军工", "医疗", "半导体", "AI", "互联网"]
+  },
+  "benchmarks": {
+    "a-share": { "name": "中证全指", "code": "000985", "source": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000985" },
+    "hk": { "name": "恒生综合指数", "code": "HSCI", "source": "https://www.hsi.com.hk/eng/indexes/all-indexes/hsci" },
+    "us": { "name": "标普500", "code": "SPX", "source": "https://www.spglobal.com/spdji/en/indices/equity/sp-500/" }
+  },
+  "features": [
+    { "id": "relative-strength-5-20", "markets": ["a-share", "hk"], "status": "ready-a-only", "primary": "official-index-close", "fallback": "none", "modelRole": "eligible-after-time-alignment" },
+    { "id": "turnover-and-volume-change", "markets": ["a-share", "hk"], "status": "ready-a-only", "primary": "official-index-turnover-volume", "fallback": "licensed-or-cross-checked-vendor", "modelRole": "eligible-after-time-alignment" },
+    { "id": "constituent-breadth-above-ma20", "markets": ["a-share", "hk"], "status": "backfill-required", "primary": "official-constituents-plus-adjusted-prices", "fallback": "cross-checked-vendor", "modelRole": "blocked-until-point-in-time-constituents" },
+    { "id": "etf-subscription-1-3-5", "markets": ["a-share", "hk"], "status": "backfill-required", "primary": "fund-manager-published-shares-and-nav", "fallback": "exchange-or-cross-checked-vendor", "modelRole": "blocked-until-two-year-history" },
+    { "id": "etf-flow-as-fund-size", "markets": ["a-share", "hk"], "status": "backfill-required", "primary": "fund-manager-published-shares-and-nav", "fallback": "exchange-or-cross-checked-vendor", "modelRole": "blocked-until-two-year-history" },
+    { "id": "leader-contribution", "markets": ["a-share", "hk"], "status": "backfill-required", "primary": "point-in-time-index-weights-and-adjusted-prices", "fallback": "none", "modelRole": "blocked-until-point-in-time-weights" },
+    { "id": "internal-return-dispersion", "markets": ["a-share", "hk"], "status": "backfill-required", "primary": "official-constituents-plus-adjusted-prices", "fallback": "cross-checked-vendor", "modelRole": "blocked-until-point-in-time-constituents" },
+    { "id": "margin-or-institution-behaviour", "markets": ["a-share"], "status": "backfill-required", "primary": "SSE-SZSE-disclosure", "fallback": "cross-checked-vendor", "modelRole": "eligible-only-with-published-identity" },
+    { "id": "policy-and-news-event-map", "markets": ["a-share", "hk"], "status": "event-overlay-only", "primary": "government-regulator-company-filing", "fallback": "reputable-media-with-direct-link", "modelRole": "not-in-base-model-until-frozen-label-audit" },
+    { "id": "crowding-risk", "markets": ["a-share", "hk"], "status": "partial", "primary": "turnover-breadth-etf-short-selling", "fallback": "none", "modelRole": "eligible-only-when-components-present" },
+    { "id": "southbound-flow-1-3-5-20", "markets": ["hk"], "status": "current-free-history-restricted", "primary": "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Statistics/Historical-Daily?sc_lang=en", "fallback": "licensed-cross-checked-vendor", "modelRole": "blocked-until-two-year-history" },
+    { "id": "southbound-flow-as-hk-turnover", "markets": ["hk"], "status": "current-free-history-restricted", "primary": "HKEX Stock Connect and market turnover", "fallback": "licensed-cross-checked-vendor", "modelRole": "blocked-until-two-year-history" },
+    { "id": "hk-short-selling-ratio", "markets": ["hk"], "status": "current-free-history-paid", "primary": "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Statistics/Short-Selling?sc_lang=en", "fallback": "licensed-cross-checked-vendor", "modelRole": "blocked-until-two-year-history" },
+    { "id": "hk-company-buybacks", "markets": ["hk"], "status": "backfill-required", "primary": "HKEX issuer disclosures", "fallback": "none", "modelRole": "eligible-after-identity-and-time-audit" },
+    { "id": "us-2y-treasury", "markets": ["hk"], "status": "collector-ready", "primary": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates", "fallback": "https://fred.stlouisfed.org/series/DGS2", "modelRole": "eligible-after-time-alignment" },
+    { "id": "hibor-overnight-1m", "markets": ["hk"], "status": "collector-ready", "primary": "https://api.hkma.gov.hk/public/market-data-and-statistics/daily-monetary-statistics/daily-figures-interbank-liquidity", "fallback": "none", "modelRole": "eligible-after-time-alignment" },
+    { "id": "hk-aggregate-balance", "markets": ["hk"], "status": "collector-ready", "primary": "https://api.hkma.gov.hk/public/market-data-and-statistics/daily-monetary-statistics/daily-figures-interbank-liquidity", "fallback": "none", "modelRole": "eligible-after-time-alignment" },
+    { "id": "usd-hkd", "markets": ["hk"], "status": "collector-ready", "primary": "https://api.hkma.gov.hk/public/market-data-and-statistics/monthly-statistical-bulletin/er-ir/er-eeri-daily", "fallback": "none", "modelRole": "eligible-after-time-alignment" },
+    { "id": "usd-cnh", "markets": ["hk"], "status": "source-required", "primary": null, "fallback": "licensed-cross-checked-vendor", "modelRole": "blocked-no-silent-usdcny-substitution" },
+    { "id": "top5-weight-contribution", "markets": ["hk"], "status": "backfill-required", "primary": "Hang-Seng-index-constituent-weights-plus-adjusted-prices", "fallback": "none", "modelRole": "blocked-until-point-in-time-weights" },
+    { "id": "equal-vs-cap-weight-gap", "markets": ["hk"], "status": "backfill-required", "primary": "point-in-time-constituents-and-adjusted-prices", "fallback": "none", "modelRole": "blocked-until-point-in-time-constituents" }
+  ]
+}

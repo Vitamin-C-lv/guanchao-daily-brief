@@ -3,16 +3,18 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const userArgs = process.argv.slice(2);
+const userArgs = process.argv.slice(2).filter((argument) => argument !== "--");
 
 if (userArgs.length === 0) {
-  console.error("用法: node scripts/run-sector-rotation.mjs <fetch|features|train|probability-train|infer|refresh|pipeline|events-append|events-prune> [...参数]");
+  console.error("用法: node scripts/run-sector-rotation.mjs <fetch|signals|features|train|probability-train|infer|history|refresh|pipeline|events-append|events-prune> [...参数]");
   process.exit(2);
 }
 
 const probabilityTrain = userArgs[0] === "probability-train";
-const script = path.join(root, "scripts", probabilityTrain ? "sector_probability.py" : "sector_rotation.py");
-const scriptArgs = probabilityTrain ? ["train", ...userArgs.slice(1)] : userArgs;
+const predictionHistory = userArgs[0] === "history";
+const rotationSignals = userArgs[0] === "signals";
+const script = path.join(root, "scripts", probabilityTrain ? "sector_probability.py" : predictionHistory ? "prediction_history.py" : rotationSignals ? "collect-rotation-signals.py" : "sector_rotation.py");
+const scriptArgs = probabilityTrain ? ["train", ...userArgs.slice(1)] : predictionHistory || rotationSignals ? userArgs.slice(1) : userArgs;
 
 const candidates = [];
 if (process.env.CODEX_PYTHON) {
