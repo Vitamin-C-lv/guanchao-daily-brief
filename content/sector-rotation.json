@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-22T09:02:57+08:00",
+  "generatedAt": "2026-07-22T20:36:18+08:00",
   "model": {
     "id": "guanchao-a-share-sector-relative-probability",
     "version": "2026-07-21-relative-v2",
@@ -46,7 +46,7 @@
       "id": "a-share",
       "label": "A股",
       "mode": "industry",
-      "asOf": "2026-07-21",
+      "asOf": "2026-07-22",
       "status": "ready",
       "taxonomy": {
         "owner": "中证指数有限公司",
@@ -243,103 +243,35 @@
         "current": {
           "kind": "observed",
           "status": "ready",
-          "asOf": "2026-07-21",
+          "asOf": "2026-07-22",
           "note": "当前score只在同日可用的12/12项固定观察池内比较，不预测未来；成交额比/成交量比按近5日均值除以前20日均值计算。",
           "items": [
             {
-              "sector": "主要消费",
-              "code": "000990",
+              "sector": "公用事业",
+              "code": "000995",
               "rank": 1,
               "score": 100.0,
               "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+5.16%",
+                  "value": "+3.69%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "+7.39%",
+                  "value": "+1.35%",
                   "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "1.51x",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "1.24x",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                10,
-                11
-              ]
-            },
-            {
-              "sector": "医药医疗",
-              "code": "000991",
-              "rank": 2,
-              "score": 90.9,
-              "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "+1.63%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "+12.20%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "1.53x",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "1.48x",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                12,
-                13
-              ]
-            },
-            {
-              "sector": "公用事业",
-              "code": "000995",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "+3.04%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-1.58%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "1.21x",
+                  "value": "1.34x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.22x",
+                  "value": "1.35x",
                   "tone": "positive"
                 }
               ],
@@ -351,29 +283,29 @@
             {
               "sector": "能源",
               "code": "000986",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "rank": 2,
+              "score": 90.9,
+              "direction": "leading",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+0.74%",
+                  "value": "+3.38%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "+1.62%",
+                  "value": "+6.17%",
                   "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "1.31x",
-                  "tone": "neutral"
+                  "value": "1.36x",
+                  "tone": "positive"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.31x",
+                  "value": "1.34x",
                   "tone": "positive"
                 }
               ],
@@ -383,31 +315,99 @@
               ]
             },
             {
+              "sector": "主要消费",
+              "code": "000990",
+              "rank": 3,
+              "score": 81.8,
+              "direction": "leading",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "+2.01%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "+9.71%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "1.42x",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "1.20x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                10,
+                11
+              ]
+            },
+            {
+              "sector": "医药医疗",
+              "code": "000991",
+              "rank": 4,
+              "score": 72.7,
+              "direction": "strengthening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-1.61%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "+10.80%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "1.34x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "1.31x",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                12,
+                13
+              ]
+            },
+            {
               "sector": "金融地产",
               "code": "000992",
               "rank": 5,
               "score": 63.6,
               "direction": "strengthening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+1.59%",
+                  "value": "+0.49%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-0.04%",
-                  "tone": "negative"
+                  "value": "+2.95%",
+                  "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.98x",
+                  "value": "0.93x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.05x",
+                  "value": "1.01x",
                   "tone": "neutral"
                 }
               ],
@@ -422,26 +422,26 @@
               "rank": 6,
               "score": 54.5,
               "direction": "neutral",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-0.14%",
+                  "value": "-2.19%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-1.68%",
+                  "value": "-1.29%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.92x",
+                  "value": "0.90x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.01x",
+                  "value": "0.99x",
                   "tone": "neutral"
                 }
               ],
@@ -451,26 +451,94 @@
               ]
             },
             {
-              "sector": "移动互联网",
-              "code": "399970",
+              "sector": "原材料",
+              "code": "000987",
               "rank": 7,
               "score": 45.5,
               "direction": "neutral",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-3.77%",
+                  "value": "-1.03%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-5.47%",
+                  "value": "-12.75%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.92x",
+                  "value": "0.70x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "0.87x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                4,
+                5
+              ]
+            },
+            {
+              "sector": "工业",
+              "code": "000988",
+              "rank": 8,
+              "score": 36.4,
+              "direction": "weakening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-3.06%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "-12.56%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "0.75x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "0.95x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                6,
+                7
+              ]
+            },
+            {
+              "sector": "移动互联网",
+              "code": "399970",
+              "rank": 9,
+              "score": 27.3,
+              "direction": "weakening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-4.00%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "-9.12%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "0.94x",
                   "tone": "neutral"
                 },
                 {
@@ -485,66 +553,32 @@
               ]
             },
             {
-              "sector": "工业",
-              "code": "000988",
-              "rank": 8,
-              "score": 36.4,
-              "direction": "weakening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "-2.55%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-11.54%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "0.74x",
-                  "tone": "neutral"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "0.93x",
-                  "tone": "neutral"
-                }
-              ],
-              "sourceIndexes": [
-                6,
-                7
-              ]
-            },
-            {
               "sector": "通信服务",
               "code": "000994",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "rank": 10,
+              "score": 18.2,
+              "direction": "lagging",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-5.73%",
+                  "value": "-8.19%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-14.96%",
+                  "value": "-18.76%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.98x",
+                  "value": "1.02x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.19x",
-                  "tone": "neutral"
+                  "value": "1.21x",
+                  "tone": "positive"
                 }
               ],
               "sourceIndexes": [
@@ -553,55 +587,21 @@
               ]
             },
             {
-              "sector": "原材料",
-              "code": "000987",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "-4.30%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-12.62%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "0.65x",
-                  "tone": "neutral"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "0.82x",
-                  "tone": "neutral"
-                }
-              ],
-              "sourceIndexes": [
-                4,
-                5
-              ]
-            },
-            {
               "sector": "军工",
               "code": "399967",
               "rank": 11,
               "score": 9.1,
               "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-6.09%",
+                  "value": "-5.40%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-13.09%",
+                  "value": "-14.50%",
                   "tone": "negative"
                 },
                 {
@@ -626,26 +626,26 @@
               "rank": 12,
               "score": 0.0,
               "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-9.00%",
+                  "value": "-6.74%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-9.52%",
+                  "value": "-14.48%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.83x",
+                  "value": "0.85x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "0.82x",
+                  "value": "0.84x",
                   "tone": "neutral"
                 }
               ],
@@ -661,7 +661,7 @@
               "title": "近60个交易日相对走势（起点=0）",
               "unit": "%",
               "note": "各行业序列分别以区间首个完整交易日收盘归一为0，仅比较相对路径。",
-              "asOf": "2026-07-21",
+              "asOf": "2026-07-22",
               "sourceIndexes": [
                 10,
                 11,
@@ -677,244 +677,244 @@
                   "name": "医药医疗",
                   "points": [
                     {
-                      "date": "2026-04-23",
+                      "date": "2026-04-24",
                       "value": 0.0
                     },
                     {
-                      "date": "2026-04-24",
-                      "value": -0.225
-                    },
-                    {
                       "date": "2026-04-27",
-                      "value": -0.657
+                      "value": -0.433
                     },
                     {
                       "date": "2026-04-28",
-                      "value": 0.589
+                      "value": 0.815
                     },
                     {
                       "date": "2026-04-29",
-                      "value": 0.698
+                      "value": 0.925
                     },
                     {
                       "date": "2026-04-30",
-                      "value": 0.163
+                      "value": 0.388
                     },
                     {
                       "date": "2026-05-06",
-                      "value": 0.087
+                      "value": 0.312
                     },
                     {
                       "date": "2026-05-07",
-                      "value": 0.446
+                      "value": 0.672
                     },
                     {
                       "date": "2026-05-08",
-                      "value": -0.491
+                      "value": -0.267
                     },
                     {
                       "date": "2026-05-11",
-                      "value": 0.943
+                      "value": 1.17
                     },
                     {
                       "date": "2026-05-12",
-                      "value": 0.685
+                      "value": 0.911
                     },
                     {
                       "date": "2026-05-13",
-                      "value": 0.076
+                      "value": 0.301
                     },
                     {
                       "date": "2026-05-14",
-                      "value": -2.281
+                      "value": -2.061
                     },
                     {
                       "date": "2026-05-15",
-                      "value": -2.948
+                      "value": -2.729
                     },
                     {
                       "date": "2026-05-18",
-                      "value": -4.826
+                      "value": -4.612
                     },
                     {
                       "date": "2026-05-19",
-                      "value": -4.516
+                      "value": -4.301
                     },
                     {
                       "date": "2026-05-20",
-                      "value": -5.091
+                      "value": -4.877
                     },
                     {
                       "date": "2026-05-21",
-                      "value": -4.571
+                      "value": -4.356
                     },
                     {
                       "date": "2026-05-22",
-                      "value": -5.616
+                      "value": -5.404
                     },
                     {
                       "date": "2026-05-25",
-                      "value": -6.13
+                      "value": -5.918
                     },
                     {
                       "date": "2026-05-26",
-                      "value": -6.274
+                      "value": -6.063
                     },
                     {
                       "date": "2026-05-27",
-                      "value": -6.528
+                      "value": -6.317
                     },
                     {
                       "date": "2026-05-28",
-                      "value": -8.31
+                      "value": -8.104
                     },
                     {
                       "date": "2026-05-29",
-                      "value": -6.95
+                      "value": -6.74
                     },
                     {
                       "date": "2026-06-01",
-                      "value": -7.696
+                      "value": -7.488
                     },
                     {
                       "date": "2026-06-02",
-                      "value": -8.665
+                      "value": -8.459
                     },
                     {
                       "date": "2026-06-03",
-                      "value": -10.176
+                      "value": -9.973
                     },
                     {
                       "date": "2026-06-04",
-                      "value": -11.326
+                      "value": -11.127
                     },
                     {
                       "date": "2026-06-05",
-                      "value": -11.118
+                      "value": -10.918
                     },
                     {
                       "date": "2026-06-08",
-                      "value": -12.87
+                      "value": -12.673
                     },
                     {
                       "date": "2026-06-09",
-                      "value": -13.006
+                      "value": -12.81
                     },
                     {
                       "date": "2026-06-10",
-                      "value": -12.111
+                      "value": -11.913
                     },
                     {
                       "date": "2026-06-11",
-                      "value": -12.433
+                      "value": -12.236
                     },
                     {
                       "date": "2026-06-12",
-                      "value": -10.546
+                      "value": -10.344
                     },
                     {
                       "date": "2026-06-15",
-                      "value": -10.896
+                      "value": -10.695
                     },
                     {
                       "date": "2026-06-16",
-                      "value": -12.381
+                      "value": -12.183
                     },
                     {
                       "date": "2026-06-17",
-                      "value": -12.874
+                      "value": -12.677
                     },
                     {
                       "date": "2026-06-18",
-                      "value": -11.817
+                      "value": -11.618
                     },
                     {
                       "date": "2026-06-22",
-                      "value": -11.022
+                      "value": -10.822
                     },
                     {
                       "date": "2026-06-23",
-                      "value": -10.592
+                      "value": -10.39
                     },
                     {
                       "date": "2026-06-24",
-                      "value": -9.333
+                      "value": -9.129
                     },
                     {
                       "date": "2026-06-25",
-                      "value": -8.971
+                      "value": -8.766
                     },
                     {
                       "date": "2026-06-26",
-                      "value": -11.572
+                      "value": -11.373
                     },
                     {
                       "date": "2026-06-29",
-                      "value": -6.015
+                      "value": -5.803
                     },
                     {
                       "date": "2026-06-30",
-                      "value": -7.505
+                      "value": -7.296
                     },
                     {
                       "date": "2026-07-01",
-                      "value": -4.18
+                      "value": -3.964
                     },
                     {
                       "date": "2026-07-02",
-                      "value": -4.398
+                      "value": -4.183
                     },
                     {
                       "date": "2026-07-03",
-                      "value": -2.434
+                      "value": -2.215
                     },
                     {
                       "date": "2026-07-06",
-                      "value": -1.556
+                      "value": -1.334
                     },
                     {
                       "date": "2026-07-07",
-                      "value": -5.092
+                      "value": -4.878
                     },
                     {
                       "date": "2026-07-08",
-                      "value": -6.448
+                      "value": -6.237
                     },
                     {
                       "date": "2026-07-09",
-                      "value": -5.135
+                      "value": -4.921
                     },
                     {
                       "date": "2026-07-10",
-                      "value": -3.195
+                      "value": -2.977
                     },
                     {
                       "date": "2026-07-13",
-                      "value": -3.743
+                      "value": -3.526
                     },
                     {
                       "date": "2026-07-14",
-                      "value": -1.299
+                      "value": -1.077
                     },
                     {
                       "date": "2026-07-15",
-                      "value": 2.1
+                      "value": 2.33
                     },
                     {
                       "date": "2026-07-16",
-                      "value": 2.294
+                      "value": 2.524
                     },
                     {
                       "date": "2026-07-17",
-                      "value": -2.951
+                      "value": -2.733
                     },
                     {
                       "date": "2026-07-20",
-                      "value": -0.033
+                      "value": 0.192
                     },
                     {
                       "date": "2026-07-21",
-                      "value": 0.314
+                      "value": 0.54
+                    },
+                    {
+                      "date": "2026-07-22",
+                      "value": 0.685
                     }
                   ]
                 },
@@ -922,244 +922,244 @@
                   "name": "主要消费",
                   "points": [
                     {
-                      "date": "2026-04-23",
+                      "date": "2026-04-24",
                       "value": 0.0
                     },
                     {
-                      "date": "2026-04-24",
-                      "value": 0.172
-                    },
-                    {
                       "date": "2026-04-27",
-                      "value": -1.051
+                      "value": -1.221
                     },
                     {
                       "date": "2026-04-28",
-                      "value": -0.78
+                      "value": -0.95
                     },
                     {
                       "date": "2026-04-29",
-                      "value": 0.739
+                      "value": 0.566
                     },
                     {
                       "date": "2026-04-30",
-                      "value": 0.668
+                      "value": 0.495
                     },
                     {
                       "date": "2026-05-06",
-                      "value": -0.052
+                      "value": -0.224
                     },
                     {
                       "date": "2026-05-07",
-                      "value": -0.352
+                      "value": -0.522
                     },
                     {
                       "date": "2026-05-08",
-                      "value": -0.924
+                      "value": -1.093
                     },
                     {
                       "date": "2026-05-11",
-                      "value": -0.75
+                      "value": -0.92
                     },
                     {
                       "date": "2026-05-12",
-                      "value": -2.12
+                      "value": -2.288
                     },
                     {
                       "date": "2026-05-13",
-                      "value": -2.863
+                      "value": -3.03
                     },
                     {
                       "date": "2026-05-14",
-                      "value": -2.757
+                      "value": -2.924
                     },
                     {
                       "date": "2026-05-15",
-                      "value": -4.219
+                      "value": -4.383
                     },
                     {
                       "date": "2026-05-18",
-                      "value": -5.407
+                      "value": -5.569
                     },
                     {
                       "date": "2026-05-19",
-                      "value": -5.458
+                      "value": -5.62
                     },
                     {
                       "date": "2026-05-20",
-                      "value": -5.735
+                      "value": -5.897
                     },
                     {
                       "date": "2026-05-21",
-                      "value": -6.677
+                      "value": -6.837
                     },
                     {
                       "date": "2026-05-22",
-                      "value": -8.003
+                      "value": -8.161
                     },
                     {
                       "date": "2026-05-25",
-                      "value": -7.926
+                      "value": -8.084
                     },
                     {
                       "date": "2026-05-26",
-                      "value": -8.226
+                      "value": -8.384
                     },
                     {
                       "date": "2026-05-27",
-                      "value": -7.781
+                      "value": -7.94
                     },
                     {
                       "date": "2026-05-28",
-                      "value": -9.531
+                      "value": -9.687
                     },
                     {
                       "date": "2026-05-29",
-                      "value": -6.999
+                      "value": -7.158
                     },
                     {
                       "date": "2026-06-01",
-                      "value": -6.824
+                      "value": -6.984
                     },
                     {
                       "date": "2026-06-02",
-                      "value": -8.198
+                      "value": -8.355
                     },
                     {
                       "date": "2026-06-03",
-                      "value": -9.409
+                      "value": -9.565
                     },
                     {
                       "date": "2026-06-04",
-                      "value": -11.077
+                      "value": -11.229
                     },
                     {
                       "date": "2026-06-05",
-                      "value": -11.477
+                      "value": -11.629
                     },
                     {
                       "date": "2026-06-08",
-                      "value": -12.813
+                      "value": -12.963
                     },
                     {
                       "date": "2026-06-09",
-                      "value": -13.359
+                      "value": -13.507
                     },
                     {
                       "date": "2026-06-10",
-                      "value": -12.5
+                      "value": -12.651
                     },
                     {
                       "date": "2026-06-11",
-                      "value": -12.573
+                      "value": -12.723
                     },
                     {
                       "date": "2026-06-12",
-                      "value": -11.802
+                      "value": -11.953
                     },
                     {
                       "date": "2026-06-15",
-                      "value": -12.299
+                      "value": -12.45
                     },
                     {
                       "date": "2026-06-16",
-                      "value": -13.822
+                      "value": -13.97
                     },
                     {
                       "date": "2026-06-17",
-                      "value": -14.705
+                      "value": -14.852
                     },
                     {
                       "date": "2026-06-18",
-                      "value": -16.565
+                      "value": -16.708
                     },
                     {
                       "date": "2026-06-22",
-                      "value": -15.751
+                      "value": -15.895
                     },
                     {
                       "date": "2026-06-23",
-                      "value": -16.981
+                      "value": -17.124
                     },
                     {
                       "date": "2026-06-24",
-                      "value": -18.263
+                      "value": -18.403
                     },
                     {
                       "date": "2026-06-25",
-                      "value": -17.999
+                      "value": -18.14
                     },
                     {
                       "date": "2026-06-26",
-                      "value": -19.2
+                      "value": -19.338
                     },
                     {
                       "date": "2026-06-29",
-                      "value": -16.921
+                      "value": -17.063
                     },
                     {
                       "date": "2026-06-30",
-                      "value": -17.832
+                      "value": -17.973
                     },
                     {
                       "date": "2026-07-01",
-                      "value": -15.927
+                      "value": -16.071
                     },
                     {
                       "date": "2026-07-02",
-                      "value": -16.036
+                      "value": -16.18
                     },
                     {
                       "date": "2026-07-03",
-                      "value": -16.009
+                      "value": -16.153
                     },
                     {
                       "date": "2026-07-06",
-                      "value": -14.432
+                      "value": -14.579
                     },
                     {
                       "date": "2026-07-07",
-                      "value": -15.756
+                      "value": -15.901
                     },
                     {
                       "date": "2026-07-08",
-                      "value": -16.282
+                      "value": -16.426
                     },
                     {
                       "date": "2026-07-09",
-                      "value": -17.07
+                      "value": -17.212
                     },
                     {
                       "date": "2026-07-10",
-                      "value": -15.396
+                      "value": -15.541
                     },
                     {
                       "date": "2026-07-13",
-                      "value": -15.542
+                      "value": -15.687
                     },
                     {
                       "date": "2026-07-14",
-                      "value": -15.223
+                      "value": -15.368
                     },
                     {
                       "date": "2026-07-15",
-                      "value": -12.088
+                      "value": -12.239
                     },
                     {
                       "date": "2026-07-16",
-                      "value": -11.538
+                      "value": -11.69
                     },
                     {
                       "date": "2026-07-17",
-                      "value": -12.99
+                      "value": -13.139
                     },
                     {
                       "date": "2026-07-20",
-                      "value": -9.852
+                      "value": -10.007
                     },
                     {
                       "date": "2026-07-21",
-                      "value": -10.845
+                      "value": -10.997
+                    },
+                    {
+                      "date": "2026-07-22",
+                      "value": -10.477
                     }
                   ]
                 },
@@ -1167,244 +1167,244 @@
                   "name": "军工",
                   "points": [
                     {
-                      "date": "2026-04-23",
+                      "date": "2026-04-24",
                       "value": 0.0
                     },
                     {
-                      "date": "2026-04-24",
-                      "value": -1.948
-                    },
-                    {
                       "date": "2026-04-27",
-                      "value": -2.109
+                      "value": -0.164
                     },
                     {
                       "date": "2026-04-28",
-                      "value": -3.642
+                      "value": -1.728
                     },
                     {
                       "date": "2026-04-29",
-                      "value": -3.369
+                      "value": -1.449
                     },
                     {
                       "date": "2026-04-30",
-                      "value": -1.766
+                      "value": 0.185
                     },
                     {
                       "date": "2026-05-06",
-                      "value": 0.389
+                      "value": 2.384
                     },
                     {
                       "date": "2026-05-07",
-                      "value": 1.565
+                      "value": 3.583
                     },
                     {
                       "date": "2026-05-08",
-                      "value": 3.437
+                      "value": 5.492
                     },
                     {
                       "date": "2026-05-11",
-                      "value": 4.188
+                      "value": 6.258
                     },
                     {
                       "date": "2026-05-12",
-                      "value": 3.296
+                      "value": 5.347
                     },
                     {
                       "date": "2026-05-13",
-                      "value": 4.494
+                      "value": 6.57
                     },
                     {
                       "date": "2026-05-14",
-                      "value": -0.321
+                      "value": 1.659
                     },
                     {
                       "date": "2026-05-15",
-                      "value": -2.662
+                      "value": -0.728
                     },
                     {
                       "date": "2026-05-18",
-                      "value": -3.321
+                      "value": -1.4
                     },
                     {
                       "date": "2026-05-19",
-                      "value": -3.196
+                      "value": -1.273
                     },
                     {
                       "date": "2026-05-20",
-                      "value": -3.645
+                      "value": -1.731
                     },
                     {
                       "date": "2026-05-21",
-                      "value": -6.084
+                      "value": -4.219
                     },
                     {
                       "date": "2026-05-22",
-                      "value": -4.639
+                      "value": -2.745
                     },
                     {
                       "date": "2026-05-25",
-                      "value": -3.316
+                      "value": -1.395
                     },
                     {
                       "date": "2026-05-26",
-                      "value": -5.297
+                      "value": -3.416
                     },
                     {
                       "date": "2026-05-27",
-                      "value": -7.119
+                      "value": -5.274
                     },
                     {
                       "date": "2026-05-28",
-                      "value": -5.619
+                      "value": -3.744
                     },
                     {
                       "date": "2026-05-29",
-                      "value": -10.1
+                      "value": -8.314
                     },
                     {
                       "date": "2026-06-01",
-                      "value": -11.244
+                      "value": -9.481
                     },
                     {
                       "date": "2026-06-02",
-                      "value": -11.466
+                      "value": -9.708
                     },
                     {
                       "date": "2026-06-03",
-                      "value": -10.851
+                      "value": -9.08
                     },
                     {
                       "date": "2026-06-04",
-                      "value": -10.515
+                      "value": -8.738
                     },
                     {
                       "date": "2026-06-05",
-                      "value": -10.809
+                      "value": -9.037
                     },
                     {
                       "date": "2026-06-08",
-                      "value": -14.626
+                      "value": -12.93
                     },
                     {
                       "date": "2026-06-09",
-                      "value": -13.524
+                      "value": -11.806
                     },
                     {
                       "date": "2026-06-10",
-                      "value": -14.522
+                      "value": -12.825
                     },
                     {
                       "date": "2026-06-11",
-                      "value": -14.581
+                      "value": -12.884
                     },
                     {
                       "date": "2026-06-12",
-                      "value": -12.892
+                      "value": -11.162
                     },
                     {
                       "date": "2026-06-15",
-                      "value": -11.663
+                      "value": -9.908
                     },
                     {
                       "date": "2026-06-16",
-                      "value": -11.385
+                      "value": -9.625
                     },
                     {
                       "date": "2026-06-17",
-                      "value": -9.888
+                      "value": -8.098
                     },
                     {
                       "date": "2026-06-18",
-                      "value": -9.78
+                      "value": -7.988
                     },
                     {
                       "date": "2026-06-22",
-                      "value": -9.197
+                      "value": -7.393
                     },
                     {
                       "date": "2026-06-23",
-                      "value": -12.456
+                      "value": -10.717
                     },
                     {
                       "date": "2026-06-24",
-                      "value": -11.7
+                      "value": -9.946
                     },
                     {
                       "date": "2026-06-25",
-                      "value": -11.816
+                      "value": -10.065
                     },
                     {
                       "date": "2026-06-26",
-                      "value": -13.296
+                      "value": -11.574
                     },
                     {
                       "date": "2026-06-29",
-                      "value": -13.664
+                      "value": -11.949
                     },
                     {
                       "date": "2026-06-30",
-                      "value": -10.546
+                      "value": -8.77
                     },
                     {
                       "date": "2026-07-01",
-                      "value": -9.947
+                      "value": -8.158
                     },
                     {
                       "date": "2026-07-02",
-                      "value": -12.16
+                      "value": -10.415
                     },
                     {
                       "date": "2026-07-03",
-                      "value": -9.135
+                      "value": -7.33
                     },
                     {
                       "date": "2026-07-06",
-                      "value": -10.484
+                      "value": -8.706
                     },
                     {
                       "date": "2026-07-07",
-                      "value": -12.82
+                      "value": -11.088
                     },
                     {
                       "date": "2026-07-08",
-                      "value": -14.958
+                      "value": -13.269
                     },
                     {
                       "date": "2026-07-09",
-                      "value": -13.103
+                      "value": -11.377
                     },
                     {
                       "date": "2026-07-10",
-                      "value": -11.023
+                      "value": -9.256
                     },
                     {
                       "date": "2026-07-13",
-                      "value": -16.862
+                      "value": -15.211
                     },
                     {
                       "date": "2026-07-14",
-                      "value": -18.986
+                      "value": -17.377
                     },
                     {
                       "date": "2026-07-15",
-                      "value": -20.193
+                      "value": -18.608
                     },
                     {
                       "date": "2026-07-16",
-                      "value": -21.88
+                      "value": -20.328
                     },
                     {
                       "date": "2026-07-17",
-                      "value": -26.002
+                      "value": -24.532
                     },
                     {
                       "date": "2026-07-20",
-                      "value": -26.335
+                      "value": -24.872
                     },
                     {
                       "date": "2026-07-21",
-                      "value": -23.916
+                      "value": -22.405
+                    },
+                    {
+                      "date": "2026-07-22",
+                      "value": -23.003
                     }
                   ]
                 },
@@ -1412,244 +1412,244 @@
                   "name": "通信服务",
                   "points": [
                     {
-                      "date": "2026-04-23",
+                      "date": "2026-04-24",
                       "value": 0.0
                     },
                     {
-                      "date": "2026-04-24",
-                      "value": -3.882
-                    },
-                    {
                       "date": "2026-04-27",
-                      "value": -4.089
+                      "value": -0.215
                     },
                     {
                       "date": "2026-04-28",
-                      "value": -5.979
+                      "value": -2.181
                     },
                     {
                       "date": "2026-04-29",
-                      "value": -5.072
+                      "value": -1.237
                     },
                     {
                       "date": "2026-04-30",
-                      "value": -5.626
+                      "value": -1.814
                     },
                     {
                       "date": "2026-05-06",
-                      "value": -3.652
+                      "value": 0.24
                     },
                     {
                       "date": "2026-05-07",
-                      "value": 0.1
+                      "value": 4.143
                     },
                     {
                       "date": "2026-05-08",
-                      "value": 1.001
+                      "value": 5.08
                     },
                     {
                       "date": "2026-05-11",
-                      "value": 3.193
+                      "value": 7.361
                     },
                     {
                       "date": "2026-05-12",
-                      "value": 4.725
+                      "value": 8.955
                     },
                     {
                       "date": "2026-05-13",
-                      "value": 7.97
+                      "value": 12.331
                     },
                     {
                       "date": "2026-05-14",
-                      "value": 6.966
+                      "value": 11.287
                     },
                     {
                       "date": "2026-05-15",
-                      "value": 5.001
+                      "value": 9.242
                     },
                     {
                       "date": "2026-05-18",
-                      "value": 5.485
+                      "value": 9.746
                     },
                     {
                       "date": "2026-05-19",
-                      "value": 5.293
+                      "value": 9.546
                     },
                     {
                       "date": "2026-05-20",
-                      "value": 4.898
+                      "value": 9.135
                     },
                     {
                       "date": "2026-05-21",
-                      "value": 0.025
+                      "value": 4.065
                     },
                     {
                       "date": "2026-05-22",
-                      "value": 3.281
+                      "value": 7.452
                     },
                     {
                       "date": "2026-05-25",
-                      "value": 6.47
+                      "value": 10.77
                     },
                     {
                       "date": "2026-05-26",
-                      "value": 6.114
+                      "value": 10.4
                     },
                     {
                       "date": "2026-05-27",
-                      "value": 5.192
+                      "value": 9.441
                     },
                     {
                       "date": "2026-05-28",
-                      "value": 8.789
+                      "value": 13.183
                     },
                     {
                       "date": "2026-05-29",
-                      "value": 7.677
+                      "value": 12.026
                     },
                     {
                       "date": "2026-06-01",
-                      "value": 5.129
+                      "value": 9.375
                     },
                     {
                       "date": "2026-06-02",
-                      "value": 9.718
+                      "value": 14.15
                     },
                     {
                       "date": "2026-06-03",
-                      "value": 14.038
+                      "value": 18.644
                     },
                     {
                       "date": "2026-06-04",
-                      "value": 13.692
+                      "value": 18.284
                     },
                     {
                       "date": "2026-06-05",
-                      "value": 10.633
+                      "value": 15.102
                     },
                     {
                       "date": "2026-06-08",
-                      "value": 7.416
+                      "value": 11.755
                     },
                     {
                       "date": "2026-06-09",
-                      "value": 12.223
+                      "value": 16.755
                     },
                     {
                       "date": "2026-06-10",
-                      "value": 9.463
+                      "value": 13.885
                     },
                     {
                       "date": "2026-06-11",
-                      "value": 7.006
+                      "value": 11.329
                     },
                     {
                       "date": "2026-06-12",
-                      "value": 6.142
+                      "value": 10.429
                     },
                     {
                       "date": "2026-06-15",
-                      "value": 11.827
+                      "value": 16.344
                     },
                     {
                       "date": "2026-06-16",
-                      "value": 14.227
+                      "value": 18.841
                     },
                     {
                       "date": "2026-06-17",
-                      "value": 15.314
+                      "value": 19.972
                     },
                     {
                       "date": "2026-06-18",
-                      "value": 18.435
+                      "value": 23.219
                     },
                     {
                       "date": "2026-06-22",
-                      "value": 21.093
+                      "value": 25.984
                     },
                     {
                       "date": "2026-06-23",
-                      "value": 17.566
+                      "value": 22.315
                     },
                     {
                       "date": "2026-06-24",
-                      "value": 18.651
+                      "value": 23.444
                     },
                     {
                       "date": "2026-06-25",
-                      "value": 21.766
+                      "value": 26.685
                     },
                     {
                       "date": "2026-06-26",
-                      "value": 14.359
+                      "value": 18.978
                     },
                     {
                       "date": "2026-06-29",
-                      "value": 12.246
+                      "value": 16.78
                     },
                     {
                       "date": "2026-06-30",
-                      "value": 17.042
+                      "value": 21.77
                     },
                     {
                       "date": "2026-07-01",
-                      "value": 13.517
+                      "value": 18.102
                     },
                     {
                       "date": "2026-07-02",
-                      "value": 6.626
+                      "value": 10.933
                     },
                     {
                       "date": "2026-07-03",
-                      "value": 6.178
+                      "value": 10.466
                     },
                     {
                       "date": "2026-07-06",
-                      "value": 3.539
+                      "value": 7.721
                     },
                     {
                       "date": "2026-07-07",
-                      "value": 3.429
+                      "value": 7.606
                     },
                     {
                       "date": "2026-07-08",
-                      "value": 3.307
+                      "value": 7.48
                     },
                     {
                       "date": "2026-07-09",
-                      "value": 8.255
+                      "value": 12.628
                     },
                     {
                       "date": "2026-07-10",
-                      "value": 6.474
+                      "value": 10.775
                     },
                     {
                       "date": "2026-07-13",
-                      "value": 2.62
+                      "value": 6.765
                     },
                     {
                       "date": "2026-07-14",
-                      "value": 6.054
+                      "value": 10.338
                     },
                     {
                       "date": "2026-07-15",
-                      "value": 4.994
+                      "value": 9.235
                     },
                     {
                       "date": "2026-07-16",
-                      "value": 2.437
+                      "value": 6.574
                     },
                     {
                       "date": "2026-07-17",
-                      "value": -6.57
+                      "value": -2.796
                     },
                     {
                       "date": "2026-07-20",
-                      "value": -5.965
+                      "value": -2.166
                     },
                     {
                       "date": "2026-07-21",
-                      "value": -0.019
+                      "value": 4.02
+                    },
+                    {
+                      "date": "2026-07-22",
+                      "value": 0.29
                     }
                   ]
                 }
@@ -1660,8 +1660,8 @@
         "tomorrow": {
           "kind": "forecast",
           "status": "abstained",
-          "asOf": "2026-07-21",
-          "dueDate": "2026-07-22",
+          "asOf": "2026-07-22",
+          "dueDate": "2026-07-23",
           "sessions": 1,
           "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
           "abstainReasons": [
@@ -1672,99 +1672,31 @@
           "note": "基于资金可得性、相对强度与流动性证据排序；当前概率模型未通过样本外质量检验。观察分不是上涨概率。",
           "observationItems": [
             {
-              "sector": "主要消费",
-              "code": "000990",
+              "sector": "公用事业",
+              "code": "000995",
               "rank": 1,
               "score": 100.0,
               "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+5.16%",
+                  "value": "+3.69%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "+7.39%",
+                  "value": "+1.35%",
                   "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "1.51x",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "1.24x",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                10,
-                11
-              ]
-            },
-            {
-              "sector": "医药医疗",
-              "code": "000991",
-              "rank": 2,
-              "score": 90.9,
-              "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "+1.63%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "+12.20%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "1.53x",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "1.48x",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                12,
-                13
-              ]
-            },
-            {
-              "sector": "公用事业",
-              "code": "000995",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "+3.04%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-1.58%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "1.21x",
+                  "value": "1.34x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.22x",
+                  "value": "1.35x",
                   "tone": "positive"
                 }
               ],
@@ -1776,29 +1708,29 @@
             {
               "sector": "能源",
               "code": "000986",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "rank": 2,
+              "score": 90.9,
+              "direction": "leading",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+0.74%",
+                  "value": "+3.38%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "+1.62%",
+                  "value": "+6.17%",
                   "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "1.31x",
-                  "tone": "neutral"
+                  "value": "1.36x",
+                  "tone": "positive"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.31x",
+                  "value": "1.34x",
                   "tone": "positive"
                 }
               ],
@@ -1808,31 +1740,99 @@
               ]
             },
             {
+              "sector": "主要消费",
+              "code": "000990",
+              "rank": 3,
+              "score": 81.8,
+              "direction": "leading",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "+2.01%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "+9.71%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "1.42x",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "1.20x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                10,
+                11
+              ]
+            },
+            {
+              "sector": "医药医疗",
+              "code": "000991",
+              "rank": 4,
+              "score": 72.7,
+              "direction": "strengthening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-1.61%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "+10.80%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "1.34x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "1.31x",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                12,
+                13
+              ]
+            },
+            {
               "sector": "金融地产",
               "code": "000992",
               "rank": 5,
               "score": 63.6,
               "direction": "strengthening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+1.59%",
+                  "value": "+0.49%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-0.04%",
-                  "tone": "negative"
+                  "value": "+2.95%",
+                  "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.98x",
+                  "value": "0.93x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.05x",
+                  "value": "1.01x",
                   "tone": "neutral"
                 }
               ],
@@ -1847,26 +1847,26 @@
               "rank": 6,
               "score": 54.5,
               "direction": "neutral",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-0.14%",
+                  "value": "-2.19%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-1.68%",
+                  "value": "-1.29%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.92x",
+                  "value": "0.90x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.01x",
+                  "value": "0.99x",
                   "tone": "neutral"
                 }
               ],
@@ -1876,26 +1876,94 @@
               ]
             },
             {
-              "sector": "移动互联网",
-              "code": "399970",
+              "sector": "原材料",
+              "code": "000987",
               "rank": 7,
               "score": 45.5,
               "direction": "neutral",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-3.77%",
+                  "value": "-1.03%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-5.47%",
+                  "value": "-12.75%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.92x",
+                  "value": "0.70x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "0.87x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                4,
+                5
+              ]
+            },
+            {
+              "sector": "工业",
+              "code": "000988",
+              "rank": 8,
+              "score": 36.4,
+              "direction": "weakening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-3.06%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "-12.56%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "0.75x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "0.95x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                6,
+                7
+              ]
+            },
+            {
+              "sector": "移动互联网",
+              "code": "399970",
+              "rank": 9,
+              "score": 27.3,
+              "direction": "weakening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-4.00%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "-9.12%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "0.94x",
                   "tone": "neutral"
                 },
                 {
@@ -1910,66 +1978,32 @@
               ]
             },
             {
-              "sector": "工业",
-              "code": "000988",
-              "rank": 8,
-              "score": 36.4,
-              "direction": "weakening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "-2.55%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-11.54%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "0.74x",
-                  "tone": "neutral"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "0.93x",
-                  "tone": "neutral"
-                }
-              ],
-              "sourceIndexes": [
-                6,
-                7
-              ]
-            },
-            {
               "sector": "通信服务",
               "code": "000994",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "rank": 10,
+              "score": 18.2,
+              "direction": "lagging",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-5.73%",
+                  "value": "-8.19%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-14.96%",
+                  "value": "-18.76%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.98x",
+                  "value": "1.02x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.19x",
-                  "tone": "neutral"
+                  "value": "1.21x",
+                  "tone": "positive"
                 }
               ],
               "sourceIndexes": [
@@ -1978,55 +2012,21 @@
               ]
             },
             {
-              "sector": "原材料",
-              "code": "000987",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "-4.30%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-12.62%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "0.65x",
-                  "tone": "neutral"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "0.82x",
-                  "tone": "neutral"
-                }
-              ],
-              "sourceIndexes": [
-                4,
-                5
-              ]
-            },
-            {
               "sector": "军工",
               "code": "399967",
               "rank": 11,
               "score": 9.1,
               "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-6.09%",
+                  "value": "-5.40%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-13.09%",
+                  "value": "-14.50%",
                   "tone": "negative"
                 },
                 {
@@ -2051,26 +2051,26 @@
               "rank": 12,
               "score": 0.0,
               "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-9.00%",
+                  "value": "-6.74%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-9.52%",
+                  "value": "-14.48%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.83x",
+                  "value": "0.85x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "0.82x",
+                  "value": "0.84x",
                   "tone": "neutral"
                 }
               ],
@@ -2099,8 +2099,8 @@
         "oneWeek": {
           "kind": "forecast",
           "status": "abstained",
-          "asOf": "2026-07-21",
-          "dueDate": "2026-07-28",
+          "asOf": "2026-07-22",
+          "dueDate": "2026-07-29",
           "sessions": 5,
           "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
           "abstainReasons": [
@@ -2110,99 +2110,31 @@
           "note": "基于资金可得性、相对强度与流动性证据排序；当前概率模型未通过样本外质量检验。观察分不是上涨概率。",
           "observationItems": [
             {
-              "sector": "主要消费",
-              "code": "000990",
+              "sector": "公用事业",
+              "code": "000995",
               "rank": 1,
               "score": 100.0,
               "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+5.16%",
+                  "value": "+3.69%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "+7.39%",
+                  "value": "+1.35%",
                   "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "1.51x",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "1.24x",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                10,
-                11
-              ]
-            },
-            {
-              "sector": "医药医疗",
-              "code": "000991",
-              "rank": 2,
-              "score": 90.9,
-              "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "+1.63%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "+12.20%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "1.53x",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "1.48x",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                12,
-                13
-              ]
-            },
-            {
-              "sector": "公用事业",
-              "code": "000995",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "+3.04%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-1.58%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "1.21x",
+                  "value": "1.34x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.22x",
+                  "value": "1.35x",
                   "tone": "positive"
                 }
               ],
@@ -2214,29 +2146,29 @@
             {
               "sector": "能源",
               "code": "000986",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "rank": 2,
+              "score": 90.9,
+              "direction": "leading",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+0.74%",
+                  "value": "+3.38%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "+1.62%",
+                  "value": "+6.17%",
                   "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "1.31x",
-                  "tone": "neutral"
+                  "value": "1.36x",
+                  "tone": "positive"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.31x",
+                  "value": "1.34x",
                   "tone": "positive"
                 }
               ],
@@ -2246,31 +2178,99 @@
               ]
             },
             {
+              "sector": "主要消费",
+              "code": "000990",
+              "rank": 3,
+              "score": 81.8,
+              "direction": "leading",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "+2.01%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "+9.71%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "1.42x",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "1.20x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                10,
+                11
+              ]
+            },
+            {
+              "sector": "医药医疗",
+              "code": "000991",
+              "rank": 4,
+              "score": 72.7,
+              "direction": "strengthening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-1.61%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "+10.80%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "1.34x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "1.31x",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                12,
+                13
+              ]
+            },
+            {
               "sector": "金融地产",
               "code": "000992",
               "rank": 5,
               "score": 63.6,
               "direction": "strengthening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+1.59%",
+                  "value": "+0.49%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-0.04%",
-                  "tone": "negative"
+                  "value": "+2.95%",
+                  "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.98x",
+                  "value": "0.93x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.05x",
+                  "value": "1.01x",
                   "tone": "neutral"
                 }
               ],
@@ -2285,26 +2285,26 @@
               "rank": 6,
               "score": 54.5,
               "direction": "neutral",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-0.14%",
+                  "value": "-2.19%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-1.68%",
+                  "value": "-1.29%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.92x",
+                  "value": "0.90x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.01x",
+                  "value": "0.99x",
                   "tone": "neutral"
                 }
               ],
@@ -2314,26 +2314,94 @@
               ]
             },
             {
-              "sector": "移动互联网",
-              "code": "399970",
+              "sector": "原材料",
+              "code": "000987",
               "rank": 7,
               "score": 45.5,
               "direction": "neutral",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-3.77%",
+                  "value": "-1.03%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-5.47%",
+                  "value": "-12.75%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.92x",
+                  "value": "0.70x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "0.87x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                4,
+                5
+              ]
+            },
+            {
+              "sector": "工业",
+              "code": "000988",
+              "rank": 8,
+              "score": 36.4,
+              "direction": "weakening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-3.06%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "-12.56%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "0.75x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "0.95x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                6,
+                7
+              ]
+            },
+            {
+              "sector": "移动互联网",
+              "code": "399970",
+              "rank": 9,
+              "score": 27.3,
+              "direction": "weakening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-4.00%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "-9.12%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "0.94x",
                   "tone": "neutral"
                 },
                 {
@@ -2348,66 +2416,32 @@
               ]
             },
             {
-              "sector": "工业",
-              "code": "000988",
-              "rank": 8,
-              "score": 36.4,
-              "direction": "weakening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "-2.55%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-11.54%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "0.74x",
-                  "tone": "neutral"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "0.93x",
-                  "tone": "neutral"
-                }
-              ],
-              "sourceIndexes": [
-                6,
-                7
-              ]
-            },
-            {
               "sector": "通信服务",
               "code": "000994",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "rank": 10,
+              "score": 18.2,
+              "direction": "lagging",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-5.73%",
+                  "value": "-8.19%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-14.96%",
+                  "value": "-18.76%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.98x",
+                  "value": "1.02x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.19x",
-                  "tone": "neutral"
+                  "value": "1.21x",
+                  "tone": "positive"
                 }
               ],
               "sourceIndexes": [
@@ -2416,55 +2450,21 @@
               ]
             },
             {
-              "sector": "原材料",
-              "code": "000987",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "-4.30%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-12.62%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "0.65x",
-                  "tone": "neutral"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "0.82x",
-                  "tone": "neutral"
-                }
-              ],
-              "sourceIndexes": [
-                4,
-                5
-              ]
-            },
-            {
               "sector": "军工",
               "code": "399967",
               "rank": 11,
               "score": 9.1,
               "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-6.09%",
+                  "value": "-5.40%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-13.09%",
+                  "value": "-14.50%",
                   "tone": "negative"
                 },
                 {
@@ -2489,26 +2489,26 @@
               "rank": 12,
               "score": 0.0,
               "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-9.00%",
+                  "value": "-6.74%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-9.52%",
+                  "value": "-14.48%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.83x",
+                  "value": "0.85x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "0.82x",
+                  "value": "0.84x",
                   "tone": "neutral"
                 }
               ],
@@ -2537,8 +2537,8 @@
         "oneMonth": {
           "kind": "forecast",
           "status": "abstained",
-          "asOf": "2026-07-21",
-          "dueDate": "2026-08-18",
+          "asOf": "2026-07-22",
+          "dueDate": "2026-08-19",
           "sessions": 20,
           "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
           "abstainReasons": [
@@ -2548,99 +2548,31 @@
           "note": "基于资金可得性、相对强度与流动性证据排序；当前概率模型未通过样本外质量检验。观察分不是上涨概率。",
           "observationItems": [
             {
-              "sector": "主要消费",
-              "code": "000990",
+              "sector": "公用事业",
+              "code": "000995",
               "rank": 1,
               "score": 100.0,
               "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+5.16%",
+                  "value": "+3.69%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "+7.39%",
+                  "value": "+1.35%",
                   "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "1.51x",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "1.24x",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                10,
-                11
-              ]
-            },
-            {
-              "sector": "医药医疗",
-              "code": "000991",
-              "rank": 2,
-              "score": 90.9,
-              "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "+1.63%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "+12.20%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "1.53x",
-                  "tone": "positive"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "1.48x",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                12,
-                13
-              ]
-            },
-            {
-              "sector": "公用事业",
-              "code": "000995",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "+3.04%",
-                  "tone": "positive"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-1.58%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "1.21x",
+                  "value": "1.34x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.22x",
+                  "value": "1.35x",
                   "tone": "positive"
                 }
               ],
@@ -2652,29 +2584,29 @@
             {
               "sector": "能源",
               "code": "000986",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "rank": 2,
+              "score": 90.9,
+              "direction": "leading",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+0.74%",
+                  "value": "+3.38%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "+1.62%",
+                  "value": "+6.17%",
                   "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "1.31x",
-                  "tone": "neutral"
+                  "value": "1.36x",
+                  "tone": "positive"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.31x",
+                  "value": "1.34x",
                   "tone": "positive"
                 }
               ],
@@ -2684,31 +2616,99 @@
               ]
             },
             {
+              "sector": "主要消费",
+              "code": "000990",
+              "rank": 3,
+              "score": 81.8,
+              "direction": "leading",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "+2.01%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "+9.71%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "1.42x",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "1.20x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                10,
+                11
+              ]
+            },
+            {
+              "sector": "医药医疗",
+              "code": "000991",
+              "rank": 4,
+              "score": 72.7,
+              "direction": "strengthening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-1.61%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "+10.80%",
+                  "tone": "positive"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "1.34x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "1.31x",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                12,
+                13
+              ]
+            },
+            {
               "sector": "金融地产",
               "code": "000992",
               "rank": 5,
               "score": 63.6,
               "direction": "strengthening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "+1.59%",
+                  "value": "+0.49%",
                   "tone": "positive"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-0.04%",
-                  "tone": "negative"
+                  "value": "+2.95%",
+                  "tone": "positive"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.98x",
+                  "value": "0.93x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.05x",
+                  "value": "1.01x",
                   "tone": "neutral"
                 }
               ],
@@ -2723,26 +2723,26 @@
               "rank": 6,
               "score": 54.5,
               "direction": "neutral",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-0.14%",
+                  "value": "-2.19%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-1.68%",
+                  "value": "-1.29%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.92x",
+                  "value": "0.90x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.01x",
+                  "value": "0.99x",
                   "tone": "neutral"
                 }
               ],
@@ -2752,26 +2752,94 @@
               ]
             },
             {
-              "sector": "移动互联网",
-              "code": "399970",
+              "sector": "原材料",
+              "code": "000987",
               "rank": 7,
               "score": 45.5,
               "direction": "neutral",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-3.77%",
+                  "value": "-1.03%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-5.47%",
+                  "value": "-12.75%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.92x",
+                  "value": "0.70x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "0.87x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                4,
+                5
+              ]
+            },
+            {
+              "sector": "工业",
+              "code": "000988",
+              "rank": 8,
+              "score": 36.4,
+              "direction": "weakening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-3.06%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "-12.56%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "0.75x",
+                  "tone": "neutral"
+                },
+                {
+                  "label": "成交量比",
+                  "value": "0.95x",
+                  "tone": "neutral"
+                }
+              ],
+              "sourceIndexes": [
+                6,
+                7
+              ]
+            },
+            {
+              "sector": "移动互联网",
+              "code": "399970",
+              "rank": 9,
+              "score": 27.3,
+              "direction": "weakening",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
+              "metrics": [
+                {
+                  "label": "5日涨跌",
+                  "value": "-4.00%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "20日涨跌",
+                  "value": "-9.12%",
+                  "tone": "negative"
+                },
+                {
+                  "label": "成交额比",
+                  "value": "0.94x",
                   "tone": "neutral"
                 },
                 {
@@ -2786,66 +2854,32 @@
               ]
             },
             {
-              "sector": "工业",
-              "code": "000988",
-              "rank": 8,
-              "score": 36.4,
-              "direction": "weakening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "-2.55%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-11.54%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "0.74x",
-                  "tone": "neutral"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "0.93x",
-                  "tone": "neutral"
-                }
-              ],
-              "sourceIndexes": [
-                6,
-                7
-              ]
-            },
-            {
               "sector": "通信服务",
               "code": "000994",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "rank": 10,
+              "score": 18.2,
+              "direction": "lagging",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-5.73%",
+                  "value": "-8.19%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-14.96%",
+                  "value": "-18.76%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.98x",
+                  "value": "1.02x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "1.19x",
-                  "tone": "neutral"
+                  "value": "1.21x",
+                  "tone": "positive"
                 }
               ],
               "sourceIndexes": [
@@ -2854,55 +2888,21 @@
               ]
             },
             {
-              "sector": "原材料",
-              "code": "000987",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
-              "metrics": [
-                {
-                  "label": "5日涨跌",
-                  "value": "-4.30%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "20日涨跌",
-                  "value": "-12.62%",
-                  "tone": "negative"
-                },
-                {
-                  "label": "成交额比",
-                  "value": "0.65x",
-                  "tone": "neutral"
-                },
-                {
-                  "label": "成交量比",
-                  "value": "0.82x",
-                  "tone": "neutral"
-                }
-              ],
-              "sourceIndexes": [
-                4,
-                5
-              ]
-            },
-            {
               "sector": "军工",
               "code": "399967",
               "rank": 11,
               "score": 9.1,
               "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-6.09%",
+                  "value": "-5.40%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-13.09%",
+                  "value": "-14.50%",
                   "tone": "negative"
                 },
                 {
@@ -2927,26 +2927,26 @@
               "rank": 12,
               "score": 0.0,
               "direction": "lagging",
-              "signal": "截至2026-07-21的量价相对强弱观察；不包含未来方向判断。",
+              "signal": "截至2026-07-22的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
                 {
                   "label": "5日涨跌",
-                  "value": "-9.00%",
+                  "value": "-6.74%",
                   "tone": "negative"
                 },
                 {
                   "label": "20日涨跌",
-                  "value": "-9.52%",
+                  "value": "-14.48%",
                   "tone": "negative"
                 },
                 {
                   "label": "成交额比",
-                  "value": "0.83x",
+                  "value": "0.85x",
                   "tone": "neutral"
                 },
                 {
                   "label": "成交量比",
-                  "value": "0.82x",
+                  "value": "0.84x",
                   "tone": "neutral"
                 }
               ],
@@ -2978,13 +2978,13 @@
       "id": "hk",
       "label": "港股",
       "mode": "industry",
-      "asOf": "2026-07-21",
+      "asOf": "2026-07-22",
       "status": "ready",
       "taxonomy": {
         "owner": "恒生指数有限公司",
         "name": "恒生综合指数行业指数（一级行业）",
         "version": "HSICS current",
-        "effectiveDate": "2026-07-21"
+        "effectiveDate": "2026-07-22"
       },
       "note": "以12个恒生综合行业指数为固定当前层；不使用第三方板块冒充官方历史。",
       "reason": "官方实时行业快照可用；官方历史接口当前未稳定返回，因此一周/月预测保持insufficient。",
@@ -3008,7 +3008,7 @@
         "current": {
           "kind": "observed",
           "status": "ready",
-          "asOf": "2026-07-21",
+          "asOf": "2026-07-22",
           "note": "当前score按12个恒生综合行业指数当日涨跌做横截面排序，不预测未来。",
           "items": [
             {
@@ -3017,15 +3017,15 @@
               "rank": 1,
               "score": 100.0,
               "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,566.19"
+                  "value": "14,268.34"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+4.87%",
+                  "value": "+5.18%",
                   "tone": "positive"
                 }
               ],
@@ -3035,66 +3035,20 @@
               ]
             },
             {
-              "sector": "工业",
-              "code": "00011.03",
+              "sector": "能源",
+              "code": "00011.01",
               "rank": 2,
               "score": 90.9,
               "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,298.33"
+                  "value": "14,203.10"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+2.45%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "资讯科技业",
-              "code": "00011.10",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,479.81"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+1.06%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "综合企业",
-              "code": "00011.11",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,088.15"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+0.98%",
+                  "value": "+2.35%",
                   "tone": "positive"
                 }
               ],
@@ -3106,18 +3060,18 @@
             {
               "sector": "医疗保健业",
               "code": "00011.14",
-              "rank": 5,
-              "score": 63.6,
-              "direction": "strengthening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "rank": 3,
+              "score": 81.8,
+              "direction": "leading",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "11,325.04"
+                  "value": "11,400.07"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+0.22%",
+                  "value": "+0.66%",
                   "tone": "positive"
                 }
               ],
@@ -3127,20 +3081,89 @@
               ]
             },
             {
-              "sector": "地产建筑业",
-              "code": "00011.09",
-              "rank": 6,
-              "score": 54.5,
-              "direction": "neutral",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "sector": "公用事业",
+              "code": "00011.07",
+              "rank": 4,
+              "score": 72.7,
+              "direction": "strengthening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,670.63"
+                  "value": "5,637.06"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+0.04%",
+                  "value": "+0.63%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "金融业",
+              "code": "00011.08",
+              "rank": 5,
+              "score": 63.6,
+              "direction": "strengthening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "5,484.07"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.61%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "综合企业",
+              "code": "00011.11",
+              "rank": 6,
+              "score": 54.5,
+              "direction": "neutral",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "2,097.54"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.45%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "必需性消费",
+              "code": "00011.13",
+              "rank": 7,
+              "score": 45.5,
+              "direction": "neutral",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "13,903.63"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.41%",
                   "tone": "positive"
                 }
               ],
@@ -3152,18 +3175,18 @@
             {
               "sector": "电讯业",
               "code": "00011.06",
-              "rank": 7,
-              "score": 45.5,
-              "direction": "neutral",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "rank": 8,
+              "score": 36.4,
+              "direction": "weakening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,627.02"
+                  "value": "1,623.86"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.04%",
+                  "value": "-0.19%",
                   "tone": "negative"
                 }
               ],
@@ -3173,20 +3196,43 @@
               ]
             },
             {
-              "sector": "公用事业",
-              "code": "00011.07",
-              "rank": 8,
-              "score": 36.4,
+              "sector": "地产建筑业",
+              "code": "00011.09",
+              "rank": 9,
+              "score": 27.3,
               "direction": "weakening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "5,601.76"
+                  "value": "1,659.72"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.12%",
+                  "value": "-0.65%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "工业",
+              "code": "00011.03",
+              "rank": 10,
+              "score": 18.2,
+              "direction": "lagging",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "1,286.30"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-0.93%",
                   "tone": "negative"
                 }
               ],
@@ -3198,64 +3244,18 @@
             {
               "sector": "非必需性消费",
               "code": "00011.12",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,486.60"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.16%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "金融业",
-              "code": "00011.08",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,450.83"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.32%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "必需性消费",
-              "code": "00011.13",
               "rank": 11,
               "score": 9.1,
               "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,847.41"
+                  "value": "2,428.26"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.40%",
+                  "value": "-2.35%",
                   "tone": "negative"
                 }
               ],
@@ -3265,20 +3265,20 @@
               ]
             },
             {
-              "sector": "能源",
-              "code": "00011.01",
+              "sector": "资讯科技业",
+              "code": "00011.10",
               "rank": 12,
               "score": 0.0,
               "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,876.59"
+                  "value": "13,738.22"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-1.37%",
+                  "value": "-5.12%",
                   "tone": "negative"
                 }
               ],
@@ -3292,7 +3292,7 @@
         "tomorrow": {
           "kind": "forecast",
           "status": "abstained",
-          "asOf": "2026-07-21",
+          "asOf": "2026-07-22",
           "sessions": 1,
           "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
           "abstainReasons": [
@@ -3308,15 +3308,15 @@
               "rank": 1,
               "score": 100.0,
               "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,566.19"
+                  "value": "14,268.34"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+4.87%",
+                  "value": "+5.18%",
                   "tone": "positive"
                 }
               ],
@@ -3326,66 +3326,20 @@
               ]
             },
             {
-              "sector": "工业",
-              "code": "00011.03",
+              "sector": "能源",
+              "code": "00011.01",
               "rank": 2,
               "score": 90.9,
               "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,298.33"
+                  "value": "14,203.10"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+2.45%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "资讯科技业",
-              "code": "00011.10",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,479.81"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+1.06%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "综合企业",
-              "code": "00011.11",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,088.15"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+0.98%",
+                  "value": "+2.35%",
                   "tone": "positive"
                 }
               ],
@@ -3397,18 +3351,18 @@
             {
               "sector": "医疗保健业",
               "code": "00011.14",
-              "rank": 5,
-              "score": 63.6,
-              "direction": "strengthening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "rank": 3,
+              "score": 81.8,
+              "direction": "leading",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "11,325.04"
+                  "value": "11,400.07"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+0.22%",
+                  "value": "+0.66%",
                   "tone": "positive"
                 }
               ],
@@ -3418,20 +3372,89 @@
               ]
             },
             {
-              "sector": "地产建筑业",
-              "code": "00011.09",
-              "rank": 6,
-              "score": 54.5,
-              "direction": "neutral",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "sector": "公用事业",
+              "code": "00011.07",
+              "rank": 4,
+              "score": 72.7,
+              "direction": "strengthening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,670.63"
+                  "value": "5,637.06"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+0.04%",
+                  "value": "+0.63%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "金融业",
+              "code": "00011.08",
+              "rank": 5,
+              "score": 63.6,
+              "direction": "strengthening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "5,484.07"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.61%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "综合企业",
+              "code": "00011.11",
+              "rank": 6,
+              "score": 54.5,
+              "direction": "neutral",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "2,097.54"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.45%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "必需性消费",
+              "code": "00011.13",
+              "rank": 7,
+              "score": 45.5,
+              "direction": "neutral",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "13,903.63"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.41%",
                   "tone": "positive"
                 }
               ],
@@ -3443,18 +3466,18 @@
             {
               "sector": "电讯业",
               "code": "00011.06",
-              "rank": 7,
-              "score": 45.5,
-              "direction": "neutral",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "rank": 8,
+              "score": 36.4,
+              "direction": "weakening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,627.02"
+                  "value": "1,623.86"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.04%",
+                  "value": "-0.19%",
                   "tone": "negative"
                 }
               ],
@@ -3464,20 +3487,43 @@
               ]
             },
             {
-              "sector": "公用事业",
-              "code": "00011.07",
-              "rank": 8,
-              "score": 36.4,
+              "sector": "地产建筑业",
+              "code": "00011.09",
+              "rank": 9,
+              "score": 27.3,
               "direction": "weakening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "5,601.76"
+                  "value": "1,659.72"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.12%",
+                  "value": "-0.65%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "工业",
+              "code": "00011.03",
+              "rank": 10,
+              "score": 18.2,
+              "direction": "lagging",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "1,286.30"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-0.93%",
                   "tone": "negative"
                 }
               ],
@@ -3489,64 +3535,18 @@
             {
               "sector": "非必需性消费",
               "code": "00011.12",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,486.60"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.16%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "金融业",
-              "code": "00011.08",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,450.83"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.32%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "必需性消费",
-              "code": "00011.13",
               "rank": 11,
               "score": 9.1,
               "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,847.41"
+                  "value": "2,428.26"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.40%",
+                  "value": "-2.35%",
                   "tone": "negative"
                 }
               ],
@@ -3556,20 +3556,20 @@
               ]
             },
             {
-              "sector": "能源",
-              "code": "00011.01",
+              "sector": "资讯科技业",
+              "code": "00011.10",
               "rank": 12,
               "score": 0.0,
               "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,876.59"
+                  "value": "13,738.22"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-1.37%",
+                  "value": "-5.12%",
                   "tone": "negative"
                 }
               ],
@@ -3598,7 +3598,7 @@
         "oneWeek": {
           "kind": "forecast",
           "status": "abstained",
-          "asOf": "2026-07-21",
+          "asOf": "2026-07-22",
           "sessions": 5,
           "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
           "abstainReasons": [
@@ -3614,15 +3614,15 @@
               "rank": 1,
               "score": 100.0,
               "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,566.19"
+                  "value": "14,268.34"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+4.87%",
+                  "value": "+5.18%",
                   "tone": "positive"
                 }
               ],
@@ -3632,66 +3632,20 @@
               ]
             },
             {
-              "sector": "工业",
-              "code": "00011.03",
+              "sector": "能源",
+              "code": "00011.01",
               "rank": 2,
               "score": 90.9,
               "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,298.33"
+                  "value": "14,203.10"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+2.45%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "资讯科技业",
-              "code": "00011.10",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,479.81"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+1.06%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "综合企业",
-              "code": "00011.11",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,088.15"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+0.98%",
+                  "value": "+2.35%",
                   "tone": "positive"
                 }
               ],
@@ -3703,18 +3657,18 @@
             {
               "sector": "医疗保健业",
               "code": "00011.14",
-              "rank": 5,
-              "score": 63.6,
-              "direction": "strengthening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "rank": 3,
+              "score": 81.8,
+              "direction": "leading",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "11,325.04"
+                  "value": "11,400.07"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+0.22%",
+                  "value": "+0.66%",
                   "tone": "positive"
                 }
               ],
@@ -3724,20 +3678,89 @@
               ]
             },
             {
-              "sector": "地产建筑业",
-              "code": "00011.09",
-              "rank": 6,
-              "score": 54.5,
-              "direction": "neutral",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "sector": "公用事业",
+              "code": "00011.07",
+              "rank": 4,
+              "score": 72.7,
+              "direction": "strengthening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,670.63"
+                  "value": "5,637.06"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+0.04%",
+                  "value": "+0.63%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "金融业",
+              "code": "00011.08",
+              "rank": 5,
+              "score": 63.6,
+              "direction": "strengthening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "5,484.07"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.61%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "综合企业",
+              "code": "00011.11",
+              "rank": 6,
+              "score": 54.5,
+              "direction": "neutral",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "2,097.54"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.45%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "必需性消费",
+              "code": "00011.13",
+              "rank": 7,
+              "score": 45.5,
+              "direction": "neutral",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "13,903.63"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.41%",
                   "tone": "positive"
                 }
               ],
@@ -3749,18 +3772,18 @@
             {
               "sector": "电讯业",
               "code": "00011.06",
-              "rank": 7,
-              "score": 45.5,
-              "direction": "neutral",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "rank": 8,
+              "score": 36.4,
+              "direction": "weakening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,627.02"
+                  "value": "1,623.86"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.04%",
+                  "value": "-0.19%",
                   "tone": "negative"
                 }
               ],
@@ -3770,20 +3793,43 @@
               ]
             },
             {
-              "sector": "公用事业",
-              "code": "00011.07",
-              "rank": 8,
-              "score": 36.4,
+              "sector": "地产建筑业",
+              "code": "00011.09",
+              "rank": 9,
+              "score": 27.3,
               "direction": "weakening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "5,601.76"
+                  "value": "1,659.72"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.12%",
+                  "value": "-0.65%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "工业",
+              "code": "00011.03",
+              "rank": 10,
+              "score": 18.2,
+              "direction": "lagging",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "1,286.30"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-0.93%",
                   "tone": "negative"
                 }
               ],
@@ -3795,64 +3841,18 @@
             {
               "sector": "非必需性消费",
               "code": "00011.12",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,486.60"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.16%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "金融业",
-              "code": "00011.08",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,450.83"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.32%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "必需性消费",
-              "code": "00011.13",
               "rank": 11,
               "score": 9.1,
               "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,847.41"
+                  "value": "2,428.26"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.40%",
+                  "value": "-2.35%",
                   "tone": "negative"
                 }
               ],
@@ -3862,20 +3862,20 @@
               ]
             },
             {
-              "sector": "能源",
-              "code": "00011.01",
+              "sector": "资讯科技业",
+              "code": "00011.10",
               "rank": 12,
               "score": 0.0,
               "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,876.59"
+                  "value": "13,738.22"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-1.37%",
+                  "value": "-5.12%",
                   "tone": "negative"
                 }
               ],
@@ -3904,7 +3904,7 @@
         "oneMonth": {
           "kind": "forecast",
           "status": "abstained",
-          "asOf": "2026-07-21",
+          "asOf": "2026-07-22",
           "sessions": 20,
           "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
           "abstainReasons": [
@@ -3920,15 +3920,15 @@
               "rank": 1,
               "score": 100.0,
               "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,566.19"
+                  "value": "14,268.34"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+4.87%",
+                  "value": "+5.18%",
                   "tone": "positive"
                 }
               ],
@@ -3938,66 +3938,20 @@
               ]
             },
             {
-              "sector": "工业",
-              "code": "00011.03",
+              "sector": "能源",
+              "code": "00011.01",
               "rank": 2,
               "score": 90.9,
               "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,298.33"
+                  "value": "14,203.10"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+2.45%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "资讯科技业",
-              "code": "00011.10",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,479.81"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+1.06%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "综合企业",
-              "code": "00011.11",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,088.15"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+0.98%",
+                  "value": "+2.35%",
                   "tone": "positive"
                 }
               ],
@@ -4009,18 +3963,18 @@
             {
               "sector": "医疗保健业",
               "code": "00011.14",
-              "rank": 5,
-              "score": 63.6,
-              "direction": "strengthening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "rank": 3,
+              "score": 81.8,
+              "direction": "leading",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "11,325.04"
+                  "value": "11,400.07"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+0.22%",
+                  "value": "+0.66%",
                   "tone": "positive"
                 }
               ],
@@ -4030,20 +3984,89 @@
               ]
             },
             {
-              "sector": "地产建筑业",
-              "code": "00011.09",
-              "rank": 6,
-              "score": 54.5,
-              "direction": "neutral",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "sector": "公用事业",
+              "code": "00011.07",
+              "rank": 4,
+              "score": 72.7,
+              "direction": "strengthening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,670.63"
+                  "value": "5,637.06"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+0.04%",
+                  "value": "+0.63%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "金融业",
+              "code": "00011.08",
+              "rank": 5,
+              "score": 63.6,
+              "direction": "strengthening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "5,484.07"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.61%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "综合企业",
+              "code": "00011.11",
+              "rank": 6,
+              "score": 54.5,
+              "direction": "neutral",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "2,097.54"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.45%",
+                  "tone": "positive"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "必需性消费",
+              "code": "00011.13",
+              "rank": 7,
+              "score": 45.5,
+              "direction": "neutral",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "13,903.63"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "+0.41%",
                   "tone": "positive"
                 }
               ],
@@ -4055,18 +4078,18 @@
             {
               "sector": "电讯业",
               "code": "00011.06",
-              "rank": 7,
-              "score": 45.5,
-              "direction": "neutral",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "rank": 8,
+              "score": 36.4,
+              "direction": "weakening",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "1,627.02"
+                  "value": "1,623.86"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.04%",
+                  "value": "-0.19%",
                   "tone": "negative"
                 }
               ],
@@ -4076,20 +4099,43 @@
               ]
             },
             {
-              "sector": "公用事业",
-              "code": "00011.07",
-              "rank": 8,
-              "score": 36.4,
+              "sector": "地产建筑业",
+              "code": "00011.09",
+              "rank": 9,
+              "score": 27.3,
               "direction": "weakening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "5,601.76"
+                  "value": "1,659.72"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.12%",
+                  "value": "-0.65%",
+                  "tone": "negative"
+                }
+              ],
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "sector": "工业",
+              "code": "00011.03",
+              "rank": 10,
+              "score": 18.2,
+              "direction": "lagging",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
+              "metrics": [
+                {
+                  "label": "指数点位",
+                  "value": "1,286.30"
+                },
+                {
+                  "label": "当日涨跌",
+                  "value": "-0.93%",
                   "tone": "negative"
                 }
               ],
@@ -4101,64 +4147,18 @@
             {
               "sector": "非必需性消费",
               "code": "00011.12",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,486.60"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.16%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "金融业",
-              "code": "00011.08",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,450.83"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.32%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "必需性消费",
-              "code": "00011.13",
               "rank": 11,
               "score": 9.1,
               "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,847.41"
+                  "value": "2,428.26"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.40%",
+                  "value": "-2.35%",
                   "tone": "negative"
                 }
               ],
@@ -4168,20 +4168,20 @@
               ]
             },
             {
-              "sector": "能源",
-              "code": "00011.01",
+              "sector": "资讯科技业",
+              "code": "00011.10",
               "rank": 12,
               "score": 0.0,
               "direction": "lagging",
-              "signal": "2026-07-21恒生综合行业指数单日相对表现，仅为当前观察。",
+              "signal": "2026-07-22恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
                 {
                   "label": "指数点位",
-                  "value": "13,876.59"
+                  "value": "13,738.22"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-1.37%",
+                  "value": "-5.12%",
                   "tone": "negative"
                 }
               ],

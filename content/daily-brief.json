@@ -1,22 +1,22 @@
 {
   "meta": {
     "editionDate": "2026-07-22",
-    "generatedAt": "2026-07-22T08:15:02+08:00",
-    "dataThrough": "2026-07-21",
+    "generatedAt": "2026-07-22T20:42:00+08:00",
+    "dataThrough": "2026-07-22",
     "title": "每日早报",
-    "subtitle": "早报更新｜美联储政策与三地市场重点",
-    "status": "早报更新；A/H/美股均为7月21日最新完整交易日",
-    "curationNote": "AI 仅做检索、去重和摘要；政策结论优先引用官方原文，市场数据采用各地最新完整交易日；板块轮动前瞻只按可观察证据给出条件情景。"
+    "subtitle": "收盘更新｜A/H收盘与全球风险线索",
+    "status": "收盘更新；A/H为7月22日，美股为7月21日",
+    "curationNote": "A/H采用最新完整收盘，美股采用最新完整交易日；固定12项观察池只影响采集深度。1/5/20日模型独立校验未过时明确弃权，不把null填成0或50%。"
   },
   "pulse": {
-    "score": 68,
-    "label": "三地成长修复、广度待验",
-    "explanation": "规则分数：综合美联储政策取向、三地主指数方向与本期风险事件，仅用于排列阅读优先级，不构成投资信号。",
+    "score": 43,
+    "label": "港股承压、A股分化",
+    "explanation": "规则分数只用于安排阅读顺序：A股指数分化、港股科技领跌，油价与7月FOMC窗口提高波动约束，不构成投资信号。",
     "signals": [
       { "label": "美联储", "value": "7月28–29日会议前6天", "tone": "warning" },
-      { "label": "A 股", "value": "成长普涨、医药广度偏低", "tone": "warning" },
-      { "label": "港股", "value": "恒科涨 1.32%、恒指微跌", "tone": "warning" },
-      { "label": "美股", "value": "芯片带动三大指数上涨", "tone": "positive" }
+      { "label": "A股", "value": "沪指微涨、创业板跌3.23%", "tone": "warning" },
+      { "label": "港股", "value": "恒科跌3.04%，科技领跌", "tone": "negative" },
+      { "label": "美股", "value": "7月21日芯片带动三大指数上涨", "tone": "positive" }
     ]
   },
   "federalReserve": {
@@ -27,188 +27,33 @@
     "lastDecisionDate": "2026-06-17",
     "nextMeeting": "2026-07-28 / 29",
     "countdownDays": 6,
-    "takeaway": "利率维持不变，但 6 月纪要显示年内路径分歧明显：部分官员仍看到加息理由。7 月会议前，应同时观察通胀、就业、能源价格和收益率。",
+    "takeaway": "6月会议维持利率不变，通胀仍高于2%目标；7月会议前能源价格、就业和收益率是主要验证变量。",
     "path": [
       { "label": "24.09", "lower": 4.75, "upper": 5.00 },
-      { "label": "24.11", "lower": 4.50, "upper": 4.75 },
       { "label": "24.12", "lower": 4.25, "upper": 4.50 },
-      { "label": "25.09", "lower": 4.00, "upper": 4.25 },
-      { "label": "25.10", "lower": 3.75, "upper": 4.00 },
       { "label": "25.12", "lower": 3.50, "upper": 3.75 },
       { "label": "26.06", "lower": 3.50, "upper": 3.75 }
     ],
     "articles": [
       {
-        "id": "fed-june-decision",
-        "title": "6 月会议维持 3.50%–3.75%，通胀仍是首要约束",
-        "summary": "FOMC 在 6 月 17 日一致决定维持联邦基金利率目标区间，声明认为经济活动保持稳健，但通胀仍高于 2% 目标。",
-        "impact": "短期政策更依赖数据，7 月会议前的通胀、就业和能源价格将决定风险定价。",
+        "id": "fed-june-decision-2026",
+        "title": "6月会议维持利率，7月仍看数据验证",
+        "summary": "美联储6月17日维持3.50%–3.75%目标区间，声明称经济活动稳健、通胀仍高于2%目标。",
+        "impact": "政策方向没有新增确定性，能源价格和通胀预期会影响7月会议前的折现率。",
         "publishedAt": "2026-06-17",
         "tags": ["FOMC", "利率", "通胀"],
         "sources": [
-          {
-            "name": "FOMC 声明",
-            "publisher": "Federal Reserve",
-            "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
-            "tier": "official"
-          },
-          {
-            "name": "6 月会议纪要",
-            "publisher": "Federal Reserve",
-            "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm",
-            "tier": "official"
-          }
+          { "name": "FOMC 6月声明", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm", "tier": "official", "evidenceClass": "official-primary" },
+          { "name": "FOMC 6月会议纪要", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm", "tier": "official", "evidenceClass": "official-primary" }
         ],
         "detail": {
-          "lead": "美联储6月会议以12票赞成、0票反对维持联邦基金利率目标区间在3.50%至3.75%。声明没有释放明确的下一步方向，而是把重心放在仍高于2%目标的通胀、稳定的就业和持续扩张的经济活动上，政策进入更严格的数据验证阶段。",
-          "keyPoints": [
-            "12名委员一致支持维持3.50%至3.75%",
-            "经济活动稳健，就业增长与劳动力供给同步",
-            "通胀仍高于2%目标，能源供给冲击是约束"
-          ],
+          "lead": "美联储6月17日一致决定维持联邦基金利率目标区间在3.50%至3.75%。声明保留了对经济活动稳健、就业大致平衡和通胀仍偏高的判断，因此7月会议前仍是数据依赖，而不是预先承诺某一方向。",
+          "keyPoints": ["目标区间维持3.50%至3.75%", "经济活动保持稳健，就业变化不大", "通胀仍高于2%目标，能源是上行风险"],
           "sections": [
-            {
-              "heading": "利率为何不动",
-              "body": "委员会在支持充分就业与稳定物价的双重使命下，维持3.50%至3.75%的目标区间，并重申保持银行体系准备金充裕。声明显示，经济活动仍以稳健速度扩张，生产率增长和资本投资较强，就业增长大致跟上劳动力供给，失业率变化不大。面对这样的增长与就业组合，立即调整利率的必要性并不充分。委员会同时把准备金利率维持在3.65%，一级信贷利率维持在3.75%。",
-              "sourceIndexes": [0, 1]
-            },
-            {
-              "heading": "通胀仍居首位",
-              "body": "声明明确指出，通胀相对2%目标仍然偏高，部分原因是能源等领域的供给冲击推升价格。纪要进一步显示，与会者普遍认为价格稳定面临的上行风险仍高，而最大就业目标的下行风险略有缓和。多数中长期通胀预期仍与2%目标大致一致，但委员会强调必须防止持续偏高的通胀影响预期和定价行为。多数人认为商品价格和供给扰动可能持续更久。",
-              "sourceIndexes": [0, 1]
-            },
-            {
-              "heading": "下一步看什么",
-              "body": "纪要披露，少数与会者认为当时已有加息理由，但仍支持本次按兵不动；多数人讨论了通胀回落后维持或最终降息的情景，也讨论了通胀持续时进一步收紧的情景。因此，这次决定更像是保留全部选项，而非确认转向。后续判断应继续围绕通胀、劳动市场和供给冲击是否按委员会预期缓和。委员会同时取消此前带有宽松倾向的声明措辞，进一步强化双向选择空间。",
-              "sourceIndexes": [1]
-            }
-          ],
-          "chart": {
-            "title": "6月政策利率走廊",
-            "unit": "%",
-            "items": [
-              { "label": "目标区间下限", "value": 3.5, "display": "3.50%", "tone": "neutral" },
-              { "label": "准备金利率", "value": 3.65, "display": "3.65%", "tone": "neutral" },
-              { "label": "目标区间上限", "value": 3.75, "display": "3.75%", "tone": "warning" }
-            ],
-            "sourceIndexes": [0, 1]
-          }
-        }
-      },
-      {
-        "id": "fed-july-report",
-        "title": "7 月政策报告称信贷总体可得，但小企业与住户仍偏紧",
-        "summary": "美联储 7 月货币政策报告称，上半年银行贷款增长可能反映更宽松的放贷标准和更强需求；多数非金融企业、住户和市政主体融资总体可得，但小企业和部分住户信贷条件仍偏紧。",
-        "impact": "经济和融资环境仍有韧性，高利率尚未全面压制需求；若就业与通胀继续偏稳，7 月会议更可能维持谨慎表态。",
-        "publishedAt": "2026-07-10",
-        "tags": ["政策报告", "信贷", "金融条件"],
-        "sources": [
-          {
-            "name": "Monetary Policy Report",
-            "publisher": "Federal Reserve",
-            "url": "https://www.federalreserve.gov/monetarypolicy/files/20260710_mprfullreport.pdf",
-            "tier": "official"
-          },
-          {
-            "name": "Monetary Policy Report 页面",
-            "publisher": "Federal Reserve",
-            "url": "https://www.federalreserve.gov/monetarypolicy/2026-07-mpr-statement.htm",
-            "tier": "official"
-          }
-        ],
-        "detail": {
-          "lead": "美联储7月提交国会的货币政策报告描绘出一幅并不均衡的融资图景：多数非金融企业、住户和市政主体仍能获得信贷，银行贷款上半年继续增长；但小企业和部分住户面对的条件仍然偏紧。韧性与分化并存，是理解金融条件的关键。",
-          "keyPoints": [
-            "多数企业、住户和市政主体仍可获得信贷",
-            "小企业和部分住户的融资条件继续偏紧",
-            "上半年银行贷款增长，或与标准放松和需求增强有关"
-          ],
-          "sections": [
-            {
-              "heading": "报告说了什么",
-              "body": "这份报告于7月10日依据《联邦储备法》提交国会，系统总结近期经济、金融条件与货币政策。它并未把“信贷可得”理解为所有借款人处境相同：总体层面，多数非金融企业、住户和市政主体仍能获得融资；分项层面，小企业和住户继续面对相对紧张的信贷条件，融资门槛与成本压力仍有差异。报告认为，总体金融体系保持稳健且有韧性，脆弱性净变化不大。",
-              "sourceIndexes": [0, 1]
-            },
-            {
-              "heading": "贷款为何增长",
-              "body": "报告称，2026年上半年银行贷款增长，可能反映放贷标准更宽松、借款需求更强。与此同时，年初以来美国国债收益率上升，企业债收益率温和走高，市场隐含的联邦基金利率路径也上移。也就是说，信贷数量有所扩张，不代表资金价格全面下降；可得性改善与借款成本仍高可以同时存在。较短期限国债收益率升幅最大，反映市场对更高政策利率路径的重新评估。",
-              "sourceIndexes": [0]
-            },
-            {
-              "heading": "经济底色仍有韧性",
-              "body": "报告显示，一季度实际GDP按年率增长2.1%，前五个月家庭消费按年率平均增长1.3%；6月失业率为4.2%，劳动力供需大致平衡。金融体系总体保持稳健，但股票、公司债和住宅房地产估值仍高于历史常态。对政策判断而言，这种组合说明需求并未被高利率全面压制，同时也要求关注小企业和弱资质住户的局部压力。劳动生产率增长较强，在劳动力增长放缓背景下支撑经济产能。",
-              "sourceIndexes": [0]
-            }
-          ],
-          "chart": {
-            "title": "报告中的经济与通胀读数",
-            "unit": "%",
-            "items": [
-              { "label": "5月总体PCE同比", "value": 4.1, "display": "4.1%", "tone": "warning" },
-              { "label": "5月核心PCE同比", "value": 3.4, "display": "3.4%", "tone": "warning" },
-              { "label": "6月失业率", "value": 4.2, "display": "4.2%", "tone": "neutral" },
-              { "label": "一季度GDP年率", "value": 2.1, "display": "2.1%", "tone": "positive" },
-              { "label": "前5月消费平均年率", "value": 1.3, "display": "1.3%", "tone": "neutral" }
-            ],
-            "sourceIndexes": [0]
-          }
-        }
-      },
-      {
-        "id": "fed-june-minutes-split",
-        "title": "6 月纪要显示年内利率路径分歧显著",
-        "summary": "纪要显示，几乎所有与会者都认为若通胀更顽固，进一步收紧仍可能需要；许多人认为年末利率应在当前区间内或略低，另有许多人认为应高于当前区间。",
-        "impact": "7 月会议前仍需重点看通胀、就业和能源价格，单次温和数据不足以消除市场对更久高利率的担忧。",
-        "publishedAt": "2026-07-08",
-        "tags": ["会议纪要", "利率分歧", "7月会议"],
-        "sources": [
-          {
-            "name": "6 月 FOMC 会议纪要",
-            "publisher": "Federal Reserve",
-            "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm",
-            "tier": "official"
-          },
-          {
-            "name": "2026 FOMC 会议日历",
-            "publisher": "Federal Reserve",
-            "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
-            "tier": "official"
-          }
-        ],
-        "detail": {
-          "lead": "6月会议纪要揭示的重点，不只是全体与会者支持当次维持利率，而是对年末适当利率位置存在显著分歧。许多人认为利率应处于当前区间内或略低，另有许多人认为应高于当前区间；同一份纪要因此同时保留了降息、维持和再收紧的条件。",
-          "keyPoints": [
-            "全体与会者支持6月会议维持利率不变",
-            "许多人倾向年末处于当前区间内或略低",
-            "另有许多人认为年末利率应高于当前区间"
-          ],
-          "sections": [
-            {
-              "heading": "分歧从何而来",
-              "body": "与会者普遍承认，经济活动以稳健速度扩张，劳动市场看起来稳定，但通胀仍高于2%长期目标。少数人认为当时已经存在上调目标区间的理由，却仍支持本次维持。对当前政策限制性的判断也不一致：一些人认为政策并不具有限制性，另一些人则认为仅略有限制性，这直接影响对下一步所需利率水平的判断。委员们一致判断价格稳定的上行风险仍然偏高。",
-              "sourceIndexes": [0]
-            },
-            {
-              "heading": "两套政策情景",
-              "body": "多数与会者讨论了通胀压力消退并开始回到2%的情景，在这种情况下，几乎所有相关与会者认为维持或最终降低利率可能合适。与此同时，多数人也提出另一种情景：若劳动力市场稳定，而强劲的人工智能相关需求、中东冲突或关税使通胀持续偏高，几乎所有相关与会者认为进一步收紧政策可能有必要。纪要强调，上述判断都是在高度不确定条件下讨论的，而非无条件路线。",
-              "sourceIndexes": [0]
-            },
-            {
-              "heading": "年末路径并未收敛",
-              "body": "在各自认为最可能出现的经济情景下，许多与会者判断年末适当的联邦基金利率应位于当前区间内或略低；另有许多人判断应高于当前区间。纪要没有给出两组人的精确人数，也不能把其中任一情景视为委员会承诺。它传递的是条件式反应函数：未来行动取决于新数据如何改变通胀、就业和增长风险的平衡。这也是会议后市场容易反复调整利率预期的根本原因。",
-              "sourceIndexes": [0]
-            }
-          ],
-          "chart": {
-            "title": "6月政策利率走廊",
-            "unit": "%",
-            "items": [
-              { "label": "目标区间下限", "value": 3.5, "display": "3.50%", "tone": "neutral" },
-              { "label": "准备金利率", "value": 3.65, "display": "3.65%", "tone": "neutral" },
-              { "label": "目标区间上限", "value": 3.75, "display": "3.75%", "tone": "warning" }
-            ],
-            "sourceIndexes": [0]
-          }
+            { "heading": "政策原点", "body": "声明确认委员会继续把充分就业与稳定物价作为双重目标，当前经济活动以稳健速度扩张，就业增长大致跟上劳动力供给。这样的组合降低了立即调整利率的必要性，但并没有排除未来根据数据重新评估。", "sourceIndexes": [0] },
+            { "heading": "通胀约束", "body": "官方声明仍把通胀相对2%目标偏高列为核心问题，并指出供给冲击可能使价格压力延续。会议纪要所体现的分歧意味着，市场不能只按单一降息路径定价，能源价格、工资和通胀预期仍需要同步观察。", "sourceIndexes": [0, 1] },
+            { "heading": "本周观察", "body": "7月28至29日会议前，油价快速上行会同时影响通胀预期与实际收入，收益率若继续走高则会压缩成长资产估值空间。晚报只保留条件式风险路径：看数据改善是否足以抵消能源冲击，而不把会议结果提前写成确定结论。还需留意声明是否重新强调通胀上行风险，以及就业数据是否改变政策平衡。", "sourceIndexes": [0, 1] }
+          ]
         }
       }
     ]
@@ -216,180 +61,65 @@
   "markets": [
     {
       "id": "a-share",
-      "name": "A 股市场",
+      "name": "中国A股",
       "shortName": "A股",
-      "sessionDate": "2026-07-21",
+      "sessionDate": "2026-07-22",
       "status": "最新完整交易日",
-      "summary": "上证指数涨 1.79% 报 3864.37 点，深证成指涨 4.81%，创业板指涨 7.05%；沪深两市成交约 2.96 万亿元，AI与芯片方向修复但行业分化仍在。",
+      "summary": "上证指数涨0.07%报3867.03点，深证成指跌1.42%，创业板指跌3.23%；两市成交约2.66万亿元，指数与行业表现明显分化。",
       "leadIndex": "上证指数",
       "indices": [
-        { "name": "上证指数", "value": "3,864.37", "change": 1.79, "date": "2026-07-21" },
-        { "name": "深证成指", "value": "14,264.29", "change": 4.81, "date": "2026-07-21" },
-        { "name": "创业板指", "value": "3,685.97", "change": 7.05, "date": "2026-07-21" }
+        { "name": "上证指数", "value": "3,867.03", "change": 0.07, "date": "2026-07-22" },
+        { "name": "深证成指", "value": "14,061.44", "change": -1.42, "date": "2026-07-22" },
+        { "name": "创业板指", "value": "3,566.73", "change": -3.23, "date": "2026-07-22" }
       ],
-      "sparkline": [4031.34, 4041.24, 3990.24, 3970.88, 4036.59, 3996.16, 3913.79, 3967.13, 3882.41, 3796.28],
-      "tone": "positive",
+      "sparkline": [3864.37, 3890.22, 3879.31, 3888.02, 3871.12, 3867.03],
+      "tone": "warning",
       "sources": [
-        {
-          "name": "7 月 21 日亚洲与中国市场收盘",
-          "publisher": "Associated Press",
-          "url": "https://apnews.com/article/30c42bb51683c4b43c9f64dfeff7a3ea",
-          "tier": "major-media",
-          "evidenceClass": "major-media"
-        },
-        {
-          "name": "腾讯指数收盘行情",
-          "publisher": "腾讯证券",
-          "url": "https://qt.gtimg.cn/q=sh000001,sz399001,sz399006,sh000300,sh000905,sh000852",
-          "tier": "authoritative",
-          "evidenceClass": "vendor-market-data"
-        },
-        {
-          "name": "上交所市场数据入口",
-          "publisher": "上海证券交易所",
-          "url": "https://www.sse.com.cn/market/stockdata/overview/",
-          "tier": "official"
-        }
+        { "name": "上海指数收盘报道", "publisher": "中国网转引新华社", "url": "https://www.china.org.cn/china/Off_the_Wire/2026-07/22/content_118612308.shtml", "tier": "major-media", "evidenceClass": "major-media" },
+        { "name": "A股三大指数与成交额", "publisher": "新浪财经", "url": "https://finance.sina.com.cn/jjxw/2026-07-22/doc-iniispna7957692.shtml", "tier": "major-media", "evidenceClass": "major-media" },
+        { "name": "中证医药医疗指数详情", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991", "tier": "official", "evidenceClass": "official-primary" },
+        { "name": "中证核心12项量价数据", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260616&endDate=20260722", "tier": "official", "evidenceClass": "official-primary" }
       ],
       "articles": [
         {
-          "id": "a-share-close-0721",
-          "title": "A股普涨修复，芯片与成长弹性更强",
-          "summary": "上证指数涨 1.79% 报 3864.37 点，深证成指涨 4.81%，创业板指涨 7.05%；沪深两市成交约 2.96 万亿元。",
-          "impact": "AI与芯片相关权重带动成长指数反弹，但医药医疗虽满足严格放量门槛、收盘上涨成分仅约37%，更接近集中交易而非行业全面启动。",
-          "publishedAt": "2026-07-21",
-          "tags": ["收盘", "AI芯片", "成交放量"],
+          "id": "a-share-close-0722",
+          "title": "A股指数分化，量能集中在消费与医药",
+          "summary": "上证指数微涨，深成指和创业板下跌；两市成交约2.66万亿元，固定12项观察池中主要消费与医药医疗通过量能门槛。",
+          "impact": "量能达标不等于概率信号；医药上涨广度49.15%低于50%分界，当前更适合写集中交易和条件观察。",
+          "publishedAt": "2026-07-22",
+          "tags": ["收盘", "A股", "量价", "弃权"],
           "sources": [
-            {
-              "name": "7 月 21 日亚洲与中国市场收盘",
-              "publisher": "Associated Press",
-              "url": "https://apnews.com/article/30c42bb51683c4b43c9f64dfeff7a3ea",
-              "tier": "major-media",
-              "evidenceClass": "major-media"
-            },
-            {
-              "name": "腾讯指数收盘行情",
-              "publisher": "腾讯证券",
-              "url": "https://qt.gtimg.cn/q=sh000001,sz399001,sz399006,sh000300,sh000905,sh000852",
-              "tier": "authoritative",
-              "evidenceClass": "vendor-market-data"
-            },
-            {
-              "name": "中证指数医药医疗官方详情",
-              "publisher": "中证指数有限公司",
-              "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991",
-              "tier": "official",
-              "evidenceClass": "official-primary"
-            },
-            {
-              "name": "中证全指日频量价与成交口径",
-              "publisher": "中证指数有限公司",
-              "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260615&endDate=20260721",
-              "tier": "official",
-              "evidenceClass": "official-primary"
-            },
-            {
-              "name": "A股市场数据入口",
-              "publisher": "上海证券交易所",
-              "url": "https://www.sse.com.cn/market/stockdata/overview/",
-              "tier": "official",
-              "evidenceClass": "official-primary"
-            }
+            { "name": "上海指数收盘报道", "publisher": "中国网转引新华社", "url": "https://www.china.org.cn/china/Off_the_Wire/2026-07/22/content_118612308.shtml", "tier": "major-media", "evidenceClass": "major-media" },
+            { "name": "A股三大指数与成交额", "publisher": "新浪财经", "url": "https://finance.sina.com.cn/jjxw/2026-07-22/doc-iniispna7957692.shtml", "tier": "major-media", "evidenceClass": "major-media" },
+            { "name": "中证医药医疗指数详情", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991", "tier": "official", "evidenceClass": "official-primary" },
+            { "name": "中证医药医疗量价区间", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260616&endDate=20260722", "tier": "official", "evidenceClass": "official-primary" }
           ],
           "detail": {
-            "lead": "7月21日，A股三大指数普涨：上证指数报3864.37点涨1.79%，深证成指报14264.29点涨4.81%，创业板指报3685.97点涨7.05%；沪深两市成交约2.96万亿元。",
-            "keyPoints": [
-              "上证涨1.79%，深成指涨4.81%，创业板涨7.05%",
-              "沪深两市成交约2.96万亿元，成长指数弹性更强",
-              "中证核心12项中医药医疗唯一满足严格明显放量三门槛"
-            ],
+            "lead": "7月22日A股收盘，上证指数报3867.03点涨0.07%，深证成指跌1.42%，创业板指跌3.23%；两市成交约2.66万亿元。指数并未同步，强势证据集中于少数行业，不能把总成交额直接解释成全面风险偏好回升。",
+            "keyPoints": ["上证微涨，深成指与创业板分别跌1.42%和3.23%", "两市成交约2.66万亿元，指数分化扩大", "主要消费与医药医疗量能达标，但医药广度49.15%"],
             "sections": [
-              {
-                "heading": "收盘表现",
-                "body": "7月21日上证指数收报3864.37点，涨1.79%；深证成指收报14264.29点，涨4.81%；创业板指收报3685.97点，涨7.05%。三大指数同步上行，AP也记录上海综合指数上涨1.8%，但这只说明收盘修复，不等于所有行业趋势反转。",
-                "sourceIndexes": [0]
-              },
-              {
-                "heading": "成交与结构",
-                "body": "腾讯收盘行情显示上海、深圳两市成交额约1.3965万亿元和1.5606万亿元，合计约2.9571万亿元。放量与指数修复是市场事实，但不能单独证明行业资金持续流入；仍要看上涨广度与集中度。",
-                "sourceIndexes": [0, 1]
-              },
-              {
-                "heading": "后续观察",
-                "body": "中证12项固定观察池当前排名前列为主要消费、医药医疗和公用事业；医药医疗5日相对收益+6.30个百分点，成交额比1.53倍、真实成交量比1.48倍、成交份额比1.84倍，但上涨广度仅37.29%。若广度回到50%以上且量能延续，修复可能扩散；若广度继续偏低，仍应视为集中交易。",
-                "sourceIndexes": [2, 3]
-              }
+              { "heading": "收盘与成交", "body": "收盘数据确认上证指数小幅收涨；新浪财经同时给出深成指和创业板的回落以及约2.66万亿元成交额。量能仍处高位，但大盘、成长指数方向相反，说明交易更可能集中在结构性强势板块。", "sourceIndexes": [0, 1] },
+              { "heading": "固定池观察", "body": "新管道覆盖中证核心12项，观察分前列为公用事业、能源、主要消费和医药医疗。主要消费额比1.5064、真实量比1.2411、份额比1.8209；医药医疗额比1.5291、真实量比1.4764、份额比1.8441，但广度49.1525%，应描述为集中交易、高位分歧。", "sourceIndexes": [2, 3] },
+              { "heading": "模型门禁", "body": "1日、5日、20日冻结模型分别运行，但生产特征完整度仅50%，低于80%门槛，且校准与质量门禁不满足发布条件，因此三周期均为abstained。RankIC等单项指标不能抵销完整度失败；主榜不发布，当前观察分也不等同概率排名。", "sourceIndexes": [2, 3] }
             ],
-            "chart": {
-              "title": "7月21日A股主要指数涨跌",
-              "unit": "%",
-              "items": [
-                { "label": "上证指数", "value": 1.79, "display": "+1.79%", "tone": "positive" },
-                { "label": "深证成指", "value": 4.81, "display": "+4.81%", "tone": "positive" },
-                { "label": "创业板指", "value": 7.05, "display": "+7.05%", "tone": "positive" }
-              ],
-              "sourceIndexes": [0]
-            },
             "rotationAnalysis": {
-              "asOf": "2026-07-21",
+              "asOf": "2026-07-22",
               "window": "5d_vs_20d",
-              "regime": "AI与成长指数普涨，但行业广度分化；医药医疗量价放大而上涨广度不足，属于集中交易。",
+              "regime": "A股指数分化，公用事业、能源和消费观察分居前；医药放量但广度低于50%，属于集中交易与高位分歧。",
               "volumeStatus": "verified",
               "volumeLeaders": [
-                {
-                  "sector": "医药医疗",
-                  "stage": "diverging",
-                  "historySessions": 25,
-                  "turnoverAmountRatio20d": 1.5291,
-                  "tradingVolumeRatio20d": 1.4764,
-                  "turnoverShareRatio20d": 1.8441,
-                  "breadthPct": 37.2881,
-                  "relativeReturn5d": 6.299,
-                  "top3ConcentrationPct": 19.243,
-                  "sourceIndexes": [2, 3]
-                }
+                { "sector": "医药医疗", "stage": "diverging", "historySessions": 25, "turnoverAmountRatio20d": 1.5291, "tradingVolumeRatio20d": 1.4764, "turnoverShareRatio20d": 1.8441, "breadthPct": 49.1525, "relativeReturn5d": 6.299, "top3ConcentrationPct": 21.9224, "sourceIndexes": [2, 3] },
+                { "sector": "主要消费", "stage": "accelerating", "historySessions": 25, "turnoverAmountRatio20d": 1.5064, "tradingVolumeRatio20d": 1.2411, "turnoverShareRatio20d": 1.8209, "breadthPct": 74, "relativeReturn5d": 9.8294, "top3ConcentrationPct": 38.57, "sourceIndexes": [2, 3] }
               ],
               "flowSignals": [
-                {
-                  "sector": "AI与成长指数",
-                  "direction": "inflow",
-                  "evidenceClass": "proxy",
-                  "evidence": "深证成指涨4.81%、创业板指涨7.05%；仅为价格与成交代理，不等同持仓。",
-                  "sourceIndexes": [0, 1]
-                },
-                {
-                  "sector": "医药医疗",
-                  "direction": "mixed",
-                  "evidenceClass": "proxy",
-                  "evidence": "医药额比1.53、量比1.48、份额比1.84，但广度37.29%；放量需广度确认。",
-                  "sourceIndexes": [2, 3]
-                }
+                { "sector": "主要消费", "direction": "inflow", "evidenceClass": "official", "evidence": "额比1.5064、真实量比1.2411、成交份额比1.8209，且上涨广度74%；这是量价证据，不等同持仓变化。", "sourceIndexes": [2, 3] },
+                { "sector": "医药医疗", "direction": "mixed", "evidenceClass": "official", "evidence": "额比1.5291、真实量比1.4764、份额比1.8441，但广度49.1525%；放量与扩散尚未同时确认。", "sourceIndexes": [2, 3] }
               ],
               "outlooks": [
-                {
-                  "horizon": "1_5d",
-                  "status": "active",
-                  "candidateSectors": ["医药医疗", "金融地产", "能源"],
-                  "bias": "strengthening",
-                  "confidence": "low",
-                  "flowPath": "冻结1日模型12项输入通过；预测分只用于排序。",
-                  "trigger": "医药广度回到50%以上且额比维持1.35倍；金融地产或能源量价同步改善",
-                  "invalidation": "医药广度低于50%且额比跌破1.20倍，或成长再度领跌",
-                  "sourceIndexes": [0, 2, 3]
-                },
-                {
-                  "horizon": "2_4w",
-                  "status": "active",
-                  "candidateSectors": ["金融地产", "原材料", "可选消费"],
-                  "bias": "range",
-                  "confidence": "low",
-                  "flowPath": "冻结20日模型12项输入与taxonomy hash匹配，只作低置信度排序。",
-                  "trigger": "金融地产相对收益转正、额比回到1.20倍，并有盈利或政策证据",
-                  "invalidation": "行业相对收益继续为负，或门禁/hash/输入失效",
-                  "sourceIndexes": [2, 3]
-                }
+                { "horizon": "1_5d", "status": "insufficient", "candidateSectors": [], "reason": "1日、5日、20日模型均因生产特征完整度50%低于80%，且校准与质量门禁未通过而弃权。", "bias": "range", "confidence": "low", "flowPath": "只保留12项当前观察分与量价证据，不把观察分解释为概率。", "trigger": "医药广度回到50%以上且两项量比继续达标", "invalidation": "广度回落或额比、真实量比跌破门槛", "sourceIndexes": [2, 3] },
+                { "horizon": "2_4w", "status": "insufficient", "candidateSectors": [], "reason": "20日模型同样未通过80%完整度、校准和walk-forward质量闸门，不能发布预期相对收益或Top-Bottom主榜。", "bias": "range", "confidence": "low", "flowPath": "暂以固定池观察榜和可核验量价变化替代预测，重点看行业扩散是否持续。", "trigger": "基准恢复7月22日完整数据且多周期门禁同时通过", "invalidation": "基准或行业历史继续缺失，或扩散再次收窄", "sourceIndexes": [2, 3] }
               ],
-              "riskNote": "观察池覆盖12/12；只有医药医疗通过三项放量门槛，但广度37.29%低于50%，只能写集中交易。冻结预测只作排序。"
+              "riskNote": "固定池12/12；基准刷新失败，缓存截至7月21日，已标注。未用null填0或50%，未强制排名。"
             }
           }
         }
@@ -399,154 +129,61 @@
       "id": "hk",
       "name": "香港市场",
       "shortName": "港股",
-      "sessionDate": "2026-07-21",
+      "sessionDate": "2026-07-22",
       "status": "最新完整交易日",
-      "summary": "恒指跌 0.04% 报 25132.29 点，恒生科技涨 1.32% 报 4814.83 点，国企指数跌 0.25% 报 8360.68 点；原材料、工业与科技行业领涨，能源跌 1.37%。",
+      "summary": "恒生指数跌0.95%报24892.66点，恒生科技跌3.04%报4668.23点，国企指数跌1.31%；南向公开线索显示净买约751.7亿港元，但行业历史特征不足。",
       "leadIndex": "恒生指数",
       "indices": [
-        { "name": "恒生指数", "value": "25,132.29", "change": -0.04, "date": "2026-07-21" },
-        { "name": "恒生科技", "value": "4,814.83", "change": 1.32, "date": "2026-07-21" },
-        { "name": "国企指数", "value": "8,360.68", "change": -0.25, "date": "2026-07-21" }
+        { "name": "恒生指数", "value": "24,892.66", "change": -0.95, "date": "2026-07-22" },
+        { "name": "恒生科技", "value": "4,668.23", "change": -3.04, "date": "2026-07-22" },
+        { "name": "国企指数", "value": "-1.31%", "change": -1.31, "date": "2026-07-22" }
       ],
-      "sparkline": [23350.03, 23616.32, 23496.89, 24199.46, 24030.18, 24175.12, 24213.72, 24340.73, 25143.05, 25132.29],
-      "tone": "warning",
+      "sparkline": [25132.29, 25084.11, 25210.44, 25002.08, 24918.31, 24892.66],
+      "tone": "negative",
       "sources": [
-        {
-          "name": "腾讯恒生系列指数收盘行情",
-          "publisher": "腾讯证券",
-          "url": "https://qt.gtimg.cn/q=hkHSI,hkHSCEI,hkHSTECH",
-          "tier": "authoritative",
-          "evidenceClass": "vendor-market-data"
-        },
-        {
-          "name": "7 月 21 日港股收盘",
-          "publisher": "香港电台 / Reuters与新华社转述",
-          "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863043-20260721.htm?spTabChangeable=0",
-          "tier": "major-media",
-          "evidenceClass": "major-media"
-        }
+        { "name": "港股指数收盘", "publisher": "香港电台", "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0", "tier": "major-media", "evidenceClass": "major-media" },
+        { "name": "港股指数点位", "publisher": "东方财富", "url": "https://finance.eastmoney.com/a/202607223817263991.html", "tier": "authoritative", "evidenceClass": "vendor-market-data" },
+        { "name": "恒生行业指数表现", "publisher": "恒生指数有限公司", "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do", "tier": "official", "evidenceClass": "official-primary" },
+        { "name": "南向资金公开线索", "publisher": "金融界/格隆汇", "url": "https://m.jrj.com.cn/madapter/stock/2026/07/22181557875668.shtml", "tier": "major-media", "evidenceClass": "major-media" }
       ],
       "articles": [
         {
-          "id": "hk-close-0721",
-          "title": "恒指微跌，科技与原材料行业分化走强",
-          "summary": "恒指跌 0.04% 报 25132.29 点，恒生科技涨 1.32% 报 4814.83 点，国企指数跌 0.25% 报 8360.68 点；主板成交约2899.4亿港元。",
-          "impact": "港股不是全面反弹：科技权重与原材料、工业领涨，能源和必需消费走弱；南向公开统计净买约71.67亿港元，但仍只能作为公开可见资金线索。",
-          "publishedAt": "2026-07-21",
-          "tags": ["收盘", "恒生科技", "南向资金"],
+          "id": "hk-close-0722",
+          "title": "港股科技领跌，南向净买不等于行业修复",
+          "summary": "恒指与恒科同步回落，恒科跌3.04%；公开报道显示南向净买约751.7亿港元，但连续行业资金与预测特征仍不足。",
+          "impact": "价格弱势和公开资金线索方向不一，当前应保留证据观察，不发布1/5/20日概率主榜。",
+          "publishedAt": "2026-07-22",
+          "tags": ["收盘", "港股", "恒科", "弃权"],
           "sources": [
-            {
-              "name": "7 月 21 日港股收盘",
-              "publisher": "香港电台 / Reuters与新华社转述",
-              "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863043-20260721.htm?spTabChangeable=0",
-              "tier": "major-media",
-              "evidenceClass": "major-media"
-            },
-            {
-              "name": "HKEX南向日度统计",
-              "publisher": "香港交易所",
-              "url": "https://www.hkex.com.hk/chi/csm/DailyStat/data_tab_daily_20260721c.js",
-              "tier": "official",
-              "evidenceClass": "exchange-market-data"
-            },
-            {
-              "name": "恒生综合行业指数收盘快照",
-              "publisher": "恒生指数有限公司",
-              "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do",
-              "tier": "official",
-              "evidenceClass": "official-primary"
-            },
-            {
-              "name": "7 月 16 日高盛港股观点（媒体转述）",
-              "publisher": "South China Morning Post（据媒体转述）",
-              "url": "https://www.scmp.com/business/markets/article/3360753/goldman-sachs-backs-hkex-buy-rating-citing-beijings-policy-support-ai-stock-boost",
-              "tier": "authoritative",
-              "evidenceClass": "major-media"
-            }
+            { "name": "港股指数收盘", "publisher": "香港电台", "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0", "tier": "major-media", "evidenceClass": "major-media" },
+            { "name": "港股指数点位", "publisher": "东方财富", "url": "https://finance.eastmoney.com/a/202607223817263991.html", "tier": "authoritative", "evidenceClass": "vendor-market-data" },
+            { "name": "恒生行业指数表现", "publisher": "恒生指数有限公司", "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do", "tier": "official", "evidenceClass": "official-primary" },
+            { "name": "南向资金公开线索", "publisher": "金融界/格隆汇", "url": "https://m.jrj.com.cn/madapter/stock/2026/07/22181557875668.shtml", "tier": "major-media", "evidenceClass": "major-media" }
           ],
           "detail": {
-            "lead": "7月21日，恒生指数报25132.29点跌0.04%，恒生科技指数报4814.83点涨1.32%，国企指数报8360.68点跌0.25%。",
-            "keyPoints": [
-              "恒指、恒生科技、国企指数分别跌0.04%、涨1.32%、跌0.25%",
-              "主板成交约2899.4亿港元，南向公开统计净买约71.67亿港元",
-              "原材料、工业与资讯科技业领涨，能源跌1.37%"
-            ],
+            "lead": "7月22日港股收盘，恒生指数报24892.66点跌0.95%，恒生科技指数报4668.23点跌3.04%，国企指数跌1.31%。科技领跌与公开报道中的南向净买并存，单日资金线索不足以证明行业风险偏好已经修复。",
+            "keyPoints": ["恒指跌0.95%，恒科跌3.04%", "国企指数跌1.31%，科技弱于大盘", "南向公开线索净买约751.7亿港元，不能替代连续资金序列"],
             "sections": [
-              {
-                "heading": "指数与量能",
-                "body": "恒生指数报25132.29点，跌0.04%；恒生科技报4814.83点，涨1.32%；国企指数报8360.68点，跌0.25%。科技弹性强于大盘，主板成交约2899.4亿港元。",
-                "sourceIndexes": [0]
-              },
-              {
-                "heading": "行业与南向公开统计",
-                "body": "行业快照显示原材料涨4.87%、工业涨2.45%、资讯科技业涨1.06%，能源跌1.37%。南向公开统计合计成交约1314.83亿港元、净买约71.67亿港元；只是公开线索，不等同完整行业资金流。",
-                "sourceIndexes": [0, 1, 2]
-              },
-              {
-                "heading": "后续观察",
-                "body": "截至7月21日，未检索到高盛等主要投行可靠新增港股观点；最近可核验的是7月16日媒体转述的高盛港交所买入评级背景，只作日期明确的背景材料。若南向成交与科技广度连续改善，修复或扩散；若恒科再度领跌，行情仍会分化。",
-                "sourceIndexes": [1, 2, 3]
-              }
+              { "heading": "指数收盘", "body": "香港电台与点位报道共同确认恒指、恒科和国企指数当日回落，跌幅最大的是恒生科技。主板成交额本轮未在官方数据包中稳定核验，因此不补写未经确认的精确金额，避免把缺失字段变成估算值。", "sourceIndexes": [0, 1] },
+              { "heading": "行业与南向", "body": "恒生行业快照显示原材料与能源相对靠前，资讯科技业显著走弱；金融界转述的公开线索显示南向净买约751.7亿港元。该线索可用于观察资金方向，但不等同完整行业流入、ETF份额或短卖数据。", "sourceIndexes": [2, 3] },
+              { "heading": "模型门禁", "body": "港股1日、5日、20日窗口均因缺少同一成分池两年连续特征、南向与ETF等辅助变量，并且广度与Brier Skill、RankIC、扣费后Top-Bottom及walk-forward门禁不足而弃权。晚报只列当前指数和行业证据观察，不输出强制概率榜。", "sourceIndexes": [0, 2, 3] }
             ],
-            "chart": {
-              "title": "7月21日港股主要指数涨跌",
-              "unit": "%",
-              "items": [
-                { "label": "恒生指数", "value": -0.04, "display": "-0.04%", "tone": "negative" },
-                { "label": "恒生科技", "value": 1.32, "display": "+1.32%", "tone": "positive" },
-                { "label": "国企指数", "value": -0.25, "display": "-0.25%", "tone": "negative" }
-              ],
-              "sourceIndexes": [0]
-            },
             "rotationAnalysis": {
-              "asOf": "2026-07-21",
+              "asOf": "2026-07-22",
               "window": "5d_vs_20d",
-              "regime": "恒科、原材料与工业修复，能源走弱；不能称全面轮动。",
+              "regime": "港股大盘回落、恒生科技领跌；原材料与能源是单日相对强势，不能据此推断持续轮动。",
               "volumeStatus": "insufficient",
               "volumeLeaders": [],
               "flowSignals": [
-                {
-                  "sector": "原材料、工业、资讯科技业",
-                  "direction": "inflow",
-                  "evidenceClass": "official",
-                  "evidence": "行业快照显示原材料涨4.87%、工业涨2.45%、资讯科技业涨1.06%；不等于资金净流入。",
-                  "sourceIndexes": [2]
-                },
-                {
-                  "sector": "南向公开可见部分",
-                  "direction": "inflow",
-                  "evidenceClass": "official",
-                  "evidence": "南向公开统计合计成交约1314.83亿港元、净买约71.67亿港元，只代表公开线索。",
-                  "sourceIndexes": [1]
-                }
+                { "sector": "原材料与能源", "direction": "inflow", "evidenceClass": "official", "evidence": "恒生行业单日表现相对靠前，属于价格表现证据，不是完整资金流。", "sourceIndexes": [2] },
+                { "sector": "恒生科技与资讯科技业", "direction": "outflow", "evidenceClass": "official", "evidence": "恒科跌3.04%，资讯科技业在行业快照中走弱，价格弱势与风险偏好下降一致。", "sourceIndexes": [0, 2] },
+                { "sector": "南向公开统计", "direction": "inflow", "evidenceClass": "proxy", "evidence": "媒体公开线索称南向净买约751.7亿港元，仅作代理观察，不等同行业持仓变化。", "sourceIndexes": [3] }
               ],
               "outlooks": [
-                {
-                  "horizon": "1_5d",
-                  "status": "insufficient",
-                  "candidateSectors": [],
-                  "bias": "range",
-                  "confidence": "low",
-                  "reason": "缺少恒生一级行业连续5日/20日成交、广度与集中度序列，不能完成同口径判断。",
-                  "flowPath": "insufficient：只有单日行业与南向公开线索。",
-                  "trigger": "南向成交与行业广度连续2–3日改善",
-                  "invalidation": "恒科再度领跌或能源/科技分化扩大",
-                  "sourceIndexes": [1, 2]
-                },
-                {
-                  "horizon": "2_4w",
-                  "status": "insufficient",
-                  "candidateSectors": [],
-                  "bias": "range",
-                  "confidence": "low",
-                  "reason": "没有可用于walk-forward的连续一级行业历史，且缺少盈利/估值持续性数据。",
-                  "flowPath": "insufficient：单日反弹不足以替代持续性证据。",
-                  "trigger": "业绩、估值与南向/行业广度共同改善",
-                  "invalidation": "科技权重盈利预期下修或南向公开成交转弱",
-                  "sourceIndexes": [1, 2, 3]
-                }
+                { "horizon": "1_5d", "status": "insufficient", "candidateSectors": [], "reason": "缺少同一成分池两年连续1/5/20日特征，南向、ETF、短卖和广度数据也未形成完整门禁。", "bias": "weakening", "confidence": "low", "flowPath": "只保留恒科、行业表现和南向公开线索，当前不转化为概率。", "trigger": "恒科止跌且行业广度与连续资金数据同步改善", "invalidation": "恒科继续领跌或公开资金线索与价格继续背离", "sourceIndexes": [0, 2, 3] },
+                { "horizon": "2_4w", "status": "insufficient", "candidateSectors": [], "reason": "20日预测质量门禁缺少Brier Skill、RankIC、扣费后Top-Bottom与walk-forward一致性证据。", "bias": "weakening", "confidence": "low", "flowPath": "以证据观察榜替代主榜，等待连续历史特征和资金字段恢复。", "trigger": "两年同池面板恢复且多目标质量门禁同时通过", "invalidation": "历史覆盖仍低于80%或行业扩散继续收窄", "sourceIndexes": [0, 2, 3] }
               ],
-              "riskNote": "港股12/12行业快照ready，但历史是licensed-boundary；南向仅公开可见；7月16日Goldman观点只作背景，未检索到7月21日可靠新增。"
+              "riskNote": "行业历史与资金字段不足，volumeStatus为insufficient；南向仅作公开代理线索，未用null填0或50%，未强制排名。"
             }
           }
         }
@@ -558,87 +195,39 @@
       "shortName": "美股",
       "sessionDate": "2026-07-21",
       "status": "最新完整交易日",
-      "summary": "标普 500 涨 0.9% 报 7509.20 点，道指涨 0.7% 报 52224.64 点，纳指涨 1.3% 报 25837.21 点；芯片与 AI 股反弹，但油价走高推升收益率。",
-      "leadIndex": "标普 500",
+      "summary": "截至7月21日收盘，标普500涨0.9%，纳斯达克涨1.3%，道指涨0.7%；芯片与AI相关股票带动风险偏好修复。",
+      "leadIndex": "标普500",
       "indices": [
-        { "name": "标普 500", "value": "7,509.20", "change": 0.9, "date": "2026-07-21" },
+        { "name": "标普500", "value": "7,509.20", "change": 0.9, "date": "2026-07-21" },
         { "name": "纳斯达克", "value": "25,837.21", "change": 1.3, "date": "2026-07-21" },
         { "name": "道琼斯", "value": "52,224.64", "change": 0.7, "date": "2026-07-21" }
       ],
-      "sparkline": [7537.43, 7503.85, 7482.71, 7543.64, 7575.39, 7515.34, 7543.59, 7572.40, 7443.28, 7509.20],
+      "sparkline": [7443.72, 7471.31, 7488.06, 7469.14, 7494.58, 7509.2],
       "tone": "positive",
       "sources": [
-        {
-          "name": "美股 7 月 21 日收盘",
-          "publisher": "Associated Press",
-          "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-ccf404ea3258636974afa17f714db8e8",
-          "tier": "major-media",
-          "evidenceClass": "major-media"
-        },
-        {
-          "name": "美国国债收益率",
-          "publisher": "U.S. Treasury",
-          "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/TextView?field_tdr_date_value=2026&type=daily_treasury_yield_curve",
-          "tier": "official"
-        }
+        { "name": "美国股市7月21日收盘", "publisher": "Associated Press", "url": "https://apnews.com/article/ccf404ea3258636974afa17f714db8e8", "tier": "major-media", "evidenceClass": "major-media" },
+        { "name": "全球市场技术图表", "publisher": "Reuters", "url": "https://www.reuters.com/markets/us/global-markets-technicals-graphic-2026-07-22/", "tier": "major-media", "evidenceClass": "major-media" }
       ],
       "articles": [
         {
           "id": "us-close-0721",
-          "title": "美股反弹，芯片与 AI 股重新领涨",
-          "summary": "标普 500 涨 0.9%，道指涨 0.7%，纳指涨 1.3%；AP称芯片和 AI 股连续第二日走强，但油价接近92美元并推升美债收益率。",
-          "impact": "风险偏好短线修复，但油价与收益率上行仍是高估值科技资产的反证；后续要看业绩兑现和通胀路径。",
+          "title": "美股7月21日收涨，芯片带动风险偏好",
+          "summary": "标普500、纳斯达克和道指分别上涨0.9%、1.3%和0.7%，纳斯达克相对占优；7月22日油价上行带来新的通胀约束。",
+          "impact": "美股收盘修复与A/H当日走弱形成分化，需把芯片弹性和油价冲击分开观察。",
           "publishedAt": "2026-07-21",
-          "tags": ["半导体", "AI", "美债收益率"],
+          "tags": ["收盘", "美股", "AI芯片"],
           "sources": [
-            {
-              "name": "7 月 21 日美股收盘",
-              "publisher": "Associated Press",
-              "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-ccf404ea3258636974afa17f714db8e8",
-              "tier": "major-media",
-              "evidenceClass": "major-media"
-            },
-            {
-              "name": "台积电第二季业绩",
-              "publisher": "TSMC",
-              "url": "https://investor.tsmc.com/english/quarterly-results/2026/q2",
-              "tier": "official"
-            }
+            { "name": "美国股市7月21日收盘", "publisher": "Associated Press", "url": "https://apnews.com/article/ccf404ea3258636974afa17f714db8e8", "tier": "major-media", "evidenceClass": "major-media" },
+            { "name": "全球市场技术图表", "publisher": "Reuters", "url": "https://www.reuters.com/markets/us/global-markets-technicals-graphic-2026-07-22/", "tier": "major-media", "evidenceClass": "major-media" }
           ],
           "detail": {
-            "lead": "7月21日美股三大指数反弹：标普500涨0.9%报7509.20点，道指涨0.7%报52224.64点，纳指涨1.3%报25837.21点。AP称芯片和AI股连续第二日走强，但油价走高推升收益率。",
-            "keyPoints": [
-              "标普500涨0.9%，纳指涨1.3%，道指涨0.7%",
-              "芯片与AI股连续第二日走强，英伟达和美光成为主要推动力",
-              "布伦特原油接近92美元，油价和收益率上行构成反证"
-            ],
+            "lead": "美国市场采用7月21日最新完整收盘：标普500报7509.20点涨0.9%，纳斯达克报25837.21点涨1.3%，道指报52224.64点涨0.7%。AP称芯片与AI相关股票带动上涨，Reuters图表显示标普重新回到关键均线附近。",
+            "keyPoints": ["三大指数全线上涨，纳斯达克涨幅最大", "芯片和AI链条是主要推动因素", "7月22日油价上行使通胀与估值约束重新升温"],
             "sections": [
-              {
-                "heading": "三大指数同步反弹",
-                "body": "标普500收于7509.20点，涨65.92点；道指收于52224.64点，涨385.38点；纳指收于25837.21点，涨329.13点。三大指数同步上行，AI与芯片权重贡献明显。",
-                "sourceIndexes": [0]
-              },
-              {
-                "heading": "芯片权重重新领涨",
-                "body": "AP称美光和英伟达是推动市场上行的主要力量，AI股票在前周下跌后连续第二日走强。反弹是收盘事实，但不等于产业需求已经被完全定价或估值约束已经消失。",
-                "sourceIndexes": [0]
-              },
-              {
-                "heading": "油价与收益率是反证",
-                "body": "AP指出布伦特原油一度接近92美元，较月初不足72美元明显走高，并推动债券收益率上行。收益率上行可能抬高高估值资产的折现率，但不能单独推出美联储路径；后续仍需结合官方通胀、就业和收益率数据观察。",
-                "sourceIndexes": [0, 1]
-              }
-            ],
-            "chart": {
-              "title": "7月21日美股主要指数涨跌",
-              "unit": "%",
-              "items": [
-                { "label": "标普500", "value": 0.9, "display": "+0.9%", "tone": "positive" },
-                { "label": "道琼斯", "value": 0.7, "display": "+0.7%", "tone": "positive" },
-                { "label": "纳斯达克", "value": 1.3, "display": "+1.3%", "tone": "positive" }
-              ],
-              "sourceIndexes": [0]
-            }
+              { "heading": "收盘表现", "body": "7月21日美股三大指数同步上涨，成长风格相对占优。该结果是已经完成的美国交易日收盘，晚报不把7月22日盘中期货或波动写成美股收盘，以避免混淆全球覆盖的截止口径。", "sourceIndexes": [0, 1] },
+              { "heading": "驱动与反证", "body": "AP将上涨与芯片、AI相关股票及油价变化联系起来，Reuters则记录标普500回到50日均线附近。上涨说明风险偏好有修复，但估值对利率敏感；如果能源价格继续推升通胀预期，折现率可能成为反证。", "sourceIndexes": [0, 1] },
+              { "heading": "跨市场含义", "body": "美股芯片反弹没有同步传导至7月22日A股信息技术和移动互联网，港股恒科反而下跌3.04%。因此本期只写相对强弱和条件路径：关注油价、收益率及后续成交确认，不把单日领涨外推为持续趋势。", "sourceIndexes": [0, 1] }
+            ]
           }
         }
       ]
@@ -646,464 +235,95 @@
   ],
   "hotspots": [
     {
-      "id": "hot-inflation",
-      "priority": 96,
-      "title": "CPI 与 PPI 月度降温，但核心压力仍未消失",
-      "summary": "美国 6 月 CPI 季调环比下降 0.4%、同比上涨 3.5%，核心 CPI 环比持平、同比上涨 2.6%；PPI 环比下降 0.3%、同比上涨 5.5%。",
-      "impact": "通胀读数较 5 月回落，但能源仍是关键扰动项；若后续油价重新走强，市场对年内利率路径的定价仍可能反复。",
-      "publishedAt": "2026-07-16",
-      "tags": ["CPI", "PPI", "核心通胀"],
-      "affectedMarkets": ["美股", "港股", "A股"],
+      "id": "hot-a-share-structure-0722",
+      "priority": 88,
+      "affectedMarkets": ["a-share"],
+      "title": "A股收盘分化，放量板块仍需广度确认",
+      "summary": "沪指微涨而成长指数回落，主要消费与医药医疗量能达标，但医药广度低于50%。",
+      "impact": "结构性交易证据增强，全面扩散尚未被当前数据确认。",
+      "publishedAt": "2026-07-22",
+      "tags": ["A股", "行业轮动", "量价"],
       "sources": [
-        {
-          "name": "6 月 CPI",
-          "publisher": "U.S. Bureau of Labor Statistics",
-          "url": "https://www.bls.gov/news.release/cpi.htm",
-          "tier": "official"
-        },
-        {
-          "name": "6 月 PPI",
-          "publisher": "U.S. Bureau of Labor Statistics",
-          "url": "https://www.bls.gov/news.release/ppi.nr0.htm",
-          "tier": "official"
-        }
+        { "name": "A股三大指数与成交额", "publisher": "新浪财经", "url": "https://finance.sina.com.cn/jjxw/2026-07-22/doc-iniispna7957692.shtml", "tier": "major-media", "evidenceClass": "major-media" },
+        { "name": "中证核心12项量价数据", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260616&endDate=20260722", "tier": "official", "evidenceClass": "official-primary" }
       ],
       "detail": {
-        "lead": "美国6月CPI和PPI的月度读数同步回落，但降温高度集中在能源与商品端。CPI季调环比下降0.4%，核心CPI环比持平；PPI环比下降0.3%，而剔除食品、能源和贸易服务后的核心指标仍上涨0.1%。短期压力减轻，不等于通胀风险已经消失。",
-        "keyPoints": [
-          "CPI环比下降0.4%、同比上涨3.5%",
-          "核心CPI环比持平、同比上涨2.6%",
-          "PPI环比下降0.3%，但同比仍上涨5.5%"
-        ],
+        "lead": "7月22日A股交易额保持高位，但三大指数方向分化。固定12项观察池的量价门槛显示，主要消费和医药医疗交易活跃，医药医疗的相对收益仍靠前；同时广度只有49.1525%，行业内部并非普遍上行。",
+        "keyPoints": ["两市成交约2.66万亿元", "主要消费和医药医疗通过三项量能门槛", "医药广度低于50%，仍属集中交易"],
         "sections": [
-          {
-            "heading": "CPI为何大幅回落",
-            "body": "美国劳工统计局数据显示，6月CPI季调后环比下降0.4%，为2020年4月以来最大单月降幅；同比上涨3.5%，低于5月的4.2%。能源指数环比下降5.7%，是总体指数下降的最大贡献项，其中汽油价格环比下降9.7%。食品指数则环比上涨0.2%，说明本月回落主要来自波动较大的能源，而非所有消费类别同步降价。",
-            "sourceIndexes": [0]
-          },
-          {
-            "heading": "核心读数更温和",
-            "body": "剔除食品和能源后的核心CPI在6月环比持平，同比上涨2.6%，较5月的2.9%放缓。住房指数仅环比上涨0.1%，是2021年1月以来最小单月涨幅；汽车保险、通信、服装、医疗和二手车价格均下降。尽管核心压力减弱，过去12个月住房价格仍上涨3.3%，核心通胀也仍高于美联储2%的长期目标。",
-            "sourceIndexes": [0]
-          },
-          {
-            "heading": "PPI显示结构分化",
-            "body": "6月最终需求PPI季调环比下降0.3%，同比上涨5.5%。商品价格环比下降1.4%，其中能源下降6.4%，而服务价格反而上涨0.2%；剔除食品、能源和贸易服务后的指标环比上涨0.1%、同比上涨5.1%。因此，生产端的月度降温同样受能源拉动，服务与核心同比水平提醒市场不能仅凭一个月数据确认通胀趋势，仍需继续观察。",
-            "sourceIndexes": [1]
-          }
-        ],
-        "chart": {
-          "title": "6月通胀核心读数",
-          "unit": "%",
-          "items": [
-            { "label": "CPI环比", "value": -0.4, "display": "-0.4%", "tone": "positive" },
-            { "label": "CPI同比", "value": 3.5, "display": "3.5%", "tone": "warning" },
-            { "label": "核心CPI环比", "value": 0, "display": "0.0%", "tone": "positive" },
-            { "label": "核心CPI同比", "value": 2.6, "display": "2.6%", "tone": "neutral" },
-            { "label": "PPI环比", "value": -0.3, "display": "-0.3%", "tone": "positive" },
-            { "label": "PPI同比", "value": 5.5, "display": "5.5%", "tone": "warning" }
-          ],
-          "sourceIndexes": [0, 1]
-        }
-      }
-    },
-    {
-      "id": "hot-china-gdp",
-      "priority": 91,
-      "title": "中国上半年 GDP 同比增 4.7%，二季度增速放缓至 4.3%",
-      "summary": "国家统计局公布，2026 年上半年 GDP 为 695704 亿元、同比增长 4.7%；分季度看，一季度同比增长 5.0%，二季度增长 4.3%，环比增长 0.9%。",
-      "impact": "内地基本面仍在扩张，但二季度增速较一季度回落，后续政策发力节奏和需求修复强度将继续影响 A/H 股定价。",
-      "publishedAt": "2026-07-17",
-      "tags": ["中国经济", "GDP", "宏观数据"],
-      "affectedMarkets": ["A股", "港股"],
-      "sources": [
-        {
-          "name": "二季度和上半年 GDP 初步核算",
-          "publisher": "国家统计局",
-          "url": "https://www.stats.gov.cn/sj/zxfb/202607/t20260716_1964142.html",
-          "tier": "official"
-        },
-        {
-          "name": "上半年经济运行情况",
-          "publisher": "国家统计局",
-          "url": "https://www.stats.gov.cn/sj/zxfb/202607/t20260715_1964121.html",
-          "tier": "official"
-        }
-      ],
-      "detail": {
-        "lead": "国家统计局初步核算显示，2026年上半年国内生产总值695704亿元，按不变价格同比增长4.7%。一季度和二季度同比增速分别为5.0%和4.3%，二季度经季节调整后环比增长0.9%；第三产业以5.2%的增速快于第一、第二产业。",
-        "keyPoints": [
-          "上半年GDP为695704亿元，同比增长4.7%",
-          "二季度同比增长4.3%，环比增长0.9%",
-          "第三产业同比增长5.2%，快于第一、第二产业"
-        ],
-        "sections": [
-          {
-            "heading": "总量与节奏",
-            "body": "上半年GDP总量为695704亿元，二季度单季为361511亿元。同比看，一季度增长5.0%，二季度增长4.3%，上半年合计增长4.7%；环比看，二季度增长0.9%。需要注意，绝对额按现价计算，增长速度按不变价计算，且本次为初步核算，因此不能把同比、环比和名义总量混为同一种口径解读。季度同比增速回落0.7个百分点，不代表二季度经济总量环比收缩。",
-            "sourceIndexes": [0, 1]
-          },
-          {
-            "heading": "产业结构",
-            "body": "产业结构方面，第一产业增加值31522亿元，同比增长3.7%；第二产业250473亿元，增长3.9%；第三产业413709亿元，增长5.2%。第三产业总量和增速均居三次产业首位。细分行业中，信息传输、软件和信息技术服务业增长10.7%，租赁和商务服务业增长11.9%，而房地产业下降0.2%。",
-            "sourceIndexes": [0, 1]
-          },
-          {
-            "heading": "供需线索",
-            "body": "其他主要指标呈现供给与需求节奏不一：上半年规模以上工业增加值增长5.4%，社会消费品零售总额增长1.3%，固定资产投资（不含农户）下降5.7%，扣除房地产开发后下降2.7%。国家统计局同时提示国内供强需弱矛盾仍较突出。对A/H股的影响应作为后续观察，而不是由GDP单项数据直接推导市场方向。",
-            "sourceIndexes": [1]
-          }
-        ],
-        "chart": {
-          "title": "2026年上半年GDP增速",
-          "unit": "%",
-          "items": [
-            { "label": "上半年同比", "value": 4.7, "display": "4.7%", "tone": "positive" },
-            { "label": "一季度同比", "value": 5, "display": "5.0%", "tone": "positive" },
-            { "label": "二季度同比", "value": 4.3, "display": "4.3%", "tone": "neutral" },
-            { "label": "二季度环比", "value": 0.9, "display": "0.9%", "tone": "neutral" }
-          ],
-          "sourceIndexes": [0, 1]
-        }
-      }
-    },
-    {
-      "id": "hot-ai-rotation",
-      "priority": 89,
-      "title": "台积电业绩强劲，芯片股仍因高预期出现回撤",
-      "summary": "台积电 2026 年第二季美元营收 402 亿、毛利率 67.7%，第三季营收指引为 446 亿至 458 亿美元；但美股盘面仍由芯片权重回撤拖累纳指。",
-      "impact": "AI 需求长期逻辑未被单日交易证伪，但高估值与高预期正在放大 A/H/美三地半导体波动。",
-      "publishedAt": "2026-07-16",
-      "tags": ["AI", "半导体", "台积电"],
-      "affectedMarkets": ["A股", "港股", "美股"],
-      "sources": [
-        {
-          "name": "第二季财务结果",
-          "publisher": "TSMC",
-          "url": "https://investor.tsmc.com/english/quarterly-results/2026/q2",
-          "tier": "official"
-        },
-        {
-          "name": "芯片股拖累美股",
-          "publisher": "Associated Press",
-          "url": "https://apnews.com/article/stock-markets-iran-inflation-oil-e1c646be279423406586c67c79e738e4",
-          "tier": "major-media"
-        }
-      ],
-      "detail": {
-        "lead": "台积电第二季营收与利润率表现强劲，第三季美元营收指引为446亿至458亿美元；然而7月16日美国存托股跌2.3%，英伟达、美光、闪迪等同步回撤。事实显示AI需求仍支撑龙头业绩，但市场交易焦点已转向增长能否持续匹配高估值。",
-        "keyPoints": [
-          "第二季营收402亿美元，达到原指引390亿至402亿美元上限",
-          "毛利率67.7%、营业利润率60.3%，均强于指引",
-          "业绩强不等于股价必涨，估值与预期差主导短期波动"
-        ],
-        "sections": [
-          {
-            "heading": "财务结果强在哪里",
-            "body": "台积电第二季美元营收402亿美元，位于此前390亿至402亿美元指引的上限；毛利率67.7%，略高于65.5%至67.5%的原指引上限；营业利润率60.3%，也高于56.5%至58.5%的原指引。第三季营收指引为446亿至458亿美元，毛利率指引65%至67%，营业利润率指引56%至58%，构成当前最直接的基本面锚点。",
-            "sourceIndexes": [0]
-          },
-          {
-            "heading": "强业绩与弱股价同时出现",
-            "body": "股价却没有简单跟随业绩上行：台积电台湾股票当日涨1.2%，其美国存托股跌2.3%；英伟达跌2.4%，美光跌5.6%，闪迪跌12.6%，西部数据跌9.2%。纳指最终下跌1.5%。这些价格是当日交易事实，不能单独推出AI订单或台积电业绩趋势已经反转，尤其公司给出的下一季营收区间仍明显高于第二季实际值。",
-            "sourceIndexes": [0, 1]
-          },
-          {
-            "heading": "如何理解估值重定价",
-            "body": "更合理的读法是“基本面强、持仓与估值更拥挤”。AP报道指出，市场担忧AI处理器和存储需求若不能兑现足够利润与生产率，高涨幅股票的估值就会承压；同时美国10年期国债收益率升至4.56%，也提高高估值资产的折现门槛。对A股、港股和美股半导体链而言，应分别观察订单、利润率和估值，而不是用单日涨跌替代产业判断。",
-            "sourceIndexes": [0, 1]
-          }
-        ],
-        "chart": {
-          "title": "台积电第二季实际与第三季指引",
-          "unit": "亿美元",
-          "items": [
-            { "label": "第二季实际", "value": 402, "display": "402亿", "tone": "neutral" },
-            { "label": "第三季指引下限", "value": 446, "display": "446亿", "tone": "positive" },
-            { "label": "第三季指引上限", "value": 458, "display": "458亿", "tone": "positive" }
-          ],
-          "sourceIndexes": [0]
-        }
-      }
-    },
-    {
-      "id": "hot-fomc-window",
-      "priority": 86,
-      "title": "FOMC 进入观察窗口，官员对年内路径分歧明显",
-      "summary": "下一次会议为 7 月 28–29 日。6 月纪要显示，若通胀更顽固几乎所有与会者都认为进一步收紧仍可能需要，而对年末利率位于当前区间附近或高于当前区间的判断均有支持者。",
-      "impact": "会议前数据和官员表态可能提高利率、美元与成长股波动；7 月会议不公布新版 SEP。",
-      "publishedAt": "2026-07-17",
-      "tags": ["FOMC", "会议纪要", "事件日历"],
-      "affectedMarkets": ["美股", "港股", "A股"],
-      "sources": [
-        {
-          "name": "FOMC 会议日历",
-          "publisher": "Federal Reserve",
-          "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
-          "tier": "official"
-        },
-        {
-          "name": "6 月会议纪要",
-          "publisher": "Federal Reserve",
-          "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm",
-          "tier": "official"
-        }
-      ],
-      "detail": {
-        "lead": "下一次FOMC会议定于7月28日至29日举行，且日历没有把它标记为发布经济预测摘要的会议。6月纪要又显示，决策者对年末利率位置看法分裂，因此未来十余天的关键不在于寻找单一“暗示”，而在于判断新数据是否改变通胀与就业风险的相对权重。",
-        "keyPoints": [
-          "下一次FOMC会议定于7月28日至29日",
-          "7月会议按日历不发布新版经济预测摘要",
-          "6月纪要显示年末利率路径尚未形成共识"
-        ],
-        "sections": [
-          {
-            "heading": "会议时间已确定",
-            "body": "美联储官方日历列明，2026年7月FOMC会议在28日至29日举行。日历以星号标出附带经济预测摘要的会议，7月会议没有星号；下一次带星号的会议是9月15日至16日。因此，7月决议可以更新政策声明和利率决定，但按现有日历安排不会同时提供一套新的委员经济与利率预测，市场可用的正式量化指引相对有限。6月纪要则已于7月8日发布。",
-            "sourceIndexes": [0]
-          },
-          {
-            "heading": "纪要留下两种方向",
-            "body": "6月纪要显示，全体与会者支持当次维持3.50%至3.75%的目标区间。多数人讨论了通胀回落后维持或最终降息的情景，也讨论了通胀持续时进一步收紧的情景。许多人认为年末适当利率应在当前区间内或略低，另有许多人认为应高于当前区间，说明委员会尚未围绕单一路径形成清晰共识。未来动作明确取决于新信息。",
-            "sourceIndexes": [1]
-          },
-          {
-            "heading": "观察窗口看什么",
-            "body": "纪要把政策选择与条件明确绑定：通胀若因关税、能源、供给扰动或强劲需求而保持偏高，进一步收紧可能有必要；若这些压力消退并向2%回落，维持或最终降低利率可能合适。因而会议前每项数据都应放进同一框架检验，而不能单独决定结论。由于7月没有新版预测，声明措辞和会后说明将承担更多沟通作用，这会放大市场对文字细节的关注。",
-            "sourceIndexes": [1]
-          }
+          { "heading": "事实", "body": "收盘数据与中证指数区间数据互相补充：指数表现说明市场分化，核心12项数据说明活跃度集中。两类来源统计口径不同，正文只采用直接可核验的收盘和量价字段，并保留基准缓存缺口。缺口不作估算。", "sourceIndexes": [0, 1] },
+          { "heading": "解释", "body": "量比、额比与成交份额同时放大，支持‘交易集中’观察；不能证明资金持仓变化，也不能替代独立冻结模型的质量门禁。后续仍须看广度扩散与行业参与度数据变化。", "sourceIndexes": [1] },
+          { "heading": "观察", "body": "下一交易日重点看医药广度是否回到50%以上，以及主要消费的量能是否保持；若活跃度回落，结构性修复的证据会减弱。若广度仍低于50%，则继续按集中交易记录，并等待新的完整样本。还要核对基准缓存是否恢复更新，并观察公用事业与能源是否保持相对强势。若门禁仍未通过，页面继续展示明确弃权状态。", "sourceIndexes": [1] }
         ]
       }
     },
     {
-      "id": "hot-state-capital-0720",
-      "priority": 100,
-      "title": "中国国新披露已用超500亿元增持股票资产",
-      "summary": "中国国新7月19日公告称，旗下国新投资相关主体已使用股票回购增持专项再贷款及配套资金超500亿元，并将继续增持中央企业股票。",
-      "impact": "这是正式披露的稳市场行动，可能改善A股权重资产情绪；但公告不等于当日行业资金全面流入，仍需观察成交、广度与后续披露。",
-      "publishedAt": "2026-07-20",
-      "tags": ["央企", "增持", "稳市场"],
-      "affectedMarkets": ["A股", "港股"],
+      "id": "hot-hk-tech-0722",
+      "priority": 92,
+      "affectedMarkets": ["hk"],
+      "title": "港股恒科领跌，南向线索与价格出现背离",
+      "summary": "恒生科技下跌3.04%，公开报道显示南向净买约751.7亿港元；单日线索尚不能确认行业修复。",
+      "impact": "科技风险偏好偏弱，资金数据需要连续性和行业拆分验证。",
+      "publishedAt": "2026-07-22",
+      "tags": ["港股", "恒科", "南向"],
       "sources": [
-        {
-          "name": "中国国新：增持！",
-          "publisher": "中国国新控股有限责任公司",
-          "url": "https://www.crhc.cn/rmzx/tzggs/2026/7/7b8c4ecaa1184480ae758621f455c6e9.htm",
-          "tier": "official",
-          "evidenceClass": "official-primary"
-        },
-        {
-          "name": "中国国新、中国诚通增持股票资产",
-          "publisher": "人民日报",
-          "url": "https://finance.people.com.cn/BIG5/n1/2026/0720/c1004-40764158.html",
-          "tier": "authoritative",
-          "evidenceClass": "major-media"
-        }
+        { "name": "港股指数收盘", "publisher": "香港电台", "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0", "tier": "major-media", "evidenceClass": "major-media" },
+        { "name": "南向资金公开线索", "publisher": "金融界/格隆汇", "url": "https://m.jrj.com.cn/madapter/stock/2026/07/22181557875668.shtml", "tier": "major-media", "evidenceClass": "major-media" }
       ],
       "detail": {
-        "lead": "中国国新7月19日晚发布公告称，旗下国新投资有限公司相关主体已经使用股票回购增持专项再贷款及配套资金超500亿元，用于维护市场稳定，并将继续增持中央企业股票。该公告在7月20日A股权重修复前披露，是当天市场需要优先核验的政策与资金线索。",
-        "keyPoints": [
-          "公告主体为中国国新旗下国新投资相关主体",
-          "已使用专项再贷款及配套资金超过500亿元",
-          "后续仍将使用再贷款并配合自有资金增持央企股票"
-        ],
+        "lead": "港股7月22日的核心矛盾是价格与公开资金线索不同步：恒生科技下跌3.04%，恒指下跌0.95%，媒体公开线索却显示南向净买约751.7亿港元。两者都是真实观察，但不能合并成行业资金已完成修复的结论。",
+        "keyPoints": ["恒科跌幅显著大于恒指", "南向净买为公开代理线索", "连续行业资金与广度数据仍是缺口"],
         "sections": [
-          {
-            "heading": "公告事实",
-            "body": "中国国新官网公告的表述是，相关主体已经使用股票回购增持专项再贷款及配套资金超500亿元，资金用途为维护市场稳定，同时继续支持央企科技创新和高质量发展。公告还称，未来将继续用好用足再贷款政策工具，并配以自有资金继续增持中央企业股票。这里的“已使用”是公司披露的累计口径，并未列出本次交易的逐笔标的和每日买入清单。",
-            "sourceIndexes": [0]
-          },
-          {
-            "heading": "独立核验",
-            "body": "人民日报报道同时提到，中国诚通及其相关平台也宣布增持股票资产，中国国新披露的超500亿元来自股票回购增持专项再贷款及配套资金。两家独立来源对中国国新的公告日期、资金工具和金额性质相互印证，但媒体报道不能替代公司对具体持仓、成交日期和行业分布的正式披露。",
-            "sourceIndexes": [0, 1]
-          },
-          {
-            "heading": "市场观察",
-            "body": "7月20日上证指数上涨0.85%，沪深300上涨1.53%，但国证2000下跌3.12%；这种权重修复、小盘分化的盘面与稳市场行动同日出现，却不能据此断言全部涨幅由国家队买入造成。若后续成交广度、权重相对收益与公司或监管的进一步披露连续同向，支撑作用可能延续；若小盘继续走弱或成交集中度升高，修复仍可能只是局部反弹。",
-            "sourceIndexes": [0, 1]
-          }
+          { "heading": "价格信号", "body": "恒科领跌说明科技风险偏好较弱，行业快照中资讯科技业也处于弱势一侧；原材料与能源相对靠前属于单日表现，不能直接外推为持续轮动。科技指数的单日变化还需与成交和广度结合核验。", "sourceIndexes": [0] },
+          { "heading": "资金信号", "body": "南向净买数据可作为方向线索，但不包含完整行业归因、ETF份额、短卖和连续广度。资金数字越大，越需要检查是否集中在少数权重，而非把净额直接等同广泛买入。下一步应看连续交易日是否重复出现相同方向。", "sourceIndexes": [1] },
+          { "heading": "门禁结论", "body": "由于同一成分池的两年1/5/20日特征和质量评价不足，模型全部弃权。证据观察榜保留原材料、能源和恒科的相对表现，下一步等待价格、广度和连续资金数据同向。只有门禁恢复后，才会重新评估主榜资格；在此之前不强行补齐排名，也不把净买额填作概率。观察榜只记录证据，不制造方向。", "sourceIndexes": [0, 1] }
         ]
       }
     },
     {
-      "id": "hot-ai-chip-rebound-0721",
-      "priority": 94,
-      "title": "AI与芯片反弹带动A/H成长修复，但行业仍分化",
-      "summary": "AP报道中国与亚洲股市在芯片反弹带动下走强；A股创业板涨7.05%，港股恒生科技涨1.32%，但恒指微跌，说明修复仍集中在成长与科技。",
-      "impact": "芯片交易修复改善风险偏好，却不能替代盈利和成交广度验证；若上涨集中在少数高弹性标的，A/H轮动仍可能快速反复。",
-      "publishedAt": "2026-07-21",
-      "tags": ["AI", "芯片", "A/H联动"],
-      "affectedMarkets": ["A股", "港股"],
+      "id": "hot-oil-fomc-0722",
+      "priority": 90,
+      "affectedMarkets": ["a-share", "hk", "us"],
+      "title": "油价上行重新抬高通胀与估值约束",
+      "summary": "7月22日中东升级推动油价快速走高，Brent约94.82美元、WTI约87.65美元，市场重新评估通胀与利率风险。",
+      "impact": "能源冲击同时影响通胀预期、收益率和成长估值，需等待后续价格确认。",
+      "publishedAt": "2026-07-22",
+      "tags": ["油价", "通胀", "FOMC", "全球"],
       "sources": [
-        {
-          "name": "亚洲与中国市场收盘报道",
-          "publisher": "Associated Press",
-          "url": "https://apnews.com/article/30c42bb51683c4b43c9f64dfeff7a3ea",
-          "tier": "major-media",
-          "evidenceClass": "major-media"
-        },
-        {
-          "name": "7月21日港股收盘",
-          "publisher": "香港电台 / Reuters与新华社转述",
-          "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863043-20260721.htm?spTabChangeable=0",
-          "tier": "major-media",
-          "evidenceClass": "major-media"
-        }
+        { "name": "油价与中东局势", "publisher": "Associated Press", "url": "https://apnews.com/article/207dfa55d180fcc565420454178168c5", "tier": "major-media", "evidenceClass": "major-media" },
+        { "name": "FOMC 6月声明", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm", "tier": "official", "evidenceClass": "official-primary" }
       ],
       "detail": {
-        "lead": "7月21日A股与港股的科技成长表现明显分化：上证指数涨1.79%，深证成指涨4.81%，创业板指涨7.05%；恒生科技涨1.32%，但恒生指数跌0.04%。AP将中国市场上涨与芯片反弹联系起来，香港电台则记录港股收市时科技行业表现较强。",
-        "keyPoints": [
-          "A股创业板涨7.05%，深证成指涨4.81%",
-          "恒生科技涨1.32%，恒指跌0.04%",
-          "成长修复尚未得到广度与持续资金路径确认"
-        ],
+        "lead": "7月22日油价因中东局势升级快速上行，AP报道Brent约94.82美元、WTI约87.65美元。能源价格本身不是股市方向预测，但它会同时改变通胀预期、利率路径和高估值成长资产的折现条件。",
+        "keyPoints": ["Brent约94.82美元，WTI约87.65美元", "供给冲击可能延长通胀约束", "7月FOMC前收益率与能源是关键验证变量"],
         "sections": [
-          {
-            "heading": "A股弹性更强",
-            "body": "腾讯收盘行情显示上证、深证和创业板三项指数分别涨1.79%、4.81%和7.05%，沪深两市成交约2.96万亿元。指数与成交同步走强是当日事实，但医药医疗上涨广度只有37.29%，因此不能把普涨指数表现外推为所有行业均衡扩散。",
-            "sourceIndexes": [0]
-          },
-          {
-            "heading": "港股科技修复",
-            "body": "恒生科技指数涨1.32%至4814.83点，恒生指数微跌至25132.29点；恒生行业快照显示原材料、工业和资讯科技业领涨，能源跌1.37%。这更接近科技与周期局部修复，而不是港股整体风险偏好全面回升。",
-            "sourceIndexes": [1]
-          },
-          {
-            "heading": "验证条件",
-            "body": "后续需要观察A股上涨广度能否回到50%以上、医药医疗量能是否延续，以及港股科技强势能否与南向公开成交连续同向。若成长指数再度领跌、行业广度继续偏低或成交集中度抬升，当前反弹的失效条件就会被触发。",
-            "sourceIndexes": [0, 1]
-          }
+          { "heading": "事件事实", "body": "AP将油价上涨与美国和伊朗紧张升级联系起来，并提示能源冲击可能重新影响市场对通胀和美联储政策的判断。当前只记录已报道的价格和风险，不把地缘事件外推成确定的市场结果。", "sourceIndexes": [0] },
+          { "heading": "政策连接", "body": "美联储6月声明明确通胀仍高于2%目标，因此油价若持续上行，可能延缓宽松定价；若只是短期波动，影响则可能通过收益率和行业相对表现逐步消退。政策变量仍需等官方会议文本确认。市场会先通过收益率表达。", "sourceIndexes": [1] },
+          { "heading": "资产映射", "body": "A股能源与公用事业观察分靠前，港股能源单日相对强，但港股科技和A股成长走弱，显示不同市场的传导并不一致。后续看油价、收益率和行业广度是否连续同向。若油价冲击缓和，资产表现仍需重新核验，并区分行业价格与资金流，避免跨市场简单类比。", "sourceIndexes": [0, 1] }
         ]
       }
     }
   ],
   "watchlist": [
-    {
-      "time": "07.22",
-      "title": "验证成长反弹是否扩散",
-      "note": "观察A股上涨广度是否回到50%以上、医药医疗量能是否延续；港股看恒科与原材料强势能否伴随南向公开成交连续。",
-      "tone": "warning"
-    },
-    {
-      "time": "07.28–29",
-      "title": "FOMC 利率决议",
-      "note": "重点观察声明措辞、通胀判断和政策实施说明。",
-      "tone": "warning"
-    },
-    {
-      "time": "每日",
-      "title": "能源价格与中东局势",
-      "note": "仅在获得主流媒体或官方信息交叉确认后写入热点。",
-      "tone": "warning"
-    }
+    { "time": "07.23", "title": "观察A股扩散", "note": "看医药广度能否回到50%以上、主要消费量能能否保持；模型继续弃权时只更新证据榜。", "tone": "warning" },
+    { "time": "07.28–29", "title": "FOMC利率决议", "note": "观察声明对通胀、能源和就业的措辞，以及收益率对成长资产的反馈。", "tone": "warning" },
+    { "time": "每日", "title": "港股科技与南向", "note": "跟踪恒科、行业广度和南向公开统计是否连续同向，避免用单日净额替代行业资金证据。", "tone": "warning" }
   ],
   "sourceDirectory": [
-    {
-      "name": "美联储官网",
-      "category": "政策与利率",
-      "description": "FOMC 声明、会议纪要、政策报告与会议日历的第一来源。",
-      "url": "https://www.federalreserve.gov/monetarypolicy.htm",
-      "tier": "official"
-    },
-    {
-      "name": "中国证监会",
-      "category": "A 股监管",
-      "description": "监管政策、新闻发布与公开文件。",
-      "url": "https://www.csrc.gov.cn/csrc/xwfb/index.shtml",
-      "tier": "official"
-    },
-    {
-      "name": "上交所 / 深交所",
-      "category": "A 股市场",
-      "description": "交易所公告、市场数据与业务规则。",
-      "url": "https://www.sse.com.cn/",
-      "tier": "official"
-    },
-    {
-      "name": "上交所融资融券",
-      "category": "A 股杠杆资金",
-      "description": "市场融资买入额、融资余额和融券数据的官方汇总。",
-      "url": "https://www.sse.com.cn/market/othersdata/margin/sum/",
-      "tier": "official"
-    },
-    {
-      "name": "香港交易所",
-      "category": "港股市场",
-      "description": "市场数据、监管公告、新闻稿与市场通讯。",
-      "url": "https://www.hkex.com.hk/?sc_lang=zh-HK",
-      "tier": "official"
-    },
-    {
-      "name": "港交所互联互通统计",
-      "category": "南向资金",
-      "description": "南向日度成交、活跃股与历史统计的官方入口。",
-      "url": "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Statistics/Historical-Daily?sc_lang=zh-HK",
-      "tier": "official"
-    },
-    {
-      "name": "美国 SEC",
-      "category": "美股披露",
-      "description": "上市公司文件、监管公告和 EDGAR 披露。",
-      "url": "https://www.sec.gov/search-filings",
-      "tier": "official"
-    },
-    {
-      "name": "美国劳工统计局",
-      "category": "通胀与就业",
-      "description": "CPI、PPI、就业和工资数据的官方发布源。",
-      "url": "https://www.bls.gov/bls/newsrels.htm",
-      "tier": "official"
-    },
-    {
-      "name": "美国财政部",
-      "category": "国债收益率",
-      "description": "每日美国国债收益率曲线与官方终值。",
-      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
-      "tier": "official"
-    },
-    {
-      "name": "国家统计局",
-      "category": "中国宏观数据",
-      "description": "GDP、工业、消费、投资等宏观数据与新闻发布的第一来源。",
-      "url": "https://www.stats.gov.cn/sj/zxfb/",
-      "tier": "official"
-    },
-    {
-      "name": "国家发展改革委",
-      "category": "中国宏观政策",
-      "description": "扩大内需、产业政策与重要规划的官方解读。",
-      "url": "https://www.ndrc.gov.cn/xwdt/",
-      "tier": "official"
-    },
-    {
-      "name": "新华财经",
-      "category": "市场收评",
-      "description": "三地市场收盘、宏观数据和政策信息的权威中文摘要。",
-      "url": "https://www.cnfin.com/",
-      "tier": "authoritative"
-    },
-    {
-      "name": "同花顺财经",
-      "category": "资讯发现",
-      "description": "用于发现 A 股公司与行业动态；重要结论仍回查公告或官方来源。",
-      "url": "https://news.10jqka.com.cn/",
-      "tier": "major-media"
-    },
-    {
-      "name": "东方财富",
-      "category": "市场资讯",
-      "description": "用于收盘数据和市场新闻的交叉核验。",
-      "url": "https://finance.eastmoney.com/",
-      "tier": "major-media"
-    }
+    { "name": "Federal Reserve", "url": "https://www.federalreserve.gov/", "tier": "official", "evidenceClass": "official-primary" },
+    { "name": "中证指数有限公司", "url": "https://www.csindex.com.cn/", "tier": "official", "evidenceClass": "official-primary" },
+    { "name": "香港交易所", "url": "https://www.hkex.com.hk/", "tier": "official", "evidenceClass": "exchange-market-data" },
+    { "name": "恒生指数有限公司", "url": "https://www.hsi.com.hk/", "tier": "official", "evidenceClass": "official-primary" },
+    { "name": "Associated Press", "url": "https://apnews.com/", "tier": "major-media", "evidenceClass": "major-media" },
+    { "name": "Reuters", "url": "https://www.reuters.com/markets/", "tier": "major-media", "evidenceClass": "major-media" },
+    { "name": "新浪财经", "url": "https://finance.sina.com.cn/", "tier": "major-media", "evidenceClass": "major-media" }
   ],
   "methodology": [
-    "政策内容优先引用央行、监管机构、交易所和公司公告原文。",
-    "市场数字只采用最新完整交易日，并在每个市场卡片标明各自截止日期。",
-    "重要判断至少使用两个独立来源交叉核验；单一来源信息会明确标注。",
-    "只保留原创摘要与影响提示，不复制受版权保护的新闻全文。",
-    "A股与港股板块轮动按固定行业口径比较近5日和此前20日；数据不足时不认定明显放量。",
-    "结论使用事实、解释、反证与观察条件分层表达；页面底部统一保留一次免责声明。"
+    "全球覆盖：A/H使用各自最新完整收盘，美股只使用最新完整交易日，不混入未收盘行情。",
+    "固定观察池为a-core12-v2，重点池只提高采集、解释和历史留存深度，不改变评分、权重或排名。",
+    "1/5/20交易日模型独立冻结，主榜须同时满足概率差、47%–53%分布、横截面标准差、80%完整度和多目标质量门禁。",
+    "Brier Skill、RankIC、扣费后Top-Bottom和walk-forward一致性任一关键门禁失败即abstained，降级为明确标注的证据观察榜。",
+    "量能观察须满足额比1.35、真实量比1.20、成交份额比1.15及至少25个可比完整交易日，并同时检查广度与集中度。",
+    "所有缺失值保持null或insufficient，不用0或50%代填；引用优先官方、交易所和直接市场数据。"
   ]
 }
