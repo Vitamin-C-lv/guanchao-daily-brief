@@ -1,85 +1,92 @@
 {
   "schemaVersion": 1,
   "meta": {
-    "editionDate": "2026-07-22",
-    "generatedAt": "2026-07-22T20:42:00+08:00",
-    "dataAsOf": "2026-07-22T20:42:00+08:00",
-    "snapshotCreatedAt": "2026-07-22T20:42:00+08:00",
-    "snapshotKind": "close",
+    "editionDate": "2026-07-23",
+    "generatedAt": "2026-07-23T08:30:00+08:00",
+    "dataAsOf": "2026-07-23T08:30:00+08:00",
+    "snapshotCreatedAt": "2026-07-23T08:30:00+08:00",
+    "snapshotKind": "morning",
     "modelVersion": "market-observer-v1.0.0",
     "coverage": "global-with-priority-watch"
   },
   "homeObservation": {
     "significant": true,
-    "conclusion": "A股指数分化、港股科技领跌，美股前一交易日芯片反弹",
-    "data": "上证 +0.07%、创业板 -3.23%；恒指 -0.95%、恒科 -3.04%；美股截至7月21日纳指 +1.30%。",
-    "macro": "Brent约94.82美元/桶；美联储6月目标区间3.50%–3.75%，7月28–29日开会。",
-    "counterEvidence": "A股主要消费和医药医疗量能达标，但医药广度49.15%；港股历史行业序列缺失，概率模型均弃权。",
-    "watch": "A股量能广度、港股恒科与南向公开成交、油价与7月FOMC措辞。",
+    "conclusion": "A股指数分化、港股科技领跌，美股科技回落且油价上行",
+    "data": "上证+0.07%、创业板-3.23%；恒指-0.95%、恒科-3.04%；美股7月22日纳指-0.6%。",
+    "macro": "Brent约94.07美元/桶；美联储6月目标区间3.50%–3.75%，7月28–29日开会。",
+    "counterEvidence": "A股能源三项量能门槛通过且广度88%；港股行业历史和资金连续序列不足，未来模型窗口均弃权。",
+    "watch": "A股能源量能与行业广度、港股恒科与南向公开成交、油价与7月FOMC措辞。",
     "href": "/briefs/#daily-macro"
   },
   "globalOverview": {
-    "id": "global-overview-2026-07-22",
+    "id": "global-overview-2026-07-23",
     "eyebrow": "GLOBAL MARKET",
     "subject": "全局市场",
-    "conclusion": "A股指数分化、港股科技领跌，美股前一交易日芯片反弹",
+    "conclusion": "A股指数分化、港股科技领跌，美股科技回落且油价上行",
     "conclusionLevel": "moderate",
     "facts": [
       {
-        "label": "沪深300",
+        "label": "上证指数",
         "currentValue": "+0.07%",
         "previousValue": "上一交易日收盘未单独核验",
         "expectedValue": "市场预期：暂无可靠数据",
-        "surprise": "上证微涨，成长指数回落",
+        "surprise": "上证微涨、成长指数回落",
         "dataPeriod": "2026-07-22收盘",
         "sourceId": "yicai-a-close",
-        "releasedAt": "2026-07-20T15:20:00+08:00",
-        "updatedAt": "2026-07-20T20:09:20+08:00",
-        "status": "delayed",
-        "note": "收盘后媒体汇总，页面不按实时行情刷新。"
+        "releasedAt": "2026-07-22T17:03:00+08:00",
+        "updatedAt": "2026-07-23T08:30:00+08:00",
+        "status": "official"
       },
       {
         "label": "恒生科技指数",
         "currentValue": "4668.23（-3.04%）",
         "previousValue": "上一交易日收盘未单独核验",
         "expectedValue": "市场预期：暂无可靠数据",
-        "surprise": "当日涨幅+1.32%",
+        "surprise": "科技跌幅大于恒指",
         "dataPeriod": "2026-07-22收盘",
         "sourceId": "hkex-market-data",
-        "releasedAt": "2026-07-20T16:10:00+08:00",
-        "updatedAt": "2026-07-20T20:09:20+08:00",
+        "releasedAt": "2026-07-22T17:03:00+08:00",
+        "updatedAt": "2026-07-23T08:30:00+08:00",
         "status": "official"
       },
       {
-        "label": "美国2年期国债收益率",
-        "currentValue": "4.18%",
-        "previousValue": "4.16%",
+        "label": "纳斯达克指数",
+        "currentValue": "25690.90（-0.6%）",
+        "previousValue": "25837.21（+1.3%）",
         "expectedValue": "市场预期：暂无可靠数据",
-        "surprise": "+2个基点",
-        "dataPeriod": "2026-07-17收盘",
-        "sourceId": "us-treasury-yield",
-        "releasedAt": "2026-07-17T15:30:00-04:00",
-        "updatedAt": "2026-07-20T20:09:20+08:00",
+        "surprise": "由涨转跌",
+        "dataPeriod": "2026-07-22收盘",
+        "sourceId": "ap-us-close",
+        "releasedAt": "2026-07-23T04:30:00+08:00",
+        "updatedAt": "2026-07-23T08:30:00+08:00",
         "status": "official"
       }
     ],
-      "explanation": [
-      "A股指数分化、港股科技领跌，风险偏好没有在中国资产内部同步修复。",
-      "美国2年期收益率与油价是7月FOMC前的折现率反证。"
+    "explanation": [
+      "A股指数分化、港股科技领跌，美股科技回落，风险偏好没有在中国资产与海外科技之间同步修复。",
+      "油价和收益率上行是7月FOMC前的折现率反证，AI估值仍需业绩与资本开支验证。"
     ],
     "counterEvidence": [
-      "油价升至约94.82美元并重新抬高通胀风险，美股AI反弹仍面临折现率反证。",
-      "南向资金和恒生科技ETF净申购尚无可核验连续序列，资金确认链仍缺一环。"
+      "A股能源量价三项指标均达标且广度88%，并非所有市场风险偏好同时转弱。",
+      "南向资金连续序列、ETF份额和港股行业历史仍未形成完整可比面板。"
     ],
     "watchItems": [
-      { "indicator": "美国2年期国债收益率", "trigger": "跌破4.10%并连续两个交易日走低" },
-      { "indicator": "恒生科技与南向资金", "trigger": "指数上涨同时出现连续净买入与广度扩张" }
+      {
+        "indicator": "油价与美国收益率",
+        "trigger": "Brent和10年期收益率连续同向上行"
+      },
+      {
+        "indicator": "恒生科技与南向资金",
+        "trigger": "指数止跌同时出现连续净买入与广度扩张"
+      }
     ],
-    "states": ["market-unconfirmed"]
+    "states": [
+      "market-unconfirmed"
+    ]
   },
   "priorityWatch": [
     {
-      "id": "watch-hstech-2026-07-21",
+      "id": "watch-hstech-2026-07-23",
       "watchId": "hk_hstech",
       "market": "HK",
       "priority": 1,
@@ -99,7 +106,7 @@
           "dataPeriod": "2026-07-22收盘",
           "sourceId": "hkex-market-data",
           "releasedAt": "2026-07-20T16:10:00+08:00",
-          "updatedAt": "2026-07-20T20:09:20+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "official"
         },
         {
@@ -111,20 +118,32 @@
           "dataPeriod": "2026-07-22收盘",
           "sourceId": "hsi-industry",
           "releasedAt": "2026-07-20T16:10:00+08:00",
-          "updatedAt": "2026-07-20T20:09:20+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "official"
         }
       ],
-      "explanation": ["指数与资讯科技行业同步走弱，科技风险偏好出现收缩。"],
-      "counterEvidence": ["南向净买入、ETF份额变化和成分股上涨广度尚未形成同口径连续序列。"],
-      "watchItems": [
-        { "indicator": "南向资金与恒科ETF份额", "trigger": "连续3个交易日同向净流入" },
-        { "indicator": "恒生科技指数", "trigger": "止跌且行业广度连续改善" }
+      "explanation": [
+        "指数与资讯科技行业同步走弱，科技风险偏好出现收缩。"
       ],
-      "states": ["market-unconfirmed"]
+      "counterEvidence": [
+        "南向净买入、ETF份额变化和成分股上涨广度尚未形成同口径连续序列。"
+      ],
+      "watchItems": [
+        {
+          "indicator": "南向资金与恒科ETF份额",
+          "trigger": "连续3个交易日同向净流入"
+        },
+        {
+          "indicator": "恒生科技指数",
+          "trigger": "止跌且行业广度连续改善"
+        }
+      ],
+      "states": [
+        "market-unconfirmed"
+      ]
     },
     {
-      "id": "watch-hk-internet-ai-2026-07-21",
+      "id": "watch-hk-internet-ai-2026-07-23",
       "watchId": "hk_internet_ai",
       "market": "HK",
       "priority": 1,
@@ -132,7 +151,7 @@
       "significant": true,
       "eyebrow": "P1 · HK",
       "subject": "港股互联网与AI巨头",
-      "conclusion": "港股互联网与AI承压，美股芯片前一日仍有韧性",
+      "conclusion": "港股互联网与AI承压，美股AI股同步震荡",
       "conclusionLevel": "moderate",
       "facts": [
         {
@@ -144,32 +163,42 @@
           "dataPeriod": "2026-07-22收盘",
           "sourceId": "hkex-market-data",
           "releasedAt": "2026-07-20T16:10:00+08:00",
-          "updatedAt": "2026-07-20T20:09:20+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "official",
           "note": "使用恒生科技作为港股互联网与AI龙头的指数代理。"
         },
         {
           "label": "纳斯达克",
-          "currentValue": "25837.21（+1.30%）",
-          "previousValue": "上一交易日收盘未单独核验",
+          "currentValue": "25690.90（-0.6%）",
+          "previousValue": "25837.21（+1.3%）",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "当日+1.30%",
-          "dataPeriod": "2026-07-21收盘",
+          "surprise": "由涨转跌",
+          "dataPeriod": "2026-07-22收盘",
           "sourceId": "ap-us-close",
-          "releasedAt": "2026-07-20T16:30:00-04:00",
-          "updatedAt": "2026-07-20T20:09:20+08:00",
-          "status": "delayed"
+          "releasedAt": "2026-07-23T04:30:00+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
+          "status": "official"
         }
       ],
-      "explanation": ["港股科技独立走强，说明本地风险偏好和估值修复暂时占主导。"],
-      "counterEvidence": ["纳斯达克和AI权重股仍在回撤，海外估值锚没有提供正向确认。"],
+      "explanation": [
+        "港股科技独立走强，说明本地风险偏好和估值修复暂时占主导。"
+      ],
+      "counterEvidence": [
+        "纳斯达克和AI权重股仍在回撤，海外估值锚没有提供正向确认。"
+      ],
       "watchItems": [
-        { "indicator": "AI巨头财报与资本开支", "trigger": "业绩上修并带动纳指和亚洲供应链同涨" },
-        { "indicator": "港股龙头回购与南向资金", "trigger": "公司行为与资金流连续共振" }
+        {
+          "indicator": "AI巨头财报与资本开支",
+          "trigger": "业绩上修并带动纳指和亚洲供应链同涨"
+        },
+        {
+          "indicator": "港股龙头回购与南向资金",
+          "trigger": "公司行为与资金流连续共振"
+        }
       ]
     },
     {
-      "id": "watch-a-healthcare-2026-07-20",
+      "id": "watch-a-healthcare-2026-07-23",
       "watchId": "a_healthcare",
       "market": "A_SHARE",
       "priority": 1,
@@ -189,7 +218,7 @@
           "dataPeriod": "截至2026-07-22的5日/20日窗口",
           "sourceId": "csindex-healthcare",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-20T20:08:58+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "estimated",
           "note": "由中证官方日频量价序列计算相对排名。"
         },
@@ -202,16 +231,25 @@
           "dataPeriod": "截至2026-07-22，25个完整可比日",
           "sourceId": "csindex-healthcare",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-20T20:08:58+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "estimated"
         }
       ],
-      "explanation": ["三项量能指标同时高于门槛，但广度低于50%，应按集中交易观察。"],
-      "counterEvidence": ["若成交额比跌回1.20x以下且相对收益转负，领先判断失效。"],
-      "watchItems": [{ "indicator": "医疗ETF份额与行业广度", "trigger": "ETF净申购和上涨家数继续扩大" }]
+      "explanation": [
+        "三项量能指标同时高于门槛，但广度低于50%，应按集中交易观察。"
+      ],
+      "counterEvidence": [
+        "若成交额比跌回1.20x以下且相对收益转负，领先判断失效。"
+      ],
+      "watchItems": [
+        {
+          "indicator": "医疗ETF份额与行业广度",
+          "trigger": "ETF净申购和上涨家数继续扩大"
+        }
+      ]
     },
     {
-      "id": "watch-a-defense-2026-07-20",
+      "id": "watch-a-defense-2026-07-23",
       "watchId": "a_defense",
       "market": "A_SHARE",
       "priority": 1,
@@ -231,7 +269,7 @@
           "dataPeriod": "截至2026-07-22的5日/20日窗口",
           "sourceId": "csindex-defense",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-20T20:08:58+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "estimated"
         },
         {
@@ -243,16 +281,25 @@
           "dataPeriod": "截至2026-07-22，25个完整可比日",
           "sourceId": "csindex-defense",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-20T20:08:58+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "estimated"
         }
       ],
-      "explanation": ["价格弱势与成交收缩同时出现，当前没有资金主动回流证据。"],
-      "counterEvidence": ["若军工ETF份额回升、成交额比突破1.20x且上涨广度扩张，弱势结论失效。"],
-      "watchItems": [{ "indicator": "军工ETF净申购与军工指数成交额", "trigger": "连续3日同向改善" }]
+      "explanation": [
+        "价格弱势与成交收缩同时出现，当前没有资金主动回流证据。"
+      ],
+      "counterEvidence": [
+        "若军工ETF份额回升、成交额比突破1.20x且上涨广度扩张，弱势结论失效。"
+      ],
+      "watchItems": [
+        {
+          "indicator": "军工ETF净申购与军工指数成交额",
+          "trigger": "连续3日同向改善"
+        }
+      ]
     },
     {
-      "id": "watch-a-semiconductor-2026-07-20",
+      "id": "watch-a-semiconductor-2026-07-23",
       "watchId": "a_semiconductor",
       "market": "A_SHARE",
       "priority": 1,
@@ -272,7 +319,7 @@
           "dataPeriod": "截至2026-07-22的5日/20日窗口",
           "sourceId": "csindex-it",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-20T20:08:58+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "estimated",
           "note": "当前使用信息技术行业指数作为半导体宽口径代理，不等同纯半导体指数。"
         },
@@ -282,20 +329,31 @@
           "previousValue": "上一交易日收盘未单独核验",
           "expectedValue": "市场预期：暂无可靠数据",
           "surprise": "美股芯片前一日反弹",
-          "dataPeriod": "2026-07-21收盘",
+          "dataPeriod": "截至2026-07-22的5日/20日窗口",
           "sourceId": "ap-us-close",
           "releasedAt": "2026-07-21T16:30:00-04:00",
-          "updatedAt": "2026-07-20T20:09:20+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "official"
         }
       ],
-      "explanation": ["海外龙头业绩强，但A股信息技术代理仍处于量价弱势，基本面尚未转成板块价格确认。"],
-      "counterEvidence": ["纯半导体指数与ETF份额数据补齐后，若其走势显著强于信息技术宽基，本结论需要重算。"],
-      "watchItems": [{ "indicator": "半导体ETF份额、纯半导体指数与设备订单", "trigger": "至少三项证据中两项转强" }],
-      "states": ["market-unconfirmed"]
+      "explanation": [
+        "海外龙头业绩强，但A股信息技术代理仍处于量价弱势，基本面尚未转成板块价格确认。"
+      ],
+      "counterEvidence": [
+        "纯半导体指数与ETF份额数据补齐后，若其走势显著强于信息技术宽基，本结论需要重算。"
+      ],
+      "watchItems": [
+        {
+          "indicator": "半导体ETF份额、纯半导体指数与设备订单",
+          "trigger": "至少三项证据中两项转强"
+        }
+      ],
+      "states": [
+        "market-unconfirmed"
+      ]
     },
     {
-      "id": "watch-a-ai-internet-2026-07-21",
+      "id": "watch-a-ai-internet-2026-07-23",
       "watchId": "a_ai_internet",
       "market": "A_SHARE",
       "priority": 1,
@@ -315,7 +373,7 @@
           "dataPeriod": "截至2026-07-22的5日/20日窗口",
           "sourceId": "csindex-mobile-internet",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-20T20:08:58+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "estimated"
         },
         {
@@ -327,17 +385,26 @@
           "dataPeriod": "截至2026-07-22，25个完整可比日",
           "sourceId": "csindex-mobile-internet",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-20T20:08:58+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "estimated"
         }
       ],
-      "explanation": ["相对收益为负且成交活跃度低于20日基准，当前弱势由价格与量能共同确认。"],
-      "counterEvidence": ["若成交额比突破1.20x、通信服务同步转强且ETF份额增长，弱势判断失效。"],
-      "watchItems": [{ "indicator": "移动互联网、通信服务与AI ETF", "trigger": "三者至少两项连续3日转强" }]
+      "explanation": [
+        "相对收益为负且成交活跃度低于20日基准，当前弱势由价格与量能共同确认。"
+      ],
+      "counterEvidence": [
+        "若成交额比突破1.20x、通信服务同步转强且ETF份额增长，弱势判断失效。"
+      ],
+      "watchItems": [
+        {
+          "indicator": "移动互联网、通信服务与AI ETF",
+          "trigger": "三者至少两项连续3日转强"
+        }
+      ]
     }
   ],
   "policyFundRadar": {
-    "id": "policy-fund-radar-2026-07-20",
+    "id": "policy-fund-radar-2026-07-23",
     "eyebrow": "POLICY FUND RADAR",
     "subject": "政策资金雷达",
     "conclusion": "中国国新超500亿元增持已确认，行业去向未披露",
@@ -356,13 +423,25 @@
         "status": "official"
       }
     ],
-    "explanation": ["公告主体、资金工具和规模均由中国国新正式披露，可确认为政策资金行动。"],
-    "counterEvidence": ["公告没有给出逐日成交、行业分布和个股明细，不能据此推断军工、医疗或科技已获定向买入。"],
-    "watchItems": [
-      { "indicator": "央企ETF份额、权重指数成交与后续官方披露", "trigger": "至少两类证据连续同向" },
-      { "indicator": "养老金、医保基金等机构披露", "trigger": "仅在正式披露或可核验持仓变化后更新身份标签" }
+    "explanation": [
+      "公告主体、资金工具和规模均由中国国新正式披露，可确认为政策资金行动。"
     ],
-    "states": ["identity-unconfirmed"]
+    "counterEvidence": [
+      "公告没有给出逐日成交、行业分布和个股明细，不能据此推断军工、医疗或科技已获定向买入。"
+    ],
+    "watchItems": [
+      {
+        "indicator": "央企ETF份额、权重指数成交与后续官方披露",
+        "trigger": "至少两类证据连续同向"
+      },
+      {
+        "indicator": "养老金、医保基金等机构披露",
+        "trigger": "仅在正式披露或可核验持仓变化后更新身份标签"
+      }
+    ],
+    "states": [
+      "identity-unconfirmed"
+    ]
   },
   "macroChain": {
     "title": "当前宏观主链",
@@ -373,17 +452,17 @@
         "label": "原油",
         "role": "输入成本",
         "fact": {
-          "label": "布伦特现货",
-          "currentValue": "Brent约94.82美元/桶；WTI约87.65美元/桶",
-          "previousValue": "上一交易日价格未单独核验",
+          "label": "布伦特原油",
+          "currentValue": "94.07美元/桶",
+          "previousValue": "约91美元/桶（AP报道）",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "中东升级推动快速上行",
-          "dataPeriod": "2026-07-22报道",
+          "surprise": "7月22日上涨3.4%",
+          "dataPeriod": "2026-07-22收盘报道",
           "sourceId": "ap-us-close",
-          "releasedAt": "2026-07-22T12:00:00-04:00",
-          "updatedAt": "2026-07-22T20:42:00+08:00",
+          "releasedAt": "2026-07-23T04:30:00+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "delayed",
-          "note": "采用AP对7月22日油价与地缘事件的报道；不是美股收盘数据。"
+          "note": "AP报道的收盘日价格；不是EIA库存统计。"
         }
       },
       {
@@ -397,9 +476,9 @@
           "expectedValue": "市场预期：暂无可靠数据",
           "surprise": "无法计算预期差",
           "dataPeriod": "2026年6月",
-          "sourceId": "bls-cpi",
+          "sourceId": "ap-us-close",
           "releasedAt": "2026-07-16T08:30:00-04:00",
-          "updatedAt": "2026-07-20T20:09:20+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "official",
           "note": "核心CPI剔除食品与能源；能源冲击需结合标题CPI和油价继续观察。"
         }
@@ -417,7 +496,7 @@
           "dataPeriod": "2026-06-17决议；下次会议7月28–29日",
           "sourceId": "fed-fomc",
           "releasedAt": "2026-06-17T14:00:00-04:00",
-          "updatedAt": "2026-07-20T20:09:20+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "official"
         }
       },
@@ -434,7 +513,7 @@
           "dataPeriod": "2026-07-17收盘",
           "sourceId": "us-treasury-yield",
           "releasedAt": "2026-07-17T15:30:00-04:00",
-          "updatedAt": "2026-07-20T20:09:20+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "official"
         }
       },
@@ -461,15 +540,15 @@
         "role": "风险资产定价",
         "fact": {
           "label": "纳斯达克指数",
-          "currentValue": "25837.21（+1.30%）",
-          "previousValue": "上一交易日收盘未单独核验",
+          "currentValue": "25690.90（-0.6%）",
+          "previousValue": "25837.21（+1.3%）",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "当日+1.30%",
-          "dataPeriod": "2026-07-21收盘",
+          "surprise": "由涨转跌",
+          "dataPeriod": "2026-07-22收盘",
           "sourceId": "ap-us-close",
-          "releasedAt": "2026-07-20T16:30:00-04:00",
-          "updatedAt": "2026-07-20T20:09:20+08:00",
-          "status": "delayed"
+          "releasedAt": "2026-07-23T04:30:00+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
+          "status": "official"
         }
       },
       {
@@ -485,29 +564,64 @@
           "dataPeriod": "2026-07-22收盘",
           "sourceId": "hkex-market-data",
           "releasedAt": "2026-07-20T16:10:00+08:00",
-          "updatedAt": "2026-07-20T20:09:20+08:00",
+          "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "official"
         }
       }
     ],
     "relationships": [
-      { "from": "oil", "to": "energy-inflation", "status": "partial", "explanation": "油价最新读数回落，但6月通胀与7月油价不在同一统计期。" },
-      { "from": "energy-inflation", "to": "cut-expectations", "status": "unconfirmed", "explanation": "核心CPI改善，7月降息概率却缺少可靠可复核值。" },
-      { "from": "cut-expectations", "to": "us2y", "status": "reverse", "explanation": "2年期收益率上升2个基点，没有确认快速宽松交易。" },
-      { "from": "us2y", "to": "usd-cny", "status": "partial", "explanation": "短端收益率上行与人民币中间价小幅调贬方向一致，幅度有限。" },
-      { "from": "usd-cny", "to": "tech-valuation", "status": "partial", "explanation": "纳指回撤符合估值受压方向，但不能由单日汇率变化单独解释。" },
-      { "from": "tech-valuation", "to": "asia-tech", "status": "reverse", "explanation": "美股科技走弱，恒生科技反而上涨，亚洲科技出现反向信号。" }
+      {
+        "from": "oil",
+        "to": "energy-inflation",
+        "status": "partial",
+        "explanation": "油价最新读数与能源通胀统计期不同，价格传导只能标为partial。"
+      },
+      {
+        "from": "energy-inflation",
+        "to": "cut-expectations",
+        "status": "unconfirmed",
+        "explanation": "核心CPI改善，7月降息概率却缺少可靠可复核值。"
+      },
+      {
+        "from": "cut-expectations",
+        "to": "us2y",
+        "status": "reverse",
+        "explanation": "2年期收益率上升2个基点，没有确认快速宽松交易。"
+      },
+      {
+        "from": "us2y",
+        "to": "usd-cny",
+        "status": "partial",
+        "explanation": "短端收益率上行与人民币中间价小幅调贬方向一致，幅度有限。"
+      },
+      {
+        "from": "usd-cny",
+        "to": "tech-valuation",
+        "status": "partial",
+        "explanation": "纳指回落与油价、收益率上行同日出现，但单日数据不能单独证明因果。"
+      },
+      {
+        "from": "tech-valuation",
+        "to": "asia-tech",
+        "status": "reverse",
+        "explanation": "美股科技和港股科技同日走弱，方向一致但传导机制仍需连续数据确认。"
+      }
     ]
   },
   "headlineCalibrations": [
     {
-      "id": "oil-surge-calibration-2026-07-20",
-      "originalHeadline": "示例触发词：原油价格狂飙",
-      "detectedTerms": ["狂飙"],
-      "calibratedHeadline": "布伦特原油7月17日上涨4.6%；EIA可得的7月16日现货收于81.23美元并下跌2.2%。",
-      "verification": "两个数字来自不同交易日，标题不能被外推为连续上涨趋势。",
+      "id": "oil-rise-calibration-2026-07-23",
+      "originalHeadline": "原油价格上涨",
+      "detectedTerms": [
+        "狂飙"
+      ],
+      "calibratedHeadline": "AP报道7月22日Brent上涨3.4%至94.07美元并触及近六周高位；EIA同日更新的是截至7月17日的库存周报，两者不合并外推。",
+      "verification": "价格与库存属于不同统计期，标题只保留已核验的资产、日期和涨幅。",
       "relationshipStatus": "partial",
-      "sourceIds": ["ap-us-close", "eia-daily-prices"]
+      "sourceIds": [
+        "ap-us-close",
+        "eia-daily-prices"
+      ]
     }
   ],
   "sources": [
@@ -523,13 +637,13 @@
     },
     {
       "id": "eia-daily-prices",
-      "name": "Today in Energy Daily Prices",
+      "name": "Weekly Petroleum Status Report（截至7月17日）",
       "publisher": "U.S. Energy Information Administration",
-      "url": "https://www.eia.gov/todayinenergy/prices.php",
+      "url": "https://www.eia.gov/petroleum/supply/weekly/",
       "tier": "official",
       "evidenceClass": "vendor-market-data",
-      "publishedAt": "2026-07-17T08:30:00-04:00",
-      "accessedAt": "2026-07-20T20:09:20+08:00"
+      "publishedAt": "2026-07-22T22:30:00+08:00",
+      "accessedAt": "2026-07-23T08:30:00+08:00"
     },
     {
       "id": "safe-cny-parity",
@@ -618,8 +732,8 @@
       "url": "https://www.hsi.com.hk/eng/indexes/all-indexes/industry",
       "tier": "official",
       "evidenceClass": "exchange-market-data",
-      "publishedAt": "2026-07-20T16:10:00+08:00",
-      "accessedAt": "2026-07-20T20:09:20+08:00"
+      "publishedAt": "2026-07-22T17:03:00+08:00",
+      "accessedAt": "2026-07-23T08:30:00+08:00"
     },
     {
       "id": "hkex-market-data",
@@ -628,28 +742,28 @@
       "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
       "tier": "official",
       "evidenceClass": "exchange-market-data",
-      "publishedAt": "2026-07-20T16:10:00+08:00",
-      "accessedAt": "2026-07-20T20:09:20+08:00"
+      "publishedAt": "2026-07-22T17:03:00+08:00",
+      "accessedAt": "2026-07-23T08:30:00+08:00"
     },
     {
       "id": "yicai-a-close",
-      "name": "7月20日A股收盘",
-      "publisher": "第一财经",
-      "url": "https://www.yicai.com/news/103281967.html",
-      "tier": "authoritative",
+      "name": "7月22日A/H收盘交叉核验",
+      "publisher": "香港电台",
+      "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0",
+      "tier": "major-media",
       "evidenceClass": "major-media",
-      "publishedAt": "2026-07-20T15:20:00+08:00",
-      "accessedAt": "2026-07-20T20:09:20+08:00"
+      "publishedAt": "2026-07-22T17:03:00+08:00",
+      "accessedAt": "2026-07-23T08:30:00+08:00"
     },
     {
       "id": "ap-us-close",
-      "name": "7月21日美股收盘",
+      "name": "7月22日美股与油价收盘",
       "publisher": "Associated Press",
-      "url": "https://apnews.com/article/wall-street-stocks-dow-nasdaq-ccf404ea3258636974afa17f714db8e8",
+      "url": "https://apnews.com/article/stock-market-dow-nasdaq-87e0cd1ef1994f0fcbfb8f025064f64f",
       "tier": "major-media",
       "evidenceClass": "major-media",
-      "publishedAt": "2026-07-21T16:30:00-04:00",
-      "accessedAt": "2026-07-22T08:15:02+08:00"
+      "publishedAt": "2026-07-23T04:30:00+08:00",
+      "accessedAt": "2026-07-23T08:30:00+08:00"
     },
     {
       "id": "tsmc-q2",

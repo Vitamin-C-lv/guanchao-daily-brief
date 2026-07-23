@@ -1,22 +1,38 @@
 {
   "meta": {
-    "editionDate": "2026-07-22",
-    "generatedAt": "2026-07-22T20:42:00+08:00",
+    "editionDate": "2026-07-23",
+    "generatedAt": "2026-07-23T08:30:00+08:00",
     "dataThrough": "2026-07-22",
     "title": "每日早报",
     "subtitle": "收盘更新｜A/H收盘与全球风险线索",
-    "status": "收盘更新；A/H为7月22日，美股为7月21日",
-    "curationNote": "A/H采用最新完整收盘，美股采用最新完整交易日；固定12项观察池只影响采集深度。1/5/20日模型独立校验未过时明确弃权，不把null填成0或50%。"
+    "status": "收盘更新；A/H与美股均至7月22日",
+    "curationNote": "A/H和美股均采用各自最新完整收盘；固定12项观察池只影响采集深度。1/5/20日模型独立校验未过时明确弃权，不把观察分写成概率。"
   },
   "pulse": {
     "score": 43,
     "label": "港股承压、A股分化",
     "explanation": "规则分数只用于安排阅读顺序：A股指数分化、港股科技领跌，油价与7月FOMC窗口提高波动约束，不构成投资信号。",
     "signals": [
-      { "label": "美联储", "value": "7月28–29日会议前6天", "tone": "warning" },
-      { "label": "A股", "value": "沪指微涨、创业板跌3.23%", "tone": "warning" },
-      { "label": "港股", "value": "恒科跌3.04%，科技领跌", "tone": "negative" },
-      { "label": "美股", "value": "7月21日芯片带动三大指数上涨", "tone": "positive" }
+      {
+        "label": "美联储",
+        "value": "7月28–29日会议前6天",
+        "tone": "warning"
+      },
+      {
+        "label": "A股",
+        "value": "沪指微涨、创业板跌3.23%",
+        "tone": "warning"
+      },
+      {
+        "label": "港股",
+        "value": "恒科跌3.04%，科技领跌",
+        "tone": "negative"
+      },
+      {
+        "label": "美股",
+        "value": "7月21日芯片带动三大指数上涨",
+        "tone": "positive"
+      }
     ]
   },
   "federalReserve": {
@@ -26,13 +42,29 @@
     "lastDecision": "维持目标利率区间不变",
     "lastDecisionDate": "2026-06-17",
     "nextMeeting": "2026-07-28 / 29",
-    "countdownDays": 6,
+    "countdownDays": 5,
     "takeaway": "6月会议维持利率不变，通胀仍高于2%目标；7月会议前能源价格、就业和收益率是主要验证变量。",
     "path": [
-      { "label": "24.09", "lower": 4.75, "upper": 5.00 },
-      { "label": "24.12", "lower": 4.25, "upper": 4.50 },
-      { "label": "25.12", "lower": 3.50, "upper": 3.75 },
-      { "label": "26.06", "lower": 3.50, "upper": 3.75 }
+      {
+        "label": "24.09",
+        "lower": 4.75,
+        "upper": 5
+      },
+      {
+        "label": "24.12",
+        "lower": 4.25,
+        "upper": 4.5
+      },
+      {
+        "label": "25.12",
+        "lower": 3.5,
+        "upper": 3.75
+      },
+      {
+        "label": "26.06",
+        "lower": 3.5,
+        "upper": 3.75
+      }
     ],
     "articles": [
       {
@@ -41,18 +73,58 @@
         "summary": "美联储6月17日维持3.50%–3.75%目标区间，声明称经济活动稳健、通胀仍高于2%目标。",
         "impact": "政策方向没有新增确定性，能源价格和通胀预期会影响7月会议前的折现率。",
         "publishedAt": "2026-06-17",
-        "tags": ["FOMC", "利率", "通胀"],
+        "tags": [
+          "FOMC",
+          "利率",
+          "通胀"
+        ],
         "sources": [
-          { "name": "FOMC 6月声明", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm", "tier": "official", "evidenceClass": "official-primary" },
-          { "name": "FOMC 6月会议纪要", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm", "tier": "official", "evidenceClass": "official-primary" }
+          {
+            "name": "FOMC 6月声明",
+            "publisher": "Federal Reserve",
+            "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          },
+          {
+            "name": "FOMC 6月会议纪要",
+            "publisher": "Federal Reserve",
+            "url": "https://www.federalreserve.gov/monetarypolicy/fomcminutes20260617.htm",
+            "tier": "official",
+            "evidenceClass": "official-primary"
+          }
         ],
         "detail": {
           "lead": "美联储6月17日一致决定维持联邦基金利率目标区间在3.50%至3.75%。声明保留了对经济活动稳健、就业大致平衡和通胀仍偏高的判断，因此7月会议前仍是数据依赖，而不是预先承诺某一方向。",
-          "keyPoints": ["目标区间维持3.50%至3.75%", "经济活动保持稳健，就业变化不大", "通胀仍高于2%目标，能源是上行风险"],
+          "keyPoints": [
+            "目标区间维持3.50%至3.75%",
+            "经济活动保持稳健，就业变化不大",
+            "通胀仍高于2%目标，能源是上行风险"
+          ],
           "sections": [
-            { "heading": "政策原点", "body": "声明确认委员会继续把充分就业与稳定物价作为双重目标，当前经济活动以稳健速度扩张，就业增长大致跟上劳动力供给。这样的组合降低了立即调整利率的必要性，但并没有排除未来根据数据重新评估。", "sourceIndexes": [0] },
-            { "heading": "通胀约束", "body": "官方声明仍把通胀相对2%目标偏高列为核心问题，并指出供给冲击可能使价格压力延续。会议纪要所体现的分歧意味着，市场不能只按单一降息路径定价，能源价格、工资和通胀预期仍需要同步观察。", "sourceIndexes": [0, 1] },
-            { "heading": "本周观察", "body": "7月28至29日会议前，油价快速上行会同时影响通胀预期与实际收入，收益率若继续走高则会压缩成长资产估值空间。晚报只保留条件式风险路径：看数据改善是否足以抵消能源冲击，而不把会议结果提前写成确定结论。还需留意声明是否重新强调通胀上行风险，以及就业数据是否改变政策平衡。", "sourceIndexes": [0, 1] }
+            {
+              "heading": "政策原点",
+              "body": "美联储6月17日一致决定维持联邦基金利率目标区间在3.50%至3.75%。声明继续描述经济活动稳健、就业大致平衡、通胀仍偏高；本期只记录已经公布的政策事实，不把市场传言或盘中价格当作会议结论。",
+              "sourceIndexes": [
+                0
+              ]
+            },
+            {
+              "heading": "通胀约束",
+              "body": "官方7月日历显示，6月会议纪要已于7月8日发布，下一次FOMC为7月28日至29日。当前没有新的利率决议可供引用，因此7月会议前的政策判断仍要回到能源价格、通胀和就业等后续数据，而不是提前写成确定路径。",
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            },
+            {
+              "heading": "本周观察",
+              "body": "油价上行会抬高通胀预期，收益率上升则构成科技估值的折现率反证；但二者统计期和传导速度不同，不能单凭一日行情确认因果。若新数据使通胀预期继续上修，再观察降息定价和科技股估值是否同步收缩；若价格压力回落，则保留中性观察。",
+              "sourceIndexes": [
+                0,
+                1
+              ]
+            }
           ]
         }
       }
@@ -65,61 +137,220 @@
       "shortName": "A股",
       "sessionDate": "2026-07-22",
       "status": "最新完整交易日",
-      "summary": "上证指数涨0.07%报3867.03点，深证成指跌1.42%，创业板指跌3.23%；两市成交约2.66万亿元，指数与行业表现明显分化。",
+      "summary": "上证指数涨0.07%报3867.03点，深证成指跌1.42%，创业板指跌3.23%；两市成交约2.65万亿元，固定12项观察池的能源量价门槛通过。",
       "leadIndex": "上证指数",
       "indices": [
-        { "name": "上证指数", "value": "3,867.03", "change": 0.07, "date": "2026-07-22" },
-        { "name": "深证成指", "value": "14,061.44", "change": -1.42, "date": "2026-07-22" },
-        { "name": "创业板指", "value": "3,566.73", "change": -3.23, "date": "2026-07-22" }
+        {
+          "name": "上证指数",
+          "value": "3,867.03",
+          "change": 0.07,
+          "date": "2026-07-22"
+        },
+        {
+          "name": "深证成指",
+          "value": "14,061.44",
+          "change": -1.42,
+          "date": "2026-07-22"
+        },
+        {
+          "name": "创业板指",
+          "value": "3,566.73",
+          "change": -3.23,
+          "date": "2026-07-22"
+        }
       ],
-      "sparkline": [3864.37, 3890.22, 3879.31, 3888.02, 3871.12, 3867.03],
+      "sparkline": [
+        3864.37,
+        3890.22,
+        3879.31,
+        3888.02,
+        3871.12,
+        3867.03
+      ],
       "tone": "warning",
       "sources": [
-        { "name": "上海指数收盘报道", "publisher": "中国网转引新华社", "url": "https://www.china.org.cn/china/Off_the_Wire/2026-07/22/content_118612308.shtml", "tier": "major-media", "evidenceClass": "major-media" },
-        { "name": "A股三大指数与成交额", "publisher": "新浪财经", "url": "https://finance.sina.com.cn/jjxw/2026-07-22/doc-iniispna7957692.shtml", "tier": "major-media", "evidenceClass": "major-media" },
-        { "name": "中证医药医疗指数详情", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991", "tier": "official", "evidenceClass": "official-primary" },
-        { "name": "中证核心12项量价数据", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260616&endDate=20260722", "tier": "official", "evidenceClass": "official-primary" }
+        {
+          "name": "A/H市场7月22日收盘交叉核验",
+          "publisher": "香港电台",
+          "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        },
+        {
+          "name": "上海指数收盘报道",
+          "publisher": "中国网转引新华社",
+          "url": "https://www.china.org.cn/china/Off_the_Wire/2026-07/22/content_118612308.shtml",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        },
+        {
+          "name": "中证能源指数官方详情",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+          "tier": "official",
+          "evidenceClass": "official-primary"
+        },
+        {
+          "name": "中证能源日频量价数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260616&endDate=20260722",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        }
       ],
       "articles": [
         {
-          "id": "a-share-close-0722",
-          "title": "A股指数分化，量能集中在消费与医药",
-          "summary": "上证指数微涨，深成指和创业板下跌；两市成交约2.66万亿元，固定12项观察池中主要消费与医药医疗通过量能门槛。",
-          "impact": "量能达标不等于概率信号；医药上涨广度49.15%低于50%分界，当前更适合写集中交易和条件观察。",
-          "publishedAt": "2026-07-22",
-          "tags": ["收盘", "A股", "量价", "弃权"],
+          "id": "a-share-close-0723",
+          "title": "A股指数分化，能源量价门槛通过",
+          "summary": "上证指数微涨，深成指和创业板回落；两市成交约2.65万亿元，能源成为固定12项中唯一进入严格放量观察的行业。",
+          "impact": "量价门槛通过不等于未来概率信号；模型三窗口仍弃权，观察分只作证据榜。",
+          "publishedAt": "2026-07-23",
+          "tags": [
+            "收盘",
+            "A股",
+            "量价",
+            "弃权"
+          ],
           "sources": [
-            { "name": "上海指数收盘报道", "publisher": "中国网转引新华社", "url": "https://www.china.org.cn/china/Off_the_Wire/2026-07/22/content_118612308.shtml", "tier": "major-media", "evidenceClass": "major-media" },
-            { "name": "A股三大指数与成交额", "publisher": "新浪财经", "url": "https://finance.sina.com.cn/jjxw/2026-07-22/doc-iniispna7957692.shtml", "tier": "major-media", "evidenceClass": "major-media" },
-            { "name": "中证医药医疗指数详情", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000991", "tier": "official", "evidenceClass": "official-primary" },
-            { "name": "中证医药医疗量价区间", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260616&endDate=20260722", "tier": "official", "evidenceClass": "official-primary" }
+            {
+              "name": "A/H市场7月22日收盘交叉核验",
+              "publisher": "香港电台",
+              "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0",
+              "tier": "major-media",
+              "evidenceClass": "major-media"
+            },
+            {
+              "name": "上海指数收盘报道",
+              "publisher": "中国网转引新华社",
+              "url": "https://www.china.org.cn/china/Off_the_Wire/2026-07/22/content_118612308.shtml",
+              "tier": "major-media",
+              "evidenceClass": "major-media"
+            },
+            {
+              "name": "中证能源指数官方详情",
+              "publisher": "中证指数有限公司",
+              "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+              "tier": "official",
+              "evidenceClass": "official-primary"
+            },
+            {
+              "name": "中证能源日频量价数据",
+              "publisher": "中证指数有限公司",
+              "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260616&endDate=20260722",
+              "tier": "official",
+              "evidenceClass": "exchange-market-data"
+            }
           ],
           "detail": {
-            "lead": "7月22日A股收盘，上证指数报3867.03点涨0.07%，深证成指跌1.42%，创业板指跌3.23%；两市成交约2.66万亿元。指数并未同步，强势证据集中于少数行业，不能把总成交额直接解释成全面风险偏好回升。",
-            "keyPoints": ["上证微涨，深成指与创业板分别跌1.42%和3.23%", "两市成交约2.66万亿元，指数分化扩大", "主要消费与医药医疗量能达标，但医药广度49.15%"],
+            "lead": "7月22日A股收盘，上证指数报3867.03点涨0.07%，深证成指跌1.42%，创业板指跌3.23%；两市成交约2.65万亿元。指数方向分化，不能把总成交额直接解释成全面风险偏好回升。",
+            "keyPoints": [
+              "上证微涨，深成指与创业板分别跌1.42%和3.23%",
+              "两市成交约2.65万亿元，结构性分化延续",
+              "能源额比1.3571、真实量比1.3386、份额比1.5684且广度88%"
+            ],
             "sections": [
-              { "heading": "收盘与成交", "body": "收盘数据确认上证指数小幅收涨；新浪财经同时给出深成指和创业板的回落以及约2.66万亿元成交额。量能仍处高位，但大盘、成长指数方向相反，说明交易更可能集中在结构性强势板块。", "sourceIndexes": [0, 1] },
-              { "heading": "固定池观察", "body": "新管道覆盖中证核心12项，观察分前列为公用事业、能源、主要消费和医药医疗。主要消费额比1.5064、真实量比1.2411、份额比1.8209；医药医疗额比1.5291、真实量比1.4764、份额比1.8441，但广度49.1525%，应描述为集中交易、高位分歧。", "sourceIndexes": [2, 3] },
-              { "heading": "模型门禁", "body": "1日、5日、20日冻结模型分别运行，但生产特征完整度仅50%，低于80%门槛，且校准与质量门禁不满足发布条件，因此三周期均为abstained。RankIC等单项指标不能抵销完整度失败；主榜不发布，当前观察分也不等同概率排名。", "sourceIndexes": [2, 3] }
+              {
+                "heading": "收盘与成交",
+                "body": "RTHK交叉报道确认上证指数约3867点、深证成指报14061.44点并跌1.42%，两市成交约2.65万亿元。指数与成长方向不一致，收盘事实支持结构性分化，不支持把成交额总量等同于全面启动。",
+                "sourceIndexes": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "heading": "固定池观察",
+                "body": "中证固定12项量价包显示，能源近5日对此前20日的成交额比为1.3571，真实成交量比为1.3386，成交份额比为1.5684，25个完整可比日的上涨广度为88%，前三成交集中度23.393%。这是量价代理，不是机构持仓。",
+                "sourceIndexes": [
+                  2,
+                  3
+                ]
+              },
+              {
+                "heading": "模型门禁",
+                "body": "1日、5日和20日窗口分别使用独立模型，但生产特征完整度只有50%，低于80%门槛；校准和质量闸门也未满足。因此页面保留当前12项观察榜，未来窗口写abstained，不输出Top/Bottom概率，也不把观察分写成概率。",
+                "sourceIndexes": [
+                  2,
+                  3
+                ]
+              }
             ],
             "rotationAnalysis": {
               "asOf": "2026-07-22",
               "window": "5d_vs_20d",
-              "regime": "A股指数分化，公用事业、能源和消费观察分居前；医药放量但广度低于50%，属于集中交易与高位分歧。",
+              "regime": "A股指数分化，公用事业与能源观察分居前；能源三项量能门槛通过，但模型未来窗口仍因完整度与质量门禁弃权。",
               "volumeStatus": "verified",
               "volumeLeaders": [
-                { "sector": "医药医疗", "stage": "diverging", "historySessions": 25, "turnoverAmountRatio20d": 1.5291, "tradingVolumeRatio20d": 1.4764, "turnoverShareRatio20d": 1.8441, "breadthPct": 49.1525, "relativeReturn5d": 6.299, "top3ConcentrationPct": 21.9224, "sourceIndexes": [2, 3] },
-                { "sector": "主要消费", "stage": "accelerating", "historySessions": 25, "turnoverAmountRatio20d": 1.5064, "tradingVolumeRatio20d": 1.2411, "turnoverShareRatio20d": 1.8209, "breadthPct": 74, "relativeReturn5d": 9.8294, "top3ConcentrationPct": 38.57, "sourceIndexes": [2, 3] }
+                {
+                  "sector": "能源",
+                  "stage": "accelerating",
+                  "historySessions": 25,
+                  "turnoverAmountRatio20d": 1.3571,
+                  "tradingVolumeRatio20d": 1.3386,
+                  "turnoverShareRatio20d": 1.5684,
+                  "breadthPct": 88,
+                  "relativeReturn5d": 8.0721,
+                  "top3ConcentrationPct": 23.393,
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                }
               ],
               "flowSignals": [
-                { "sector": "主要消费", "direction": "inflow", "evidenceClass": "official", "evidence": "额比1.5064、真实量比1.2411、成交份额比1.8209，且上涨广度74%；这是量价证据，不等同持仓变化。", "sourceIndexes": [2, 3] },
-                { "sector": "医药医疗", "direction": "mixed", "evidenceClass": "official", "evidence": "额比1.5291、真实量比1.4764、份额比1.8441，但广度49.1525%；放量与扩散尚未同时确认。", "sourceIndexes": [2, 3] }
+                {
+                  "sector": "能源",
+                  "direction": "inflow",
+                  "evidenceClass": "official",
+                  "evidence": "额比1.3571、真实量比1.3386、成交份额比1.5684，广度88%；这是固定成分量价证据，不等同持仓变化。",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "sector": "信息技术与移动互联网",
+                  "direction": "outflow",
+                  "evidenceClass": "official",
+                  "evidence": "当前观察分分别排在12项中的末位附近，5日相对表现为负；仅作价格成交代理，未据此推断机构流向。",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                }
               ],
               "outlooks": [
-                { "horizon": "1_5d", "status": "insufficient", "candidateSectors": [], "reason": "1日、5日、20日模型均因生产特征完整度50%低于80%，且校准与质量门禁未通过而弃权。", "bias": "range", "confidence": "low", "flowPath": "只保留12项当前观察分与量价证据，不把观察分解释为概率。", "trigger": "医药广度回到50%以上且两项量比继续达标", "invalidation": "广度回落或额比、真实量比跌破门槛", "sourceIndexes": [2, 3] },
-                { "horizon": "2_4w", "status": "insufficient", "candidateSectors": [], "reason": "20日模型同样未通过80%完整度、校准和walk-forward质量闸门，不能发布预期相对收益或Top-Bottom主榜。", "bias": "range", "confidence": "low", "flowPath": "暂以固定池观察榜和可核验量价变化替代预测，重点看行业扩散是否持续。", "trigger": "基准恢复7月22日完整数据且多周期门禁同时通过", "invalidation": "基准或行业历史继续缺失，或扩散再次收窄", "sourceIndexes": [2, 3] }
+                {
+                  "horizon": "1_5d",
+                  "status": "insufficient",
+                  "candidateSectors": [],
+                  "reason": "1日、5日、20日独立模型的生产特征完整度仅50%，低于80%门槛，不能发布相对收益或Top-Bottom概率。",
+                  "bias": "range",
+                  "confidence": "low",
+                  "flowPath": "保留12项同日观察榜与能源量价证据，不把观察分解释为概率。",
+                  "trigger": "能源量能继续达标且行业广度维持，同时模型数据完整度达到发布门槛",
+                  "invalidation": "量比或成交份额跌破门槛，或模型门禁继续失败",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                },
+                {
+                  "horizon": "2_4w",
+                  "status": "insufficient",
+                  "candidateSectors": [],
+                  "reason": "20交易日窗口仍未通过完整度、校准和walk-forward质量门禁，不能发布预期相对收益。",
+                  "bias": "range",
+                  "confidence": "low",
+                  "flowPath": "以固定观察榜和可核验量价变化替代概率排名，等待历史和资金字段补齐。",
+                  "trigger": "两年同口径特征与质量门禁同时恢复",
+                  "invalidation": "完整度仍低于80%或扣费后Top-Bottom不为正",
+                  "sourceIndexes": [
+                    2,
+                    3
+                  ]
+                }
               ],
-              "riskNote": "固定池12/12；基准刷新失败，缓存截至7月21日，已标注。未用null填0或50%，未强制排名。"
+              "riskNote": "固定池12/12；能源放量门禁通过，但资金字段不能替代模型质量校验。未用null填0或50%，未强制排名。"
             }
           }
         }
@@ -131,59 +362,215 @@
       "shortName": "港股",
       "sessionDate": "2026-07-22",
       "status": "最新完整交易日",
-      "summary": "恒生指数跌0.95%报24892.66点，恒生科技跌3.04%报4668.23点，国企指数跌1.31%；南向公开线索显示净买约751.7亿港元，但行业历史特征不足。",
+      "summary": "恒生指数跌0.95%报24892.66点，恒生科技跌3.04%报4668.23点，国企指数跌1.31%；原材料和能源单日靠前，港股行业历史仍不足。",
       "leadIndex": "恒生指数",
       "indices": [
-        { "name": "恒生指数", "value": "24,892.66", "change": -0.95, "date": "2026-07-22" },
-        { "name": "恒生科技", "value": "4,668.23", "change": -3.04, "date": "2026-07-22" },
-        { "name": "国企指数", "value": "-1.31%", "change": -1.31, "date": "2026-07-22" }
+        {
+          "name": "恒生指数",
+          "value": "24,892.66",
+          "change": -0.95,
+          "date": "2026-07-22"
+        },
+        {
+          "name": "恒生科技",
+          "value": "4,668.23",
+          "change": -3.04,
+          "date": "2026-07-22"
+        },
+        {
+          "name": "国企指数",
+          "value": "-1.31%",
+          "change": -1.31,
+          "date": "2026-07-22"
+        }
       ],
-      "sparkline": [25132.29, 25084.11, 25210.44, 25002.08, 24918.31, 24892.66],
+      "sparkline": [
+        25132.29,
+        25084.11,
+        25210.44,
+        25002.08,
+        24918.31,
+        24892.66
+      ],
       "tone": "negative",
       "sources": [
-        { "name": "港股指数收盘", "publisher": "香港电台", "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0", "tier": "major-media", "evidenceClass": "major-media" },
-        { "name": "港股指数点位", "publisher": "东方财富", "url": "https://finance.eastmoney.com/a/202607223817263991.html", "tier": "authoritative", "evidenceClass": "vendor-market-data" },
-        { "name": "恒生行业指数表现", "publisher": "恒生指数有限公司", "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do", "tier": "official", "evidenceClass": "official-primary" },
-        { "name": "南向资金公开线索", "publisher": "金融界/格隆汇", "url": "https://m.jrj.com.cn/madapter/stock/2026/07/22181557875668.shtml", "tier": "major-media", "evidenceClass": "major-media" }
+        {
+          "name": "港股指数收盘",
+          "publisher": "香港电台",
+          "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        },
+        {
+          "name": "恒生行业指数表现",
+          "publisher": "恒生指数有限公司",
+          "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "港交所市场数据",
+          "publisher": "香港交易所",
+          "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "南向资金公开线索",
+          "publisher": "金融界/格隆汇",
+          "url": "https://m.jrj.com.cn/madapter/stock/2026/07/22181557875668.shtml",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        }
       ],
       "articles": [
         {
-          "id": "hk-close-0722",
-          "title": "港股科技领跌，南向净买不等于行业修复",
-          "summary": "恒指与恒科同步回落，恒科跌3.04%；公开报道显示南向净买约751.7亿港元，但连续行业资金与预测特征仍不足。",
-          "impact": "价格弱势和公开资金线索方向不一，当前应保留证据观察，不发布1/5/20日概率主榜。",
-          "publishedAt": "2026-07-22",
-          "tags": ["收盘", "港股", "恒科", "弃权"],
+          "id": "hk-close-0723",
+          "title": "港股科技领跌，南向线索不能替代行业修复",
+          "summary": "恒指与恒科同步回落，恒科跌3.04%；公开报道显示南向净买约751.7亿港元，但行业历史与预测特征仍不足。",
+          "impact": "价格弱势和公开资金线索方向不一，当前保留证据观察，不发布1/5/20日概率主榜。",
+          "publishedAt": "2026-07-23",
+          "tags": [
+            "收盘",
+            "港股",
+            "恒科",
+            "弃权"
+          ],
           "sources": [
-            { "name": "港股指数收盘", "publisher": "香港电台", "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0", "tier": "major-media", "evidenceClass": "major-media" },
-            { "name": "港股指数点位", "publisher": "东方财富", "url": "https://finance.eastmoney.com/a/202607223817263991.html", "tier": "authoritative", "evidenceClass": "vendor-market-data" },
-            { "name": "恒生行业指数表现", "publisher": "恒生指数有限公司", "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do", "tier": "official", "evidenceClass": "official-primary" },
-            { "name": "南向资金公开线索", "publisher": "金融界/格隆汇", "url": "https://m.jrj.com.cn/madapter/stock/2026/07/22181557875668.shtml", "tier": "major-media", "evidenceClass": "major-media" }
+            {
+              "name": "港股指数收盘",
+              "publisher": "香港电台",
+              "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0",
+              "tier": "major-media",
+              "evidenceClass": "major-media"
+            },
+            {
+              "name": "恒生行业指数表现",
+              "publisher": "恒生指数有限公司",
+              "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do",
+              "tier": "official",
+              "evidenceClass": "exchange-market-data"
+            },
+            {
+              "name": "港交所市场数据",
+              "publisher": "香港交易所",
+              "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
+              "tier": "official",
+              "evidenceClass": "exchange-market-data"
+            },
+            {
+              "name": "南向资金公开线索",
+              "publisher": "金融界/格隆汇",
+              "url": "https://m.jrj.com.cn/madapter/stock/2026/07/22181557875668.shtml",
+              "tier": "major-media",
+              "evidenceClass": "major-media"
+            }
           ],
           "detail": {
-            "lead": "7月22日港股收盘，恒生指数报24892.66点跌0.95%，恒生科技指数报4668.23点跌3.04%，国企指数跌1.31%。科技领跌与公开报道中的南向净买并存，单日资金线索不足以证明行业风险偏好已经修复。",
-            "keyPoints": ["恒指跌0.95%，恒科跌3.04%", "国企指数跌1.31%，科技弱于大盘", "南向公开线索净买约751.7亿港元，不能替代连续资金序列"],
+            "lead": "7月22日港股收盘，恒生指数报24892.66点跌0.95%，恒生科技指数报4668.23点跌3.04%，国企指数跌1.31%。科技领跌与公开报道中的南向净买并存，单日线索不足以证明行业风险偏好已经修复。",
+            "keyPoints": [
+              "恒指跌0.95%，恒科跌3.04%",
+              "国企指数跌1.31%，科技弱于大盘",
+              "南向公开线索净买约751.7亿港元，不能替代连续行业资金序列"
+            ],
             "sections": [
-              { "heading": "指数收盘", "body": "香港电台与点位报道共同确认恒指、恒科和国企指数当日回落，跌幅最大的是恒生科技。主板成交额本轮未在官方数据包中稳定核验，因此不补写未经确认的精确金额，避免把缺失字段变成估算值。", "sourceIndexes": [0, 1] },
-              { "heading": "行业与南向", "body": "恒生行业快照显示原材料与能源相对靠前，资讯科技业显著走弱；金融界转述的公开线索显示南向净买约751.7亿港元。该线索可用于观察资金方向，但不等同完整行业流入、ETF份额或短卖数据。", "sourceIndexes": [2, 3] },
-              { "heading": "模型门禁", "body": "港股1日、5日、20日窗口均因缺少同一成分池两年连续特征、南向与ETF等辅助变量，并且广度与Brier Skill、RankIC、扣费后Top-Bottom及walk-forward门禁不足而弃权。晚报只列当前指数和行业证据观察，不输出强制概率榜。", "sourceIndexes": [0, 2, 3] }
+              {
+                "heading": "指数收盘",
+                "body": "RTHK确认恒指、恒科和国企指数当日回落，跌幅最大的是恒生科技。资讯科技业在恒生行业快照中同步走弱；主板成交额、ETF份额和短卖序列没有形成同口径完整证据，因此不补写未核验金额。",
+                "sourceIndexes": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "heading": "行业与南向",
+                "body": "恒生行业快照显示原材料与能源单日相对靠前，资讯科技业跌幅靠后；公开报道中的南向净买约751.7亿港元只能作为价格之外的代理线索，不等同于行业净流入、ETF申赎或最终受益人持仓变化。",
+                "sourceIndexes": [
+                  1,
+                  3
+                ]
+              },
+              {
+                "heading": "模型门禁",
+                "body": "港股1日、5日和20日窗口均因缺少同一成分池两年连续特征，以及南向、ETF、短卖、广度等辅助变量而弃权。页面只列当前指数和行业证据观察；若未来数据完整度与walk-forward质量门禁仍不达标，就继续显示abstained而不强制排名。",
+                "sourceIndexes": [
+                  0,
+                  1,
+                  3
+                ]
+              }
             ],
             "rotationAnalysis": {
               "asOf": "2026-07-22",
               "window": "5d_vs_20d",
-              "regime": "港股大盘回落、恒生科技领跌；原材料与能源是单日相对强势，不能据此推断持续轮动。",
+              "regime": "港股大盘回落、恒生科技领跌；原材料与能源单日相对强势，但历史行业量价和资金序列不足。",
               "volumeStatus": "insufficient",
               "volumeLeaders": [],
               "flowSignals": [
-                { "sector": "原材料与能源", "direction": "inflow", "evidenceClass": "official", "evidence": "恒生行业单日表现相对靠前，属于价格表现证据，不是完整资金流。", "sourceIndexes": [2] },
-                { "sector": "恒生科技与资讯科技业", "direction": "outflow", "evidenceClass": "official", "evidence": "恒科跌3.04%，资讯科技业在行业快照中走弱，价格弱势与风险偏好下降一致。", "sourceIndexes": [0, 2] },
-                { "sector": "南向公开统计", "direction": "inflow", "evidenceClass": "proxy", "evidence": "媒体公开线索称南向净买约751.7亿港元，仅作代理观察，不等同行业持仓变化。", "sourceIndexes": [3] }
+                {
+                  "sector": "原材料与能源",
+                  "direction": "inflow",
+                  "evidenceClass": "official",
+                  "evidence": "恒生行业单日表现相对靠前，属于价格表现证据，不是完整资金流。",
+                  "sourceIndexes": [
+                    1
+                  ]
+                },
+                {
+                  "sector": "恒生科技与资讯科技业",
+                  "direction": "outflow",
+                  "evidenceClass": "official",
+                  "evidence": "恒科跌3.04%，资讯科技业在行业快照中跌幅靠后，价格弱势与风险偏好下降一致。",
+                  "sourceIndexes": [
+                    0,
+                    1
+                  ]
+                },
+                {
+                  "sector": "南向公开统计",
+                  "direction": "inflow",
+                  "evidenceClass": "proxy",
+                  "evidence": "媒体公开线索称南向净买约751.7亿港元，仅作代理观察，不等同行业持仓变化。",
+                  "sourceIndexes": [
+                    3
+                  ]
+                }
               ],
               "outlooks": [
-                { "horizon": "1_5d", "status": "insufficient", "candidateSectors": [], "reason": "缺少同一成分池两年连续1/5/20日特征，南向、ETF、短卖和广度数据也未形成完整门禁。", "bias": "weakening", "confidence": "low", "flowPath": "只保留恒科、行业表现和南向公开线索，当前不转化为概率。", "trigger": "恒科止跌且行业广度与连续资金数据同步改善", "invalidation": "恒科继续领跌或公开资金线索与价格继续背离", "sourceIndexes": [0, 2, 3] },
-                { "horizon": "2_4w", "status": "insufficient", "candidateSectors": [], "reason": "20日预测质量门禁缺少Brier Skill、RankIC、扣费后Top-Bottom与walk-forward一致性证据。", "bias": "weakening", "confidence": "low", "flowPath": "以证据观察榜替代主榜，等待连续历史特征和资金字段恢复。", "trigger": "两年同池面板恢复且多目标质量门禁同时通过", "invalidation": "历史覆盖仍低于80%或行业扩散继续收窄", "sourceIndexes": [0, 2, 3] }
+                {
+                  "horizon": "1_5d",
+                  "status": "insufficient",
+                  "candidateSectors": [],
+                  "reason": "缺少同一成分池两年连续1/5/20日特征，南向、ETF、短卖和广度数据也未形成完整门禁。",
+                  "bias": "weakening",
+                  "confidence": "low",
+                  "flowPath": "只保留恒科、行业表现和南向公开线索，当前不转化为概率。",
+                  "trigger": "恒科止跌且行业广度与连续资金数据同步改善",
+                  "invalidation": "恒科继续领跌或公开资金线索与价格继续背离",
+                  "sourceIndexes": [
+                    0,
+                    1,
+                    3
+                  ]
+                },
+                {
+                  "horizon": "2_4w",
+                  "status": "insufficient",
+                  "candidateSectors": [],
+                  "reason": "20日预测质量门禁缺少Brier Skill、RankIC、扣费后Top-Bottom与walk-forward一致性证据。",
+                  "bias": "weakening",
+                  "confidence": "low",
+                  "flowPath": "以证据观察榜替代主榜，等待连续历史特征和资金字段恢复。",
+                  "trigger": "两年同池面板恢复且多目标质量门禁同时通过",
+                  "invalidation": "历史覆盖仍低于80%或行业扩散继续收窄",
+                  "sourceIndexes": [
+                    0,
+                    1,
+                    3
+                  ]
+                }
               ],
-              "riskNote": "行业历史与资金字段不足，volumeStatus为insufficient；南向仅作公开代理线索，未用null填0或50%，未强制排名。"
+              "riskNote": "港股行业历史和资金字段不足，volumeStatus为insufficient；南向仅作公开代理线索，未用null填0或50%，未强制排名。"
             }
           }
         }
@@ -193,40 +580,115 @@
       "id": "us",
       "name": "美国市场",
       "shortName": "美股",
-      "sessionDate": "2026-07-21",
+      "sessionDate": "2026-07-22",
       "status": "最新完整交易日",
-      "summary": "截至7月21日收盘，标普500涨0.9%，纳斯达克涨1.3%，道指涨0.7%；芯片与AI相关股票带动风险偏好修复。",
+      "summary": "截至7月22日收盘，标普500报7498.96点跌0.1%，纳斯达克报25690.90点跌0.6%，道指报52218.58点近乎持平；油价上涨和AI股波动形成反证。",
       "leadIndex": "标普500",
       "indices": [
-        { "name": "标普500", "value": "7,509.20", "change": 0.9, "date": "2026-07-21" },
-        { "name": "纳斯达克", "value": "25,837.21", "change": 1.3, "date": "2026-07-21" },
-        { "name": "道琼斯", "value": "52,224.64", "change": 0.7, "date": "2026-07-21" }
+        {
+          "name": "标普500",
+          "value": "7,498.96",
+          "change": -0.1,
+          "date": "2026-07-22"
+        },
+        {
+          "name": "纳斯达克",
+          "value": "25,690.90",
+          "change": -0.6,
+          "date": "2026-07-22"
+        },
+        {
+          "name": "道琼斯",
+          "value": "52,218.58",
+          "change": -0.01,
+          "date": "2026-07-22"
+        }
       ],
-      "sparkline": [7443.72, 7471.31, 7488.06, 7469.14, 7494.58, 7509.2],
+      "sparkline": [
+        7443.72,
+        7471.31,
+        7488.06,
+        7469.14,
+        7494.58,
+        7509.2
+      ],
       "tone": "positive",
       "sources": [
-        { "name": "美国股市7月21日收盘", "publisher": "Associated Press", "url": "https://apnews.com/article/ccf404ea3258636974afa17f714db8e8", "tier": "major-media", "evidenceClass": "major-media" },
-        { "name": "全球市场技术图表", "publisher": "Reuters", "url": "https://www.reuters.com/markets/us/global-markets-technicals-graphic-2026-07-22/", "tier": "major-media", "evidenceClass": "major-media" }
+        {
+          "name": "美国股市7月22日收盘",
+          "publisher": "Associated Press",
+          "url": "https://apnews.com/article/stock-market-dow-nasdaq-87e0cd1ef1994f0fcbfb8f025064f64f",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        },
+        {
+          "name": "美国能源信息署7月22日周报",
+          "publisher": "U.S. Energy Information Administration",
+          "url": "https://www.eia.gov/petroleum/supply/weekly/",
+          "tier": "official",
+          "evidenceClass": "vendor-market-data"
+        }
       ],
       "articles": [
         {
-          "id": "us-close-0721",
-          "title": "美股7月21日收涨，芯片带动风险偏好",
-          "summary": "标普500、纳斯达克和道指分别上涨0.9%、1.3%和0.7%，纳斯达克相对占优；7月22日油价上行带来新的通胀约束。",
-          "impact": "美股收盘修复与A/H当日走弱形成分化，需把芯片弹性和油价冲击分开观察。",
-          "publishedAt": "2026-07-21",
-          "tags": ["收盘", "美股", "AI芯片"],
+          "id": "us-close-0722",
+          "title": "美股7月22日收盘，油价与AI波动并存",
+          "summary": "标普500和纳斯达克分别跌0.1%和0.6%，道指近乎持平；AP称油价上涨、AI股波动和收益率上行形成市场反证。",
+          "impact": "美股科技回撤与A/H科技弱势同向，但油价与利率约束仍需和后续业绩、政策数据分开观察。",
+          "publishedAt": "2026-07-23",
+          "tags": [
+            "收盘",
+            "美股",
+            "AI",
+            "油价"
+          ],
           "sources": [
-            { "name": "美国股市7月21日收盘", "publisher": "Associated Press", "url": "https://apnews.com/article/ccf404ea3258636974afa17f714db8e8", "tier": "major-media", "evidenceClass": "major-media" },
-            { "name": "全球市场技术图表", "publisher": "Reuters", "url": "https://www.reuters.com/markets/us/global-markets-technicals-graphic-2026-07-22/", "tier": "major-media", "evidenceClass": "major-media" }
+            {
+              "name": "美国股市7月22日收盘",
+              "publisher": "Associated Press",
+              "url": "https://apnews.com/article/stock-market-dow-nasdaq-87e0cd1ef1994f0fcbfb8f025064f64f",
+              "tier": "major-media",
+              "evidenceClass": "major-media"
+            },
+            {
+              "name": "美国能源信息署7月22日周报",
+              "publisher": "U.S. Energy Information Administration",
+              "url": "https://www.eia.gov/petroleum/supply/weekly/",
+              "tier": "official",
+              "evidenceClass": "vendor-market-data"
+            }
           ],
           "detail": {
-            "lead": "美国市场采用7月21日最新完整收盘：标普500报7509.20点涨0.9%，纳斯达克报25837.21点涨1.3%，道指报52224.64点涨0.7%。AP称芯片与AI相关股票带动上涨，Reuters图表显示标普重新回到关键均线附近。",
-            "keyPoints": ["三大指数全线上涨，纳斯达克涨幅最大", "芯片和AI链条是主要推动因素", "7月22日油价上行使通胀与估值约束重新升温"],
+            "lead": "美国市场采用7月22日最新完整收盘：标普500报7498.96点跌0.1%，纳斯达克报25690.90点跌0.6%，道指报52218.58点近乎持平。AP同时记录Brent上涨和美债收益率上行，AI股波动仍是主要反证。",
+            "keyPoints": [
+              "标普500跌0.1%，纳斯达克跌0.6%",
+              "道指跌6.06点至52218.58点，接近持平",
+              "油价上涨、收益率上行与AI股波动压制风险偏好"
+            ],
             "sections": [
-              { "heading": "收盘表现", "body": "7月21日美股三大指数同步上涨，成长风格相对占优。该结果是已经完成的美国交易日收盘，晚报不把7月22日盘中期货或波动写成美股收盘，以避免混淆全球覆盖的截止口径。", "sourceIndexes": [0, 1] },
-              { "heading": "驱动与反证", "body": "AP将上涨与芯片、AI相关股票及油价变化联系起来，Reuters则记录标普500回到50日均线附近。上涨说明风险偏好有修复，但估值对利率敏感；如果能源价格继续推升通胀预期，折现率可能成为反证。", "sourceIndexes": [0, 1] },
-              { "heading": "跨市场含义", "body": "美股芯片反弹没有同步传导至7月22日A股信息技术和移动互联网，港股恒科反而下跌3.04%。因此本期只写相对强弱和条件路径：关注油价、收益率及后续成交确认，不把单日领涨外推为持续趋势。", "sourceIndexes": [0, 1] }
+              {
+                "heading": "收盘表现",
+                "body": "AP逐项给出7月22日三大指数收盘：标普500报7498.96点，纳斯达克报25690.90点，道指报52218.58点。科技指数跌幅大于道指，说明当日风格偏向防守；这只是已完成交易日的观察，不把盘后波动外推成收盘事实。",
+                "sourceIndexes": [
+                  0
+                ]
+              },
+              {
+                "heading": "油价与AI反证",
+                "body": "AP报道Brent一度升至近六周高位，10年期美债收益率从4.63%升至4.66%；同时AI股继续震荡。EIA在7月22日发布截至7月17日的周度石油报告，库存和供给数据需要按报告统计期单独解读，不能与收盘价格混为同一事实。",
+                "sourceIndexes": [
+                  0,
+                  1
+                ]
+              },
+              {
+                "heading": "跨市场含义",
+                "body": "7月22日美股科技走弱，与港股恒科和A股信息技术、移动互联网的弱势方向一致，但这只构成同步观察而非因果证明。后续重点看油价、短端收益率和AI公司业绩是否共同改善；若只出现单日价格反弹，持续性仍未确认。",
+                "sourceIndexes": [
+                  0,
+                  1
+                ]
+              }
             ]
           }
         }
@@ -235,88 +697,289 @@
   ],
   "hotspots": [
     {
-      "id": "hot-a-share-structure-0722",
+      "id": "hot-a-share-structure-0723",
       "priority": 88,
-      "affectedMarkets": ["a-share"],
-      "title": "A股收盘分化，放量板块仍需广度确认",
-      "summary": "沪指微涨而成长指数回落，主要消费与医药医疗量能达标，但医药广度低于50%。",
-      "impact": "结构性交易证据增强，全面扩散尚未被当前数据确认。",
-      "publishedAt": "2026-07-22",
-      "tags": ["A股", "行业轮动", "量价"],
+      "affectedMarkets": [
+        "a-share"
+      ],
+      "title": "A股指数分化，能源放量仍需模型门禁",
+      "summary": "能源三项量能门槛通过且广度88%，但指数分化、模型未来窗口仍弃权。",
+      "impact": "交易活跃度与未来预测必须分开，当前只发布证据观察榜。",
+      "publishedAt": "2026-07-23",
+      "tags": [
+        "A股",
+        "行业轮动",
+        "量价"
+      ],
       "sources": [
-        { "name": "A股三大指数与成交额", "publisher": "新浪财经", "url": "https://finance.sina.com.cn/jjxw/2026-07-22/doc-iniispna7957692.shtml", "tier": "major-media", "evidenceClass": "major-media" },
-        { "name": "中证核心12项量价数据", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260616&endDate=20260722", "tier": "official", "evidenceClass": "official-primary" }
+        {
+          "name": "上海指数收盘报道",
+          "publisher": "中国网转引新华社",
+          "url": "https://www.china.org.cn/china/Off_the_Wire/2026-07/22/content_118612308.shtml",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        },
+        {
+          "name": "中证能源指数官方详情",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986",
+          "tier": "official",
+          "evidenceClass": "official-primary"
+        },
+        {
+          "name": "中证能源日频量价数据",
+          "publisher": "中证指数有限公司",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260616&endDate=20260722",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        }
       ],
       "detail": {
-        "lead": "7月22日A股交易额保持高位，但三大指数方向分化。固定12项观察池的量价门槛显示，主要消费和医药医疗交易活跃，医药医疗的相对收益仍靠前；同时广度只有49.1525%，行业内部并非普遍上行。",
-        "keyPoints": ["两市成交约2.66万亿元", "主要消费和医药医疗通过三项量能门槛", "医药广度低于50%，仍属集中交易"],
+        "lead": "7月22日A股指数分化，能源在固定12项中通过严格量能门槛。",
+        "keyPoints": [
+          "能源额比1.3571",
+          "真实量比1.3386",
+          "广度88%但不等于概率信号"
+        ],
         "sections": [
-          { "heading": "事实", "body": "收盘数据与中证指数区间数据互相补充：指数表现说明市场分化，核心12项数据说明活跃度集中。两类来源统计口径不同，正文只采用直接可核验的收盘和量价字段，并保留基准缓存缺口。缺口不作估算。", "sourceIndexes": [0, 1] },
-          { "heading": "解释", "body": "量比、额比与成交份额同时放大，支持‘交易集中’观察；不能证明资金持仓变化，也不能替代独立冻结模型的质量门禁。后续仍须看广度扩散与行业参与度数据变化。", "sourceIndexes": [1] },
-          { "heading": "观察", "body": "下一交易日重点看医药广度是否回到50%以上，以及主要消费的量能是否保持；若活跃度回落，结构性修复的证据会减弱。若广度仍低于50%，则继续按集中交易记录，并等待新的完整样本。还要核对基准缓存是否恢复更新，并观察公用事业与能源是否保持相对强势。若门禁仍未通过，页面继续展示明确弃权状态。", "sourceIndexes": [1] }
+          {
+            "heading": "事实",
+            "body": "7月22日A股收盘，上证指数小幅上涨，深证成指和创业板指回落；RTHK交叉报道两市成交约2.65万亿元。固定12项观察池并非所有行业同向，收盘事实支持指数分化与结构性交易的描述。 因此总成交额与板块扩散必须分开呈现。继续核验。",
+            "sourceIndexes": [
+              1
+            ]
+          },
+          {
+            "heading": "解释",
+            "body": "中证量价数据对能源行业给出25个完整可比交易日：近5日对此前20日的成交额比1.3571、真实成交量比1.3386、成交额份额比1.5684，广度88%，前三成交集中度23.393%。这些是固定成分的量价指标，不是机构持仓或确定的资金流向。 其余行业仍需按同一成分和交易日继续观察。",
+            "sourceIndexes": [
+              1
+            ]
+          },
+          {
+            "heading": "观察",
+            "body": "三项门槛通过只说明能源交易活跃度和相对表现同时出现，不能推导未来收益。1日、5日和20日模型生产特征完整度仅50%，低于80%发布门槛，页面因此保留证据观察榜并显示abstained；只有历史特征和质量门禁恢复，才重新评估是否发布概率。 观察榜的分数仍不是胜率。",
+            "sourceIndexes": [
+              1
+            ]
+          }
         ]
       }
     },
     {
-      "id": "hot-hk-tech-0722",
-      "priority": 92,
-      "affectedMarkets": ["hk"],
-      "title": "港股恒科领跌，南向线索与价格出现背离",
-      "summary": "恒生科技下跌3.04%，公开报道显示南向净买约751.7亿港元；单日线索尚不能确认行业修复。",
-      "impact": "科技风险偏好偏弱，资金数据需要连续性和行业拆分验证。",
-      "publishedAt": "2026-07-22",
-      "tags": ["港股", "恒科", "南向"],
-      "sources": [
-        { "name": "港股指数收盘", "publisher": "香港电台", "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0", "tier": "major-media", "evidenceClass": "major-media" },
-        { "name": "南向资金公开线索", "publisher": "金融界/格隆汇", "url": "https://m.jrj.com.cn/madapter/stock/2026/07/22181557875668.shtml", "tier": "major-media", "evidenceClass": "major-media" }
-      ],
-      "detail": {
-        "lead": "港股7月22日的核心矛盾是价格与公开资金线索不同步：恒生科技下跌3.04%，恒指下跌0.95%，媒体公开线索却显示南向净买约751.7亿港元。两者都是真实观察，但不能合并成行业资金已完成修复的结论。",
-        "keyPoints": ["恒科跌幅显著大于恒指", "南向净买为公开代理线索", "连续行业资金与广度数据仍是缺口"],
-        "sections": [
-          { "heading": "价格信号", "body": "恒科领跌说明科技风险偏好较弱，行业快照中资讯科技业也处于弱势一侧；原材料与能源相对靠前属于单日表现，不能直接外推为持续轮动。科技指数的单日变化还需与成交和广度结合核验。", "sourceIndexes": [0] },
-          { "heading": "资金信号", "body": "南向净买数据可作为方向线索，但不包含完整行业归因、ETF份额、短卖和连续广度。资金数字越大，越需要检查是否集中在少数权重，而非把净额直接等同广泛买入。下一步应看连续交易日是否重复出现相同方向。", "sourceIndexes": [1] },
-          { "heading": "门禁结论", "body": "由于同一成分池的两年1/5/20日特征和质量评价不足，模型全部弃权。证据观察榜保留原材料、能源和恒科的相对表现，下一步等待价格、广度和连续资金数据同向。只有门禁恢复后，才会重新评估主榜资格；在此之前不强行补齐排名，也不把净买额填作概率。观察榜只记录证据，不制造方向。", "sourceIndexes": [0, 1] }
-        ]
-      }
-    },
-    {
-      "id": "hot-oil-fomc-0722",
+      "id": "hot-hk-tech-0723",
       "priority": 90,
-      "affectedMarkets": ["a-share", "hk", "us"],
-      "title": "油价上行重新抬高通胀与估值约束",
-      "summary": "7月22日中东升级推动油价快速走高，Brent约94.82美元、WTI约87.65美元，市场重新评估通胀与利率风险。",
-      "impact": "能源冲击同时影响通胀预期、收益率和成长估值，需等待后续价格确认。",
-      "publishedAt": "2026-07-22",
-      "tags": ["油价", "通胀", "FOMC", "全球"],
+      "affectedMarkets": [
+        "hk"
+      ],
+      "title": "港股科技领跌，南向公开线索出现背离",
+      "summary": "恒科跌3.04%，资讯科技业跌幅靠后；南向公开净买线索不能替代完整行业资金序列。",
+      "impact": "价格和代理资金方向不一，港股轮动继续保持insufficient。",
+      "publishedAt": "2026-07-23",
+      "tags": [
+        "港股",
+        "恒生科技",
+        "南向"
+      ],
       "sources": [
-        { "name": "油价与中东局势", "publisher": "Associated Press", "url": "https://apnews.com/article/207dfa55d180fcc565420454178168c5", "tier": "major-media", "evidenceClass": "major-media" },
-        { "name": "FOMC 6月声明", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260617a.htm", "tier": "official", "evidenceClass": "official-primary" }
+        {
+          "name": "港股指数收盘",
+          "publisher": "香港电台",
+          "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/en/component/k2/1863177-20260722.htm?spTabChangeable=0",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        },
+        {
+          "name": "恒生行业指数表现",
+          "publisher": "恒生指数有限公司",
+          "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do",
+          "tier": "official",
+          "evidenceClass": "exchange-market-data"
+        },
+        {
+          "name": "南向资金公开线索",
+          "publisher": "金融界/格隆汇",
+          "url": "https://m.jrj.com.cn/madapter/stock/2026/07/22181557875668.shtml",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        }
       ],
       "detail": {
-        "lead": "7月22日油价因中东局势升级快速上行，AP报道Brent约94.82美元、WTI约87.65美元。能源价格本身不是股市方向预测，但它会同时改变通胀预期、利率路径和高估值成长资产的折现条件。",
-        "keyPoints": ["Brent约94.82美元，WTI约87.65美元", "供给冲击可能延长通胀约束", "7月FOMC前收益率与能源是关键验证变量"],
+        "lead": "恒生科技领跌而南向公开线索为净买，港股科技的资金解释链仍不完整。",
+        "keyPoints": [
+          "恒科跌3.04%",
+          "资讯科技业单日跌幅靠后",
+          "南向线索不能等同行业净流入"
+        ],
         "sections": [
-          { "heading": "事件事实", "body": "AP将油价上涨与美国和伊朗紧张升级联系起来，并提示能源冲击可能重新影响市场对通胀和美联储政策的判断。当前只记录已报道的价格和风险，不把地缘事件外推成确定的市场结果。", "sourceIndexes": [0] },
-          { "heading": "政策连接", "body": "美联储6月声明明确通胀仍高于2%目标，因此油价若持续上行，可能延缓宽松定价；若只是短期波动，影响则可能通过收益率和行业相对表现逐步消退。政策变量仍需等官方会议文本确认。市场会先通过收益率表达。", "sourceIndexes": [1] },
-          { "heading": "资产映射", "body": "A股能源与公用事业观察分靠前，港股能源单日相对强，但港股科技和A股成长走弱，显示不同市场的传导并不一致。后续看油价、收益率和行业广度是否连续同向。若油价冲击缓和，资产表现仍需重新核验，并区分行业价格与资金流，避免跨市场简单类比。", "sourceIndexes": [0, 1] }
+          {
+            "heading": "事实",
+            "body": "7月22日恒生指数跌0.95%，恒生科技指数跌3.04%，RTHK同时报道国企指数跌1.31%。恒生行业快照中资讯科技业跌幅靠后，港股科技的单日价格弱势有两条直接证据支持，不能用南向单日数据覆盖。 当前结论只覆盖已完成的7月22日收盘。继续核验。",
+            "sourceIndexes": [
+              0,
+              1
+            ]
+          },
+          {
+            "heading": "解释",
+            "body": "公开报道中的南向净买约751.7亿港元可作为价格之外的代理线索，但它不等同完整行业净流入，也不能替代ETF份额、短卖、行业广度和最终受益人持仓变化。原材料与能源单日相对靠前也只是横截面观察，不代表持续轮动已经发生。 这也是当前不把单日净买写成持续流入的原因。",
+            "sourceIndexes": [
+              2
+            ]
+          },
+          {
+            "heading": "观察",
+            "body": "港股1日、5日和20日窗口缺少同一成分池的两年连续特征，辅助资金字段也未达到完整度门槛，所以当前只发布insufficient和证据观察。若恒科止跌、行业广度扩张且连续资金数据同向改善，风险偏好才有更完整的确认链；若继续背离，则保持弃权。 观察分也不代表收益概率。",
+            "sourceIndexes": [
+              0,
+              1,
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "hot-oil-fomc-0723",
+      "priority": 86,
+      "affectedMarkets": [
+        "us",
+        "hk",
+        "a-share"
+      ],
+      "title": "油价上行抬高FOMC前的折现率约束",
+      "summary": "AP记录Brent触及近六周高位；Fed官方日历显示7月28–29日召开FOMC会议。",
+      "impact": "能源价格、收益率和AI估值的关系仍需以同统计期数据继续核验。",
+      "publishedAt": "2026-07-23",
+      "tags": [
+        "全球宏观",
+        "油价",
+        "FOMC",
+        "AI"
+      ],
+      "sources": [
+        {
+          "name": "油价与美股7月22日收盘",
+          "publisher": "Associated Press",
+          "url": "https://apnews.com/article/stocks-markets-iran-ai-trump-207dfa55d180fcc565420454178168c5",
+          "tier": "major-media",
+          "evidenceClass": "major-media"
+        },
+        {
+          "name": "Fed 2026年7月日历",
+          "publisher": "Federal Reserve",
+          "url": "https://www.federalreserve.gov/newsevents/2026-july.htm",
+          "tier": "official",
+          "evidenceClass": "official-primary"
+        },
+        {
+          "name": "美国能源信息署7月22日周报",
+          "publisher": "U.S. Energy Information Administration",
+          "url": "https://www.eia.gov/petroleum/supply/weekly/",
+          "tier": "official",
+          "evidenceClass": "vendor-market-data"
+        }
+      ],
+      "detail": {
+        "lead": "油价上行与FOMC临近同时出现，构成跨市场折现率观察线。",
+        "keyPoints": [
+          "Brent触及近六周高位",
+          "10年期美债收益率升至4.66%",
+          "FOMC将于7月28–29日开会"
+        ],
+        "sections": [
+          {
+            "heading": "事实",
+            "body": "AP报道7月22日Brent上涨3.4%至94.07美元，并触及近六周高位；同篇报道给出10年期美债收益率从4.63%升至4.66%。这些是美国市场和商品价格的当日事实，不能与不同统计期的库存或通胀数据直接拼接。",
+            "sourceIndexes": [
+              0,
+              1
+            ]
+          },
+          {
+            "heading": "解释",
+            "body": "Fed官方7月日历显示，7月28日至29日召开两日FOMC会议。EIA在7月22日更新的是截至7月17日的周度石油报告，包含库存、产量和进出口等表格。周报为供给侧背景，不等于当日价格变动的单一解释，页面保留统计期边界。",
+            "sourceIndexes": [
+              0,
+              2
+            ]
+          },
+          {
+            "heading": "观察",
+            "body": "若油价与收益率连续走高，能源通胀和折现率会继续构成AI估值的反证；但这是条件路径而非已发生结论。若油价回落且收益率不再上行，宏观链应从confirmed降为partial并继续观察。Stanford 2026 AI Index本期已检查，没有新发布或修订足以改变当日市场解释的材料。 该边界也适用于AI链条的解释。 观察重点仍是可重复、可核验的数据链。",
+            "sourceIndexes": [
+              0,
+              1,
+              2
+            ]
+          }
         ]
       }
     }
   ],
   "watchlist": [
-    { "time": "07.23", "title": "观察A股扩散", "note": "看医药广度能否回到50%以上、主要消费量能能否保持；模型继续弃权时只更新证据榜。", "tone": "warning" },
-    { "time": "07.28–29", "title": "FOMC利率决议", "note": "观察声明对通胀、能源和就业的措辞，以及收益率对成长资产的反馈。", "tone": "warning" },
-    { "time": "每日", "title": "港股科技与南向", "note": "跟踪恒科、行业广度和南向公开统计是否连续同向，避免用单日净额替代行业资金证据。", "tone": "warning" }
+    {
+      "time": "07.23",
+      "title": "观察A股扩散",
+      "note": "看医药广度能否回到50%以上、主要消费量能能否保持；模型继续弃权时只更新证据榜。",
+      "tone": "warning"
+    },
+    {
+      "time": "07.28–29",
+      "title": "FOMC利率决议",
+      "note": "观察声明对通胀、能源和就业的措辞，以及收益率对成长资产的反馈。",
+      "tone": "warning"
+    },
+    {
+      "time": "每日",
+      "title": "港股科技与南向",
+      "note": "跟踪恒科、行业广度和南向公开统计是否连续同向，避免用单日净额替代行业资金证据。",
+      "tone": "warning"
+    }
   ],
   "sourceDirectory": [
-    { "name": "Federal Reserve", "url": "https://www.federalreserve.gov/", "tier": "official", "evidenceClass": "official-primary" },
-    { "name": "中证指数有限公司", "url": "https://www.csindex.com.cn/", "tier": "official", "evidenceClass": "official-primary" },
-    { "name": "香港交易所", "url": "https://www.hkex.com.hk/", "tier": "official", "evidenceClass": "exchange-market-data" },
-    { "name": "恒生指数有限公司", "url": "https://www.hsi.com.hk/", "tier": "official", "evidenceClass": "official-primary" },
-    { "name": "Associated Press", "url": "https://apnews.com/", "tier": "major-media", "evidenceClass": "major-media" },
-    { "name": "Reuters", "url": "https://www.reuters.com/markets/", "tier": "major-media", "evidenceClass": "major-media" },
-    { "name": "新浪财经", "url": "https://finance.sina.com.cn/", "tier": "major-media", "evidenceClass": "major-media" }
+    {
+      "name": "Federal Reserve",
+      "url": "https://www.federalreserve.gov/",
+      "tier": "official",
+      "evidenceClass": "official-primary"
+    },
+    {
+      "name": "中证指数有限公司",
+      "url": "https://www.csindex.com.cn/",
+      "tier": "official",
+      "evidenceClass": "official-primary"
+    },
+    {
+      "name": "香港交易所",
+      "url": "https://www.hkex.com.hk/",
+      "tier": "official",
+      "evidenceClass": "exchange-market-data"
+    },
+    {
+      "name": "恒生指数有限公司",
+      "url": "https://www.hsi.com.hk/",
+      "tier": "official",
+      "evidenceClass": "official-primary"
+    },
+    {
+      "name": "Associated Press",
+      "url": "https://apnews.com/",
+      "tier": "major-media",
+      "evidenceClass": "major-media"
+    },
+    {
+      "name": "Reuters",
+      "url": "https://www.reuters.com/markets/",
+      "tier": "major-media",
+      "evidenceClass": "major-media"
+    },
+    {
+      "name": "新浪财经",
+      "url": "https://finance.sina.com.cn/",
+      "tier": "major-media",
+      "evidenceClass": "major-media"
+    }
   ],
   "methodology": [
     "全球覆盖：A/H使用各自最新完整收盘，美股只使用最新完整交易日，不混入未收盘行情。",
