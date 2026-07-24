@@ -2,51 +2,51 @@
   "schemaVersion": 1,
   "meta": {
     "editionDate": "2026-07-24",
-    "generatedAt": "2026-07-24T08:19:39+08:00",
-    "dataAsOf": "2026-07-24T08:19:39+08:00",
-    "snapshotCreatedAt": "2026-07-24T08:19:39+08:00",
+    "generatedAt": "2026-07-24T20:25:00+08:00",
+    "dataAsOf": "2026-07-24T20:25:00+08:00",
+    "snapshotCreatedAt": "2026-07-24T20:25:00+08:00",
     "snapshotKind": "close",
     "modelVersion": "market-observer-v1.0.0",
     "coverage": "global-with-priority-watch"
   },
   "homeObservation": {
     "significant": true,
-    "conclusion": "A股能源量价通过、港股反弹但科技偏弱，美股科技急跌且油价破百",
-    "data": "A股7月23日上证+0.25%、创业板+0.25%；恒指+1.28%、恒科+0.65%；美股7月23日纳指-2.2%。",
+    "conclusion": "A股缩量普跌、能源与公用事业量能达标但广度极低，港股科技走弱，美股科技急跌且油价破百",
+    "data": "A股7月24日上证-1.61%、创业板-2.65%；恒指-0.98%、恒科-1.47%；美股7月23日纳指-2.2%。",
     "macro": "AP报道7月23日Brent结算100.69美元并推高通胀与收益率压力；美联储6月目标区间3.50%–3.75%，7月28–29日开会。",
-    "counterEvidence": "A股能源三项量能门槛通过且广度86%；港股主板成交缩量、南向精确净额和连续行业序列不足，未来模型窗口均弃权。",
-    "watch": "A股能源量能与广度扩散、港股恒科与南向可核验成交、油价与7月FOMC措辞。",
+    "counterEvidence": "能源与公用事业量能阈值通过，但上涨广度仅8%和0%；港股主板成交、南向精确净额和连续资金序列不足，未来模型窗口均弃权。",
+    "watch": "A股量能是否转为广度扩散、港股恒科与南向可核验成交、油价与7月FOMC措辞。",
     "href": "/briefs/#daily-macro"
   },
   "globalOverview": {
     "id": "global-overview-2026-07-24",
     "eyebrow": "GLOBAL MARKET",
     "subject": "全局市场",
-    "conclusion": "A股能源量价通过、港股反弹但科技偏弱，美股科技急跌且油价破百",
-    "conclusionLevel": "moderate",
+    "conclusion": "A股缩量普跌、能源与公用事业量能达标但广度极低，港股科技走弱，美股科技急跌且油价破百",
+    "conclusionLevel": "strong",
     "facts": [
       {
         "label": "上证指数",
-        "currentValue": "+0.25%",
+        "currentValue": "3814.20（-1.61%）",
         "previousValue": "上一交易日收盘未单独核验",
         "expectedValue": "市场预期：暂无可靠数据",
-        "surprise": "三大指数小幅收涨",
-        "dataPeriod": "2026-07-23收盘",
-        "sourceId": "yicai-a-close",
-        "releasedAt": "2026-07-22T17:03:00+08:00",
-        "updatedAt": "2026-07-23T08:30:00+08:00",
+        "surprise": "三大指数全线下跌，沪深成交约1.93万亿元",
+        "dataPeriod": "2026-07-24收盘",
+        "sourceId": "a-share-close-0724",
+        "releasedAt": "2026-07-24T15:05:00+08:00",
+        "updatedAt": "2026-07-24T20:25:00+08:00",
         "status": "official"
       },
       {
         "label": "恒生科技指数",
-        "currentValue": "4698.48（+0.65%）",
+        "currentValue": "4629.51（-1.47%）",
         "previousValue": "上一交易日收盘未单独核验",
         "expectedValue": "市场预期：暂无可靠数据",
-        "surprise": "科技涨幅弱于恒指",
-        "dataPeriod": "2026-07-23收盘",
-        "sourceId": "hkex-market-data",
-        "releasedAt": "2026-07-22T17:03:00+08:00",
-        "updatedAt": "2026-07-23T08:30:00+08:00",
+        "surprise": "科技跌幅大于恒指，互联网龙头普跌",
+        "dataPeriod": "2026-07-24收盘",
+        "sourceId": "hk-close-0724",
+        "releasedAt": "2026-07-24T16:20:00+08:00",
+        "updatedAt": "2026-07-24T20:25:00+08:00",
         "status": "official"
       },
       {
@@ -58,26 +58,30 @@
         "dataPeriod": "2026-07-23收盘",
         "sourceId": "ap-us-close",
         "releasedAt": "2026-07-23T04:30:00+08:00",
-        "updatedAt": "2026-07-24T08:19:39+08:00",
+        "updatedAt": "2026-07-24T20:25:00+08:00",
         "status": "official"
       }
     ],
     "explanation": [
-      "A股三大指数小幅收涨、港股反弹但恒科弱于恒指，美股科技急跌，风险偏好未形成跨市场同步确认。",
+      "A股三大指数全线下跌，能源与公用事业量能达标但广度极低；港股科技走弱，美股科技急跌，风险偏好没有形成正向跨市场确认。",
       "Brent结算破百是7月FOMC前的折现率反证，AI估值仍需财报、订单与资本开支验证。"
     ],
     "counterEvidence": [
-      "A股能源量价三项指标均达标且广度86%，并非所有市场风险偏好同时转弱。",
-      "港股主板成交较前期缩量，南向资金精确净额、ETF份额和行业历史仍未形成完整可比面板。"
+      "A股能源与公用事业仍有局部量能达标，但广度仅8%和0%，不构成全面风险偏好回升。",
+      "港股银行与少数芯片股相对活跃，但主板成交、南向精确净额和连续行业资金序列尚未闭合。"
     ],
     "watchItems": [
       {
-        "indicator": "油价与美国收益率",
-        "trigger": "Brent和10年期收益率连续同向上行"
+        "indicator": "能源/公用事业广度",
+        "trigger": "量能延续且上涨广度连续扩大"
       },
       {
         "indicator": "恒生科技与南向资金",
         "trigger": "指数止跌同时出现连续净买入与广度扩张"
+      },
+      {
+        "indicator": "油价与美国收益率",
+        "trigger": "Brent和10年期收益率连续同向上行"
       }
     ],
     "states": [
@@ -90,23 +94,23 @@
       "watchId": "hk_hstech",
       "market": "HK",
       "priority": 1,
-      "direction": "positive",
+      "direction": "negative",
       "significant": true,
       "eyebrow": "P1 · HK",
       "subject": "恒生科技",
-      "conclusion": "恒生科技反弹但弱于恒指，港股科技修复仍不充分",
+      "conclusion": "恒生科技跌幅大于恒指，港股科技修复再度受压",
       "conclusionLevel": "moderate",
       "facts": [
         {
           "label": "恒生科技指数",
-          "currentValue": "4698.48（+0.65%）",
+          "currentValue": "4629.51（-1.47%）",
           "previousValue": "上一交易日收盘未单独核验",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "当日+0.65%，弱于恒指+1.28%",
-          "dataPeriod": "2026-07-23收盘",
-          "sourceId": "hkex-market-data",
+          "surprise": "当日-1.47%，弱于恒指-0.98%",
+          "dataPeriod": "2026-07-24收盘",
+          "sourceId": "hk-close-0724",
           "releasedAt": "2026-07-23T17:03:00+08:00",
-          "updatedAt": "2026-07-23T20:24:00+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "official"
         },
         {
@@ -123,7 +127,7 @@
         }
       ],
       "explanation": [
-        "恒科当日反弹但弱于恒指，科技修复缺少行业成交与资金连续确认。"
+        "恒科跌幅大于恒指，互联网龙头普跌，科技修复缺少行业成交与资金连续确认。"
       ],
       "counterEvidence": [
         "南向净买入、ETF份额变化和成分股上涨广度尚未形成同口径连续序列。"
@@ -147,23 +151,23 @@
       "watchId": "hk_internet_ai",
       "market": "HK",
       "priority": 1,
-      "direction": "mixed",
+      "direction": "negative",
       "significant": true,
       "eyebrow": "P1 · HK",
       "subject": "港股互联网与AI巨头",
-      "conclusion": "港股互联网与AI代理反弹偏弱，美股AI估值仍受折现率约束",
+      "conclusion": "港股互联网与AI代理走弱，美股AI估值仍受折现率约束",
       "conclusionLevel": "moderate",
       "facts": [
         {
           "label": "港股科技代理",
-          "currentValue": "恒生科技+0.65%",
+          "currentValue": "恒生科技-1.47%",
           "previousValue": "上一交易日收盘未单独核验",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "当日反弹但弱于恒指",
-          "dataPeriod": "2026-07-23收盘",
-          "sourceId": "hkex-market-data",
+          "surprise": "当日走弱且弱于恒指",
+          "dataPeriod": "2026-07-24收盘",
+          "sourceId": "hk-close-0724",
           "releasedAt": "2026-07-23T17:03:00+08:00",
-          "updatedAt": "2026-07-23T20:24:00+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "official",
           "note": "使用恒生科技作为港股互联网与AI龙头的指数代理。"
         },
@@ -176,15 +180,15 @@
           "dataPeriod": "2026-07-23收盘",
           "sourceId": "ap-us-close",
           "releasedAt": "2026-07-23T04:30:00+08:00",
-          "updatedAt": "2026-07-24T08:19:39+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "official"
         }
       ],
       "explanation": [
-        "港股科技代理当日反弹但弱于恒指，不能写成互联网与AI独立走强。"
+        "港股科技代理当日走弱且弱于恒指，美股科技急跌，不能写成互联网与AI独立走强。"
       ],
       "counterEvidence": [
-        "纳斯达克7月22日回落，海外估值锚没有提供正向确认。"
+        "银行与少数芯片股相对活跃，但尚未形成连续行业成交、南向或ETF份额确认。"
       ],
       "watchItems": [
         {
@@ -211,32 +215,32 @@
       "facts": [
         {
           "label": "医药医疗5日涨跌",
-          "currentValue": "5日-2.15%，20日+9.96%",
+          "currentValue": "5日-0.42%，20日+9.29%",
           "previousValue": "此前20日数据未单独核验",
           "expectedValue": "模型不使用市场预期值",
           "surprise": "当前观察分排名第5/12；不构成预测主榜",
-          "dataPeriod": "截至2026-07-23的5日/20日窗口",
+          "dataPeriod": "截至2026-07-24的5日/20日窗口",
           "sourceId": "csindex-healthcare",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-23T20:24:00+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "estimated",
           "note": "由中证官方日频量价序列计算相对排名。"
         },
         {
           "label": "成交额与成交量比",
-          "currentValue": "额比1.14x / 真实量比1.11x / 份额比未核验",
+          "currentValue": "额比1.01x / 真实量比0.98x / 份额比未核验",
           "previousValue": "20日均值=1.00x",
           "expectedValue": "放量阈值1.20x / 1.15x",
           "surprise": "量能未通过完整放量门槛，未来窗口abstained",
-          "dataPeriod": "截至2026-07-23，可比历史完整度50%",
+          "dataPeriod": "截至2026-07-24，可比历史完整度50%",
           "sourceId": "csindex-healthcare",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-23T20:24:00+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "estimated"
         }
       ],
       "explanation": [
-        "医疗相对收益仍为正的中期观察线索，但当日量能未通过完整放量门槛，不能沿用早盘的三项达标表述。"
+        "医疗中期相对收益仍为正，但当日量能未通过完整放量门槛，不能沿用量能达标表述。"
       ],
       "counterEvidence": [
         "历史完整度恢复至80%以上、量能与广度同步改善后，才重新评估领先判断。"
@@ -262,26 +266,26 @@
       "facts": [
         {
           "label": "军工5日涨跌",
-          "currentValue": "5日-1.68%，20日-12.90%",
+          "currentValue": "5日+1.29%，20日-13.55%",
           "previousValue": "此前20日数据未单独核验",
           "expectedValue": "模型不使用市场预期值",
           "surprise": "当前观察分排名第9/12；不构成预测主榜",
-          "dataPeriod": "截至2026-07-23的5日/20日窗口",
+          "dataPeriod": "截至2026-07-24的5日/20日窗口",
           "sourceId": "csindex-defense",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-23T20:24:00+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "estimated"
         },
         {
           "label": "成交额与成交量比",
-          "currentValue": "额比0.69x / 真实量比0.81x",
+          "currentValue": "额比0.67x / 真实量比0.80x",
           "previousValue": "20日均值=1.00x",
           "expectedValue": "放量阈值1.20x / 1.15x",
           "surprise": "均低于基准",
-          "dataPeriod": "截至2026-07-23，可比历史完整度50%",
+          "dataPeriod": "截至2026-07-24，可比历史完整度50%",
           "sourceId": "csindex-defense",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-23T20:24:00+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "estimated"
         }
       ],
@@ -312,14 +316,14 @@
       "facts": [
         {
           "label": "信息技术行业代理",
-          "currentValue": "5日-5.68%，20日-20.17%",
+          "currentValue": "5日+0.76%，20日-19.07%",
           "previousValue": "此前20日数据未单独核验",
           "expectedValue": "模型不使用市场预期值",
           "surprise": "当前观察分排名第12/12；不构成预测主榜",
-          "dataPeriod": "截至2026-07-23的5日/20日窗口",
+          "dataPeriod": "截至2026-07-24的5日/20日窗口",
           "sourceId": "csindex-it",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-23T20:24:00+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "estimated",
           "note": "当前使用信息技术行业指数作为半导体宽口径代理，不等同纯半导体指数。"
         },
@@ -332,7 +336,7 @@
           "dataPeriod": "截至2026-07-23的5日/20日窗口",
           "sourceId": "ap-us-close",
           "releasedAt": "2026-07-21T16:30:00-04:00",
-          "updatedAt": "2026-07-23T20:24:00+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "official"
         }
       ],
@@ -366,26 +370,26 @@
       "facts": [
         {
           "label": "移动互联网5日涨跌",
-          "currentValue": "5日-4.09%，20日-13.81%",
+          "currentValue": "5日-0.13%，20日-12.97%",
           "previousValue": "此前20日数据未单独核验",
           "expectedValue": "模型不使用市场预期值",
           "surprise": "当前观察分排名第10/12；不构成预测主榜",
-          "dataPeriod": "截至2026-07-23的5日/20日窗口",
+          "dataPeriod": "截至2026-07-24的5日/20日窗口",
           "sourceId": "csindex-mobile-internet",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-23T20:24:00+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "estimated"
         },
         {
           "label": "成交额与成交量比",
-          "currentValue": "额比0.91x / 真实量比0.85x",
+          "currentValue": "额比0.84x / 真实量比0.78x",
           "previousValue": "20日均值=1.00x",
           "expectedValue": "放量阈值1.20x / 1.15x",
           "surprise": "均未达到放量阈值",
-          "dataPeriod": "截至2026-07-23，可比历史完整度50%",
+          "dataPeriod": "截至2026-07-24，可比历史完整度50%",
           "sourceId": "csindex-mobile-internet",
           "releasedAt": "2026-07-20T16:30:00+08:00",
-          "updatedAt": "2026-07-23T20:24:00+08:00",
+          "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "estimated"
         }
       ],
@@ -618,7 +622,9 @@
       "calibratedHeadline": "AP报道7月23日Brent结算100.69美元、盘中触及102美元；EIA库存周报属于另一统计期，两者不合并外推。",
       "verification": "价格与库存属于不同统计期，标题只保留已核验的资产、日期和涨幅。",
       "relationshipStatus": "partial",
-      "sourceIds": ["ap-us-close"]
+      "sourceIds": [
+        "ap-us-close"
+      ]
     }
   ],
   "sources": [
@@ -771,6 +777,26 @@
       "evidenceClass": "company-filing",
       "publishedAt": "2026-07-16T14:00:00+08:00",
       "accessedAt": "2026-07-20T20:09:20+08:00"
+    },
+    {
+      "id": "a-share-close-0724",
+      "name": "A股7月24日收盘与成交",
+      "publisher": "每日经济新闻/新浪财经",
+      "url": "https://www.nbd.com.cn/articles/2026-07-24/4511071.html",
+      "tier": "major-media",
+      "evidenceClass": "major-media",
+      "publishedAt": "2026-07-24T15:05:00+08:00",
+      "accessedAt": "2026-07-24T20:25:00+08:00"
+    },
+    {
+      "id": "hk-close-0724",
+      "name": "港股7月24日收盘",
+      "publisher": "每日经济新闻/钜亨网",
+      "url": "https://www.mrjjxw.com/articles/2026-07-24/4511171.html",
+      "tier": "major-media",
+      "evidenceClass": "major-media",
+      "publishedAt": "2026-07-24T16:20:00+08:00",
+      "accessedAt": "2026-07-24T20:25:00+08:00"
     }
   ],
   "disclaimer": "本页面用于信息整理与证据跟踪，不构成投资建议；市场数据以引用源最终发布值为准。"
