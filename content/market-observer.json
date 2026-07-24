@@ -1,28 +1,28 @@
 {
   "schemaVersion": 1,
   "meta": {
-    "editionDate": "2026-07-23",
-    "generatedAt": "2026-07-23T20:24:00+08:00",
-    "dataAsOf": "2026-07-23T20:24:00+08:00",
-    "snapshotCreatedAt": "2026-07-23T20:24:00+08:00",
+    "editionDate": "2026-07-24",
+    "generatedAt": "2026-07-24T08:19:39+08:00",
+    "dataAsOf": "2026-07-24T08:19:39+08:00",
+    "snapshotCreatedAt": "2026-07-24T08:19:39+08:00",
     "snapshotKind": "close",
     "modelVersion": "market-observer-v1.0.0",
     "coverage": "global-with-priority-watch"
   },
   "homeObservation": {
     "significant": true,
-    "conclusion": "A股缩量普涨、港股反弹但科技偏弱，美股科技回落且油价上行",
-    "data": "A股7月23日上证+0.25%、创业板+0.25%；恒指+1.28%、恒科+0.65%；美股7月22日纳指-0.6%。",
-    "macro": "美股收盘报道显示油价与收益率上行；美联储6月目标区间3.50%–3.75%，7月28–29日开会。",
+    "conclusion": "A股能源量价通过、港股反弹但科技偏弱，美股科技急跌且油价破百",
+    "data": "A股7月23日上证+0.25%、创业板+0.25%；恒指+1.28%、恒科+0.65%；美股7月23日纳指-2.2%。",
+    "macro": "AP报道7月23日Brent结算100.69美元并推高通胀与收益率压力；美联储6月目标区间3.50%–3.75%，7月28–29日开会。",
     "counterEvidence": "A股能源三项量能门槛通过且广度86%；港股主板成交缩量、南向精确净额和连续行业序列不足，未来模型窗口均弃权。",
     "watch": "A股能源量能与广度扩散、港股恒科与南向可核验成交、油价与7月FOMC措辞。",
     "href": "/briefs/#daily-macro"
   },
   "globalOverview": {
-    "id": "global-overview-2026-07-23",
+    "id": "global-overview-2026-07-24",
     "eyebrow": "GLOBAL MARKET",
     "subject": "全局市场",
-    "conclusion": "A股缩量普涨、港股反弹但科技偏弱，美股科技回落且油价上行",
+    "conclusion": "A股能源量价通过、港股反弹但科技偏弱，美股科技急跌且油价破百",
     "conclusionLevel": "moderate",
     "facts": [
       {
@@ -51,20 +51,20 @@
       },
       {
         "label": "纳斯达克指数",
-        "currentValue": "25690.90（-0.6%）",
-        "previousValue": "25837.21（+1.3%）",
+        "currentValue": "25137.69（-2.2%）",
+        "previousValue": "25690.90（-0.6%）",
         "expectedValue": "市场预期：暂无可靠数据",
-        "surprise": "科技指数回落",
-        "dataPeriod": "2026-07-22收盘",
+        "surprise": "科技指数跌幅扩大",
+        "dataPeriod": "2026-07-23收盘",
         "sourceId": "ap-us-close",
         "releasedAt": "2026-07-23T04:30:00+08:00",
-        "updatedAt": "2026-07-23T08:30:00+08:00",
+        "updatedAt": "2026-07-24T08:19:39+08:00",
         "status": "official"
       }
     ],
     "explanation": [
-      "A股三大指数小幅收涨、港股反弹但恒科弱于恒指，美股科技回落，风险偏好仍未形成跨市场同步确认。",
-      "油价和收益率上行是7月FOMC前的折现率反证，AI估值仍需财报、订单与资本开支验证。"
+      "A股三大指数小幅收涨、港股反弹但恒科弱于恒指，美股科技急跌，风险偏好未形成跨市场同步确认。",
+      "Brent结算破百是7月FOMC前的折现率反证，AI估值仍需财报、订单与资本开支验证。"
     ],
     "counterEvidence": [
       "A股能源量价三项指标均达标且广度86%，并非所有市场风险偏好同时转弱。",
@@ -86,7 +86,7 @@
   },
   "priorityWatch": [
     {
-      "id": "watch-hstech-2026-07-23",
+      "id": "watch-hstech-2026-07-24",
       "watchId": "hk_hstech",
       "market": "HK",
       "priority": 1,
@@ -143,7 +143,7 @@
       ]
     },
     {
-      "id": "watch-hk-internet-ai-2026-07-23",
+      "id": "watch-hk-internet-ai-2026-07-24",
       "watchId": "hk_internet_ai",
       "market": "HK",
       "priority": 1,
@@ -169,14 +169,14 @@
         },
         {
           "label": "纳斯达克",
-          "currentValue": "25690.90（-0.6%）",
-          "previousValue": "25837.21（+1.3%）",
+          "currentValue": "25137.69（-2.2%）",
+          "previousValue": "25690.90（-0.6%）",
           "expectedValue": "市场预期：暂无可靠数据",
           "surprise": "由涨转跌",
-          "dataPeriod": "2026-07-22收盘",
+          "dataPeriod": "2026-07-23收盘",
           "sourceId": "ap-us-close",
           "releasedAt": "2026-07-23T04:30:00+08:00",
-          "updatedAt": "2026-07-23T08:30:00+08:00",
+          "updatedAt": "2026-07-24T08:19:39+08:00",
           "status": "official"
         }
       ],
@@ -198,7 +198,7 @@
       ]
     },
     {
-      "id": "watch-a-healthcare-2026-07-23",
+      "id": "watch-a-healthcare-2026-07-24",
       "watchId": "a_healthcare",
       "market": "A_SHARE",
       "priority": 1,
@@ -249,7 +249,7 @@
       ]
     },
     {
-      "id": "watch-a-defense-2026-07-23",
+      "id": "watch-a-defense-2026-07-24",
       "watchId": "a_defense",
       "market": "A_SHARE",
       "priority": 1,
@@ -299,7 +299,7 @@
       ]
     },
     {
-      "id": "watch-a-semiconductor-2026-07-23",
+      "id": "watch-a-semiconductor-2026-07-24",
       "watchId": "a_semiconductor",
       "market": "A_SHARE",
       "priority": 1,
@@ -325,11 +325,11 @@
         },
         {
           "label": "纳斯达克收盘代理",
-          "currentValue": "25690.90（-0.60%）",
+          "currentValue": "25137.69（-2.20%）",
           "previousValue": "上一交易日收盘未单独核验",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "美股科技回落，未给出正向确认",
-          "dataPeriod": "截至2026-07-22的5日/20日窗口",
+          "surprise": "美股科技急跌，未给出正向确认",
+          "dataPeriod": "截至2026-07-23的5日/20日窗口",
           "sourceId": "ap-us-close",
           "releasedAt": "2026-07-21T16:30:00-04:00",
           "updatedAt": "2026-07-23T20:24:00+08:00",
@@ -353,7 +353,7 @@
       ]
     },
     {
-      "id": "watch-a-ai-internet-2026-07-23",
+      "id": "watch-a-ai-internet-2026-07-24",
       "watchId": "a_ai_internet",
       "market": "A_SHARE",
       "priority": 1,
@@ -540,14 +540,14 @@
         "role": "风险资产定价",
         "fact": {
           "label": "纳斯达克指数",
-          "currentValue": "25690.90（-0.6%）",
-          "previousValue": "25837.21（+1.3%）",
+          "currentValue": "25137.69（-2.2%）",
+          "previousValue": "25690.90（-0.6%）",
           "expectedValue": "市场预期：暂无可靠数据",
           "surprise": "由涨转跌",
-          "dataPeriod": "2026-07-22收盘",
+          "dataPeriod": "2026-07-23收盘",
           "sourceId": "ap-us-close",
           "releasedAt": "2026-07-23T04:30:00+08:00",
-          "updatedAt": "2026-07-23T08:30:00+08:00",
+          "updatedAt": "2026-07-24T08:19:39+08:00",
           "status": "official"
         }
       },
@@ -557,14 +557,14 @@
         "role": "主题映射",
         "fact": {
           "label": "恒生科技指数",
-          "currentValue": "4668.23（-3.04%）",
-          "previousValue": "上一交易日收盘未单独核验",
+          "currentValue": "4698.48（+0.65%）",
+          "previousValue": "4668.23（-3.04%）",
           "expectedValue": "市场预期：暂无可靠数据",
-          "surprise": "与纳斯达克上一交易日方向相反",
-          "dataPeriod": "2026-07-22收盘",
+          "surprise": "港股科技反弹但弱于恒指",
+          "dataPeriod": "2026-07-23收盘",
           "sourceId": "hkex-market-data",
-          "releasedAt": "2026-07-20T16:10:00+08:00",
-          "updatedAt": "2026-07-23T08:30:00+08:00",
+          "releasedAt": "2026-07-23T17:03:00+08:00",
+          "updatedAt": "2026-07-24T08:19:39+08:00",
           "status": "official"
         }
       }
@@ -610,18 +610,15 @@
   },
   "headlineCalibrations": [
     {
-      "id": "oil-rise-calibration-2026-07-23",
+      "id": "oil-rise-calibration-2026-07-24",
       "originalHeadline": "原油价格上涨",
       "detectedTerms": [
         "狂飙"
       ],
-      "calibratedHeadline": "AP报道7月22日Brent上涨3.4%至94.07美元并触及近六周高位；EIA同日更新的是截至7月17日的库存周报，两者不合并外推。",
+      "calibratedHeadline": "AP报道7月23日Brent结算100.69美元、盘中触及102美元；EIA库存周报属于另一统计期，两者不合并外推。",
       "verification": "价格与库存属于不同统计期，标题只保留已核验的资产、日期和涨幅。",
       "relationshipStatus": "partial",
-      "sourceIds": [
-        "ap-us-close",
-        "eia-daily-prices"
-      ]
+      "sourceIds": ["ap-us-close"]
     }
   ],
   "sources": [
@@ -738,18 +735,18 @@
     {
       "id": "hkex-market-data",
       "name": "7月23日港股收市核验",
-      "publisher": "香港电台",
-      "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/ch/component/k2/1863306.htm?spTabChangeable=0",
-      "tier": "official",
-      "evidenceClass": "exchange-market-data",
+      "publisher": "新华社",
+      "url": "https://imgs.news.cn/fortune/20260723/b754f3dc4d734fc8aaed5692a9058366/c.html",
+      "tier": "major-media",
+      "evidenceClass": "major-media",
       "publishedAt": "2026-07-23T17:03:00+08:00",
       "accessedAt": "2026-07-23T20:24:00+08:00"
     },
     {
       "id": "yicai-a-close",
       "name": "7月23日A股收盘核验",
-      "publisher": "每日经济新闻",
-      "url": "https://www.nbd.com.cn/articles/2026-07-23/4504529.html",
+      "publisher": "央视财经/新浪财经",
+      "url": "https://finance.sina.com.cn/jjxw/2026-07-23/doc-iniiusme4597863.shtml",
       "tier": "major-media",
       "evidenceClass": "major-media",
       "publishedAt": "2026-07-23T17:03:00+08:00",
@@ -757,13 +754,13 @@
     },
     {
       "id": "ap-us-close",
-      "name": "7月22日美股与油价收盘",
+      "name": "7月23日美股与油价收盘",
       "publisher": "Associated Press",
-      "url": "https://apnews.com/article/stock-market-dow-nasdaq-87e0cd1ef1994f0fcbfb8f025064f64f",
+      "url": "https://apnews.com/article/stocks-markets-iran-trump-ai-inflation-45b9165d6c518f5bea668b6ba7a89838",
       "tier": "major-media",
       "evidenceClass": "major-media",
       "publishedAt": "2026-07-23T04:30:00+08:00",
-      "accessedAt": "2026-07-23T08:30:00+08:00"
+      "accessedAt": "2026-07-24T08:19:39+08:00"
     },
     {
       "id": "tsmc-q2",

@@ -1,22 +1,22 @@
 {
   "meta": {
-    "editionDate": "2026-07-23",
-    "generatedAt": "2026-07-23T20:24:00+08:00",
+    "editionDate": "2026-07-24",
+    "generatedAt": "2026-07-24T08:19:39+08:00",
     "dataThrough": "2026-07-23",
     "title": "每日早报",
     "subtitle": "收盘更新｜A/H收盘与全球风险线索",
-    "status": "收盘更新；A/H至7月23日，美股至7月22日",
+    "status": "收盘更新；A/H与美股均至7月23日",
     "curationNote": "A/H和美股采用各自最新完整收盘；固定12项观察池只影响采集深度。1/5/20日模型独立门禁未过时明确弃权，不把观察分写成概率。"
   },
   "pulse": {
-    "score": 57,
-    "label": "A/H修复但科技仍需验证",
-    "explanation": "规则分数只用于安排阅读顺序：A股缩量普涨、港股反弹，美股科技与油价仍构成反证，不构成投资信号。",
+    "score": 46,
+    "label": "跨市场风险再升，A股能源独强",
+    "explanation": "规则分数只用于安排阅读顺序：A股能源量价通过门槛，港股反弹但科技偏弱，美股科技下挫且油价破百，不构成投资信号。",
     "signals": [
-      {"label": "美联储", "value": "7月28–29日会议前5天", "tone": "warning"},
-      {"label": "A股", "value": "三大指数小幅收涨，成交缩量", "tone": "positive"},
+      {"label": "美联储", "value": "7月28–29日会议前4天", "tone": "warning"},
+      {"label": "A股", "value": "三大指数小幅收涨，能源量价通过", "tone": "positive"},
       {"label": "港股", "value": "恒指+1.28%，恒科+0.65%", "tone": "positive"},
-      {"label": "美股", "value": "7月22日纳指-0.6%，油价上行", "tone": "warning"}
+      {"label": "美股", "value": "7月23日纳指-2.2%，Brent结算100.69美元", "tone": "warning"}
     ]
   },
   "federalReserve": {
@@ -26,8 +26,8 @@
     "lastDecision": "维持目标利率区间不变",
     "lastDecisionDate": "2026-06-17",
     "nextMeeting": "2026-07-28 / 29",
-    "countdownDays": 5,
-    "takeaway": "6月会议维持利率不变；7月会议前油价、就业、通胀和收益率是主要验证变量。",
+    "countdownDays": 4,
+    "takeaway": "6月会议维持利率不变；7月28–29日会议前，油价、就业、通胀和收益率仍是主要验证变量。",
     "path": [
       {"label": "24.09", "lower": 4.75, "upper": 5},
       {"label": "24.12", "lower": 4.25, "upper": 4.5},
@@ -82,25 +82,25 @@
       ],
       "articles": [
         {
-          "id": "a-share-close-0723",
+          "id": "a-share-close-0724",
           "title": "A股缩量普涨，能源量价观察居前",
           "summary": "上证、深成指和创业板指均小幅收涨，沪深成交约2.1953万亿元；固定12项观察池中能源满足量能门槛，但未来模型窗口仍弃权。",
           "impact": "指数和广度改善尚不足以证明趋势反转，观察分仍只是证据排序。",
-          "publishedAt": "2026-07-23",
+          "publishedAt": "2026-07-24",
           "tags": ["收盘", "A股", "能源", "轮动", "弃权"],
           "sources": [
-            {"name": "中国股市7月23日收盘", "publisher": "新华社/中国网", "url": "https://www.china.org.cn/china/Off_the_Wire/2026-07/23/content_118614444.shtml", "tier": "major-media", "evidenceClass": "major-media"},
+            {"name": "A股7月23日收盘", "publisher": "央视财经/新浪财经", "url": "https://finance.sina.com.cn/jjxw/2026-07-23/doc-iniiusme4597863.shtml", "tier": "major-media", "evidenceClass": "major-media"},
             {"name": "A股7月23日收盘与成交", "publisher": "每日经济新闻", "url": "https://www.nbd.com.cn/articles/2026-07-23/4504529.html", "tier": "major-media", "evidenceClass": "major-media"},
             {"name": "中证能源指数官方详情", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/zh-CN/indices/index-detail/000986", "tier": "official", "evidenceClass": "official-primary"},
             {"name": "中证能源日频量价数据", "publisher": "中证指数有限公司", "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260617&endDate=20260723", "tier": "official", "evidenceClass": "exchange-market-data"}
           ],
           "detail": {
-            "lead": "7月23日A股收盘，上证指数报3876.78点涨0.25%，深证成指报14123.31点涨0.44%，创业板指报3575.52点涨0.25%；沪深两市成交约2.1953万亿元，较前一交易日缩量。",
+            "lead": "7月23日A股收盘，上证指数报3876.78点涨0.25%，深证成指报14123.31点涨0.44%，创业板指报3575.52点涨0.25%；全天成交额超过2.2万亿元，超过4200只个股上涨。",
             "keyPoints": ["三大指数均小幅收涨", "沪深成交约2.1953万亿元，较前一日缩量", "超过4200只个股上涨，但能源量能门槛不等于机构持仓"],
             "sections": [
-              {"heading": "收盘与广度", "body": "新华社与每日经济新闻交叉报道确认三大指数7月23日小幅收红，市场超过4200只个股上涨。成交额从前一日高位回落至约2.1953万亿元，说明价格修复与成交扩张并未同步，不能把普涨直接解释为全面风险偏好反转。", "sourceIndexes": [0, 1]},
+              {"heading": "收盘与广度", "body": "央视财经转引的收盘报道与每日经济新闻确认三大指数7月23日小幅收红，市场超过4200只个股上涨，全天成交额超过2.2万亿元。价格广度改善，但成交规模仍需和此前20个完整交易日比较，不能把普涨直接解释为全面风险偏好反转。", "sourceIndexes": [0, 1]},
               {"heading": "固定池观察", "body": "确定性证据包对a-core12-v2固定12项逐项核验；能源近5日对此前20日的成交额比1.3571、真实成交量比1.3386、成交额份额比1.5684，25个完整可比日上涨广度86%，前三成交集中度28.461%。这些是固定成分量价代理，不是机构持仓。", "sourceIndexes": [2, 3]},
-              {"heading": "模型门禁", "body": "1日、5日和20日使用独立冻结模型，生产级差异特征完整度仍为50%，低于80%门槛，且Brier Skill、RankIC、扣费后Top-Bottom与walk-forward一致性未同时满足。因此页面保留12/12当前证据观察榜，未来窗口写abstained，不用null填0、默认50%或强制排名。", "sourceIndexes": [2, 3]}
+              {"heading": "模型门禁", "body": "1日、5日和20日使用独立冻结模型，特征完整度50%低于80%，质量门禁未同时通过。页面保留12/12证据观察榜，未来窗口写abstained，不用null填0、默认50%或强制排名；能源通过门槛只描述收盘量价状态。", "sourceIndexes": [2, 3]}
             ],
             "rotationAnalysis": {
               "asOf": "2026-07-23",
@@ -145,14 +145,14 @@
       ],
       "articles": [
         {
-          "id": "hk-close-0723",
+          "id": "hk-close-0724",
           "title": "港股反弹但成交缩量，科技修复仍待连续确认",
           "summary": "恒指、恒科和国企指数集体上涨，主板成交约2335亿港元；恒生行业当前快照可用，但连续历史和南向精确净额不足。",
           "impact": "单日反弹不能替代行业广度、ETF、卖空和资金连续序列，轮动继续降级为证据观察。",
-          "publishedAt": "2026-07-23",
+          "publishedAt": "2026-07-24",
           "tags": ["收盘", "港股", "恒生科技", "南向", "弃权"],
           "sources": [
-            {"name": "港股7月23日收市", "publisher": "香港电台", "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/ch/component/k2/1863306.htm?spTabChangeable=0", "tier": "major-media", "evidenceClass": "major-media"},
+            {"name": "港股7月23日收市", "publisher": "新华社", "url": "https://imgs.news.cn/fortune/20260723/b754f3dc4d734fc8aaed5692a9058366/c.html", "tier": "major-media", "evidenceClass": "major-media"},
             {"name": "恒生行业指数表现", "publisher": "恒生指数有限公司", "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do", "tier": "official", "evidenceClass": "exchange-market-data"},
             {"name": "港股7月23日收盘交叉报道", "publisher": "每日经济新闻", "url": "https://www.nbd.com.cn/articles/2026-07-23/4504560.html", "tier": "major-media", "evidenceClass": "major-media"},
             {"name": "港交所市场数据", "publisher": "香港交易所", "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK", "tier": "official", "evidenceClass": "exchange-market-data"}
@@ -161,7 +161,7 @@
             "lead": "7月23日港股收盘，恒生指数报25210.81点涨1.28%，恒生科技指数报4698.48点涨0.65%，国企指数报8352.67点涨1.23%；主板成交约2335亿港元，较前一日缩量。",
             "keyPoints": ["恒指涨1.28%，重返25000点上方", "恒科涨0.65%，科技修复弱于大盘", "主板成交约2335亿港元，南向精确净额暂未可靠核验"],
             "sections": [
-              {"heading": "指数与成交", "body": "香港电台和每日经济新闻均确认港股三大指数7月23日收涨，主板成交额接近2335亿港元。反弹伴随成交缩量，说明价格修复尚未由交易规模充分确认，恒科涨幅低于恒指也提示科技线仍需连续观察。", "sourceIndexes": [0, 2]},
+              {"heading": "指数与成交", "body": "新华社和每日经济新闻均确认港股三大指数7月23日收涨，恒指收报25210.81点，主板成交2334.8亿港元。反弹伴随成交规模仍需连续比较，说明价格修复尚未由交易规模充分确认；恒科涨幅低于恒指，也提示科技线仍需连续观察。", "sourceIndexes": [0, 2]},
               {"heading": "行业与南向", "body": "恒生指数公司当前行业快照显示综合企业、工业、原材料和金融等板块当日相对靠前；这属于横截面价格观察。7月23日南向精确净额没有找到可直接打开且口径一致的收盘页面，因此不沿用7月22日的75.17亿港元数字，也不把单日净买写成行业流入。", "sourceIndexes": [1, 3]},
               {"heading": "模型门禁", "body": "港股1日、5日和20日窗口仍缺少同一成分池连续历史及南向、ETF、卖空、回购和广度等完整变量，不能通过80%完整度、Brier Skill、RankIC、扣费后Top-Bottom和walk-forward门禁。页面保留12行业当前证据观察榜，未来窗口明确abstained。", "sourceIndexes": [1, 2]}
             ],
@@ -190,41 +190,42 @@
       "id": "us",
       "name": "美国市场",
       "shortName": "美股",
-      "sessionDate": "2026-07-22",
+      "sessionDate": "2026-07-23",
       "status": "最新完整交易日",
-      "summary": "截至7月22日收盘，标普500跌0.1%，纳斯达克跌0.6%，道指近乎持平；油价上涨、收益率上行和AI股波动形成风险偏好反证。",
+      "summary": "截至7月23日收盘，标普500跌1.2%，纳斯达克跌2.2%，道指跌1.0%；Brent结算100.69美元，Alphabet与Tesla下跌使AI资本开支进入更强验证期。",
       "leadIndex": "标普500",
       "indices": [
-        {"name": "标普500", "value": "7,498.96", "change": -0.1, "date": "2026-07-22"},
-        {"name": "纳斯达克", "value": "25,690.90", "change": -0.6, "date": "2026-07-22"},
-        {"name": "道琼斯", "value": "52,218.58", "change": -0.01, "date": "2026-07-22"}
+        {"name": "标普500", "value": "7,408.30", "change": -1.2, "date": "2026-07-23"},
+        {"name": "纳斯达克", "value": "25,137.69", "change": -2.2, "date": "2026-07-23"},
+        {"name": "道琼斯", "value": "51,711.65", "change": -1.0, "date": "2026-07-23"}
       ],
-      "sparkline": [7443.72, 7471.31, 7488.06, 7469.14, 7494.58, 7498.96],
+      "sparkline": [7471.31, 7488.06, 7469.14, 7494.58, 7498.96, 7408.30],
       "tone": "warning",
       "sources": [
-        {"name": "美国股市7月22日收盘", "publisher": "Associated Press", "url": "https://apnews.com/article/87e0cd1ef1994f0fcbfb8f025064f64f", "tier": "major-media", "evidenceClass": "major-media"},
+        {"name": "美国股市7月23日收盘", "publisher": "Associated Press", "url": "https://apnews.com/article/wall-street-dow-nasdaq-stocks-3cb4bc150707e0a4378312fbb825f5e4", "tier": "major-media", "evidenceClass": "major-media"},
         {"name": "Tesla第二季度2026财报发布", "publisher": "Tesla Investor Relations", "url": "https://ir.tesla.com/press-release/tesla-releases-second-quarter-2026-financial-results", "tier": "authoritative", "evidenceClass": "company-filing"}
       ],
       "articles": [
         {
-          "id": "us-close-0722",
-          "title": "美股科技回落，油价与财报资本开支形成双重验证",
-          "summary": "标普500和纳斯达克7月22日收低，道指近乎持平；油价和收益率上行，Tesla已发布二季度财报，AI资本开支继续进入业绩验证期。",
-          "impact": "美股科技弱势与A/H科技观察方向相互映照，但单日同步不证明因果，仍需财报和利率数据验证。",
-          "publishedAt": "2026-07-23",
+          "id": "us-close-0724",
+          "title": "美股科技急跌，油价破百加重AI估值验证",
+          "summary": "标普500、道指和纳指7月23日分别跌1.2%、1.0%和2.2%；Brent结算100.69美元，Alphabet与Tesla下跌使资本开支回报成为核心验证。",
+          "impact": "油价与科技股同日走弱提高折现率和盈利兑现的观察权重，但单日同步不证明因果。",
+          "publishedAt": "2026-07-24",
           "tags": ["收盘", "美股", "AI", "油价", "财报"],
           "sources": [
-            {"name": "美国股市7月22日收盘", "publisher": "Associated Press", "url": "https://apnews.com/article/87e0cd1ef1994f0fcbfb8f025064f64f", "tier": "major-media", "evidenceClass": "major-media"},
+            {"name": "美国股市7月23日收盘", "publisher": "Associated Press", "url": "https://apnews.com/article/wall-street-dow-nasdaq-stocks-3cb4bc150707e0a4378312fbb825f5e4", "tier": "major-media", "evidenceClass": "major-media"},
+            {"name": "油价与AI财报冲击市场", "publisher": "Associated Press", "url": "https://apnews.com/article/stocks-markets-iran-trump-ai-inflation-45b9165d6c518f5bea668b6ba7a89838", "tier": "major-media", "evidenceClass": "major-media"},
             {"name": "Tesla第二季度2026财报发布", "publisher": "Tesla Investor Relations", "url": "https://ir.tesla.com/press-release/tesla-releases-second-quarter-2026-financial-results", "tier": "authoritative", "evidenceClass": "company-filing"},
             {"name": "Alphabet与Tesla盘后财报报道", "publisher": "新浪财经", "url": "https://finance.sina.cn/headline/2026-07-23/detail-iniiufvh7804604.d.html", "tier": "major-media", "evidenceClass": "major-media"}
           ],
           "detail": {
-            "lead": "美国市场采用7月22日最新完整收盘：标普500报7498.96点跌0.1%，纳斯达克报25690.90点跌0.6%，道指报52218.58点、跌6.06点近乎持平。",
-            "keyPoints": ["标普500跌0.1%，纳斯达克跌0.6%", "Brent上涨与美债收益率上行构成折现率反证", "Tesla二季度财报发布，AI资本开支继续接受盈利验证"],
+            "lead": "美国市场采用7月23日最新完整收盘：标普500报7408.30点跌1.2%，纳斯达克报25137.69点跌2.2%，道指报51711.65点跌1.0%。",
+            "keyPoints": ["标普500跌1.2%，纳斯达克跌2.2%", "Brent结算100.69美元并盘中触及102美元", "Alphabet与Tesla下跌，AI资本开支回报接受验证"],
             "sections": [
-              {"heading": "收盘表现", "body": "AP逐项给出7月22日三大指数收盘，科技指数跌幅大于道指，市场没有出现全面风险偏好扩张。该数据只覆盖已经完成的7月22日交易，不把盘后价格或期货数字混入美股当前状态。", "sourceIndexes": [0]},
-              {"heading": "油价与财报", "body": "AP报道Brent升至94美元附近且10年期收益率上行；Tesla投资者关系页面确认公司已发布2026年第二季度财报。油价、收益率和公司资本开支属于不同证据层，不能拼成单一因果结论。", "sourceIndexes": [0, 1]},
-              {"heading": "跨市场观察", "body": "美股科技回落与A股信息技术、移动互联网的弱势和前一交易日港股科技下跌形成方向映照，但7月23日港股已反弹，说明跨市场关系并不稳定。若油价和收益率继续上行，AI估值承压的反证增强；若财报兑现需求且利率回落，风险偏好才可能重新获得确认。", "sourceIndexes": [0, 2]}
+              {"heading": "收盘表现", "body": "AP逐项给出7月23日三大指数收盘，科技权重较高的纳指跌幅大于道指，市场出现明显风险偏好收缩。该数据只覆盖已经完成的7月23日交易，不把盘后价格或期货数字混入美股当前状态。", "sourceIndexes": [0]},
+              {"heading": "油价与财报", "body": "AP报道Brent结算100.69美元、盘中触及102美元，油价上涨同时推高通胀与收益率压力；另一篇AP报道Alphabet和Tesla分别下跌7.1%和14.5%，Alphabet全年资本开支指引上调后，投资者重新审视AI投入能否转化为生产率和利润。Tesla投资者关系页面仅用于确认财报发布，不能替代盈利核验。", "sourceIndexes": [1, 2]},
+              {"heading": "跨市场观察", "body": "美股科技急跌与A股信息技术、移动互联网的弱势形成风险映照，但港股7月23日反弹，说明跨市场关系并不稳定。若油价和收益率继续上行、AI公司资本开支继续增加而利润兑现不足，估值反证会增强；若能源风险缓和且财报确认订单、现金流和利润率改善，风险偏好才可能重新获得确认。当前保留条件情景，不把单日下跌写成趋势结论。", "sourceIndexes": [0, 1, 2]}
             ]
           }
         }
@@ -233,13 +234,13 @@
   ],
   "hotspots": [
     {
-      "id": "hot-a-share-structure-0723",
+      "id": "hot-a-share-structure-0724",
       "priority": 88,
       "affectedMarkets": ["a-share"],
       "title": "A股缩量普涨，能源量价居前",
       "summary": "三大指数小幅收涨、超4200只个股上涨；能源量价门槛通过，但模型未来窗口仍弃权。",
       "impact": "普涨与缩量并存，交易活跃度和未来收益预测必须分开。",
-      "publishedAt": "2026-07-23",
+      "publishedAt": "2026-07-24",
       "tags": ["A股", "行业轮动", "量价"],
       "sources": [
         {"name": "A股7月23日收盘", "publisher": "每日经济新闻", "url": "https://www.nbd.com.cn/articles/2026-07-23/4504529.html", "tier": "major-media", "evidenceClass": "major-media"},
@@ -256,13 +257,13 @@
       }
     },
     {
-      "id": "hot-hk-rebound-0723",
+      "id": "hot-hk-rebound-0724",
       "priority": 87,
       "affectedMarkets": ["hk"],
       "title": "港股反弹但成交缩量，恒科修复较弱",
       "summary": "恒指涨1.28%、恒科涨0.65%，主板成交约2335亿港元；行业历史和南向精确净额仍不足。",
       "impact": "单日反弹不能替代连续行业资金证据，港股预测继续保持弃权。",
-      "publishedAt": "2026-07-23",
+      "publishedAt": "2026-07-24",
       "tags": ["港股", "恒生科技", "南向"],
       "sources": [
         {"name": "港股7月23日收市", "publisher": "香港电台", "url": "https://gbcode.rthk.hk/TuniS/news.rthk.hk/rthk/ch/component/k2/1863306.htm?spTabChangeable=0", "tier": "major-media", "evidenceClass": "major-media"},
@@ -279,26 +280,27 @@
       }
     },
     {
-      "id": "hot-ai-earnings-0723",
+      "id": "hot-ai-earnings-0724",
       "priority": 86,
       "affectedMarkets": ["us", "hk", "a-share"],
       "title": "AI估值进入财报与资本开支验证期",
-      "summary": "美股7月22日科技回落，Tesla二季度财报已发布；油价和收益率上行构成AI估值反证。",
+      "summary": "美股7月23日科技急跌，Alphabet与Tesla下跌；Brent结算100.69美元，AI资本开支回报成为核心验证。",
       "impact": "跨市场AI叙事需要利润、订单和资本开支兑现，不能只看单日价格同步。",
-      "publishedAt": "2026-07-23",
+      "publishedAt": "2026-07-24",
       "tags": ["全球宏观", "AI", "财报", "油价"],
       "sources": [
-        {"name": "美国股市7月22日收盘", "publisher": "Associated Press", "url": "https://apnews.com/article/87e0cd1ef1994f0fcbfb8f025064f64f", "tier": "major-media", "evidenceClass": "major-media"},
+        {"name": "美国股市7月23日收盘", "publisher": "Associated Press", "url": "https://apnews.com/article/wall-street-dow-nasdaq-stocks-3cb4bc150707e0a4378312fbb825f5e4", "tier": "major-media", "evidenceClass": "major-media"},
+        {"name": "油价与AI财报冲击市场", "publisher": "Associated Press", "url": "https://apnews.com/article/stocks-markets-iran-trump-ai-inflation-45b9165d6c518f5bea668b6ba7a89838", "tier": "major-media", "evidenceClass": "major-media"},
         {"name": "Tesla第二季度2026财报发布", "publisher": "Tesla Investor Relations", "url": "https://ir.tesla.com/press-release/tesla-releases-second-quarter-2026-financial-results", "tier": "authoritative", "evidenceClass": "company-filing"},
         {"name": "Alphabet与Tesla盘后财报报道", "publisher": "新浪财经", "url": "https://finance.sina.cn/headline/2026-07-23/detail-iniiufvh7804604.d.html", "tier": "major-media", "evidenceClass": "major-media"}
       ],
       "detail": {
-        "lead": "AI资产的下一步验证从单日题材转向财报、订单和资本开支：美股科技7月22日回落，Tesla二季度结果已发布，油价与收益率上行仍压制估值扩张。",
-        "keyPoints": ["纳斯达克7月22日跌0.6%", "Tesla二季度财报于7月22日发布", "油价与收益率上行构成折现率反证"],
+        "lead": "AI资产的下一步验证从单日题材转向财报、订单和资本开支：美股科技7月23日急跌，油价破百，Alphabet与Tesla的业绩和投入回报成为共同验证变量。",
+        "keyPoints": ["纳斯达克7月23日跌2.2%", "Brent结算100.69美元，盘中触及102美元", "Alphabet与Tesla下跌，AI资本开支回报受审视"],
         "sections": [
-          {"heading": "市场事实", "body": "AP记录标普500和纳斯达克收低、道指近乎持平，并提到油价上涨、收益率走高和AI股波动。该事实覆盖7月22日美股收盘，不能把盘后反应倒灌到已完成收盘数据。", "sourceIndexes": [0]},
-          {"heading": "公司验证", "body": "Tesla投资者关系页面确认公司发布2026年第二季度财报；新浪财经同时报道Alphabet与Tesla盘后业绩信息。公司披露能够证明财报发布，不自动证明AI产业链盈利或估值已经改善。", "sourceIndexes": [1, 2]},
-          {"heading": "条件观察", "body": "若后续AI公司订单和利润率上修，并伴随油价回落、收益率稳定，亚洲供应链的修复证据会增强；若资本开支继续上升但现金流和利润率承压，科技估值反证会增强。当前只保留条件情景。财报发布本身不是盈利改善的同义词，盘后消息也不应与7月22日正式收盘混写；后续需要分别核验公司原始披露、订单兑现、资本开支和现金流，才能判断AI估值压力是否真正缓解。", "sourceIndexes": [0, 1, 2]}
+          {"heading": "市场事实", "body": "AP记录7月23日标普500跌1.2%、道指跌1.0%、纳指跌2.2%，并说明Brent结算100.69美元、盘中触及102美元。该事实覆盖已完成收盘，不把盘后价格或期货数字倒灌到市场状态。", "sourceIndexes": [0]},
+          {"heading": "公司验证", "body": "AP报道Tesla股价下跌14.5%、Alphabet下跌7.1%，并指出Alphabet上调全年资本开支指引；Tesla投资者关系页面确认二季度财报发布。公司披露和市场反应属于不同证据层，不自动证明AI产业链盈利或估值已经改善。", "sourceIndexes": [1, 2]},
+          {"heading": "条件观察", "body": "若后续AI公司订单和利润率上修，并伴随油价回落、收益率稳定，亚洲供应链的修复证据会增强；若资本开支继续上升但现金流和利润率承压，科技估值反证会增强。当前只保留条件情景。财报发布本身不是盈利改善的同义词，7月23日的急跌也不能单独证明长期趋势反转；后续需要分别核验公司原始披露、订单兑现、资本开支和现金流，才能判断AI估值压力是否真正缓解。", "sourceIndexes": [0, 1, 2]}
         ]
       }
     }

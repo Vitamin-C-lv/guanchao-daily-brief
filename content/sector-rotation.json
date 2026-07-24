@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-23T20:17:49+08:00",
+  "generatedAt": "2026-07-24T08:17:42+08:00",
   "model": {
     "id": "guanchao-a-share-sector-relative-probability",
     "version": "2026-07-21-relative-v2",
@@ -4213,37 +4213,37 @@
       "id": "us",
       "label": "美股三大指数",
       "mode": "major-index",
-      "asOf": "2026-07-22",
+      "asOf": "2026-07-23",
       "status": "ready",
       "taxonomy": {
         "owner": "观潮日报引用的指数发布方/市场数据来源",
         "name": "纳斯达克、道琼斯、标普500三大指数（非行业分类）",
         "version": "daily-brief",
-        "effectiveDate": "2026-07-22"
+        "effectiveDate": "2026-07-23"
       },
       "note": "不扩建美股行业模型；只保留三大指数当前状态。",
       "reason": "本次没有经同口径历史回测的美股三大指数条件模型。",
       "sources": [
         {
-          "name": "美国股市7月22日收盘",
+          "name": "美国股市7月23日收盘",
           "publisher": "Associated Press",
-          "url": "https://apnews.com/article/stock-market-dow-nasdaq-87e0cd1ef1994f0fcbfb8f025064f64f",
+          "url": "https://apnews.com/article/wall-street-dow-nasdaq-stocks-3cb4bc150707e0a4378312fbb825f5e4",
           "tier": "major-media",
           "evidenceClass": "major-media"
         },
         {
-          "name": "美国能源信息署7月22日周报",
-          "publisher": "U.S. Energy Information Administration",
-          "url": "https://www.eia.gov/petroleum/supply/weekly/",
-          "tier": "official",
-          "evidenceClass": "vendor-market-data"
+          "name": "Tesla第二季度2026财报发布",
+          "publisher": "Tesla Investor Relations",
+          "url": "https://ir.tesla.com/press-release/tesla-releases-second-quarter-2026-financial-results",
+          "tier": "authoritative",
+          "evidenceClass": "company-filing"
         }
       ],
       "horizons": {
         "current": {
           "kind": "observed",
           "status": "ready",
-          "asOf": "2026-07-22",
+          "asOf": "2026-07-23",
           "note": "仅展示纳斯达克、道琼斯、标普500三大指数当前状态；不称为行业轮动。",
           "items": [
             {
@@ -4251,15 +4251,15 @@
               "rank": 1,
               "score": 100.0,
               "direction": "leading",
-              "signal": "2026-07-22完整交易日指数表现。",
+              "signal": "2026-07-23完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "52,218.58"
+                  "value": "51,711.65"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.01%",
+                  "value": "-1.00%",
                   "tone": "negative"
                 }
               ],
@@ -4273,15 +4273,15 @@
               "rank": 2,
               "score": 50.0,
               "direction": "neutral",
-              "signal": "2026-07-22完整交易日指数表现。",
+              "signal": "2026-07-23完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "7,498.96"
+                  "value": "7,408.30"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.10%",
+                  "value": "-1.20%",
                   "tone": "negative"
                 }
               ],
@@ -4295,15 +4295,15 @@
               "rank": 3,
               "score": 0.0,
               "direction": "lagging",
-              "signal": "2026-07-22完整交易日指数表现。",
+              "signal": "2026-07-23完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "25,690.90"
+                  "value": "25,137.69"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.60%",
+                  "value": "-2.20%",
                   "tone": "negative"
                 }
               ],
@@ -4317,21 +4317,21 @@
         "tomorrow": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-22",
+          "asOf": "2026-07-23",
           "sessions": 1,
           "reason": "未训练并样本外校准三大指数明日上涨概率。"
         },
         "oneWeek": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-22",
+          "asOf": "2026-07-23",
           "sessions": 5,
           "reason": "未训练并样本外验证三大指数条件模型，不发布一周方向排序。"
         },
         "oneMonth": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-22",
+          "asOf": "2026-07-23",
           "sessions": 20,
           "reason": "未训练并样本外验证三大指数条件模型，不发布一月方向排序。"
         }
