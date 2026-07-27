@@ -7,7 +7,8 @@
     "snapshotCreatedAt": "2026-07-24T20:25:00+08:00",
     "snapshotKind": "close",
     "modelVersion": "market-observer-v1.0.0",
-    "coverage": "global-with-priority-watch"
+    "coverage": "global-with-priority-watch",
+    "allowedUpdatedAtDelayHours": 48
   },
   "homeObservation": {
     "significant": true,
@@ -35,7 +36,8 @@
         "sourceId": "a-share-close-0724",
         "releasedAt": "2026-07-24T15:05:00+08:00",
         "updatedAt": "2026-07-24T20:25:00+08:00",
-        "status": "official"
+        "status": "official",
+        "asOfDate": "2026-07-24"
       },
       {
         "label": "恒生科技指数",
@@ -47,7 +49,8 @@
         "sourceId": "hk-close-0724",
         "releasedAt": "2026-07-24T16:20:00+08:00",
         "updatedAt": "2026-07-24T20:25:00+08:00",
-        "status": "official"
+        "status": "official",
+        "asOfDate": "2026-07-24"
       },
       {
         "label": "纳斯达克指数",
@@ -59,7 +62,8 @@
         "sourceId": "ap-us-close",
         "releasedAt": "2026-07-23T04:30:00+08:00",
         "updatedAt": "2026-07-24T20:25:00+08:00",
-        "status": "official"
+        "status": "official",
+        "asOfDate": "2026-07-23"
       }
     ],
     "explanation": [
@@ -109,9 +113,10 @@
           "surprise": "当日-1.47%，弱于恒指-0.98%",
           "dataPeriod": "2026-07-24收盘",
           "sourceId": "hk-close-0724",
-          "releasedAt": "2026-07-23T17:03:00+08:00",
+          "releasedAt": "2026-07-24T16:20:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
-          "status": "official"
+          "status": "official",
+          "asOfDate": "2026-07-24"
         },
         {
           "label": "恒生综合资讯科技业",
@@ -123,7 +128,8 @@
           "sourceId": "hsi-industry",
           "releasedAt": "2026-07-23T17:03:00+08:00",
           "updatedAt": "2026-07-23T20:24:00+08:00",
-          "status": "official"
+          "status": "official",
+          "asOfDate": "2026-07-23"
         }
       ],
       "explanation": [
@@ -166,10 +172,11 @@
           "surprise": "当日走弱且弱于恒指",
           "dataPeriod": "2026-07-24收盘",
           "sourceId": "hk-close-0724",
-          "releasedAt": "2026-07-23T17:03:00+08:00",
+          "releasedAt": "2026-07-24T16:20:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "official",
-          "note": "使用恒生科技作为港股互联网与AI龙头的指数代理。"
+          "note": "使用恒生科技作为港股互联网与AI龙头的指数代理。",
+          "asOfDate": "2026-07-24"
         },
         {
           "label": "纳斯达克",
@@ -181,7 +188,8 @@
           "sourceId": "ap-us-close",
           "releasedAt": "2026-07-23T04:30:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
-          "status": "official"
+          "status": "official",
+          "asOfDate": "2026-07-23"
         }
       ],
       "explanation": [
@@ -221,10 +229,11 @@
           "surprise": "当前观察分排名第5/12；不构成预测主榜",
           "dataPeriod": "截至2026-07-24的5日/20日窗口",
           "sourceId": "csindex-healthcare",
-          "releasedAt": "2026-07-20T16:30:00+08:00",
+          "releasedAt": "2026-07-24T20:25:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "estimated",
-          "note": "由中证官方日频量价序列计算相对排名。"
+          "note": "由中证官方日频量价序列计算相对排名。 上游精确发布时间未留存；releasedAt 按实际抓取时间列示。",
+          "asOfDate": "2026-07-24"
         },
         {
           "label": "成交额与成交量比",
@@ -234,9 +243,11 @@
           "surprise": "量能未通过完整放量门槛，未来窗口abstained",
           "dataPeriod": "截至2026-07-24，可比历史完整度50%",
           "sourceId": "csindex-healthcare",
-          "releasedAt": "2026-07-20T16:30:00+08:00",
+          "releasedAt": "2026-07-24T20:25:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
-          "status": "estimated"
+          "status": "estimated",
+          "asOfDate": "2026-07-24",
+          "note": "上游精确发布时间未留存；releasedAt 按实际抓取时间列示。"
         }
       ],
       "explanation": [
@@ -272,9 +283,11 @@
           "surprise": "当前观察分排名第9/12；不构成预测主榜",
           "dataPeriod": "截至2026-07-24的5日/20日窗口",
           "sourceId": "csindex-defense",
-          "releasedAt": "2026-07-20T16:30:00+08:00",
+          "releasedAt": "2026-07-24T20:25:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
-          "status": "estimated"
+          "status": "estimated",
+          "asOfDate": "2026-07-24",
+          "note": "上游精确发布时间未留存；releasedAt 按实际抓取时间列示。"
         },
         {
           "label": "成交额与成交量比",
@@ -284,9 +297,11 @@
           "surprise": "均低于基准",
           "dataPeriod": "截至2026-07-24，可比历史完整度50%",
           "sourceId": "csindex-defense",
-          "releasedAt": "2026-07-20T16:30:00+08:00",
+          "releasedAt": "2026-07-24T20:25:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
-          "status": "estimated"
+          "status": "estimated",
+          "asOfDate": "2026-07-24",
+          "note": "上游精确发布时间未留存；releasedAt 按实际抓取时间列示。"
         }
       ],
       "explanation": [
@@ -322,10 +337,11 @@
           "surprise": "当前观察分排名第12/12；不构成预测主榜",
           "dataPeriod": "截至2026-07-24的5日/20日窗口",
           "sourceId": "csindex-it",
-          "releasedAt": "2026-07-20T16:30:00+08:00",
+          "releasedAt": "2026-07-24T20:25:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
           "status": "estimated",
-          "note": "当前使用信息技术行业指数作为半导体宽口径代理，不等同纯半导体指数。"
+          "note": "当前使用信息技术行业指数作为半导体宽口径代理，不等同纯半导体指数。 上游精确发布时间未留存；releasedAt 按实际抓取时间列示。",
+          "asOfDate": "2026-07-24"
         },
         {
           "label": "纳斯达克收盘代理",
@@ -335,9 +351,10 @@
           "surprise": "美股科技急跌，未给出正向确认",
           "dataPeriod": "截至2026-07-23的5日/20日窗口",
           "sourceId": "ap-us-close",
-          "releasedAt": "2026-07-21T16:30:00-04:00",
+          "releasedAt": "2026-07-23T04:30:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
-          "status": "official"
+          "status": "official",
+          "asOfDate": "2026-07-23"
         }
       ],
       "explanation": [
@@ -376,9 +393,11 @@
           "surprise": "当前观察分排名第10/12；不构成预测主榜",
           "dataPeriod": "截至2026-07-24的5日/20日窗口",
           "sourceId": "csindex-mobile-internet",
-          "releasedAt": "2026-07-20T16:30:00+08:00",
+          "releasedAt": "2026-07-24T20:25:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
-          "status": "estimated"
+          "status": "estimated",
+          "asOfDate": "2026-07-24",
+          "note": "上游精确发布时间未留存；releasedAt 按实际抓取时间列示。"
         },
         {
           "label": "成交额与成交量比",
@@ -388,9 +407,11 @@
           "surprise": "均未达到放量阈值",
           "dataPeriod": "截至2026-07-24，可比历史完整度50%",
           "sourceId": "csindex-mobile-internet",
-          "releasedAt": "2026-07-20T16:30:00+08:00",
+          "releasedAt": "2026-07-24T20:25:00+08:00",
           "updatedAt": "2026-07-24T20:25:00+08:00",
-          "status": "estimated"
+          "status": "estimated",
+          "asOfDate": "2026-07-24",
+          "note": "上游精确发布时间未留存；releasedAt 按实际抓取时间列示。"
         }
       ],
       "explanation": [
@@ -424,7 +445,8 @@
         "sourceId": "crhc-increase",
         "releasedAt": "2026-07-19T18:00:00+08:00",
         "updatedAt": "2026-07-20T20:09:20+08:00",
-        "status": "official"
+        "status": "official",
+        "asOfDate": "2026-07-19"
       }
     ],
     "explanation": [
@@ -466,7 +488,8 @@
           "releasedAt": "2026-07-23T04:30:00+08:00",
           "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "delayed",
-          "note": "AP报道的收盘日价格；不是EIA库存统计。"
+          "note": "AP报道的收盘日价格；不是EIA库存统计。",
+          "asOfDate": "2026-07-22"
         }
       },
       {
@@ -484,7 +507,8 @@
           "releasedAt": "2026-07-16T08:30:00-04:00",
           "updatedAt": "2026-07-23T08:30:00+08:00",
           "status": "official",
-          "note": "核心CPI剔除食品与能源；能源冲击需结合标题CPI和油价继续观察。"
+          "note": "核心CPI剔除食品与能源；能源冲击需结合标题CPI和油价继续观察。",
+          "asOfDate": "2026-06-30"
         }
       },
       {
@@ -501,7 +525,8 @@
           "sourceId": "fed-fomc",
           "releasedAt": "2026-06-17T14:00:00-04:00",
           "updatedAt": "2026-07-23T08:30:00+08:00",
-          "status": "official"
+          "status": "official",
+          "asOfDate": "2026-06-17"
         }
       },
       {
@@ -518,7 +543,8 @@
           "sourceId": "us-treasury-yield",
           "releasedAt": "2026-07-17T15:30:00-04:00",
           "updatedAt": "2026-07-23T08:30:00+08:00",
-          "status": "official"
+          "status": "official",
+          "asOfDate": "2026-07-17"
         }
       },
       {
@@ -535,7 +561,8 @@
           "sourceId": "safe-cny-parity",
           "releasedAt": "2026-07-20T09:15:00+08:00",
           "updatedAt": "2026-07-20T20:09:20+08:00",
-          "status": "official"
+          "status": "official",
+          "asOfDate": "2026-07-20"
         }
       },
       {
@@ -552,7 +579,8 @@
           "sourceId": "ap-us-close",
           "releasedAt": "2026-07-23T04:30:00+08:00",
           "updatedAt": "2026-07-24T08:19:39+08:00",
-          "status": "official"
+          "status": "official",
+          "asOfDate": "2026-07-23"
         }
       },
       {
@@ -569,7 +597,8 @@
           "sourceId": "hkex-market-data",
           "releasedAt": "2026-07-23T17:03:00+08:00",
           "updatedAt": "2026-07-24T08:19:39+08:00",
-          "status": "official"
+          "status": "official",
+          "asOfDate": "2026-07-23"
         }
       }
     ],
