@@ -95,6 +95,22 @@ Codex 自动化分别使用 `content/AUTOMATION_PROMPT.md`、`content/CLOSE_AUTO
 
 周六审计训练候选时必须使用隔离输出，例如 `pnpm rotation:train --candidate-output models/sector-rotation/candidates/<version>.json --version <version>`；该参数拒绝覆盖线上冻结基线。只有通过提示词中的全部门禁后，强模型流程才执行版本化原子升级。
 
+## 预测训练数据快照
+
+日常 `rotation:refresh` 只刷新免费行情与最新推理特征，绝不训练模型。A 股训练标签由 `scripts/prediction_dataset.py` 唯一生成：它以中证全指 `000985` 的显式交易日序列推进 1/5/20 个会话，并在固定 `a-core12-v2` 十二项横截面中计算绝对上涨、跑赢基准、前 25% 与预期超额收益。
+
+训练必须先冻结内容寻址的不可变数据集快照；原始 history、features、signals 和日常缓存仍保持本机忽略，不纳入版本控制。快照本身连同 manifest、来源 hash、标签诊断和稳定 gzip panel 会纳入版本控制：
+
+```powershell
+uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py build --market a-share --feature-file data/rotation-model/features/a-share-features.csv.gz --output-root models/sector-rotation/datasets --code-commit <commit>
+uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py verify --snapshot models/sector-rotation/datasets/a-share/<dataset-id>
+uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py inspect --snapshot models/sector-rotation/datasets/a-share/<dataset-id>
+uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py diff --left <snapshot-a> --right <snapshot-b>
+pnpm rotation:probability-train --dataset-snapshot models/sector-rotation/datasets/a-share/<dataset-id> --output models/sector-rotation/candidates/<shadow>.json
+```
+
+训练器只接受已验证 snapshot，拒绝把可变 `FEATURE_PATH` 当作隐式训练输入；输出也只能写入 audit candidate 目录。HK 尚未训练，US 尚未实现；本阶段不采集 ETF、南向、HIBOR、VIX 或任何付费数据源。
+
 ## 重要说明
 
 本项目仅作信息整理，不构成投资建议。摘要可能因来源更新而变化，任何决策都应以页面列出的官方文件和原文为准。
