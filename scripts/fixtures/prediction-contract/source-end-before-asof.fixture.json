@@ -1,0 +1,8 @@
+{
+  "validator": "rotation",
+  "path": ["markets", 0, "sources", 3],
+  "set": {
+    "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260717&endDate=20260717"
+  },
+  "expected": "endDate"
+}

@@ -1,0 +1,9 @@
+{
+  "validator": "market-observer",
+  "path": ["priorityWatch", 0, "facts", 0],
+  "set": {
+    "asOfDate": "2026-07-24",
+    "releasedAt": "2026-07-23T17:03:00+08:00"
+  },
+  "expected": "releasedAt"
+}
