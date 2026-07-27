@@ -93,7 +93,7 @@ pnpm build
 
 Codex 自动化分别使用 `content/AUTOMATION_PROMPT.md`、`content/CLOSE_AUTOMATION_PROMPT.md`、`content/WEEKLY_AUTOMATION_PROMPT.md` 与 `content/MODEL_REBUILD_AUTOMATION_PROMPT.md`。首次上线前需配置 GitHub 远端并在 Vercel 连接该仓库；本地未配置远端时，自动化只会更新本机文件。
 
-周六审计训练候选时必须使用隔离输出，例如 `pnpm rotation:train --candidate-output models/sector-rotation/candidates/<version>.json --version <version>`；该参数拒绝覆盖线上冻结基线。只有通过提示词中的全部门禁后，强模型流程才执行版本化原子升级。
+周六审计训练候选必须先构建并验证不可变 snapshot，再写入隔离的 candidate 输出；旧的可变训练与聚合入口已经移除，不会先抓取数据后才失败。冻结线上基线始终只读，只有通过提示词中的全部门禁后，独立审计流程才可以评估版本化升级。
 
 ## 预测训练数据快照
 
@@ -102,7 +102,8 @@ Codex 自动化分别使用 `content/AUTOMATION_PROMPT.md`、`content/CLOSE_AUTO
 训练必须先冻结内容寻址的不可变数据集快照；原始 history、features、signals 和日常缓存仍保持本机忽略，不纳入版本控制。快照本身连同 manifest、来源 hash、标签诊断和稳定 gzip panel 会纳入版本控制：
 
 ```powershell
-uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py build --market a-share --feature-file data/rotation-model/features/a-share-features.csv.gz --output-root models/sector-rotation/datasets --code-commit <commit>
+uv run --no-project --python 3.12 --with requests --with numpy python scripts/sector_rotation.py features --history-dir <read-only-history-dir> --benchmark-history <read-only-history-dir>/000985.csv.gz --output-feature-file <staging-feature-file> --as-of 2026-07-21
+uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py build --market a-share --feature-file <staging-feature-file> --history-dir <read-only-history-dir> --benchmark-history <read-only-history-dir>/000985.csv.gz --as-of 2026-07-21 --output-root models/sector-rotation/datasets --code-commit <commit>
 uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py verify --snapshot models/sector-rotation/datasets/a-share/<dataset-id>
 uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py inspect --snapshot models/sector-rotation/datasets/a-share/<dataset-id>
 uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py diff --left <snapshot-a> --right <snapshot-b>

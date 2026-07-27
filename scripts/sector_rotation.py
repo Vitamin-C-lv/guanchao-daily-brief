@@ -9,8 +9,9 @@ The numerical model is intentionally small and deterministic:
 * walk-forward evaluation never random-splits time series.
 
 Daily automation should run ``refresh``: it refreshes structured inputs,
-rebuilds features and applies the frozen model without fitting it. ``train``
-and ``pipeline`` are explicit model-review operations.
+rebuilds features and applies the frozen model without fitting it.  Candidate
+training is intentionally delegated to ``prediction_dataset.py`` followed by
+``sector_probability.py`` and always requires an immutable snapshot.
 """
 
 from __future__ import annotations
@@ -1080,24 +1081,42 @@ def gzip_csv_writer(path: Path, fields: list[str]):
     return name, handle, writer
 
 
-def build_features(_: argparse.Namespace) -> dict[str, Any]:
+def build_features(args: argparse.Namespace) -> dict[str, Any]:
+    """Build point-in-time features, optionally from an explicit immutable staging input.
+
+    The default remains the daily mutable refresh path.  Snapshot construction
+    passes every input/output explicitly so it never changes the daily cache or
+    silently reads whichever local history happens to be current.
+    """
+    history_dir = Path(getattr(args, "history_dir", None) or HISTORY_DIR).resolve()
+    benchmark_path = Path(getattr(args, "benchmark_history", None) or history_dir / "000985.csv.gz").resolve()
+    output_path = Path(getattr(args, "output_feature_file", None) or FEATURE_PATH).resolve()
+    as_of = getattr(args, "as_of", None)
+    if as_of is not None and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", as_of):
+        raise RuntimeError("--as-of must use YYYY-MM-DD")
+    explicit_snapshot_io = any(
+        getattr(args, name, None) is not None
+        for name in ("history_dir", "benchmark_history", "output_feature_file", "as_of")
+    )
     taxonomy = read_json(TAXONOMY_PATH)
-    FEATURE_DIR.mkdir(parents=True, exist_ok=True)
-    if not BENCHMARK_HISTORY_PATH.exists():
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not benchmark_path.exists():
         raise RuntimeError(
             "official CSI All Share benchmark history is missing; run rotation:fetch before features"
         )
-    benchmark_history = read_history(BENCHMARK_HISTORY_PATH)
+    benchmark_history = [
+        row for row in read_history(benchmark_path) if as_of is None or row["date"] <= as_of
+    ]
     if len(benchmark_history) < 81:
         raise RuntimeError("official CSI All Share benchmark has fewer than 81 valid sessions")
     benchmark_dates = [row["date"] for row in benchmark_history]
     available_paths: dict[str, Path] = {}
     date_counts: dict[str, int] = defaultdict(int)
     for index in taxonomy["indices"]:
-        history_path = HISTORY_DIR / f"{index['code']}.csv.gz"
+        history_path = history_dir / f"{index['code']}.csv.gz"
         if not history_path.exists():
             continue
-        history = read_history(history_path)
+        history = [row for row in read_history(history_path) if as_of is None or row["date"] <= as_of]
         if len(history) < 61:
             continue
         available_paths[index["code"]] = history_path
@@ -1110,7 +1129,8 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
     } & set(benchmark_dates)
     if source_coverage == 0 or len(common_dates) < 61:
         raise RuntimeError("not enough synchronized sector history to build features")
-    raw_path = FEATURE_DIR / "a-share-features.raw.csv.gz"
+    raw_name = output_path.name.replace(".csv.gz", ".raw.csv.gz") if output_path.name.endswith(".csv.gz") else f"{output_path.name}.raw.csv.gz"
+    raw_path = output_path.with_name(raw_name)
     feature_stats: dict[str, dict[str, list[float]]] = defaultdict(
         lambda: {feature: [0.0, 0.0, 0.0] for feature in FEATURES}
     )
@@ -1158,7 +1178,7 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
     if not complete_feature_dates:
         raise RuntimeError("no complete feature cross-section after amount/volume window checks")
 
-    temp_name, handle, writer = gzip_csv_writer(FEATURE_PATH, FEATURE_FIELDS)
+    temp_name, handle, writer = gzip_csv_writer(output_path, FEATURE_FIELDS)
     final_rows = 0
     try:
         with gzip.open(raw_path, "rt", encoding="utf-8", newline="") as source:
@@ -1177,15 +1197,14 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
                 final_rows += 1
     finally:
         handle.close()
-        os.replace(temp_name, FEATURE_PATH)
+        os.replace(temp_name, output_path)
     raw_path.unlink(missing_ok=True)
 
-    manifest = load_manifest()
-    manifest["features"] = {
+    feature_summary = {
         "builtAt": now_iso(),
-        "path": str(FEATURE_PATH.relative_to(ROOT)).replace("\\", "/"),
-        "compressedBytes": FEATURE_PATH.stat().st_size,
-        "sha256": sha256_path(FEATURE_PATH),
+        "path": str(output_path.relative_to(ROOT)).replace("\\", "/") if output_path.is_relative_to(ROOT) else output_path.name,
+        "compressedBytes": output_path.stat().st_size,
+        "sha256": sha256_path(output_path),
         "coverageCount": coverage,
         "sourceCoverageCount": source_coverage,
         "synchronizedCoverageCount": source_coverage,
@@ -1214,13 +1233,16 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
         },
         "streamingPolicy": "one sector in memory; prediction labels are built only by prediction_dataset.py",
     }
-    manifest["updatedAt"] = now_iso()
-    write_json_atomic(MANIFEST_PATH, manifest)
+    if not explicit_snapshot_io:
+        manifest = load_manifest()
+        manifest["features"] = feature_summary
+        manifest["updatedAt"] = now_iso()
+        write_json_atomic(MANIFEST_PATH, manifest)
     print(
-        f"[features] coverage={coverage} rows={final_rows} size={FEATURE_PATH.stat().st_size / 1024 / 1024:.2f}MiB",
+        f"[features] coverage={coverage} rows={final_rows} size={output_path.stat().st_size / 1024 / 1024:.2f}MiB",
         flush=True,
     )
-    return manifest["features"]
+    return feature_summary
 
 
 def iter_features() -> Iterator[dict[str, Any]]:
@@ -1350,12 +1372,6 @@ def visualization_artifact(latest: dict[str, dict[str, Any]]) -> dict[str, Any]:
         },
     }
 
-
-def train_model(_: argparse.Namespace) -> dict[str, Any]:
-    raise SystemExit(
-        "legacy mutable-panel training was removed; build and verify an immutable "
-        "prediction dataset, then run rotation:probability-train --dataset-snapshot <path>"
-    )
 
 def percentile_scores(items: list[tuple[str, float]]) -> dict[str, float]:
     ordered = sorted(items, key=lambda pair: pair[1], reverse=True)
@@ -2953,24 +2969,6 @@ def append_event(args: argparse.Namespace) -> None:
     print(f"[events] appended {event['contentHash'][:12]} size={EVENT_PATH.stat().st_size}B")
 
 
-def pipeline(args: argparse.Namespace) -> None:
-    if bool(getattr(args, "promote", False)):
-        raise SystemExit(
-            "direct --promote is disabled: pipeline may create an audit candidate but never publish it"
-        )
-    fetch_args = argparse.Namespace(
-        start=args.start,
-        end=args.end,
-        interval=args.interval,
-        min_rows=args.min_rows,
-        refresh=args.refresh,
-    )
-    fetch_a_share_history(fetch_args)
-    build_features(args)
-    train_model(args)
-    infer(args)
-
-
 def refresh_and_infer(args: argparse.Namespace) -> None:
     """Refresh structured inputs, rebuild features, then apply the frozen model."""
     fetch_a_share_history(args)
@@ -2990,21 +2988,11 @@ def parser() -> argparse.ArgumentParser:
     fetch.set_defaults(func=fetch_a_share_history)
 
     features = commands.add_parser("features", help="build streaming cross-sectional features")
+    features.add_argument("--history-dir", help="explicit read-only history directory for snapshot staging")
+    features.add_argument("--benchmark-history", help="explicit 000985 history for snapshot staging")
+    features.add_argument("--output-feature-file", help="explicit feature output; does not update daily manifest")
+    features.add_argument("--as-of", help="exclude all source rows after this YYYY-MM-DD cutoff")
     features.set_defaults(func=build_features)
-
-    train = commands.add_parser("train", help="walk-forward research and write an isolated audit candidate")
-    train.add_argument("--ridge", type=float, default=20.0)
-    train.add_argument(
-        "--candidate-output",
-        help="write an isolated artifact under models/sector-rotation/candidates for audit only",
-    )
-    train.add_argument("--version", help="explicit artifact version (recommended for audited candidates)")
-    train.add_argument(
-        "--promote",
-        action="store_true",
-        help="disabled safety trap; training is never allowed to replace the frozen baseline",
-    )
-    train.set_defaults(func=train_model)
 
     inference = commands.add_parser("infer", help="apply frozen model only")
     inference.set_defaults(func=infer)
@@ -3030,24 +3018,6 @@ def parser() -> argparse.ArgumentParser:
     event_prune = commands.add_parser("events-prune", help="prune oldest fully evaluated events above 28MB")
     event_prune.set_defaults(func=prune_event_memory)
 
-    full = commands.add_parser("pipeline", help="fetch, feature, train, infer")
-    full.add_argument("--start", default="2016-01-01")
-    full.add_argument("--end", default=datetime.now(SHANGHAI).date().isoformat())
-    full.add_argument("--interval", type=float, default=0.65)
-    full.add_argument("--min-rows", type=int, default=250)
-    full.add_argument("--refresh", action="store_true")
-    full.add_argument("--ridge", type=float, default=20.0)
-    full.add_argument(
-        "--candidate-output",
-        help="write an audit-only artifact under models/sector-rotation/candidates",
-    )
-    full.add_argument("--version", help="explicit audited candidate version")
-    full.add_argument(
-        "--promote",
-        action="store_true",
-        help="disabled safety trap; pipeline is never allowed to replace the frozen baseline",
-    )
-    full.set_defaults(func=pipeline)
     return root
 
 

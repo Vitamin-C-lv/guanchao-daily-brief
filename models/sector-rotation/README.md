@@ -36,17 +36,17 @@
 使用项目配置的 Python 运行：
 
 ```powershell
-pnpm rotation:pipeline
 pnpm rotation:refresh
 pnpm rotation:signals
 pnpm rotation:history
 pnpm rotation:infer
-pnpm rotation:probability-train
-pnpm rotation:train --candidate-output models/sector-rotation/candidates/<version>.json --version <version>
+uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py build --market a-share --feature-file <staging-feature-file> --history-dir <read-only-history-dir> --benchmark-history <read-only-history-dir>/000985.csv.gz --as-of <latest-session> --output-root models/sector-rotation/datasets --code-commit <commit>
+uv run --no-project --python 3.12 --with requests --with numpy python scripts/prediction_dataset.py verify --snapshot models/sector-rotation/datasets/a-share/<dataset-id>
+pnpm rotation:probability-train --dataset-snapshot models/sector-rotation/datasets/a-share/<dataset-id> --output models/sector-rotation/candidates/<version>.json
 pnpm rotation:events-append --input event.json
 pnpm rotation:events-prune
 ```
 
 Node 启动器依次尝试 `CODEX_PYTHON`、`python`、`py -3` 和 `uv` 管理的 Python，不写死任何用户缓存路径。日常无人值守入口是 `pnpm rotation:refresh`：刷新官方结构化输入、重建当日特征并应用冻结模型，但不训练。
 
-`pipeline` 会按“下载 → 特征 → 504日滚动walk-forward → 候选锁定 → 新的252日holdout → 推理”执行。已存在冻结模型时，`train`/`pipeline` 必须给出项目内的 `--candidate-output`。直接 `--promote` 已被禁用，因为它会重训后覆盖；未来只能用独立发布步骤验证已审计 candidate 的路径/SHA-256、taxonomy/覆盖、两期限 `passed` 和当前基线哈希后再原子替换。
+候选重建固定为“只读历史 → staging 特征 → immutable snapshot build/verify → snapshot-only training”。不存在会先抓取再失败的 `train`/`pipeline` 入口；训练器要求 `--dataset-snapshot`，拒绝把可变 `FEATURE_PATH` 作为隐式输入。冻结模型不能被该流程覆盖，未来独立发布步骤仍须核验已审计 candidate 的路径/SHA-256、taxonomy/覆盖、两期限 `passed` 和当前基线哈希后才可原子替换。

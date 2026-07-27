@@ -265,6 +265,18 @@ test("formal verifier accepts the control snapshot and rejects every real mutati
     rmSync(control.temporary, { recursive: true, force: true });
   }
 
+  const packageJson = JSON.parse(readFileSync(path.join(repositoryRoot, "package.json"), "utf8"));
+  assert.ok(packageJson.devDependencies.ajv?.startsWith("^8."));
+  assert.ok(packageJson.scripts["validate:prediction-dataset"]);
+  assert.ok(packageJson.scripts["test:prediction-dataset"]);
+  assert.equal("rotation:train" in packageJson.scripts, false);
+  assert.equal("rotation:pipeline" in packageJson.scripts, false);
+  const productionModel = readFileSync(path.join(repositoryRoot, "models", "sector-rotation", "a-share-relative-probability-v2.json"));
+  assert.equal(sha256(productionModel), "358e19ae3dacbfdba71db195c0171c627646f33aaadf39250fb0f7b7cbb994d8");
+  const production = JSON.parse(productionModel.toString("utf8"));
+  assert.equal(production.featureDataSha256, "83d693e8f4c01dc7f50cd53f53aae66a860a428dac1449617aea0ad8a54432be");
+  for (const horizon of ["1", "5", "20"]) assert.equal(production.horizons[horizon].publicationStatus, "abstained");
+
   const noOp = loadContext(makeTemporaryDatasetRoot("a-share-2026-07-21-3448b55c8ae4"));
   try {
     const row = noOp.rows.find((item) => item.date === "2016-04-05" && item.code === "000990");

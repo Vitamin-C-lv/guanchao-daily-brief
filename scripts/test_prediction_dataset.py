@@ -279,6 +279,9 @@ class PredictionDatasetContractTests(unittest.TestCase):
         self.assertNotIn("rotation.FEATURE_PATH.exists", source)
         self.assertIn("datasetPanelSha256", source)
         self.assertIn("labelDiagnosticsSha256", source)
+        rotation_source = (rotation.ROOT / "scripts" / "sector_rotation.py").read_text(encoding="utf-8")
+        self.assertNotIn("def train_model", rotation_source)
+        self.assertNotIn("def pipeline", rotation_source)
         model_sha = datasets.sha256_path(rotation.MULTI_TARGET_MODEL_PATH)
         self.assertEqual(model_sha, "358e19ae3dacbfdba71db195c0171c627646f33aaadf39250fb0f7b7cbb994d8")
 

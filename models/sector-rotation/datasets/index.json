@@ -1,12 +1,22 @@
 {
   "datasets": [
     {
-      "datasetId": "a-share-2026-07-21-c403b3f790b8",
-      "manifestSha256": "b3c28f97a651aa7cbf036f1399532ee4df295ba3e22784541eb61092368867a4",
+      "creationStatus": "candidate",
+      "datasetId": "a-share-2026-07-21-3448b55c8ae4",
+      "lifecycleStatus": "candidate",
+      "manifestSha256": "e35cf6b815b8dce18c6dae6ffe0e4a441b6962756d3cfdd890d27c65d4ab4c83",
       "market": "A_SHARE",
-      "panelSha256": "c403b3f790b82d0b342cc728014d2b727116f4dc6542b074165d1f8344aaa517",
-      "path": "a-share/a-share-2026-07-21-c403b3f790b8",
-      "status": "candidate"
+      "panelSha256": "16f43560015ea6f3778f18298f9abc5a99aaf3824b880e203c9b8c63aac95d89",
+      "path": "a-share/a-share-2026-07-21-3448b55c8ae4",
+      "statusHistory": [
+        {
+          "changedAt": "2026-07-27T09:07:59Z",
+          "codeCommit": "72f7533c48e4db4686e5f5e7f386e443f7e59d3c",
+          "from": null,
+          "reason": "initial registration",
+          "to": "candidate"
+        }
+      ]
     }
   ],
   "legacyProduction": [

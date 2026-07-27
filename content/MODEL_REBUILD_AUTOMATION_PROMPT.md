@@ -7,7 +7,7 @@
 1. 完整读取 `.agents/skills/market-evidence-brief/SKILL.md`，并读取其 `references/source-policy.md`、`references/rotation-volume.md` 与 `references/prediction-policy.md`。实际拉取 A 股数据时再完整读取已安装的 `$a-stock-data` `SKILL.md`，只运行本次需要的端点；该技能是取数路径而不是文章来源。
 2. 读取当前 Git HEAD、工作树状态、`models/sector-rotation/`、当前冻结 artifact/model card、`content/sector-rotation.json`、本地 `data/archive/` 轻量快照、`data/rotation-model/manifest.json`、压缩行情/特征和事件记忆。所有历史文件逐个、事件逐行处理，不得一次性载入多年数据。
 3. 记录 Asia/Shanghai 审计时间，以及 A 股、港股各自最新完整交易日。A/H 是建模重点；美股只审阅纳斯达克、道琼斯、标普 500 三大指数，不扩建美股行业模型。
-4. 开始时记录当前冻结模型的文件哈希、版本、特征、权重、分类、来源清单与预登记门槛。冻结基线始终只读；候选训练必须使用 `pnpm rotation:train --candidate-output models/sector-rotation/candidates/<version>.json --version <version>` 写入独立目录。直接 `--promote` 已被代码禁用，本自动化不得调用或绕过；只保留候选与审计供主线程后续独立验证发布。
+4. 开始时记录当前冻结模型的文件哈希、版本、特征、权重、分类、来源清单与预登记门槛。冻结基线始终只读；候选训练必须依次执行 `prediction_dataset.py build --as-of <latest-session>`、`prediction_dataset.py verify --snapshot <snapshot>`，再以 `pnpm rotation:probability-train --dataset-snapshot <snapshot> --output models/sector-rotation/candidates/<version>.json` 写入独立目录。训练器拒绝可变 `FEATURE_PATH`，旧的可变训练、聚合入口和直接 `--promote` 旁路均已移除；只保留候选与审计供主线程后续独立验证发布。
 5. 周六 08:10 可能有早报任务。不得覆盖另一自动化产生的日报、轮动内容或 Git 修改；提交前若 HEAD、工作树或共享内容相对开始时发生变化，重新核对并只提交本审计明确拥有的文件。不能安全合并时保留候选和审计报告、停止升级，不强推。
 6. A 股发布观察池固定为 `a-core12-v2`：`000986`–`000995`、`399967`、`399970` 共 12 项。线上 `current` 可以对同一最新完整交易日的经核验可用子集排序并标 `N/12`，但候选训练、5/20 交易日回测与预测发布必须全 12 项覆盖且 taxonomy hash 与候选/冻结 artifact、model card 完全匹配。医疗 `000991`、军工 `399967`、互联网 `399970` 可以固定展示和单独分析，但不得因此加分、改权重或改变原始排名。
 7. 观察池历史优先从中证指数官方接口按 `YYYYMMDD` 日期、逐代码串行读取，先复用可验证的本地缓存；遇到 403/429、空数据、字段异常或交易日缺口即停止高频重试，扩大到腾讯等独立可信行情源核验指数身份、同日、单位和重叠区间。百度 `000xxx` 代码可能返回深市个股，严禁把这类歧义结果当作 `000986`–`000995` 指数数据；不能确认身份的代码不得进入候选训练或预测。
