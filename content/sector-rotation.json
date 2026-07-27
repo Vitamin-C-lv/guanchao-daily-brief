@@ -80,7 +80,7 @@
         {
           "name": "能源日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000986&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -94,7 +94,7 @@
         {
           "name": "原材料日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000987&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000987&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -108,7 +108,7 @@
         {
           "name": "工业日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000988&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000988&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -122,7 +122,7 @@
         {
           "name": "可选消费日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000989&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000989&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -136,7 +136,7 @@
         {
           "name": "主要消费日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000990&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000990&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -150,7 +150,7 @@
         {
           "name": "医药医疗日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000991&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -164,7 +164,7 @@
         {
           "name": "金融地产日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000992&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000992&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -178,7 +178,7 @@
         {
           "name": "信息技术日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000993&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000993&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -192,7 +192,7 @@
         {
           "name": "通信服务日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000994&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000994&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -206,7 +206,7 @@
         {
           "name": "公用事业日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000995&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=000995&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -220,7 +220,7 @@
         {
           "name": "军工日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399967&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399967&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         },
@@ -234,7 +234,7 @@
         {
           "name": "移动互联网日频量价数据",
           "publisher": "中证指数有限公司",
-          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399970&startDate=20260717&endDate=20260717",
+          "url": "https://www.csindex.com.cn/csindex-home/perf/index-perf?indexCode=399970&startDate=20260717&endDate=20260724",
           "tier": "official",
           "evidenceClass": "exchange-market-data"
         }
@@ -250,7 +250,7 @@
               "sector": "能源",
               "code": "000986",
               "rank": 1,
-              "score": 100.0,
+              "score": 100,
               "direction": "leading",
               "signal": "截至2026-07-24的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
@@ -624,7 +624,7 @@
               "sector": "信息技术",
               "code": "000993",
               "rank": 12,
-              "score": 0.0,
+              "score": 0,
               "direction": "lagging",
               "signal": "截至2026-07-24的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
@@ -678,7 +678,7 @@
                   "points": [
                     {
                       "date": "2026-04-28",
-                      "value": 0.0
+                      "value": 0
                     },
                     {
                       "date": "2026-04-29",
@@ -923,7 +923,7 @@
                   "points": [
                     {
                       "date": "2026-04-28",
-                      "value": 0.0
+                      "value": 0
                     },
                     {
                       "date": "2026-04-29",
@@ -1168,7 +1168,7 @@
                   "points": [
                     {
                       "date": "2026-04-28",
-                      "value": 0.0
+                      "value": 0
                     },
                     {
                       "date": "2026-04-29",
@@ -1413,7 +1413,7 @@
                   "points": [
                     {
                       "date": "2026-04-28",
-                      "value": 0.0
+                      "value": 0
                     },
                     {
                       "date": "2026-04-29",
@@ -1655,7 +1655,18 @@
                 }
               ]
             }
-          ]
+          ],
+          "modelAvailability": "trained",
+          "publicationStatus": "not_applicable",
+          "outputMode": "evidence_observation",
+          "calibrationStatus": "not_applicable",
+          "probabilitySource": "none",
+          "probabilityTarget": "none",
+          "modelInputCompleteness": 1,
+          "productionFeatureCoverage": 0.5,
+          "modelVersion": "2026-07-21-relative-v2",
+          "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
+          "gateFailures": []
         },
         "tomorrow": {
           "kind": "forecast",
@@ -1675,7 +1686,7 @@
               "sector": "能源",
               "code": "000986",
               "rank": 1,
-              "score": 100.0,
+              "score": 100,
               "direction": "leading",
               "signal": "截至2026-07-24的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
@@ -2049,7 +2060,7 @@
               "sector": "信息技术",
               "code": "000993",
               "rank": 12,
-              "score": 0.0,
+              "score": 0,
               "direction": "lagging",
               "signal": "截至2026-07-24的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
@@ -2090,11 +2101,27 @@
           ],
           "diagnostics": {
             "modelVersion": "2026-07-21-relative-v2",
-            "dataCompleteness": 0.5,
             "rankIc": 0.05971805971805971,
             "topBottomSpreadAfterCosts": -0.001862854829922779,
-            "predictionCrossSectionStd": 0.046994092031221166
-          }
+            "predictionCrossSectionStd": 0.046994092031221166,
+            "modelInputCompleteness": 1,
+            "productionFeatureCoverage": 0.5
+          },
+          "modelAvailability": "trained",
+          "publicationStatus": "abstained",
+          "outputMode": "evidence_observation",
+          "calibrationStatus": "disabled",
+          "probabilitySource": "raw_model",
+          "probabilityTarget": "top_quartile",
+          "modelInputCompleteness": 1,
+          "productionFeatureCoverage": 0.5,
+          "modelVersion": "2026-07-21-relative-v2",
+          "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
+          "gateFailures": [
+            "生产级差异特征完整度仅50%，低于80%",
+            "扣除交易成本后的Top-Bottom收益差不大于0",
+            "原始前四分位模型未满足概率校准启用条件"
+          ]
         },
         "oneWeek": {
           "kind": "forecast",
@@ -2113,7 +2140,7 @@
               "sector": "能源",
               "code": "000986",
               "rank": 1,
-              "score": 100.0,
+              "score": 100,
               "direction": "leading",
               "signal": "截至2026-07-24的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
@@ -2487,7 +2514,7 @@
               "sector": "信息技术",
               "code": "000993",
               "rank": 12,
-              "score": 0.0,
+              "score": 0,
               "direction": "lagging",
               "signal": "截至2026-07-24的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
@@ -2528,11 +2555,26 @@
           ],
           "diagnostics": {
             "modelVersion": "2026-07-21-relative-v2",
-            "dataCompleteness": 0.5,
             "rankIc": 0.10495060495060494,
             "topBottomSpreadAfterCosts": 0.006604641569257642,
-            "predictionCrossSectionStd": 0.056063518264073985
-          }
+            "predictionCrossSectionStd": 0.056063518264073985,
+            "modelInputCompleteness": 1,
+            "productionFeatureCoverage": 0.5
+          },
+          "modelAvailability": "trained",
+          "publicationStatus": "abstained",
+          "outputMode": "evidence_observation",
+          "calibrationStatus": "disabled",
+          "probabilitySource": "raw_model",
+          "probabilityTarget": "top_quartile",
+          "modelInputCompleteness": 1,
+          "productionFeatureCoverage": 0.5,
+          "modelVersion": "2026-07-21-relative-v2",
+          "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
+          "gateFailures": [
+            "生产级差异特征完整度仅50%，低于80%",
+            "原始前四分位模型未满足概率校准启用条件"
+          ]
         },
         "oneMonth": {
           "kind": "forecast",
@@ -2551,7 +2593,7 @@
               "sector": "能源",
               "code": "000986",
               "rank": 1,
-              "score": 100.0,
+              "score": 100,
               "direction": "leading",
               "signal": "截至2026-07-24的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
@@ -2925,7 +2967,7 @@
               "sector": "信息技术",
               "code": "000993",
               "rank": 12,
-              "score": 0.0,
+              "score": 0,
               "direction": "lagging",
               "signal": "截至2026-07-24的量价相对强弱观察；不包含未来方向判断。",
               "metrics": [
@@ -2966,11 +3008,26 @@
           ],
           "diagnostics": {
             "modelVersion": "2026-07-21-relative-v2",
-            "dataCompleteness": 0.5,
             "rankIc": 0.10811410811410811,
             "topBottomSpreadAfterCosts": 0.03019307979998138,
-            "predictionCrossSectionStd": 0.05489930153174769
-          }
+            "predictionCrossSectionStd": 0.05489930153174769,
+            "modelInputCompleteness": 1,
+            "productionFeatureCoverage": 0.5
+          },
+          "modelAvailability": "trained",
+          "publicationStatus": "abstained",
+          "outputMode": "evidence_observation",
+          "calibrationStatus": "disabled",
+          "probabilitySource": "raw_model",
+          "probabilityTarget": "top_quartile",
+          "modelInputCompleteness": 1,
+          "productionFeatureCoverage": 0.5,
+          "modelVersion": "2026-07-21-relative-v2",
+          "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
+          "gateFailures": [
+            "生产级差异特征完整度仅50%，低于80%",
+            "原始前四分位模型未满足概率校准启用条件"
+          ]
         }
       }
     },
@@ -3015,7 +3072,7 @@
               "sector": "电讯业",
               "code": "00011.06",
               "rank": 1,
-              "score": 100.0,
+              "score": 100,
               "direction": "leading",
               "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
@@ -3268,7 +3325,7 @@
               "sector": "原材料",
               "code": "00011.02",
               "rank": 12,
-              "score": 0.0,
+              "score": 0,
               "direction": "lagging",
               "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
               "metrics": [
@@ -3287,925 +3344,78 @@
                 1
               ]
             }
-          ]
+          ],
+          "modelAvailability": "not_trained",
+          "publicationStatus": "not_applicable",
+          "outputMode": "current_observation",
+          "calibrationStatus": "not_applicable",
+          "probabilitySource": "none",
+          "probabilityTarget": "none",
+          "modelInputCompleteness": null,
+          "productionFeatureCoverage": null,
+          "modelVersion": null,
+          "featureVersion": null,
+          "gateFailures": []
         },
         "tomorrow": {
           "kind": "forecast",
-          "status": "abstained",
+          "status": "insufficient",
           "asOf": "2026-07-24",
           "sessions": 1,
-          "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
-          "abstainReasons": [
-            "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
-            "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
-            "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
-          ],
-          "note": "基于官方行业当日相对表现生成证据观察榜；观察分不是上涨概率。",
-          "observationItems": [
-            {
-              "sector": "电讯业",
-              "code": "00011.06",
-              "rank": 1,
-              "score": 100.0,
-              "direction": "leading",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,643.70"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+0.09%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "金融业",
-              "code": "00011.08",
-              "rank": 2,
-              "score": 90.9,
-              "direction": "leading",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,579.52"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.08%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "医疗保健业",
-              "code": "00011.14",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "11,321.13"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.61%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "综合企业",
-              "code": "00011.11",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,132.39"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.70%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "公用事业",
-              "code": "00011.07",
-              "rank": 5,
-              "score": 63.6,
-              "direction": "strengthening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,645.91"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.74%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "必需性消费",
-              "code": "00011.13",
-              "rank": 6,
-              "score": 54.5,
-              "direction": "neutral",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "13,643.35"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.90%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "能源",
-              "code": "00011.01",
-              "rank": 7,
-              "score": 45.5,
-              "direction": "neutral",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,063.99"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-1.65%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "工业",
-              "code": "00011.03",
-              "rank": 8,
-              "score": 36.4,
-              "direction": "weakening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,288.24"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-1.82%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "资讯科技业",
-              "code": "00011.10",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "13,499.10"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-1.94%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "地产建筑业",
-              "code": "00011.09",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,643.41"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-2.11%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "非必需性消费",
-              "code": "00011.12",
-              "rank": 11,
-              "score": 9.1,
-              "direction": "lagging",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,404.99"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-2.43%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "原材料",
-              "code": "00011.02",
-              "rank": 12,
-              "score": 0.0,
-              "direction": "lagging",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,021.21"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-3.56%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            }
-          ],
-          "availableEvidence": [
-            "恒生指数公司12个一级行业同日官方点位与涨跌幅完整。",
-            "重点关注池只提高南向、ETF与公司事件的采集深度，不改变横截面分数。"
-          ],
-          "nextWatch": [
-            "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
-            "补齐HKMA隔夜及1个月HIBOR、总结余、USD/HKD，并联接美国2年期与USD/CNH。"
-          ],
-          "diagnostics": {
-            "modelVersion": "hk-relative-model-not-trained",
-            "dataCompleteness": 0.0,
-            "rankIc": null,
-            "topBottomSpreadAfterCosts": null,
-            "predictionCrossSectionStd": null
-          }
+          "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
+          "modelAvailability": "not_trained",
+          "publicationStatus": "not_applicable",
+          "outputMode": "current_observation",
+          "calibrationStatus": "not_applicable",
+          "probabilitySource": "none",
+          "probabilityTarget": "none",
+          "modelInputCompleteness": null,
+          "productionFeatureCoverage": null,
+          "modelVersion": null,
+          "featureVersion": null,
+          "gateFailures": [
+            "model_not_trained"
+          ]
         },
         "oneWeek": {
           "kind": "forecast",
-          "status": "abstained",
+          "status": "insufficient",
           "asOf": "2026-07-24",
           "sessions": 5,
-          "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
-          "abstainReasons": [
-            "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
-            "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
-            "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
-          ],
-          "note": "基于官方行业当日相对表现生成证据观察榜；观察分不是上涨概率。",
-          "observationItems": [
-            {
-              "sector": "电讯业",
-              "code": "00011.06",
-              "rank": 1,
-              "score": 100.0,
-              "direction": "leading",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,643.70"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+0.09%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "金融业",
-              "code": "00011.08",
-              "rank": 2,
-              "score": 90.9,
-              "direction": "leading",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,579.52"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.08%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "医疗保健业",
-              "code": "00011.14",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "11,321.13"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.61%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "综合企业",
-              "code": "00011.11",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,132.39"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.70%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "公用事业",
-              "code": "00011.07",
-              "rank": 5,
-              "score": 63.6,
-              "direction": "strengthening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,645.91"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.74%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "必需性消费",
-              "code": "00011.13",
-              "rank": 6,
-              "score": 54.5,
-              "direction": "neutral",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "13,643.35"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.90%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "能源",
-              "code": "00011.01",
-              "rank": 7,
-              "score": 45.5,
-              "direction": "neutral",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,063.99"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-1.65%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "工业",
-              "code": "00011.03",
-              "rank": 8,
-              "score": 36.4,
-              "direction": "weakening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,288.24"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-1.82%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "资讯科技业",
-              "code": "00011.10",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "13,499.10"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-1.94%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "地产建筑业",
-              "code": "00011.09",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,643.41"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-2.11%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "非必需性消费",
-              "code": "00011.12",
-              "rank": 11,
-              "score": 9.1,
-              "direction": "lagging",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,404.99"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-2.43%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "原材料",
-              "code": "00011.02",
-              "rank": 12,
-              "score": 0.0,
-              "direction": "lagging",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,021.21"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-3.56%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            }
-          ],
-          "availableEvidence": [
-            "恒生指数公司12个一级行业同日官方点位与涨跌幅完整。",
-            "重点关注池只提高南向、ETF与公司事件的采集深度，不改变横截面分数。"
-          ],
-          "nextWatch": [
-            "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
-            "补齐HKMA隔夜及1个月HIBOR、总结余、USD/HKD，并联接美国2年期与USD/CNH。"
-          ],
-          "diagnostics": {
-            "modelVersion": "hk-relative-model-not-trained",
-            "dataCompleteness": 0.0,
-            "rankIc": null,
-            "topBottomSpreadAfterCosts": null,
-            "predictionCrossSectionStd": null
-          }
+          "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
+          "modelAvailability": "not_trained",
+          "publicationStatus": "not_applicable",
+          "outputMode": "current_observation",
+          "calibrationStatus": "not_applicable",
+          "probabilitySource": "none",
+          "probabilityTarget": "none",
+          "modelInputCompleteness": null,
+          "productionFeatureCoverage": null,
+          "modelVersion": null,
+          "featureVersion": null,
+          "gateFailures": [
+            "model_not_trained"
+          ]
         },
         "oneMonth": {
           "kind": "forecast",
-          "status": "abstained",
+          "status": "insufficient",
           "asOf": "2026-07-24",
           "sessions": 20,
-          "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
-          "abstainReasons": [
-            "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
-            "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
-            "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果"
-          ],
-          "note": "基于官方行业当日相对表现生成证据观察榜；观察分不是上涨概率。",
-          "observationItems": [
-            {
-              "sector": "电讯业",
-              "code": "00011.06",
-              "rank": 1,
-              "score": 100.0,
-              "direction": "leading",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,643.70"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "+0.09%",
-                  "tone": "positive"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "金融业",
-              "code": "00011.08",
-              "rank": 2,
-              "score": 90.9,
-              "direction": "leading",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,579.52"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.08%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "医疗保健业",
-              "code": "00011.14",
-              "rank": 3,
-              "score": 81.8,
-              "direction": "leading",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "11,321.13"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.61%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "综合企业",
-              "code": "00011.11",
-              "rank": 4,
-              "score": 72.7,
-              "direction": "strengthening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,132.39"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.70%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "公用事业",
-              "code": "00011.07",
-              "rank": 5,
-              "score": 63.6,
-              "direction": "strengthening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "5,645.91"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.74%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "必需性消费",
-              "code": "00011.13",
-              "rank": 6,
-              "score": 54.5,
-              "direction": "neutral",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "13,643.35"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-0.90%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "能源",
-              "code": "00011.01",
-              "rank": 7,
-              "score": 45.5,
-              "direction": "neutral",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,063.99"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-1.65%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "工业",
-              "code": "00011.03",
-              "rank": 8,
-              "score": 36.4,
-              "direction": "weakening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,288.24"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-1.82%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "资讯科技业",
-              "code": "00011.10",
-              "rank": 9,
-              "score": 27.3,
-              "direction": "weakening",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "13,499.10"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-1.94%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "地产建筑业",
-              "code": "00011.09",
-              "rank": 10,
-              "score": 18.2,
-              "direction": "lagging",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "1,643.41"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-2.11%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "非必需性消费",
-              "code": "00011.12",
-              "rank": 11,
-              "score": 9.1,
-              "direction": "lagging",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "2,404.99"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-2.43%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            },
-            {
-              "sector": "原材料",
-              "code": "00011.02",
-              "rank": 12,
-              "score": 0.0,
-              "direction": "lagging",
-              "signal": "2026-07-24恒生综合行业指数单日相对表现，仅为当前观察。",
-              "metrics": [
-                {
-                  "label": "指数点位",
-                  "value": "14,021.21"
-                },
-                {
-                  "label": "当日涨跌",
-                  "value": "-3.56%",
-                  "tone": "negative"
-                }
-              ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
-            }
-          ],
-          "availableEvidence": [
-            "恒生指数公司12个一级行业同日官方点位与涨跌幅完整。",
-            "重点关注池只提高南向、ETF与公司事件的采集深度，不改变横截面分数。"
-          ],
-          "nextWatch": [
-            "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
-            "补齐HKMA隔夜及1个月HIBOR、总结余、USD/HKD，并联接美国2年期与USD/CNH。"
-          ],
-          "diagnostics": {
-            "modelVersion": "hk-relative-model-not-trained",
-            "dataCompleteness": 0.0,
-            "rankIc": null,
-            "topBottomSpreadAfterCosts": null,
-            "predictionCrossSectionStd": null
-          }
+          "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
+          "modelAvailability": "not_trained",
+          "publicationStatus": "not_applicable",
+          "outputMode": "current_observation",
+          "calibrationStatus": "not_applicable",
+          "probabilitySource": "none",
+          "probabilityTarget": "none",
+          "modelInputCompleteness": null,
+          "productionFeatureCoverage": null,
+          "modelVersion": null,
+          "featureVersion": null,
+          "gateFailures": [
+            "model_not_trained"
+          ]
         }
       }
     },
@@ -4249,7 +3459,7 @@
             {
               "sector": "道琼斯",
               "rank": 1,
-              "score": 100.0,
+              "score": 100,
               "direction": "leading",
               "signal": "2026-07-23完整交易日指数表现。",
               "metrics": [
@@ -4271,7 +3481,7 @@
             {
               "sector": "标普500",
               "rank": 2,
-              "score": 50.0,
+              "score": 50,
               "direction": "neutral",
               "signal": "2026-07-23完整交易日指数表现。",
               "metrics": [
@@ -4293,7 +3503,7 @@
             {
               "sector": "纳斯达克",
               "rank": 3,
-              "score": 0.0,
+              "score": 0,
               "direction": "lagging",
               "signal": "2026-07-23完整交易日指数表现。",
               "metrics": [
@@ -4312,28 +3522,78 @@
                 1
               ]
             }
-          ]
+          ],
+          "modelAvailability": "not_implemented",
+          "publicationStatus": "not_applicable",
+          "outputMode": "current_observation",
+          "calibrationStatus": "not_applicable",
+          "probabilitySource": "none",
+          "probabilityTarget": "none",
+          "modelInputCompleteness": null,
+          "productionFeatureCoverage": null,
+          "modelVersion": null,
+          "featureVersion": null,
+          "gateFailures": []
         },
         "tomorrow": {
           "kind": "forecast",
           "status": "insufficient",
           "asOf": "2026-07-23",
           "sessions": 1,
-          "reason": "未训练并样本外校准三大指数明日上涨概率。"
+          "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
+          "modelAvailability": "not_implemented",
+          "publicationStatus": "not_applicable",
+          "outputMode": "current_observation",
+          "calibrationStatus": "not_applicable",
+          "probabilitySource": "none",
+          "probabilityTarget": "none",
+          "modelInputCompleteness": null,
+          "productionFeatureCoverage": null,
+          "modelVersion": null,
+          "featureVersion": null,
+          "gateFailures": [
+            "model_not_implemented"
+          ]
         },
         "oneWeek": {
           "kind": "forecast",
           "status": "insufficient",
           "asOf": "2026-07-23",
           "sessions": 5,
-          "reason": "未训练并样本外验证三大指数条件模型，不发布一周方向排序。"
+          "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
+          "modelAvailability": "not_implemented",
+          "publicationStatus": "not_applicable",
+          "outputMode": "current_observation",
+          "calibrationStatus": "not_applicable",
+          "probabilitySource": "none",
+          "probabilityTarget": "none",
+          "modelInputCompleteness": null,
+          "productionFeatureCoverage": null,
+          "modelVersion": null,
+          "featureVersion": null,
+          "gateFailures": [
+            "model_not_implemented"
+          ]
         },
         "oneMonth": {
           "kind": "forecast",
           "status": "insufficient",
           "asOf": "2026-07-23",
           "sessions": 20,
-          "reason": "未训练并样本外验证三大指数条件模型，不发布一月方向排序。"
+          "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
+          "modelAvailability": "not_implemented",
+          "publicationStatus": "not_applicable",
+          "outputMode": "current_observation",
+          "calibrationStatus": "not_applicable",
+          "probabilitySource": "none",
+          "probabilityTarget": "none",
+          "modelInputCompleteness": null,
+          "productionFeatureCoverage": null,
+          "modelVersion": null,
+          "featureVersion": null,
+          "gateFailures": [
+            "model_not_implemented"
+          ]
         }
       }
     }

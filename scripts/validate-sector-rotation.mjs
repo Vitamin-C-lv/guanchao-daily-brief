@@ -4,7 +4,10 @@ import path from "node:path";
 import process from "node:process";
 
 const root = process.cwd();
-const rotationPath = path.resolve(root, "content", "sector-rotation.json");
+const fileArgument = process.argv.indexOf("--file");
+const rotationPath = fileArgument >= 0 && process.argv[fileArgument + 1]
+  ? path.resolve(root, process.argv[fileArgument + 1])
+  : path.resolve(root, "content", "sector-rotation.json");
 const schemaPath = path.resolve(root, "schemas", "sector-rotation.schema.json");
 const modelArtifactPath = path.resolve(root, "models", "sector-rotation", "a-share-v1.json");
 const probabilityArtifactPath = path.resolve(root, "models", "sector-rotation", "a-share-relative-probability-v2.json");
@@ -15,6 +18,16 @@ const aShareCalendarPath = path.resolve(root, "models", "sector-rotation", "cn-m
 const MAX_ROTATION_BYTES = 384 * 1024;
 const errors = [];
 const seenForecastIds = new Set();
+const modelAvailabilities = new Set(["trained", "not_trained", "not_implemented"]);
+const publicationStatuses = new Set(["published", "abstained", "insufficient_data", "not_applicable"]);
+const outputModes = new Set(["probability", "evidence_observation", "current_observation", "none"]);
+const calibrationStatuses = new Set(["enabled", "disabled", "collapsed", "not_applicable", "legacy_unknown"]);
+const probabilitySources = new Set(["raw_model", "calibrated_model", "historical_base_rate", "legacy_unknown", "none"]);
+const probabilityTargets = new Set(["absolute_up", "relative_outperformance", "top_quartile", "none"]);
+const stateKeys = [
+  "modelAvailability", "publicationStatus", "outputMode", "calibrationStatus", "probabilitySource", "probabilityTarget",
+  "modelVersion", "featureVersion", "modelInputCompleteness", "productionFeatureCoverage", "gateFailures",
+];
 
 function canonicalJson(value) {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
@@ -101,6 +114,46 @@ function requireFiniteRange(value, min, max, label) {
     return false;
   }
   return true;
+}
+
+function validatePredictionState(horizon, label, { kind }) {
+  for (const key of stateKeys) {
+    if (!(key in horizon)) fail(`${label}.${key} 缺少预测状态契约字段`);
+  }
+  if (!modelAvailabilities.has(horizon.modelAvailability)) fail(`${label}.modelAvailability 非法`);
+  if (!publicationStatuses.has(horizon.publicationStatus)) fail(`${label}.publicationStatus 非法`);
+  if (!outputModes.has(horizon.outputMode)) fail(`${label}.outputMode 非法`);
+  if (!calibrationStatuses.has(horizon.calibrationStatus)) fail(`${label}.calibrationStatus 非法`);
+  if (!probabilitySources.has(horizon.probabilitySource)) fail(`${label}.probabilitySource 非法`);
+  if (!probabilityTargets.has(horizon.probabilityTarget)) fail(`${label}.probabilityTarget 非法`);
+  if (horizon.modelVersion !== null) requireString(horizon.modelVersion, `${label}.modelVersion`, { max: 80 });
+  if (horizon.featureVersion !== null) requireString(horizon.featureVersion, `${label}.featureVersion`, { max: 120 });
+  for (const key of ["modelInputCompleteness", "productionFeatureCoverage"]) {
+    if (horizon[key] !== null) requireFiniteRange(horizon[key], 0, 1, `${label}.${key}`);
+  }
+  if (!Array.isArray(horizon.gateFailures) || horizon.gateFailures.some((reason) => typeof reason !== "string" || !reason.trim())) {
+    fail(`${label}.gateFailures 必须是字符串数组`);
+  }
+  if (horizon.publicationStatus === "published") {
+    if (horizon.modelAvailability !== "trained") fail(`${label} published 必须使用 trained 模型`);
+    if (horizon.outputMode !== "probability") fail(`${label} published 必须输出 probability`);
+    if (horizon.probabilityTarget === "none") fail(`${label} published 缺少 probabilityTarget`);
+    if (!["raw_model", "calibrated_model"].includes(horizon.probabilitySource)) fail(`${label} published 不得使用非模型概率来源`);
+    if (horizon.gateFailures.length) fail(`${label} published 不得保留 gateFailures`);
+  }
+  if (horizon.publicationStatus === "abstained") {
+    if (horizon.modelAvailability !== "trained") fail(`${label} abstained 必须使用 trained 模型`);
+    if (horizon.outputMode !== "evidence_observation") fail(`${label} abstained 必须输出 evidence_observation`);
+    if (horizon.modelVersion === null) fail(`${label} abstained 缺少模型版本`);
+    if (!horizon.gateFailures.length) fail(`${label} abstained 必须有结构化 gateFailures`);
+  }
+  if (horizon.modelAvailability !== "trained") {
+    if (horizon.publicationStatus !== "not_applicable") fail(`${label} 未训练/未实现模型不得标记为弃权或发布`);
+    if (horizon.probabilitySource !== "none" || horizon.probabilityTarget !== "none" || horizon.calibrationStatus !== "not_applicable") {
+      fail(`${label} 未训练/未实现模型必须将概率与校准状态设为 none/not_applicable`);
+    }
+    if (kind === "forecast" && !horizon.gateFailures.length) fail(`${label} 未训练/未实现预测窗口必须说明模型不存在`);
+  }
 }
 
 function validateSource(source, label) {
@@ -400,9 +453,12 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
   if (!["ready", "abstained", "insufficient"].includes(horizon.status)) fail(`${label}.status 必须是 ready、abstained 或 insufficient`);
   requireDate(horizon.asOf, `${label}.asOf`);
   if (horizon.asOf !== market.asOf) fail(`${label}.asOf 必须与 market.asOf 一致`);
+  validatePredictionState(horizon, label, { kind });
 
   if (horizon.status === "insufficient") {
-    const allowed = kind === "forecast" ? ["kind", "status", "asOf", "dueDate", "sessions", "reason"] : ["kind", "status", "asOf", "reason"];
+    const allowed = kind === "forecast"
+      ? ["kind", "status", "asOf", "dueDate", "sessions", "reason", ...stateKeys]
+      : ["kind", "status", "asOf", "reason", ...stateKeys];
     exactKeys(horizon, allowed, label);
     requireString(horizon.reason, `${label}.reason`, { max: 300 });
     if (horizon.items !== undefined) fail(`${label} 证据不足时不得伪造 items`);
@@ -415,7 +471,7 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
 
   if (horizon.status === "abstained") {
     if (kind !== "forecast") fail(`${label} 只有预测窗口可以abstained`);
-    exactKeys(horizon, ["kind", "status", "asOf", "dueDate", "sessions", "reason", "abstainReasons", "note", "observationItems", "availableEvidence", "nextWatch", "diagnostics"], label);
+    exactKeys(horizon, ["kind", "status", "asOf", "dueDate", "sessions", "reason", "abstainReasons", "note", "observationItems", "availableEvidence", "nextWatch", "diagnostics", ...stateKeys], label);
     if (horizon.sessions !== sessions) fail(`${label}.sessions 必须是 ${sessions}`);
     if (horizon.dueDate !== undefined) requireDate(horizon.dueDate, `${label}.dueDate`);
     requireString(horizon.reason, `${label}.reason`, { max: 300 });
@@ -431,7 +487,10 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
     if (!isObject(horizon.diagnostics)) fail(`${label}.diagnostics 必须是对象`);
     else {
       requireString(horizon.diagnostics.modelVersion, `${label}.diagnostics.modelVersion`, { max: 80 });
-      requireFiniteRange(horizon.diagnostics.dataCompleteness, 0, 1, `${label}.diagnostics.dataCompleteness`);
+      requireFiniteRange(horizon.diagnostics.modelInputCompleteness, 0, 1, `${label}.diagnostics.modelInputCompleteness`);
+      requireFiniteRange(horizon.diagnostics.productionFeatureCoverage, 0, 1, `${label}.diagnostics.productionFeatureCoverage`);
+      if (horizon.diagnostics.modelInputCompleteness !== horizon.modelInputCompleteness) fail(`${label}.diagnostics.modelInputCompleteness 必须与状态契约一致`);
+      if (horizon.diagnostics.productionFeatureCoverage !== horizon.productionFeatureCoverage) fail(`${label}.diagnostics.productionFeatureCoverage 必须与状态契约一致`);
       for (const key of ["rankIc", "topBottomSpreadAfterCosts", "predictionCrossSectionStd"]) {
         if (horizon.diagnostics[key] !== null && !Number.isFinite(horizon.diagnostics[key])) fail(`${label}.diagnostics.${key} 必须是数值或null`);
       }
@@ -440,10 +499,10 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
   }
 
   if (kind === "observed") {
-    exactKeys(horizon, ["kind", "status", "asOf", "note", "items", "charts"], label);
+    exactKeys(horizon, ["kind", "status", "asOf", "note", "items", "charts", ...stateKeys], label);
     requireString(horizon.note, `${label}.note`, { max: 300 });
   } else {
-    exactKeys(horizon, ["kind", "status", "asOf", "dueDate", "sessions", "note", "items", "charts"], label);
+    exactKeys(horizon, ["kind", "status", "asOf", "dueDate", "sessions", "note", "items", "charts", ...stateKeys], label);
     requireDate(horizon.dueDate, `${label}.dueDate`);
     if (horizon.sessions !== sessions) fail(`${label}.sessions 必须是 ${sessions}`);
     if (typeof horizon.dueDate === "string" && horizon.dueDate <= horizon.asOf) fail(`${label}.dueDate 必须晚于 asOf，并由对应市场交易日历计算`);
@@ -501,6 +560,29 @@ function validateDirectCodeEvidence(horizon, sources, label) {
     });
     if (!hasDirectCodeLink) fail(`${label}.items[${index}] 缺少包含代码 ${item.code} 的直达数据来源`);
   });
+}
+
+function validateAshareDailySourceWindows(market, sources, label) {
+  const items = market.horizons.current?.items ?? [];
+  for (const [itemIndex, item] of items.entries()) {
+    for (const sourceIndex of item.sourceIndexes ?? []) {
+      const source = sources[sourceIndex];
+      if (!source?.url) continue;
+      let url;
+      try { url = new URL(source.url); } catch { continue; }
+      if (!url.searchParams.has("indexCode")) continue; // Explicit whitelist: index detail and taxonomy pages have no date window.
+      const sourceLabel = `${label}.horizons.current.items[${itemIndex}].sources[${sourceIndex}]`;
+      if (url.searchParams.get("indexCode") !== item.code) fail(`${sourceLabel}.indexCode 必须与行业代码 ${item.code} 一致`);
+      const startDate = url.searchParams.get("startDate");
+      const endDate = url.searchParams.get("endDate");
+      if (!/^\d{8}$/.test(startDate ?? "") || !/^\d{8}$/.test(endDate ?? "")) {
+        fail(`${sourceLabel} 日频来源必须包含 YYYYMMDD 的 startDate/endDate`);
+        continue;
+      }
+      if (startDate > endDate) fail(`${sourceLabel}.startDate 不得晚于 endDate`);
+      if (endDate < market.asOf.replaceAll("-", "")) fail(`${sourceLabel}.endDate 不得早于 market.asOf ${market.asOf}`);
+    }
+  }
 }
 
 function validateMarket(market, label) {
@@ -569,6 +651,7 @@ function validateMarket(market, label) {
     validateDirectCodeEvidence(market.horizons.tomorrow, sources, `${label}.horizons.tomorrow`);
     validateDirectCodeEvidence(market.horizons.oneWeek, sources, `${label}.horizons.oneWeek`);
     validateDirectCodeEvidence(market.horizons.oneMonth, sources, `${label}.horizons.oneMonth`);
+    validateAshareDailySourceWindows(market, sources, label);
   } else if (market.id === "hk") {
     if (market.mode !== "industry") fail(`${label}.mode 必须是 industry`);
     if (!/恒生|Hang Seng/i.test(`${market.taxonomy.owner}${market.taxonomy.name}`) || !/一级|level.?1/i.test(market.taxonomy.name)) {

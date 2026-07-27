@@ -5,6 +5,7 @@ import path from "node:path";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const collector = path.join(root, "scripts", "market_evidence.py");
 const rotationRunner = path.join(root, "scripts", "run-sector-rotation.mjs");
+const timestampNormalizer = path.join(root, "scripts", "normalize-market-observer-timestamps.mjs");
 const userArgs = process.argv.slice(2);
 
 if (userArgs.length === 0) {
@@ -91,5 +92,16 @@ const result = spawnSync(selected.command, pythonArgs, {
 if (result.error) {
   console.error(`市场证据采集 ${selected.label} 启动失败: ${result.error.message}`);
   process.exit(1);
+}
+if (result.status === 0 && command === "daily") {
+  const normalized = spawnSync(process.execPath, [timestampNormalizer], {
+    cwd: root,
+    stdio: "inherit",
+    windowsHide: true,
+  });
+  if (normalized.error || normalized.status !== 0) {
+    console.error(`市场事实时间戳归一化失败：${normalized.error?.message ?? `exit ${normalized.status}`}`);
+    process.exit(normalized.status ?? 1);
+  }
 }
 process.exit(result.status ?? 1);

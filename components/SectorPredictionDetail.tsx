@@ -36,6 +36,7 @@ const resultLabels = {
   pending: "尚未到期",
   "model-abstained": "模型弃权",
   "data-insufficient": "数据不足",
+  "not-applicable": "模型尚未建设",
 } as const;
 
 function formatDate(value: string | null | undefined) {
@@ -47,9 +48,18 @@ function finite(value: number | null | undefined): value is number {
 }
 
 function predictionValue(record: SectorPredictionHistoryRecord) {
-  if (finite(record.top_quartile_probability)) return record.top_quartile_probability;
-  if (finite(record.calibrated_probability)) return record.calibrated_probability;
+  if (record.probability_target === "top_quartile" && record.publication_status === "published" && finite(record.top_quartile_probability)) {
+    return record.top_quartile_probability;
+  }
   return null;
+}
+
+function predictionDisplay(record: SectorPredictionHistoryRecord | undefined) {
+  if (!record) return "—";
+  if (record.publication_status === "abstained") return `观察分 ${record.observation_score?.toFixed(0) ?? "—"}`;
+  if (record.probability_target === "top_quartile" && finite(record.top_quartile_probability)) return `${record.top_quartile_probability.toFixed(1)}%`;
+  if (record.legacy && record.probability_target === "absolute_up" && finite(record.absolute_up_probability)) return `旧绝对上涨 ${record.absolute_up_probability.toFixed(1)}%`;
+  return "不可用";
 }
 
 function actualValue(record: SectorPredictionHistoryRecord, metric: ActualMetric) {
@@ -168,7 +178,7 @@ function SnapshotEvidence({ record }: { record: SectorPredictionHistoryRecord })
         <div><dt>数据时间</dt><dd>{formatDate(record.data_as_of)}</dd></div>
         <div><dt>数据完整度</dt><dd>{finite(record.data_completeness) ? `${(record.data_completeness * 100).toFixed(0)}%` : "旧版未保存"}</dd></div>
         <div><dt>raw score / probability</dt><dd>{finite(record.raw_score) ? record.raw_score.toFixed(4) : "—"} / {finite(record.raw_probability) ? `${record.raw_probability.toFixed(2)}%` : "—"}</dd></div>
-        <div><dt>calibrated probability</dt><dd>{finite(record.calibrated_probability) ? `${record.calibrated_probability.toFixed(2)}%` : "—"}</dd></div>
+        <div><dt>{record.legacy ? "旧绝对上涨模型输出（非前25%概率）" : "calibrated probability"}</dt><dd>{finite(record.calibrated_probability) ? `${record.calibrated_probability.toFixed(2)}%` : "—"}</dd></div>
       </dl>
       {record.source_urls.length ? <div className="prediction-history-source-links">{record.source_urls.map((url, index) => <a href={url} key={url} target="_blank" rel="noreferrer">来源 {index + 1}<ExternalLink size={11} /></a>)}</div> : null}
     </details>
@@ -193,7 +203,16 @@ export default function SectorPredictionDetail({
   const latest = horizonRecords[0];
   const currentHorizon = horizon === 1 ? rotationMarket?.horizons.tomorrow : horizon === 5 ? rotationMarket?.horizons.oneWeek : rotationMarket?.horizons.oneMonth;
   const currentStatus = currentHorizon?.status ?? "insufficient";
-  const currentLabel = currentStatus === "ready" ? "概率已发布" : currentStatus === "abstained" ? "概率已弃权" : "数据建设中";
+  const currentLabel = currentStatus === "ready"
+    ? "概率已发布"
+    : currentStatus === "abstained"
+      ? "概率已弃权"
+      : currentHorizon?.modelAvailability === "not_trained"
+        ? "港股概率模型尚未建设"
+        : currentHorizon?.modelAvailability === "not_implemented"
+          ? "美股预测模型尚未实现"
+          : "数据建设中";
+  const currentModelRecords = horizonRecords.filter((record) => !record.legacy);
 
   function switchHorizon(next: Horizon) {
     setHorizon(next);
@@ -225,7 +244,7 @@ export default function SectorPredictionDetail({
             <div><span className="eyebrow">LATEST SNAPSHOT</span><h2 id="prediction-latest-title">最新真实快照</h2></div>
             <dl>
               <div><dt>当前状态</dt><dd>{latest ? resultLabels[latest.result] : currentLabel}</dd></div>
-              <div><dt>最新预测</dt><dd>{latest?.prediction_status === "model-abstained" ? `观察分 ${latest.observation_score?.toFixed(0) ?? "—"}` : finite(latest?.top_quartile_probability) ? `${latest.top_quartile_probability.toFixed(1)}%` : finite(latest?.absolute_up_probability) ? `${latest.absolute_up_probability.toFixed(1)}%` : "—"}</dd></div>
+              <div><dt>最新预测</dt><dd>{predictionDisplay(latest)}</dd></div>
               <div><dt>历史基准</dt><dd>{finite(latest?.historical_base) ? `${latest.historical_base.toFixed(1)}%` : "—"}</dd></div>
               <div><dt>有效优势</dt><dd>{finite(latest?.effective_edge) ? `${latest.effective_edge >= 0 ? "+" : ""}${latest.effective_edge.toFixed(1)}pct` : "—"}</dd></div>
               <div><dt>模型版本</dt><dd>{latest?.model_version ?? "尚未建立"}</dd></div>
@@ -235,7 +254,7 @@ export default function SectorPredictionDetail({
 
           <section className="prediction-chart-section" aria-labelledby="prediction-chart-title">
             <header><div><span className="eyebrow">PREDICTION VS REALITY</span><h2 id="prediction-chart-title">历史预测与实际结果</h2></div><span><History size={14} />发布时快照，不事后重算</span></header>
-            <SyncedLineChart title="图表一 · 历史预测线" unit="%" records={horizonRecords} selectedDate={selectedDate} onSelect={setSelectedDate} valueFor={predictionValue} empty="还没有可画成折线的已发布概率；弃权日会以叉号保留。" />
+            <SyncedLineChart title="图表一 · 当前模型历史预测线" unit="%" records={currentModelRecords} selectedDate={selectedDate} onSelect={setSelectedDate} valueFor={predictionValue} empty="当前模型还没有可画成折线的已发布前25%概率；弃权日会以叉号保留。" />
             <div className="prediction-actual-tabs" role="group" aria-label="选择实际表现口径">
               <button type="button" className={actualMetric === "excess" ? "active" : ""} onClick={() => setActualMetric("excess")}>相对收益</button>
               <button type="button" className={actualMetric === "absolute" ? "active" : ""} onClick={() => setActualMetric("absolute")}>绝对收益</button>
@@ -250,7 +269,7 @@ export default function SectorPredictionDetail({
             {horizonRecords.length ? <ol>{horizonRecords.map((record) => <li key={record.prediction_id}>
               <div className="prediction-record-head"><time>{formatDate(record.prediction_date)}</time><span className={`result-${record.result}`}>{outcomeIcon(record.result)}{resultLabels[record.result]}</span></div>
               <div className="prediction-record-values">
-                <div><span>当时预测</span><strong>{record.prediction_status === "model-abstained" ? "弃权" : finite(record.top_quartile_probability) ? `${record.top_quartile_probability.toFixed(1)}%` : finite(record.absolute_up_probability) ? `${record.absolute_up_probability.toFixed(1)}%` : "—"}</strong></div>
+                <div><span>当时预测</span><strong>{predictionDisplay(record)}</strong></div>
                 <div><span>历史基准</span><strong>{finite(record.historical_base) ? `${record.historical_base.toFixed(1)}%` : "—"}</strong></div>
                 <div><span>实际相对收益</span><strong>{finite(record.realized_excess_return) ? `${record.realized_excess_return >= 0 ? "+" : ""}${record.realized_excess_return.toFixed(2)}%` : "—"}</strong></div>
                 <div><span>实际排名</span><strong>{finite(record.realized_sector_rank) ? `${record.realized_sector_rank}/${record.realized_sector_count}` : "—"}</strong></div>

@@ -223,6 +223,28 @@ export type SectorRotationDataStatus = "ready" | "insufficient";
 export type SectorRotationConfidence = "low" | "medium" | "medium-high";
 export type SectorRotationObservedDirection = "leading" | "strengthening" | "neutral" | "weakening" | "lagging";
 export type SectorRotationForecastDirection = "strong-up" | "up" | "range" | "down" | "strong-down";
+export type ModelAvailability = "trained" | "not_trained" | "not_implemented";
+export type PublicationStatus = "published" | "abstained" | "insufficient_data" | "not_applicable";
+export type PredictionOutputMode = "probability" | "evidence_observation" | "current_observation" | "none";
+export type CalibrationStatus = "enabled" | "disabled" | "collapsed" | "not_applicable" | "legacy_unknown";
+export type ProbabilitySource = "raw_model" | "calibrated_model" | "historical_base_rate" | "legacy_unknown" | "none";
+export type ProbabilityTarget = "absolute_up" | "relative_outperformance" | "top_quartile" | "none";
+
+export interface PredictionStateContract {
+  modelAvailability: ModelAvailability;
+  publicationStatus: PublicationStatus;
+  outputMode: PredictionOutputMode;
+  calibrationStatus: CalibrationStatus;
+  probabilitySource: ProbabilitySource;
+  probabilityTarget: ProbabilityTarget;
+  modelVersion: string | null;
+  featureVersion: string | null;
+  /** Availability of the actual frozen-model inputs on the prediction date. */
+  modelInputCompleteness: number | null;
+  /** Implementation coverage across planned production-grade feature groups. */
+  productionFeatureCoverage: number | null;
+  gateFailures: string[];
+}
 
 export interface SectorRotationEvidencePoint {
   label: string;
@@ -327,25 +349,25 @@ export type SectorRotationChart =
     });
 
 export type SectorRotationObservedHorizon =
-  | {
+  | (PredictionStateContract & {
       kind: "observed";
       status: "ready";
       asOf: string;
       note: string;
       items: SectorRotationObservedItem[];
       charts?: SectorRotationChart[];
-    }
-  | {
+    })
+  | (PredictionStateContract & {
       kind: "observed";
       status: "insufficient";
       asOf: string;
       reason: string;
       items?: never;
       charts?: never;
-    };
+    });
 
 export type SectorRotationForecastHorizon =
-  | {
+  | (PredictionStateContract & {
       kind: "forecast";
       status: "abstained";
       asOf: string;
@@ -359,15 +381,16 @@ export type SectorRotationForecastHorizon =
       nextWatch: string[];
       diagnostics: {
         modelVersion: string;
-        dataCompleteness: number;
+        modelInputCompleteness: number;
+        productionFeatureCoverage: number;
         rankIc: number | null;
         topBottomSpreadAfterCosts: number | null;
         predictionCrossSectionStd: number | null;
       };
       items?: never;
       charts?: never;
-    }
-  | {
+    })
+  | (PredictionStateContract & {
       kind: "forecast";
       status: "ready";
       asOf: string;
@@ -376,8 +399,8 @@ export type SectorRotationForecastHorizon =
       note: string;
       items: SectorRotationForecastItem[];
       charts?: SectorRotationChart[];
-    }
-  | {
+    })
+  | (PredictionStateContract & {
       kind: "forecast";
       status: "insufficient";
       asOf: string;
@@ -386,7 +409,7 @@ export type SectorRotationForecastHorizon =
       reason: string;
       items?: never;
       charts?: never;
-    };
+    });
 
 export interface SectorRotationMarket {
   id: MarketSection["id"];
@@ -436,7 +459,8 @@ export type SectorPredictionResult =
   | "near-neutral"
   | "pending"
   | "model-abstained"
-  | "data-insufficient";
+  | "data-insufficient"
+  | "not-applicable";
 
 export interface SectorPredictionHistoryRecord {
   prediction_id: string;
@@ -447,6 +471,15 @@ export interface SectorPredictionHistoryRecord {
   horizon: 1 | 5 | 20;
   due_date: string | null;
   ranking_target: "top-quartile" | "absolute-up-legacy" | "evidence-observation";
+  legacy: boolean;
+  model_availability: ModelAvailability;
+  publication_status: PublicationStatus;
+  output_mode: PredictionOutputMode;
+  calibration_status: CalibrationStatus;
+  probability_source: ProbabilitySource;
+  probability_target: ProbabilityTarget;
+  model_input_completeness: number | null;
+  production_feature_coverage: number | null;
   raw_score: number | null;
   raw_probability: number | null;
   calibrated_probability: number | null;
@@ -456,7 +489,7 @@ export interface SectorPredictionHistoryRecord {
   expected_excess_return: number | null;
   historical_base: number | null;
   effective_edge: number | null;
-  prediction_status: "published" | "model-abstained";
+  prediction_status: "published" | "model-abstained" | "not_applicable";
   abstain_reason: string[];
   model_version: string;
   data_as_of: string;
@@ -495,6 +528,14 @@ export interface SectorPredictionHistoryIndex {
     evaluated: number;
     firstDate: string | null;
     lastDate: string | null;
+    legacy: { records: number; published: number; evaluated: number };
+    currentModel: { records: number; published: number; abstained: number; evaluated: number };
+  };
+  contract: {
+    modelStateVersion: string;
+    currentModelVersion: string;
+    legacyExcludedFromCurrentModelMetrics: true;
+    probabilityTargetsNeverFallback: true;
   };
   records: SectorPredictionHistoryRecord[];
 }
@@ -640,6 +681,8 @@ export interface MarketObserverFact {
   expectedValue: string;
   surprise: string;
   dataPeriod: string;
+  /** The structured observation date represented by dataPeriod. */
+  asOfDate: string;
   sourceId: string;
   releasedAt: string;
   updatedAt: string;

@@ -2406,6 +2406,36 @@ def calibrated_confidence(
     return "low", evidence_score, basis
 
 
+def prediction_state_contract(
+    *,
+    model_availability: str,
+    publication_status: str,
+    output_mode: str,
+    calibration_status: str,
+    probability_source: str,
+    probability_target: str,
+    model_version: str | None,
+    feature_version: str | None,
+    model_input_completeness: float | None,
+    production_feature_coverage: float | None,
+    gate_failures: list[str],
+) -> dict[str, Any]:
+    """Keep model existence, publication and probability lineage independent."""
+    return {
+        "modelAvailability": model_availability,
+        "publicationStatus": publication_status,
+        "outputMode": output_mode,
+        "calibrationStatus": calibration_status,
+        "probabilitySource": probability_source,
+        "probabilityTarget": probability_target,
+        "modelVersion": model_version,
+        "featureVersion": feature_version,
+        "modelInputCompleteness": model_input_completeness,
+        "productionFeatureCoverage": production_feature_coverage,
+        "gateFailures": gate_failures,
+    }
+
+
 def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any]) -> dict[str, Any]:
     taxonomy_data = read_json(TAXONOMY_PATH)
     taxonomy_hash = canonical_json_sha256(taxonomy_data)
@@ -2481,6 +2511,15 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
     latest = list(latest_rows().values())
     as_of = max(row["date"] for row in latest)
     latest = [row for row in latest if row["date"] == as_of]
+    # The evidence URL must describe the current snapshot, not the model artifact's
+    # training/as-of date.  Keep code, window start and current market as-of together.
+    for index in taxonomy_data["indices"]:
+        source = a_sources[source_by_code[index["code"]][1]]
+        if source["url"].startswith(CSI_API):
+            source["url"] = (
+                f"{CSI_API}?indexCode={index['code']}&"
+                f"startDate={as_of_compact(as_of)}&endDate={as_of_compact(as_of)}"
+            )
     universe_count = artifact["data"]["universeCount"]
     expected_as_of = daily_brief_session("a-share")
     fresh = expected_as_of is not None and as_of == expected_as_of
@@ -2595,6 +2634,19 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
                     f"当前覆盖{len(latest)}/{universe_count}，冻结训练覆盖{artifact.get('data', {}).get('coverageCount', 0)}/{universe_count}，数据截至{as_of}、页面完整交易日为{expected_label}；"
                     "多目标相对收益模型或当日完整横截面尚未就绪；不会用50%或0填补失败。"
                 ),
+                **prediction_state_contract(
+                    model_availability="trained",
+                    publication_status="insufficient_data",
+                    output_mode="none",
+                    calibration_status="not_applicable",
+                    probability_source="none",
+                    probability_target="none",
+                    model_version=probability_artifact.get("version"),
+                    feature_version="a-core12-v2:price-volume-cross-section-interactions",
+                    model_input_completeness=0.0,
+                    production_feature_coverage=float(probability_artifact.get("dataDiagnostics", {}).get("productionFeatureCoverage", 0.0)),
+                    gate_failures=["model_input_missing"],
+                ),
             }
             continue
         due_date = trading_due_date(as_of, sessions)
@@ -2642,11 +2694,25 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
                 ],
                 "diagnostics": {
                     "modelVersion": probability_artifact.get("version"),
-                    "dataCompleteness": probability_artifact.get("dataDiagnostics", {}).get("enhancedFeatureGroups", {}).get("completeness", 0),
+                    "modelInputCompleteness": float(probability_artifact.get("dataDiagnostics", {}).get("modelInputCompleteness", 1.0)),
+                    "productionFeatureCoverage": float(probability_artifact.get("dataDiagnostics", {}).get("productionFeatureCoverage", probability_artifact.get("dataDiagnostics", {}).get("enhancedFeatureGroups", {}).get("completeness", 0))),
                     "rankIc": diagnostic.get("rankIc"),
                     "topBottomSpreadAfterCosts": diagnostic.get("topBottomSpreadAfterCosts"),
                     "predictionCrossSectionStd": diagnostic.get("predictionCrossSectionStd"),
                 },
+                **prediction_state_contract(
+                    model_availability="trained",
+                    publication_status="abstained",
+                    output_mode="evidence_observation",
+                    calibration_status="enabled" if probability_horizon.get("calibrations", {}).get("topQuartile", {}).get("enabled") else "disabled",
+                    probability_source="raw_model",
+                    probability_target="top_quartile",
+                    model_version=probability_artifact.get("version"),
+                    feature_version="a-core12-v2:price-volume-cross-section-interactions",
+                    model_input_completeness=float(probability_artifact.get("dataDiagnostics", {}).get("modelInputCompleteness", 1.0)),
+                    production_feature_coverage=float(probability_artifact.get("dataDiagnostics", {}).get("productionFeatureCoverage", probability_artifact.get("dataDiagnostics", {}).get("enhancedFeatureGroups", {}).get("completeness", 0))),
+                    gate_failures=daily_reasons or ["quality_gate_failed"],
+                ),
             }
             continue
         probability_rows = daily_predictions
@@ -2751,6 +2817,19 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
             "sessions": sessions,
             "note": "主榜按进入固定观察池前25%的样本外校准概率排序；同时展示跑赢中证全指概率、绝对上涨概率和预期相对收益。",
             "items": items,
+            **prediction_state_contract(
+                model_availability="trained",
+                publication_status="published",
+                output_mode="probability",
+                calibration_status="enabled" if probability_horizon.get("calibrations", {}).get("topQuartile", {}).get("enabled") else "disabled",
+                probability_source="calibrated_model" if probability_horizon.get("calibrations", {}).get("topQuartile", {}).get("enabled") else "raw_model",
+                probability_target="top_quartile",
+                model_version=probability_artifact.get("version"),
+                feature_version="a-core12-v2:price-volume-cross-section-interactions",
+                model_input_completeness=float(probability_artifact.get("dataDiagnostics", {}).get("modelInputCompleteness", 1.0)),
+                production_feature_coverage=float(probability_artifact.get("dataDiagnostics", {}).get("productionFeatureCoverage", probability_artifact.get("dataDiagnostics", {}).get("enhancedFeatureGroups", {}).get("completeness", 0))),
+                gate_failures=[],
+            ),
         }
 
     return {
@@ -2776,6 +2855,19 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
                 "kind": "observed",
                 "status": "ready" if current_ready else "insufficient",
                 "asOf": as_of,
+                **prediction_state_contract(
+                    model_availability="trained",
+                    publication_status="not_applicable",
+                    output_mode="evidence_observation",
+                    calibration_status="not_applicable",
+                    probability_source="none",
+                    probability_target="none",
+                    model_version=probability_artifact.get("version"),
+                    feature_version="a-core12-v2:price-volume-cross-section-interactions",
+                    model_input_completeness=float(probability_artifact.get("dataDiagnostics", {}).get("modelInputCompleteness", 1.0)),
+                    production_feature_coverage=float(probability_artifact.get("dataDiagnostics", {}).get("productionFeatureCoverage", probability_artifact.get("dataDiagnostics", {}).get("enhancedFeatureGroups", {}).get("completeness", 0))),
+                    gate_failures=[],
+                ),
                 **(
                     {
                         "note": f"当前score只在同日可用的{len(latest)}/{universe_count}项固定观察池内比较，不预测未来；成交额比/成交量比按近5日均值除以前20日均值计算。",
@@ -2859,6 +2951,19 @@ def hk_market() -> dict[str, Any]:
             "asOf": as_of,
             "note": "当前score按12个恒生综合行业指数当日涨跌做横截面排序，不预测未来。",
             "items": current,
+            **prediction_state_contract(
+                model_availability="not_trained",
+                publication_status="not_applicable",
+                output_mode="current_observation",
+                calibration_status="not_applicable",
+                probability_source="none",
+                probability_target="none",
+                model_version=None,
+                feature_version=None,
+                model_input_completeness=None,
+                production_feature_coverage=None,
+                gate_failures=[],
+            ),
         }
         market_status = "ready"
         reason = "官方实时行业快照可用；官方历史接口当前未稳定返回，因此一周/月预测保持insufficient。"
@@ -2869,6 +2974,19 @@ def hk_market() -> dict[str, Any]:
             "status": "insufficient",
             "asOf": as_of,
             "reason": f"恒生官方当前行业快照不可用：{exc}",
+            **prediction_state_contract(
+                model_availability="not_trained",
+                publication_status="not_applicable",
+                output_mode="none",
+                calibration_status="not_applicable",
+                probability_source="none",
+                probability_target="none",
+                model_version=None,
+                feature_version=None,
+                model_input_completeness=None,
+                production_feature_coverage=None,
+                gate_failures=["current_observation_unavailable"],
+            ),
         }
         market_status = "insufficient"
         reason = current_horizon["reason"]
@@ -2876,32 +2994,23 @@ def hk_market() -> dict[str, Any]:
         hk_forecasts = {
             key: {
                 "kind": "forecast",
-                "status": "abstained",
+                "status": "insufficient",
                 "asOf": as_of,
                 "sessions": sessions,
-                "reason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
-                "abstainReasons": [
-                    "港股12行业尚未形成覆盖1/5/20日目标的两年同口径历史特征面板",
-                    "南向资金、ETF份额、卖空、回购、HIBOR、汇率与行业广度尚未达到80%完整度",
-                    "尚无通过Brier Skill、RankIC与扣费后Top-Bottom闸门的walk-forward结果",
-                ],
-                "note": "基于官方行业当日相对表现生成证据观察榜；观察分不是上涨概率。",
-                "observationItems": current_horizon["items"],
-                "availableEvidence": [
-                    "恒生指数公司12个一级行业同日官方点位与涨跌幅完整。",
-                    "重点关注池只提高南向、ETF与公司事件的采集深度，不改变横截面分数。",
-                ],
-                "nextWatch": [
-                    "继续沉淀南向当日/3日/5日/20日、ETF份额、卖空、回购与行业广度。",
-                    "补齐HKMA隔夜及1个月HIBOR、总结余、USD/HKD，并联接美国2年期与USD/CNH。",
-                ],
-                "diagnostics": {
-                    "modelVersion": "hk-relative-model-not-trained",
-                    "dataCompleteness": 0.0,
-                    "rankIc": None,
-                    "topBottomSpreadAfterCosts": None,
-                    "predictionCrossSectionStd": None,
-                },
+                "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
+                **prediction_state_contract(
+                    model_availability="not_trained",
+                    publication_status="not_applicable",
+                    output_mode="current_observation",
+                    calibration_status="not_applicable",
+                    probability_source="none",
+                    probability_target="none",
+                    model_version=None,
+                    feature_version=None,
+                    model_input_completeness=None,
+                    production_feature_coverage=None,
+                    gate_failures=["model_not_trained"],
+                ),
             }
             for key, sessions in (("tomorrow", 1), ("oneWeek", 5), ("oneMonth", 20))
         }
@@ -2913,6 +3022,19 @@ def hk_market() -> dict[str, Any]:
                 "asOf": as_of,
                 "sessions": sessions,
                 "reason": "恒生官方当前行业快照不可用，无法生成可复核观察榜。",
+                **prediction_state_contract(
+                    model_availability="not_trained",
+                    publication_status="not_applicable",
+                    output_mode="none",
+                    calibration_status="not_applicable",
+                    probability_source="none",
+                    probability_target="none",
+                    model_version=None,
+                    feature_version=None,
+                    model_input_completeness=None,
+                    production_feature_coverage=None,
+                    gate_failures=["model_not_trained", "current_observation_unavailable"],
+                ),
             }
             for key, sessions in (("tomorrow", 1), ("oneWeek", 5), ("oneMonth", 20))
         }
@@ -2960,6 +3082,19 @@ def us_market() -> dict[str, Any]:
         "status": "insufficient",
         "asOf": as_of,
         "reason": "本行业轮动模型不训练美股；当前三大指数等待日报完整交易日数据。",
+        **prediction_state_contract(
+            model_availability="not_implemented",
+            publication_status="not_applicable",
+            output_mode="none",
+            calibration_status="not_applicable",
+            probability_source="none",
+            probability_target="none",
+            model_version=None,
+            feature_version=None,
+            model_input_completeness=None,
+            production_feature_coverage=None,
+            gate_failures=["current_observation_unavailable"],
+        ),
     }
     sources: list[dict[str, Any]] = []
     if DAILY_BRIEF_PATH.exists():
@@ -2987,10 +3122,10 @@ def us_market() -> dict[str, Any]:
                     "reason": "三大指数日期未与日报完整交易日严格对齐。",
                     "sources": [],
                     "horizons": {
-                        "current": {"kind": "observed", "status": "insufficient", "asOf": expected_as_of or as_of, "reason": "三大指数日期不一致或sessionDate缺失。"},
-                        "tomorrow": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 1, "reason": "未训练并样本外校准三大指数明日概率模型。"},
-                        "oneWeek": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 5, "reason": "未训练并样本外验证三大指数条件模型。"},
-                        "oneMonth": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 20, "reason": "未训练并样本外验证三大指数条件模型。"},
+                        "current": {"kind": "observed", "status": "insufficient", "asOf": expected_as_of or as_of, "reason": "三大指数日期不一致或sessionDate缺失。", **prediction_state_contract(model_availability="not_implemented", publication_status="not_applicable", output_mode="none", calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None, feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["current_observation_unavailable"])},
+                        "tomorrow": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 1, "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。", **prediction_state_contract(model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation", calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None, feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"])},
+                        "oneWeek": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 5, "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。", **prediction_state_contract(model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation", calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None, feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"])},
+                        "oneMonth": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 20, "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。", **prediction_state_contract(model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation", calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None, feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"])},
                     },
                 }
             as_of = expected_as_of
@@ -3016,6 +3151,19 @@ def us_market() -> dict[str, Any]:
                     }
                     for rank, (original, item) in enumerate(ordered, start=1)
                 ],
+                **prediction_state_contract(
+                    model_availability="not_implemented",
+                    publication_status="not_applicable",
+                    output_mode="current_observation",
+                    calibration_status="not_applicable",
+                    probability_source="none",
+                    probability_target="none",
+                    model_version=None,
+                    feature_version=None,
+                    model_input_completeness=None,
+                    production_feature_coverage=None,
+                    gate_failures=[],
+                ),
             }
             sources = market.get("sources", [])
     return {
@@ -3041,6 +3189,11 @@ def us_market() -> dict[str, Any]:
                 "asOf": as_of,
                 "sessions": 1,
                 "reason": "未训练并样本外校准三大指数明日上涨概率。",
+                **prediction_state_contract(
+                    model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation",
+                    calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None,
+                    feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"],
+                ),
             },
             "oneWeek": {
                 "kind": "forecast",
@@ -3048,6 +3201,11 @@ def us_market() -> dict[str, Any]:
                 "asOf": as_of,
                 "sessions": 5,
                 "reason": "未训练并样本外验证三大指数条件模型，不发布一周方向排序。",
+                **prediction_state_contract(
+                    model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation",
+                    calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None,
+                    feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"],
+                ),
             },
             "oneMonth": {
                 "kind": "forecast",
@@ -3055,6 +3213,11 @@ def us_market() -> dict[str, Any]:
                 "asOf": as_of,
                 "sessions": 20,
                 "reason": "未训练并样本外验证三大指数条件模型，不发布一月方向排序。",
+                **prediction_state_contract(
+                    model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation",
+                    calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None,
+                    feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"],
+                ),
             },
         },
     }
