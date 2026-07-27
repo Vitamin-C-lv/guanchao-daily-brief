@@ -710,6 +710,8 @@ def train_horizon(panel: list[dict[str, Any]], horizon: int, diagnostics: dict[s
 
 def train(output: Path, dataset_snapshot: Path) -> dict[str, Any]:
     dataset_manifest, panel = load_verified_dataset(dataset_snapshot)
+    source_manifest = datasets.read_json(dataset_snapshot / datasets.SOURCE_MANIFEST_NAME)
+    feature_source = source_manifest["featureFile"]
     diagnostics = data_diagnostics(panel, dataset_manifest)
     horizons = {str(horizon): train_horizon(panel, horizon, diagnostics) for horizon in HORIZONS}
     as_of = diagnostics["asOf"]
@@ -725,16 +727,18 @@ def train(output: Path, dataset_snapshot: Path) -> dict[str, Any]:
         "trainingEnd": max(
             result["models"]["topQuartile"]["trainingEnd"] for result in horizons.values()
         ),
-        "taxonomyHash": dataset_manifest["taxonomy"]["sha256"],
-        "featureDataSha256": dataset_manifest["panel"]["sha256"],
+        "taxonomyHash": dataset_manifest["taxonomy"]["canonicalSha256"],
+        "featureDataSha256": feature_source["fullFileSha256"],
         "datasetId": dataset_manifest["datasetId"],
         "datasetSchemaVersion": dataset_manifest["schemaVersion"],
         "datasetPanelSha256": dataset_manifest["panel"]["sha256"],
         "datasetManifestSha256": datasets.sha256_path(dataset_snapshot / datasets.SNAPSHOT_MANIFEST_NAME),
+        "labelDiagnosticsSha256": dataset_manifest["labelDiagnostics"]["sha256"],
         "labelContractVersion": dataset_manifest["contracts"]["labels"],
         "featureContractVersion": dataset_manifest["contracts"]["features"],
         "benchmarkContractVersion": dataset_manifest["contracts"]["benchmark"],
-        "calendarSha256": dataset_manifest["calendar"]["sha256"],
+        "calendarSha256": dataset_manifest["calendar"]["sessionCalendarSha256"],
+        "holidayCalendarArtifactSha256": dataset_manifest["calendar"]["holidayArtifactSha256"],
         "benchmark": {
             "code": rotation.A_SHARE_BENCHMARK["code"],
             "name": rotation.A_SHARE_BENCHMARK["shortName"],
