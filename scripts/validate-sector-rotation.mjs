@@ -13,6 +13,7 @@ const modelArtifactPath = path.resolve(root, "models", "sector-rotation", "a-sha
 const probabilityArtifactPath = path.resolve(root, "models", "sector-rotation", "a-share-relative-probability-v2.json");
 const aShareTaxonomyPath = path.resolve(root, "models", "sector-rotation", "taxonomy.a-core12-v2.json");
 const featureSourceRegistryPath = path.resolve(root, "models", "sector-rotation", "feature-source-registry-v2.json");
+const datasetIndexPath = path.resolve(root, "models", "sector-rotation", "datasets", "index.json");
 const dailyBriefPath = path.resolve(root, "content", "daily-brief.json");
 const aShareCalendarPath = path.resolve(root, "models", "sector-rotation", "cn-market-calendar-2026.json");
 const MAX_ROTATION_BYTES = 384 * 1024;
@@ -674,8 +675,9 @@ let probabilityArtifact;
 let aShareTaxonomy;
 let dailyBrief;
 let featureSourceRegistry;
+let datasetIndex;
 try {
-  const [info, raw, schemaRaw, calendarRaw, modelRaw, probabilityRaw, taxonomyRaw, dailyBriefRaw, registryRaw] = await Promise.all([
+  const [info, raw, schemaRaw, calendarRaw, modelRaw, probabilityRaw, taxonomyRaw, dailyBriefRaw, registryRaw, datasetIndexRaw] = await Promise.all([
     stat(rotationPath),
     readFile(rotationPath, "utf8"),
     readFile(schemaPath, "utf8"),
@@ -685,6 +687,7 @@ try {
     readFile(aShareTaxonomyPath, "utf8"),
     readFile(dailyBriefPath, "utf8"),
     readFile(featureSourceRegistryPath, "utf8"),
+    readFile(datasetIndexPath, "utf8"),
   ]);
   if (info.size > MAX_ROTATION_BYTES) fail(`sector-rotation.json 为 ${info.size} 字节，超过 ${MAX_ROTATION_BYTES} 字节低内存上限`);
   JSON.parse(schemaRaw);
@@ -694,6 +697,7 @@ try {
   aShareTaxonomy = JSON.parse(taxonomyRaw);
   dailyBrief = JSON.parse(dailyBriefRaw);
   featureSourceRegistry = JSON.parse(registryRaw);
+  datasetIndex = JSON.parse(datasetIndexRaw);
   data = JSON.parse(raw);
 } catch (error) {
   console.error(`行业轮动数据无法读取或解析：${error.message}`);
@@ -750,6 +754,17 @@ if (!isObject(probabilityArtifact) || !isObject(probabilityArtifact.horizons)) {
   requireDate(probabilityArtifact.trainingEnd, "probabilityArtifact.trainingEnd");
   if (probabilityArtifact.taxonomyHash !== canonicalJsonSha256(aShareTaxonomy)) fail("A股多目标 artifact taxonomyHash 与当前固定观察池不一致");
   if (probabilityArtifact.benchmark?.code !== "000985") fail("A股相对收益基准必须是中证全指000985");
+  const lineage = ["datasetId", "datasetSchemaVersion", "datasetPanelSha256", "datasetManifestSha256", "labelContractVersion", "featureContractVersion", "benchmarkContractVersion", "calendarSha256"];
+  const lineagePresent = lineage.filter((key) => probabilityArtifact[key] !== undefined);
+  if (lineagePresent.length && lineagePresent.length !== lineage.length) {
+    fail("A股多目标 artifact 的数据集血缘字段必须完整或完全不填");
+  } else if (!lineagePresent.length) {
+    const unavailable = datasetIndex?.legacyProduction?.some((entry) => (
+      entry.status === "reproduction_unavailable"
+      && entry.featureDataSha256 === probabilityArtifact.featureDataSha256
+    ));
+    if (!unavailable) fail("缺少生产模型数据集血缘且未登记 reproduction_unavailable");
+  }
   if (!isObject(probabilityArtifact.dataDiagnostics)) fail("A股多目标 artifact 缺少dataDiagnostics");
   else {
     const diagnostics = probabilityArtifact.dataDiagnostics;
