@@ -21,6 +21,23 @@
       "type": "string",
       "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
     },
+    "predictionState": {
+      "type": "object",
+      "required": ["modelAvailability", "publicationStatus", "outputMode", "calibrationStatus", "probabilitySource", "probabilityTarget", "modelVersion", "featureVersion", "modelInputCompleteness", "productionFeatureCoverage", "gateFailures"],
+      "properties": {
+        "modelAvailability": { "enum": ["trained", "not_trained", "not_implemented"] },
+        "publicationStatus": { "enum": ["published", "abstained", "insufficient_data", "not_applicable"] },
+        "outputMode": { "enum": ["probability", "evidence_observation", "current_observation", "none"] },
+        "calibrationStatus": { "enum": ["enabled", "disabled", "collapsed", "not_applicable", "legacy_unknown"] },
+        "probabilitySource": { "enum": ["raw_model", "calibrated_model", "historical_base_rate", "legacy_unknown", "none"] },
+        "probabilityTarget": { "enum": ["absolute_up", "relative_outperformance", "top_quartile", "none"] },
+        "modelVersion": { "type": ["string", "null"] },
+        "featureVersion": { "type": ["string", "null"] },
+        "modelInputCompleteness": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "productionFeatureCoverage": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "gateFailures": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      }
+    },
     "sourceIndexes": {
       "type": "array",
       "minItems": 1,
@@ -257,7 +274,8 @@
     },
     "observedReady": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
+      "allOf": [{ "$ref": "#/$defs/predictionState" }],
       "required": ["kind", "status", "asOf", "note", "items"],
       "properties": {
         "kind": { "const": "observed" },
@@ -275,7 +293,8 @@
     },
     "observedInsufficient": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
+      "allOf": [{ "$ref": "#/$defs/predictionState" }],
       "required": ["kind", "status", "asOf", "reason"],
       "properties": {
         "kind": { "const": "observed" },
@@ -286,7 +305,8 @@
     },
     "forecastReady": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
+      "allOf": [{ "$ref": "#/$defs/predictionState" }],
       "required": ["kind", "status", "asOf", "dueDate", "sessions", "note", "items"],
       "properties": {
         "kind": { "const": "forecast" },
@@ -306,7 +326,8 @@
     },
     "forecastInsufficient": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
+      "allOf": [{ "$ref": "#/$defs/predictionState" }],
       "required": ["kind", "status", "asOf", "sessions", "reason"],
       "properties": {
         "kind": { "const": "forecast" },
@@ -319,7 +340,8 @@
     },
     "forecastAbstained": {
       "type": "object",
-      "additionalProperties": false,
+      "additionalProperties": true,
+      "allOf": [{ "$ref": "#/$defs/predictionState" }],
       "required": ["kind", "status", "asOf", "sessions", "reason", "abstainReasons", "note", "observationItems", "availableEvidence", "nextWatch", "diagnostics"],
       "properties": {
         "kind": { "const": "forecast" },
@@ -348,10 +370,11 @@
         "diagnostics": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["modelVersion", "dataCompleteness", "rankIc", "topBottomSpreadAfterCosts", "predictionCrossSectionStd"],
+          "required": ["modelVersion", "modelInputCompleteness", "productionFeatureCoverage", "rankIc", "topBottomSpreadAfterCosts", "predictionCrossSectionStd"],
           "properties": {
             "modelVersion": { "type": "string", "minLength": 1, "maxLength": 80 },
-            "dataCompleteness": { "type": "number", "minimum": 0, "maximum": 1 },
+            "modelInputCompleteness": { "type": "number", "minimum": 0, "maximum": 1 },
+            "productionFeatureCoverage": { "type": "number", "minimum": 0, "maximum": 1 },
             "rankIc": { "type": ["number", "null"] },
             "topBottomSpreadAfterCosts": { "type": ["number", "null"] },
             "predictionCrossSectionStd": { "type": ["number", "null"] }

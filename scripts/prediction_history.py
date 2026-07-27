@@ -88,6 +88,61 @@ def abstention_id(model_version: str, market: str, date: str, horizon: int, code
     return f"ab-{market}-{date.replace('-', '')}-h{horizon}-{code}-{digest}"
 
 
+def normalize_record_contract(record: dict[str, Any]) -> dict[str, Any]:
+    """Add state lineage without modifying immutable numerical prediction fields."""
+    if {
+        "legacy", "model_availability", "publication_status", "output_mode", "calibration_status",
+        "probability_source", "probability_target", "model_input_completeness", "production_feature_coverage",
+    }.issubset(record):
+        return record
+    legacy = record.get("ranking_target") == "absolute-up-legacy" or "probability-v1" in str(record.get("model_version", ""))
+    if legacy:
+        probability_source = "historical_base_rate" if (
+            record.get("absolute_up_probability") is not None
+            and record.get("absolute_up_probability") == record.get("historical_base")
+        ) else "legacy_unknown"
+        record.update({
+            "legacy": True,
+            "model_availability": "trained",
+            "publication_status": "published",
+            "output_mode": "probability",
+            "calibration_status": "legacy_unknown",
+            "probability_source": probability_source,
+            "probability_target": "absolute_up",
+            "model_input_completeness": record.get("data_completeness"),
+            "production_feature_coverage": None,
+        })
+        return record
+    if record.get("market") == "hk":
+        record.update({
+            "legacy": False,
+            "model_availability": "not_trained",
+            "publication_status": "not_applicable",
+            "output_mode": "current_observation",
+            "calibration_status": "not_applicable",
+            "probability_source": "none",
+            "probability_target": "none",
+            "model_input_completeness": None,
+            "production_feature_coverage": None,
+            "prediction_status": "not_applicable",
+            "result": "not-applicable",
+            "abstain_reason": ["港股概率模型尚未建设；当前记录仅为市场结构观察。"],
+        })
+        return record
+    record.update({
+        "legacy": False,
+        "model_availability": "trained",
+        "publication_status": "abstained",
+        "output_mode": "evidence_observation",
+        "calibration_status": "disabled",
+        "probability_source": "raw_model",
+        "probability_target": "top_quartile",
+        "model_input_completeness": 1.0,
+        "production_feature_coverage": 0.5,
+    })
+    return record
+
+
 def extract_records(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
     output: list[dict[str, Any]] = []
     model = snapshot.get("model", {})
@@ -112,7 +167,7 @@ def extract_records(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                     is_relative = item.get("rankingTarget") == "top-quartile"
                     if not is_relative and item.get("upProbability") is None:
                         continue
-                    output.append({
+                    record = {
                         "prediction_id": item["forecastId"],
                         "prediction_date": horizon["asOf"],
                         "market": market_id,
@@ -123,7 +178,7 @@ def extract_records(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                         "ranking_target": "top-quartile" if is_relative else "absolute-up-legacy",
                         "raw_score": item.get("rawScore"),
                         "raw_probability": item.get("rawProbability"),
-                        "calibrated_probability": item.get("calibratedProbability", item.get("upProbability")),
+                        "calibrated_probability": item.get("calibratedProbability") if is_relative else item.get("calibratedProbability", item.get("upProbability")),
                         "relative_outperformance_probability": item.get("outperformanceProbability"),
                         "top_quartile_probability": item.get("topQuartileProbability"),
                         "absolute_up_probability": item.get("absoluteUpProbability", item.get("upProbability")),
@@ -143,11 +198,24 @@ def extract_records(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                         "trigger": item.get("trigger", ""),
                         "invalidation": item.get("invalidation", ""),
                         "source_urls": source_urls(market, item),
+                    }
+                    state = horizon if is_relative else {}
+                    record.update({
+                        "legacy": not is_relative,
+                        "model_availability": state.get("modelAvailability", "trained"),
+                        "publication_status": state.get("publicationStatus", "published"),
+                        "output_mode": state.get("outputMode", "probability"),
+                        "calibration_status": state.get("calibrationStatus", "legacy_unknown" if not is_relative else "enabled"),
+                        "probability_source": state.get("probabilitySource", "legacy_unknown" if not is_relative else "calibrated_model"),
+                        "probability_target": state.get("probabilityTarget", "absolute_up" if not is_relative else "top_quartile"),
+                        "model_input_completeness": state.get("modelInputCompleteness", 1.0),
+                        "production_feature_coverage": state.get("productionFeatureCoverage"),
                     })
+                    output.append(normalize_record_contract(record))
             elif horizon.get("status") == "abstained":
                 for item in horizon.get("observationItems", []):
                     code = item.get("code") or item["sector"]
-                    output.append({
+                    record = {
                         "prediction_id": abstention_id(model_version, market_id, horizon["asOf"], sessions, code),
                         "prediction_date": horizon["asOf"],
                         "market": market_id,
@@ -178,7 +246,19 @@ def extract_records(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
                         "trigger": horizon.get("nextWatch", [""])[0],
                         "invalidation": "质量闸门通过前不发布概率。",
                         "source_urls": source_urls(market, item),
+                    }
+                    record.update({
+                        "legacy": False,
+                        "model_availability": horizon.get("modelAvailability", "trained"),
+                        "publication_status": horizon.get("publicationStatus", "abstained"),
+                        "output_mode": horizon.get("outputMode", "evidence_observation"),
+                        "calibration_status": horizon.get("calibrationStatus", "disabled"),
+                        "probability_source": horizon.get("probabilitySource", "raw_model"),
+                        "probability_target": horizon.get("probabilityTarget", "top_quartile"),
+                        "model_input_completeness": horizon.get("modelInputCompleteness", 1.0),
+                        "production_feature_coverage": horizon.get("productionFeatureCoverage", 0.5),
                     })
+                    output.append(normalize_record_contract(record))
     return output
 
 
@@ -188,7 +268,8 @@ def immutable_core(record: dict[str, Any]) -> dict[str, Any]:
         "ranking_target", "raw_score", "raw_probability", "calibrated_probability",
         "relative_outperformance_probability", "top_quartile_probability",
         "absolute_up_probability", "expected_excess_return", "prediction_status",
-        "model_version", "data_as_of",
+        "model_version", "data_as_of", "legacy", "model_availability", "publication_status", "output_mode",
+        "calibration_status", "probability_source", "probability_target", "model_input_completeness", "production_feature_coverage",
     )}
 
 
@@ -250,7 +331,14 @@ def evaluation_for(record: dict[str, Any]) -> dict[str, Any] | None:
         else:
             result = "correct" if (edge > 0) == actual_top else "wrong"
     else:
-        probability = float(record.get("absolute_up_probability") or 50)
+        probability_value = record.get("absolute_up_probability")
+        if probability_value is None:
+            return {
+                "prediction_id": record["prediction_id"],
+                "result": "data-insufficient",
+                "evaluated_at": rotation.now_iso(),
+            }
+        probability = float(probability_value)
         if abs(probability - 50) < 1:
             result = "near-neutral"
         else:
@@ -284,6 +372,8 @@ def public_payload(records: list[dict[str, Any]], evaluations: list[dict[str, An
     combined = [{**record, **evaluation_by_id.get(record["prediction_id"], {"result": "pending"})} for record in records]
     combined = combined[-PUBLIC_RECORD_LIMIT:]
     dates = sorted({item["prediction_date"] for item in combined})
+    legacy = [item for item in combined if item.get("legacy") is True]
+    current = [item for item in combined if item.get("legacy") is not True]
     return {
         "schemaVersion": 1,
         "generatedAt": rotation.now_iso(),
@@ -296,10 +386,27 @@ def public_payload(records: list[dict[str, Any]], evaluations: list[dict[str, An
         "summary": {
             "records": len(combined),
             "published": sum(item["prediction_status"] == "published" for item in combined),
-            "abstained": sum(item["prediction_status"] == "model-abstained" for item in combined),
+            "abstained": sum(item.get("publication_status") == "abstained" for item in combined),
             "evaluated": sum(item.get("result") not in {None, "pending", "model-abstained"} for item in combined),
             "firstDate": dates[0] if dates else None,
             "lastDate": dates[-1] if dates else None,
+            "legacy": {
+                "records": len(legacy),
+                "published": sum(item.get("publication_status") == "published" for item in legacy),
+                "evaluated": sum(item.get("result") not in {None, "pending"} for item in legacy),
+            },
+            "currentModel": {
+                "records": len(current),
+                "published": sum(item.get("publication_status") == "published" for item in current),
+                "abstained": sum(item.get("publication_status") == "abstained" for item in current),
+                "evaluated": sum(item.get("result") not in {None, "pending", "model-abstained", "not-applicable"} for item in current),
+            },
+        },
+        "contract": {
+            "modelStateVersion": "p0-v1",
+            "currentModelVersion": "2026-07-21-relative-v2",
+            "legacyExcludedFromCurrentModelMetrics": True,
+            "probabilityTargetsNeverFallback": True,
         },
         "records": combined,
     }
@@ -307,7 +414,7 @@ def public_payload(records: list[dict[str, Any]], evaluations: list[dict[str, An
 
 def main() -> None:
     existing = [
-        record for record in read_jsonl_gzip(SNAPSHOT_LEDGER)
+        normalize_record_contract(record) for record in read_jsonl_gzip(SNAPSHOT_LEDGER)
         if record.get("prediction_status") != "published"
         or record.get("top_quartile_probability") is not None
         or record.get("absolute_up_probability") is not None

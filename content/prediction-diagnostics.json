@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-24T20:19:06+08:00",
+  "policy": {
+    "immutableSnapshotLedger": "data/predictions/snapshots.jsonl.gz",
+    "pageReadsDiagnostics": false,
+    "unavailableValuesAreNull": true
+  },
+  "entries": [
+    {
+      "market": "a-share",
+      "horizon": "current",
+      "modelAvailability": "trained",
+      "modelVersion": "2026-07-21-relative-v2",
+      "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
+      "dataAsOf": "2026-07-24",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "none",
+      "probabilitySource": "none",
+      "calibrationStatus": "not_applicable",
+      "publicationStatus": "not_applicable",
+      "outputMode": "evidence_observation",
+      "rawScoreAvailable": false,
+      "rawProbabilityAvailable": false,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": 1,
+      "productionFeatureCoverage": 0.5,
+      "oosMetrics": null,
+      "gateThresholds": null,
+      "gateActuals": null,
+      "gateFailures": [],
+      "sourceFailures": [],
+      "warnings": [],
+      "rawScoreDistribution": null,
+      "rawProbabilityDistribution": null
+    },
+    {
+      "market": "a-share",
+      "horizon": 1,
+      "modelAvailability": "trained",
+      "modelVersion": "2026-07-21-relative-v2",
+      "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
+      "dataAsOf": "2026-07-24",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "top_quartile",
+      "probabilitySource": "raw_model",
+      "calibrationStatus": "disabled",
+      "publicationStatus": "abstained",
+      "outputMode": "evidence_observation",
+      "rawScoreAvailable": true,
+      "rawProbabilityAvailable": true,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": 1,
+      "productionFeatureCoverage": 0.5,
+      "oosMetrics": {
+        "brier": 0.18447062447800666,
+        "baselineBrier": 0.1875,
+        "brierSkill": 0.0161566694506311,
+        "auc": 0.5956136912927036,
+        "rankIc": 0.05971805971805971,
+        "topBottomSpreadAfterCosts": -0.001862854829922779,
+        "predictionCrossSectionStd": 0.046994092031221166
+      },
+      "gateThresholds": {
+        "minimumProbabilitySpread": 0.03,
+        "minimumCrossSectionStd": 0.01,
+        "minimumDataCompleteness": 0.8,
+        "brierSkillMustBePositive": true,
+        "rankIcMustBePositive": true,
+        "topBottomAfterCostsMustBePositive": true,
+        "positiveWindowShareMustExceed": 0.5
+      },
+      "gateActuals": {
+        "modelInputCompleteness": 1,
+        "productionFeatureCoverage": 0.5,
+        "qualityGatePassed": false
+      },
+      "gateFailures": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "扣除交易成本后的Top-Bottom收益差不大于0",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "sourceFailures": [],
+      "warnings": [
+        "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。"
+      ],
+      "rawScoreDistribution": {
+        "count": 12,
+        "min": -1.2596118253237962,
+        "max": -0.5957864249567681,
+        "mean": -1.040932021311628
+      },
+      "rawProbabilityDistribution": {
+        "count": 12,
+        "min": 0.22104072156652574,
+        "max": 0.3553082839144994,
+        "mean": 0.26227203488070167
+      }
+    },
+    {
+      "market": "a-share",
+      "horizon": 5,
+      "modelAvailability": "trained",
+      "modelVersion": "2026-07-21-relative-v2",
+      "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
+      "dataAsOf": "2026-07-24",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "top_quartile",
+      "probabilitySource": "raw_model",
+      "calibrationStatus": "disabled",
+      "publicationStatus": "abstained",
+      "outputMode": "evidence_observation",
+      "rawScoreAvailable": true,
+      "rawProbabilityAvailable": true,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": 1,
+      "productionFeatureCoverage": 0.5,
+      "oosMetrics": {
+        "brier": 0.17922477363109313,
+        "baselineBrier": 0.1875,
+        "brierSkill": 0.044134540634169994,
+        "auc": 0.6541833468641228,
+        "rankIc": 0.10495060495060494,
+        "topBottomSpreadAfterCosts": 0.006604641569257642,
+        "predictionCrossSectionStd": 0.056063518264073985
+      },
+      "gateThresholds": {
+        "minimumProbabilitySpread": 0.03,
+        "minimumCrossSectionStd": 0.01,
+        "minimumDataCompleteness": 0.8,
+        "brierSkillMustBePositive": true,
+        "rankIcMustBePositive": true,
+        "topBottomAfterCostsMustBePositive": true,
+        "positiveWindowShareMustExceed": 0.5
+      },
+      "gateActuals": {
+        "modelInputCompleteness": 1,
+        "productionFeatureCoverage": 0.5,
+        "qualityGatePassed": false
+      },
+      "gateFailures": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "sourceFailures": [],
+      "warnings": [
+        "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。"
+      ],
+      "rawScoreDistribution": {
+        "count": 12,
+        "min": -1.389948785078265,
+        "max": -0.32700327416701785,
+        "mean": -0.9708597675148057
+      },
+      "rawProbabilityDistribution": {
+        "count": 12,
+        "min": 0.19941593314504108,
+        "max": 0.4189699508628844,
+        "mean": 0.27982828621535527
+      }
+    },
+    {
+      "market": "a-share",
+      "horizon": 20,
+      "modelAvailability": "trained",
+      "modelVersion": "2026-07-21-relative-v2",
+      "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
+      "dataAsOf": "2026-07-24",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "top_quartile",
+      "probabilitySource": "raw_model",
+      "calibrationStatus": "disabled",
+      "publicationStatus": "abstained",
+      "outputMode": "evidence_observation",
+      "rawScoreAvailable": true,
+      "rawProbabilityAvailable": true,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": 1,
+      "productionFeatureCoverage": 0.5,
+      "oosMetrics": {
+        "brier": 0.17824907666013987,
+        "baselineBrier": 0.1875,
+        "brierSkill": 0.04933825781258738,
+        "auc": 0.6512438994802311,
+        "rankIc": 0.10811410811410811,
+        "topBottomSpreadAfterCosts": 0.03019307979998138,
+        "predictionCrossSectionStd": 0.05489930153174769
+      },
+      "gateThresholds": {
+        "minimumProbabilitySpread": 0.03,
+        "minimumCrossSectionStd": 0.01,
+        "minimumDataCompleteness": 0.8,
+        "brierSkillMustBePositive": true,
+        "rankIcMustBePositive": true,
+        "topBottomAfterCostsMustBePositive": true,
+        "positiveWindowShareMustExceed": 0.5
+      },
+      "gateActuals": {
+        "modelInputCompleteness": 1,
+        "productionFeatureCoverage": 0.5,
+        "qualityGatePassed": false
+      },
+      "gateFailures": [
+        "生产级差异特征完整度仅50%，低于80%",
+        "原始前四分位模型未满足概率校准启用条件"
+      ],
+      "sourceFailures": [],
+      "warnings": [
+        "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。"
+      ],
+      "rawScoreDistribution": {
+        "count": 12,
+        "min": -1.5413792116565719,
+        "max": -0.3695763482741105,
+        "mean": -0.9733441441577866
+      },
+      "rawProbabilityDistribution": {
+        "count": 12,
+        "min": 0.17633486743109017,
+        "max": 0.4086433947252447,
+        "mean": 0.27797836206586224
+      }
+    },
+    {
+      "market": "hk",
+      "horizon": "current",
+      "modelAvailability": "not_trained",
+      "modelVersion": null,
+      "featureVersion": null,
+      "dataAsOf": "2026-07-24",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "none",
+      "probabilitySource": "none",
+      "calibrationStatus": "not_applicable",
+      "publicationStatus": "not_applicable",
+      "outputMode": "current_observation",
+      "rawScoreAvailable": false,
+      "rawProbabilityAvailable": false,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": null,
+      "productionFeatureCoverage": null,
+      "oosMetrics": null,
+      "gateThresholds": null,
+      "gateActuals": null,
+      "gateFailures": [],
+      "sourceFailures": [],
+      "warnings": [
+        "港股没有训练面板、标签、训练器或样本外指标。"
+      ],
+      "rawScoreDistribution": null,
+      "rawProbabilityDistribution": null
+    },
+    {
+      "market": "hk",
+      "horizon": 1,
+      "modelAvailability": "not_trained",
+      "modelVersion": null,
+      "featureVersion": null,
+      "dataAsOf": "2026-07-24",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "none",
+      "probabilitySource": "none",
+      "calibrationStatus": "not_applicable",
+      "publicationStatus": "not_applicable",
+      "outputMode": "current_observation",
+      "rawScoreAvailable": false,
+      "rawProbabilityAvailable": false,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": null,
+      "productionFeatureCoverage": null,
+      "oosMetrics": null,
+      "gateThresholds": null,
+      "gateActuals": null,
+      "gateFailures": [
+        "model_not_trained"
+      ],
+      "sourceFailures": [],
+      "warnings": [
+        "港股没有训练面板、标签、训练器或样本外指标。"
+      ],
+      "rawScoreDistribution": null,
+      "rawProbabilityDistribution": null
+    },
+    {
+      "market": "hk",
+      "horizon": 5,
+      "modelAvailability": "not_trained",
+      "modelVersion": null,
+      "featureVersion": null,
+      "dataAsOf": "2026-07-24",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "none",
+      "probabilitySource": "none",
+      "calibrationStatus": "not_applicable",
+      "publicationStatus": "not_applicable",
+      "outputMode": "current_observation",
+      "rawScoreAvailable": false,
+      "rawProbabilityAvailable": false,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": null,
+      "productionFeatureCoverage": null,
+      "oosMetrics": null,
+      "gateThresholds": null,
+      "gateActuals": null,
+      "gateFailures": [
+        "model_not_trained"
+      ],
+      "sourceFailures": [],
+      "warnings": [
+        "港股没有训练面板、标签、训练器或样本外指标。"
+      ],
+      "rawScoreDistribution": null,
+      "rawProbabilityDistribution": null
+    },
+    {
+      "market": "hk",
+      "horizon": 20,
+      "modelAvailability": "not_trained",
+      "modelVersion": null,
+      "featureVersion": null,
+      "dataAsOf": "2026-07-24",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "none",
+      "probabilitySource": "none",
+      "calibrationStatus": "not_applicable",
+      "publicationStatus": "not_applicable",
+      "outputMode": "current_observation",
+      "rawScoreAvailable": false,
+      "rawProbabilityAvailable": false,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": null,
+      "productionFeatureCoverage": null,
+      "oosMetrics": null,
+      "gateThresholds": null,
+      "gateActuals": null,
+      "gateFailures": [
+        "model_not_trained"
+      ],
+      "sourceFailures": [],
+      "warnings": [
+        "港股没有训练面板、标签、训练器或样本外指标。"
+      ],
+      "rawScoreDistribution": null,
+      "rawProbabilityDistribution": null
+    },
+    {
+      "market": "us",
+      "horizon": "current",
+      "modelAvailability": "not_implemented",
+      "modelVersion": null,
+      "featureVersion": null,
+      "dataAsOf": "2026-07-23",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "none",
+      "probabilitySource": "none",
+      "calibrationStatus": "not_applicable",
+      "publicationStatus": "not_applicable",
+      "outputMode": "current_observation",
+      "rawScoreAvailable": false,
+      "rawProbabilityAvailable": false,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": null,
+      "productionFeatureCoverage": null,
+      "oosMetrics": null,
+      "gateThresholds": null,
+      "gateActuals": null,
+      "gateFailures": [],
+      "sourceFailures": [],
+      "warnings": [
+        "美股仅保留三大指数当前观察，预测模型尚未实现。"
+      ],
+      "rawScoreDistribution": null,
+      "rawProbabilityDistribution": null
+    },
+    {
+      "market": "us",
+      "horizon": 1,
+      "modelAvailability": "not_implemented",
+      "modelVersion": null,
+      "featureVersion": null,
+      "dataAsOf": "2026-07-23",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "none",
+      "probabilitySource": "none",
+      "calibrationStatus": "not_applicable",
+      "publicationStatus": "not_applicable",
+      "outputMode": "current_observation",
+      "rawScoreAvailable": false,
+      "rawProbabilityAvailable": false,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": null,
+      "productionFeatureCoverage": null,
+      "oosMetrics": null,
+      "gateThresholds": null,
+      "gateActuals": null,
+      "gateFailures": [
+        "model_not_implemented"
+      ],
+      "sourceFailures": [],
+      "warnings": [
+        "美股仅保留三大指数当前观察，预测模型尚未实现。"
+      ],
+      "rawScoreDistribution": null,
+      "rawProbabilityDistribution": null
+    },
+    {
+      "market": "us",
+      "horizon": 5,
+      "modelAvailability": "not_implemented",
+      "modelVersion": null,
+      "featureVersion": null,
+      "dataAsOf": "2026-07-23",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "none",
+      "probabilitySource": "none",
+      "calibrationStatus": "not_applicable",
+      "publicationStatus": "not_applicable",
+      "outputMode": "current_observation",
+      "rawScoreAvailable": false,
+      "rawProbabilityAvailable": false,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": null,
+      "productionFeatureCoverage": null,
+      "oosMetrics": null,
+      "gateThresholds": null,
+      "gateActuals": null,
+      "gateFailures": [
+        "model_not_implemented"
+      ],
+      "sourceFailures": [],
+      "warnings": [
+        "美股仅保留三大指数当前观察，预测模型尚未实现。"
+      ],
+      "rawScoreDistribution": null,
+      "rawProbabilityDistribution": null
+    },
+    {
+      "market": "us",
+      "horizon": 20,
+      "modelAvailability": "not_implemented",
+      "modelVersion": null,
+      "featureVersion": null,
+      "dataAsOf": "2026-07-23",
+      "snapshotCreatedAt": "2026-07-24T20:19:06+08:00",
+      "probabilityTarget": "none",
+      "probabilitySource": "none",
+      "calibrationStatus": "not_applicable",
+      "publicationStatus": "not_applicable",
+      "outputMode": "current_observation",
+      "rawScoreAvailable": false,
+      "rawProbabilityAvailable": false,
+      "calibratedProbabilityAvailable": false,
+      "modelInputCompleteness": null,
+      "productionFeatureCoverage": null,
+      "oosMetrics": null,
+      "gateThresholds": null,
+      "gateActuals": null,
+      "gateFailures": [
+        "model_not_implemented"
+      ],
+      "sourceFailures": [],
+      "warnings": [
+        "美股仅保留三大指数当前观察，预测模型尚未实现。"
+      ],
+      "rawScoreDistribution": null,
+      "rawProbabilityDistribution": null
+    }
+  ]
+}

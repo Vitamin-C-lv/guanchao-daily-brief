@@ -591,7 +591,12 @@ function ForecastRanking({
 }) {
   const [expanded, setExpanded] = useState(false);
   if (horizon.status === "insufficient") {
-    return <InsufficientState title="本期暂用不了概率模型" reason={horizon.reason} compact={market.mode === "major-index"} />;
+    const title = horizon.modelAvailability === "not_trained"
+      ? "港股概率模型尚未建设"
+      : horizon.modelAvailability === "not_implemented"
+        ? "美股预测模型尚未实现"
+        : "本期暂用不了概率模型";
+    return <InsufficientState title={title} reason={horizon.reason} compact={market.mode === "major-index"} />;
   }
   if (horizon.status === "abstained") {
     const observationItems = [...horizon.observationItems].sort((left, right) => left.rank - right.rank);
@@ -607,7 +612,8 @@ function ForecastRanking({
           </div>
           <ul>{horizon.abstainReasons.map((reason) => <li key={reason}>{reason}</li>)}</ul>
           <dl className="rotation-abstention-metrics">
-            <div><dt>数据完整度</dt><dd>{(horizon.diagnostics.dataCompleteness * 100).toFixed(0)}%</dd></div>
+            <div><dt>模型输入完整度</dt><dd>{(horizon.diagnostics.modelInputCompleteness * 100).toFixed(0)}%</dd></div>
+            <div><dt>生产特征覆盖</dt><dd>{(horizon.diagnostics.productionFeatureCoverage * 100).toFixed(0)}%</dd></div>
             <div><dt>RankIC</dt><dd>{horizon.diagnostics.rankIc == null ? "待建立" : horizon.diagnostics.rankIc.toFixed(3)}</dd></div>
             <div><dt>扣费后多空差</dt><dd>{horizon.diagnostics.topBottomSpreadAfterCosts == null ? "待建立" : `${(horizon.diagnostics.topBottomSpreadAfterCosts * 100).toFixed(2)}%`}</dd></div>
             <div><dt>模型</dt><dd>{horizon.diagnostics.modelVersion}</dd></div>
@@ -778,8 +784,8 @@ export default function SectorRotationIndex({
       <header className="rotation-header">
         <div>
           <span className="eyebrow">ROTATION RANKING</span>
-          <h2 id="sector-rotation-title">{availableHorizons.includes("current") ? (isUS ? "三大指数相对强弱" : "行业板块轮动指数") : (isUS ? "三大指数预测排行榜" : "行业板块预测排行榜")}</h2>
-          <p>{availableHorizons.includes("current") ? (isUS ? "仅比较纳斯达克、道琼斯与标普 500，保持精简。" : "当前为可复核观测；未来主榜按进入前25%概率或证据观察分发布。") : "主榜优先比较进入前25%概率与预期相对收益；质量闸门不通过时自动切换为非概率观察榜。"}</p>
+          <h2 id="sector-rotation-title">{availableHorizons.includes("current") ? (isUS ? "三大指数相对强弱" : "行业板块轮动指数") : (market?.horizons.tomorrow.modelAvailability === "not_implemented" ? "三大指数市场状态" : market?.horizons.tomorrow.modelAvailability === "not_trained" ? "港股市场结构观察" : isUS ? "三大指数预测排行榜" : "行业板块预测排行榜")}</h2>
+          <p>{availableHorizons.includes("current") ? (isUS ? "仅比较纳斯达克、道琼斯与标普 500，保持精简。" : "当前为可复核观测；未来主榜按进入前25%概率或证据观察分发布。") : market?.horizons.tomorrow.modelAvailability === "not_implemented" ? "预测模型尚未实现；页面仅保留当前三大指数观察。" : market?.horizons.tomorrow.modelAvailability === "not_trained" ? "港股概率模型尚未建设；页面仅保留当日市场结构观察。" : "主榜优先比较进入前25%概率与预期相对收益；质量闸门不通过时自动切换为非概率观察榜。"}</p>
         </div>
         {market ? (
           <div className="rotation-market-meta">
@@ -828,7 +834,7 @@ export default function SectorRotationIndex({
       {market ? (
         <footer className="rotation-footer">
           <p><Gauge size={13} />{market.taxonomy.name} · {market.taxonomy.version} · {market.note}</p>
-          {isForecast && data ? <p>模型 {data.model.version} · {data.model.backtest.summary}</p> : <p>排序分只表示横截面相对位置，不代表收益率或概率。</p>}
+          {isForecast && data && horizon?.modelAvailability === "trained" ? <p>模型 {data.model.version} · {data.model.backtest.summary}</p> : <p>排序分只表示横截面相对位置，不代表收益率或概率。</p>}
         </footer>
       ) : null}
     </section>

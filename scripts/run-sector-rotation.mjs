@@ -13,6 +13,7 @@ if (userArgs.length === 0) {
 const probabilityTrain = userArgs[0] === "probability-train";
 const predictionHistory = userArgs[0] === "history";
 const rotationSignals = userArgs[0] === "signals";
+const normalizer = path.join(root, "scripts", "normalize-prediction-contract.mjs");
 const script = path.join(root, "scripts", probabilityTrain ? "sector_probability.py" : predictionHistory ? "prediction_history.py" : rotationSignals ? "collect-rotation-signals.py" : "sector_rotation.py");
 const scriptArgs = probabilityTrain ? ["train", ...userArgs.slice(1)] : predictionHistory || rotationSignals ? userArgs.slice(1) : userArgs;
 
@@ -59,5 +60,16 @@ const result = spawnSync(selected.command, [...selected.prefix, script, ...scrip
 if (result.error) {
   console.error(`行业轮动 ${selected.label} 启动失败: ${result.error.message}`);
   process.exit(1);
+}
+if (result.status === 0 && ["history", "refresh", "infer", "pipeline"].includes(userArgs[0])) {
+  const normalized = spawnSync(process.execPath, [normalizer], {
+    cwd: root,
+    stdio: "inherit",
+    windowsHide: true,
+  });
+  if (normalized.error || normalized.status !== 0) {
+    console.error(`预测状态契约归一化失败：${normalized.error?.message ?? `exit ${normalized.status}`}`);
+    process.exit(normalized.status ?? 1);
+  }
 }
 process.exit(result.status ?? 1);

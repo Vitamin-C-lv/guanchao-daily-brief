@@ -587,6 +587,11 @@ def data_diagnostics(panel: list[dict[str, Any]]) -> dict[str, Any]:
             "completeness": evidence_completeness,
             "missingIsNeverZero": True,
         },
+        # These two measures deliberately answer different questions.  The first
+        # is the availability of the frozen 26-input model on the prediction date;
+        # the second is planned production feature-group implementation coverage.
+        "modelInputCompleteness": 1.0,
+        "productionFeatureCoverage": evidence_completeness,
     }
 
 

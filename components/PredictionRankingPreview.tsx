@@ -35,6 +35,27 @@ export default function PredictionRankingPreview({ data }: { data?: SectorRotati
     }
     return [];
   }) ?? [];
+  const hasProbability = available.some((entry) => entry.mode === "probability");
+  const hasObservation = available.some((entry) => entry.mode === "observation");
+  const previewCopy = !available.length
+    ? {
+        title: "本期暂无可用排行榜",
+        description: "当前没有可发布概率或可复核观察榜；完整页保留模型与数据状态。",
+      }
+    : hasProbability && hasObservation
+      ? {
+          title: "预测与板块观察",
+          description: "已发布窗口展示前四分位概率；其余窗口明确展示证据观察分，不混用概率。",
+        }
+      : hasProbability
+        ? {
+            title: "先看预测排行榜",
+            description: "仅展示已通过全部发布闸门的前四分位概率。",
+          }
+        : {
+            title: "先看板块观察榜",
+            description: "当前仅有证据观察榜：证据分，不是概率。",
+          };
 
   return (
     <section className="prediction-preview" aria-labelledby="prediction-preview-title">
@@ -42,8 +63,8 @@ export default function PredictionRankingPreview({ data }: { data?: SectorRotati
         <div className="prediction-preview-icon"><Target size={18} /></div>
         <div>
           <span className="eyebrow">FORECAST FIRST</span>
-          <h2 id="prediction-preview-title">先看预测排行榜</h2>
-          <p>先看下一交易日的前四分位概率；质量不足时明确降级为证据观察榜。</p>
+          <h2 id="prediction-preview-title">{previewCopy.title}</h2>
+          <p>{previewCopy.description}</p>
         </div>
         <Link href="/predictions/">查看完整预测<ChevronRight size={15} /></Link>
       </header>
