@@ -1,0 +1,7 @@
+{
+  "name": "schema-non64-hash",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "set-manifest-value", "field": "panel.sha256", "value": "not-a-sha" },
+  "rehash": ["manifest", "index"],
+  "expectedErrorPattern": "manifest schema validation failed: /panel/sha256 pattern"
+}

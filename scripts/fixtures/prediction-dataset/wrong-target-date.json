@@ -1,1 +1,7 @@
-{"name":"wrong-target-date","expectFailure":"targetDate must follow featureDate"}
+{
+  "name": "wrong-target-date",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "set-cross-section-field", "date": "2016-04-05", "field": "targetDate5", "value": "2016-04-06" },
+  "rehash": ["panel", "manifest", "index"],
+  "expectedErrorPattern": "wrong target-date trading-session advance"
+}

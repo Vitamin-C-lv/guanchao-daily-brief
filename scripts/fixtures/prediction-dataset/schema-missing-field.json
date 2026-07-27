@@ -1,0 +1,7 @@
+{
+  "name": "schema-missing-field",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "delete-manifest-value", "field": "warnings" },
+  "rehash": ["manifest", "index"],
+  "expectedErrorPattern": "manifest schema validation failed: / required"
+}

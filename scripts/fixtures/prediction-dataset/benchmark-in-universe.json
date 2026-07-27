@@ -1,1 +1,7 @@
-{"name":"benchmark-in-universe","expectFailure":"benchmark cannot enter ranked universe"}
+{
+  "name": "benchmark-in-universe",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "append-source-universe-code", "value": "000985" },
+  "rehash": ["source", "manifest", "index"],
+  "expectedErrorPattern": "benchmark entered ranked universe"
+}

@@ -1,0 +1,7 @@
+{
+  "name": "taxonomy-hash-mismatch",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "set-manifest-value", "field": "taxonomy.canonicalSha256", "value": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" },
+  "rehash": ["manifest", "index"],
+  "expectedErrorPattern": "taxonomy canonical hash mismatch"
+}

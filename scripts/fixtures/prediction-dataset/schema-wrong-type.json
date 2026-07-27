@@ -1,0 +1,7 @@
+{
+  "name": "schema-wrong-type",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "set-manifest-value", "field": "panel.rows", "value": "not-an-integer" },
+  "rehash": ["manifest", "index"],
+  "expectedErrorPattern": "manifest schema validation failed: /panel/rows type"
+}

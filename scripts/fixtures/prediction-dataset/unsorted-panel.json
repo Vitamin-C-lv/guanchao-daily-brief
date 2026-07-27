@@ -1,1 +1,7 @@
-{"name":"unsorted-panel","expectFailure":"stable date/code ordering"}
+{
+  "name": "unsorted-panel",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "swap-panel-rows", "left": { "date": "2016-04-05", "code": "000986" }, "right": { "date": "2016-04-06", "code": "000995" } },
+  "rehash": ["panel", "manifest", "index"],
+  "expectedErrorPattern": "panel is not stably sorted by date/code"
+}

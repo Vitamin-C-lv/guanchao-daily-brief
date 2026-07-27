@@ -1,0 +1,7 @@
+{
+  "name": "manifest-hash-mismatch",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "set-manifest-value", "field": "warnings.0", "value": "fixture mutation" },
+  "rehash": [],
+  "expectedErrorPattern": "manifest SHA-256 mismatch"
+}

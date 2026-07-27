@@ -1,1 +1,7 @@
-{"name":"missing-sector","expectFailure":"formal date requires 12 sectors"}
+{
+  "name": "missing-sector",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "remove-panel-row", "date": "2016-04-05", "code": "000986" },
+  "rehash": ["panel", "manifest", "index"],
+  "expectedErrorPattern": "formal date has incomplete ranked universe"
+}

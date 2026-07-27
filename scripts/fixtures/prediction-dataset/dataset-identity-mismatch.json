@@ -1,0 +1,7 @@
+{
+  "name": "dataset-identity-mismatch",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "set-manifest-value", "field": "identitySha256", "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" },
+  "rehash": ["manifest", "index"],
+  "expectedErrorPattern": "dataset identity mismatch"
+}

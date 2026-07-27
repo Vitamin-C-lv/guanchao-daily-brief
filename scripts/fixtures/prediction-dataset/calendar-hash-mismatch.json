@@ -1,0 +1,7 @@
+{
+  "name": "calendar-hash-mismatch",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "set-source-value", "field": "marketCalendarSha256", "value": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb" },
+  "rehash": ["source", "manifest", "index"],
+  "expectedErrorPattern": "source manifest market calendar hash mismatch"
+}

@@ -1,0 +1,7 @@
+{
+  "name": "schema-extra-field",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "set-manifest-value", "field": "unexpectedFixtureField", "value": true },
+  "rehash": ["manifest", "index"],
+  "expectedErrorPattern": "manifest schema validation failed: / additionalProperties"
+}

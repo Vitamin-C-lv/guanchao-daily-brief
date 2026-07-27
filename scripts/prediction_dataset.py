@@ -843,7 +843,9 @@ def parse_snapshot_panel(path: Path) -> list[dict[str, Any]]:
                 value = raw.get(field)
                 if field in {"date", "code", "name"} or field.startswith("targetDate"):
                     row[field] = value or None
-                elif field.startswith(("horizonSessions", "absoluteUp", "outperformance", "topQuartile", "realizedRank")):
+                elif field.startswith(("horizonSessions", "absoluteUp", "outperformance", "topQuartile")) or (
+                    field.startswith("realizedRank") and not field.startswith("realizedRankPercentile")
+                ):
                     numeric = maybe_float(value)
                     row[field] = None if numeric is None else int(numeric)
                 else:
@@ -969,7 +971,11 @@ def verify_rows(rows: list[dict[str, Any]], manifest: dict[str, Any], source: di
                     raise DatasetError(f"wrong absolute label: {date} {row['code']} h{horizon}")
                 if int(row[f"outperformance{suffix}"]) != int(excess > 0):
                     raise DatasetError(f"wrong outperformance label: {date} {row['code']} h{horizon}")
-                ranked.append((excess, str(row["code"]), row))
+                # The contract serializes expectedExcess with a round-trip-safe
+                # representation.  Rank against that auditable value rather
+                # than a second floating-point subtraction of serialized
+                # closes, whose last bit can otherwise change an exact order.
+                ranked.append((float(row[f"expectedExcess{suffix}"]), str(row["code"]), row))
             ranked.sort(key=lambda item: (-item[0], item[1]))
             top_count = math.ceil(len(ranked) * TOP_QUARTILE_FRACTION)
             for rank, (_excess, _code, row) in enumerate(ranked, start=1):

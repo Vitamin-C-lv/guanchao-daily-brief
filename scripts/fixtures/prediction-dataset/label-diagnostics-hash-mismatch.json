@@ -1,0 +1,7 @@
+{
+  "name": "label-diagnostics-hash-mismatch",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "set-diagnostics-value", "field": "schemaVersion", "value": 99 },
+  "rehash": [],
+  "expectedErrorPattern": "label diagnostics hash mismatch"
+}
