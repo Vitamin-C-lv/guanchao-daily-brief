@@ -26,6 +26,7 @@ data/rotation-model/features/
 data/rotation-model/signals/
 data/rotation-model/events/events.jsonl.gz
 data/rotation-model/predictions/
+data/rotation-model/p1a-staging/
 data/rotation-model/manifest.json
 models/sector-rotation/candidates/
 

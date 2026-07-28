@@ -1,0 +1,7 @@
+{
+  "name": "duplicate-key",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "duplicate-panel-row", "date": "2016-04-05", "code": "000986" },
+  "rehash": ["panel", "manifest", "index"],
+  "expectedErrorPattern": "duplicate date\\+code key"
+}

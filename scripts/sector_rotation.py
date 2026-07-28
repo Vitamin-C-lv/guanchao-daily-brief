@@ -9,8 +9,9 @@ The numerical model is intentionally small and deterministic:
 * walk-forward evaluation never random-splits time series.
 
 Daily automation should run ``refresh``: it refreshes structured inputs,
-rebuilds features and applies the frozen model without fitting it. ``train``
-and ``pipeline`` are explicit model-review operations.
+rebuilds features and applies the frozen model without fitting it.  Candidate
+training is intentionally delegated to ``prediction_dataset.py`` followed by
+``sector_probability.py`` and always requires an immutable snapshot.
 """
 
 from __future__ import annotations
@@ -196,18 +197,6 @@ RAW_FEATURE_FIELDS = [
     "code",
     "name",
     *FEATURES,
-    "raw_forward1",
-    "raw_forward5",
-    "raw_forward20",
-    "benchmark_forward1",
-    "benchmark_forward5",
-    "benchmark_forward20",
-    "excess_forward1",
-    "excess_forward5",
-    "excess_forward20",
-    "targetDate1",
-    "targetDate5",
-    "targetDate20",
 ]
 
 FEATURE_FIELDS = [
@@ -216,20 +205,6 @@ FEATURE_FIELDS = [
     "name",
     *FEATURES,
     *MODEL_FEATURES,
-    "raw_forward1",
-    "raw_forward5",
-    "raw_forward20",
-    "benchmark_forward1",
-    "benchmark_forward5",
-    "benchmark_forward20",
-    "excess_forward1",
-    "excess_forward5",
-    "excess_forward20",
-    "target5",
-    "target20",
-    "targetDate1",
-    "targetDate5",
-    "targetDate20",
 ]
 
 HSI_CODE_NAMES = {
@@ -1079,9 +1054,6 @@ def build_sector_feature_rows(rows: list[dict[str, Any]]) -> Iterator[dict[str, 
         volume_ratio = safe_log_ratio(volume5, volume20)
         if volatility20 is None or amount_ratio is None or volume_ratio is None:
             continue
-        raw_forward1 = closes[i + 1] / closes[i] - 1 if i + 1 < len(rows) else None
-        raw_forward5 = closes[i + 5] / closes[i] - 1 if i + 5 < len(rows) else None
-        raw_forward20 = closes[i + 20] / closes[i] - 1 if i + 20 < len(rows) else None
         yield {
             "date": rows[i]["date"],
             "code": rows[i]["code"],
@@ -1095,12 +1067,6 @@ def build_sector_feature_rows(rows: list[dict[str, Any]]) -> Iterator[dict[str, 
             "amountRatio5v20": amount_ratio,
             "volumeRatio5v20": volume_ratio,
             "priceVolumeAcceleration": momentum5 * amount_ratio,
-            "raw_forward1": raw_forward1,
-            "raw_forward5": raw_forward5,
-            "raw_forward20": raw_forward20,
-            "targetDate1": rows[i + 1]["date"] if i + 1 < len(rows) else "",
-            "targetDate5": rows[i + 5]["date"] if i + 5 < len(rows) else "",
-            "targetDate20": rows[i + 20]["date"] if i + 20 < len(rows) else "",
         }
 
 
@@ -1115,32 +1081,42 @@ def gzip_csv_writer(path: Path, fields: list[str]):
     return name, handle, writer
 
 
-def build_features(_: argparse.Namespace) -> dict[str, Any]:
+def build_features(args: argparse.Namespace) -> dict[str, Any]:
+    """Build point-in-time features, optionally from an explicit immutable staging input.
+
+    The default remains the daily mutable refresh path.  Snapshot construction
+    passes every input/output explicitly so it never changes the daily cache or
+    silently reads whichever local history happens to be current.
+    """
+    history_dir = Path(getattr(args, "history_dir", None) or HISTORY_DIR).resolve()
+    benchmark_path = Path(getattr(args, "benchmark_history", None) or history_dir / "000985.csv.gz").resolve()
+    output_path = Path(getattr(args, "output_feature_file", None) or FEATURE_PATH).resolve()
+    as_of = getattr(args, "as_of", None)
+    if as_of is not None and not re.fullmatch(r"\d{4}-\d{2}-\d{2}", as_of):
+        raise RuntimeError("--as-of must use YYYY-MM-DD")
+    explicit_snapshot_io = any(
+        getattr(args, name, None) is not None
+        for name in ("history_dir", "benchmark_history", "output_feature_file", "as_of")
+    )
     taxonomy = read_json(TAXONOMY_PATH)
-    FEATURE_DIR.mkdir(parents=True, exist_ok=True)
-    if not BENCHMARK_HISTORY_PATH.exists():
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not benchmark_path.exists():
         raise RuntimeError(
             "official CSI All Share benchmark history is missing; run rotation:fetch before features"
         )
-    benchmark_history = read_history(BENCHMARK_HISTORY_PATH)
+    benchmark_history = [
+        row for row in read_history(benchmark_path) if as_of is None or row["date"] <= as_of
+    ]
     if len(benchmark_history) < 81:
         raise RuntimeError("official CSI All Share benchmark has fewer than 81 valid sessions")
     benchmark_dates = [row["date"] for row in benchmark_history]
-    benchmark_closes = [row["close"] for row in benchmark_history]
-    benchmark_forward: dict[int, dict[str, float]] = {1: {}, 5: {}, 20: {}}
-    for position, trading_date in enumerate(benchmark_dates):
-        for horizon in (1, 5, 20):
-            if position + horizon < len(benchmark_history):
-                benchmark_forward[horizon][trading_date] = (
-                    benchmark_closes[position + horizon] / benchmark_closes[position] - 1
-                )
     available_paths: dict[str, Path] = {}
     date_counts: dict[str, int] = defaultdict(int)
     for index in taxonomy["indices"]:
-        history_path = HISTORY_DIR / f"{index['code']}.csv.gz"
+        history_path = history_dir / f"{index['code']}.csv.gz"
         if not history_path.exists():
             continue
-        history = read_history(history_path)
+        history = [row for row in read_history(history_path) if as_of is None or row["date"] <= as_of]
         if len(history) < 61:
             continue
         available_paths[index["code"]] = history_path
@@ -1153,9 +1129,8 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
     } & set(benchmark_dates)
     if source_coverage == 0 or len(common_dates) < 61:
         raise RuntimeError("not enough synchronized sector history to build features")
-    raw_path = FEATURE_DIR / "a-share-features.raw.csv.gz"
-    target_sums = {1: defaultdict(float), 5: defaultdict(float), 20: defaultdict(float)}
-    target_counts = {1: defaultdict(int), 5: defaultdict(int), 20: defaultdict(int)}
+    raw_name = output_path.name.replace(".csv.gz", ".raw.csv.gz") if output_path.name.endswith(".csv.gz") else f"{output_path.name}.raw.csv.gz"
+    raw_path = output_path.with_name(raw_name)
     feature_stats: dict[str, dict[str, list[float]]] = defaultdict(
         lambda: {feature: [0.0, 0.0, 0.0] for feature in FEATURES}
     )
@@ -1172,30 +1147,12 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
             ]  # bounded: one sector only, synchronized across the available cross-section
             sector_rows = 0
             for feature in build_sector_feature_rows(history):
-                for horizon in (1, 5, 20):
-                    benchmark_return = benchmark_forward[horizon].get(feature["date"])
-                    sector_return = feature.get(f"raw_forward{horizon}")
-                    feature[f"benchmark_forward{horizon}"] = benchmark_return
-                    feature[f"excess_forward{horizon}"] = (
-                        sector_return - benchmark_return
-                        if sector_return is not None and benchmark_return is not None
-                        else None
-                    )
                 out = {key: feature.get(key, "") for key in RAW_FEATURE_FIELDS}
-                for key in FEATURES + [
-                    "raw_forward1", "raw_forward5", "raw_forward20",
-                    "benchmark_forward1", "benchmark_forward5", "benchmark_forward20",
-                    "excess_forward1", "excess_forward5", "excess_forward20",
-                ]:
+                for key in FEATURES:
                     out[key] = fmt_float(feature.get(key), 14)
                 writer.writerow(out)
                 sector_rows += 1
                 total_rows += 1
-                for horizon in (1, 5, 20):
-                    value = feature[f"raw_forward{horizon}"]
-                    if value is not None:
-                        target_sums[horizon][feature["date"]] += value
-                        target_counts[horizon][feature["date"]] += 1
                 for feature_name in FEATURES:
                     value = float(feature[feature_name])
                     stats = feature_stats[feature["date"]][feature_name]
@@ -1221,8 +1178,7 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
     if not complete_feature_dates:
         raise RuntimeError("no complete feature cross-section after amount/volume window checks")
 
-    temp_name, handle, writer = gzip_csv_writer(FEATURE_PATH, FEATURE_FIELDS)
-    labelled = {5: 0, 20: 0}
+    temp_name, handle, writer = gzip_csv_writer(output_path, FEATURE_FIELDS)
     final_rows = 0
     try:
         with gzip.open(raw_path, "rt", encoding="utf-8", newline="") as source:
@@ -1237,33 +1193,18 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
                     variance = max(0.0, total_sq / count - mean * mean)
                     scale = math.sqrt(variance) or 1.0
                     out[f"cs_{feature_name}"] = fmt_float((value - mean) / scale, 14)
-                for horizon in (1, 5, 20):
-                    raw = finite(row.get(f"raw_forward{horizon}"))
-                    count = target_counts[horizon].get(row["date"], 0)
-                    if raw is not None and count == source_coverage:
-                        mean = target_sums[horizon][row["date"]] / count
-                        if horizon in (5, 20):
-                            out[f"target{horizon}"] = fmt_float(raw - mean, 14)
-                            labelled[horizon] += 1
-                    elif horizon in (5, 20):
-                        out[f"target{horizon}"] = ""
-                    for prefix in ("benchmark_forward", "excess_forward"):
-                        out[f"{prefix}{horizon}"] = fmt_float(
-                            finite(row.get(f"{prefix}{horizon}")), 14
-                        )
                 writer.writerow(out)
                 final_rows += 1
     finally:
         handle.close()
-        os.replace(temp_name, FEATURE_PATH)
+        os.replace(temp_name, output_path)
     raw_path.unlink(missing_ok=True)
 
-    manifest = load_manifest()
-    manifest["features"] = {
+    feature_summary = {
         "builtAt": now_iso(),
-        "path": str(FEATURE_PATH.relative_to(ROOT)).replace("\\", "/"),
-        "compressedBytes": FEATURE_PATH.stat().st_size,
-        "sha256": sha256_path(FEATURE_PATH),
+        "path": str(output_path.relative_to(ROOT)).replace("\\", "/") if output_path.is_relative_to(ROOT) else output_path.name,
+        "compressedBytes": output_path.stat().st_size,
+        "sha256": sha256_path(output_path),
         "coverageCount": coverage,
         "sourceCoverageCount": source_coverage,
         "synchronizedCoverageCount": source_coverage,
@@ -1290,18 +1231,18 @@ def build_features(_: argparse.Namespace) -> dict[str, Any]:
             "lastDate": benchmark_dates[-1],
             "joinedDates": len(common_dates),
         },
-        "labelled5": labelled[5],
-        "labelled20": labelled[20],
-        "streamingPolicy": "one sector in memory; cross-sectional targets by date accumulators",
+        "streamingPolicy": "one sector in memory; prediction labels are built only by prediction_dataset.py",
     }
-    manifest["updatedAt"] = now_iso()
-    write_json_atomic(MANIFEST_PATH, manifest)
+    if not explicit_snapshot_io:
+        manifest = load_manifest()
+        manifest["features"] = feature_summary
+        manifest["updatedAt"] = now_iso()
+        write_json_atomic(MANIFEST_PATH, manifest)
     print(
-        f"[features] coverage={coverage} rows={final_rows} labelled5={labelled[5]} "
-        f"labelled20={labelled[20]} size={FEATURE_PATH.stat().st_size / 1024 / 1024:.2f}MiB",
+        f"[features] coverage={coverage} rows={final_rows} size={output_path.stat().st_size / 1024 / 1024:.2f}MiB",
         flush=True,
     )
-    return manifest["features"]
+    return feature_summary
 
 
 def iter_features() -> Iterator[dict[str, Any]]:
@@ -1314,20 +1255,6 @@ def iter_features() -> Iterator[dict[str, Any]]:
                     "name": raw["name"],
                     **{feature: float(raw[feature]) for feature in FEATURES},
                     **{feature: float(raw[feature]) for feature in MODEL_FEATURES},
-                    "raw_forward1": finite(raw.get("raw_forward1")),
-                    "raw_forward5": finite(raw.get("raw_forward5")),
-                    "raw_forward20": finite(raw.get("raw_forward20")),
-                    "benchmark_forward1": finite(raw.get("benchmark_forward1")),
-                    "benchmark_forward5": finite(raw.get("benchmark_forward5")),
-                    "benchmark_forward20": finite(raw.get("benchmark_forward20")),
-                    "excess_forward1": finite(raw.get("excess_forward1")),
-                    "excess_forward5": finite(raw.get("excess_forward5")),
-                    "excess_forward20": finite(raw.get("excess_forward20")),
-                    "target5": finite(raw.get("target5")),
-                    "target20": finite(raw.get("target20")),
-                    "targetDate1": raw.get("targetDate1") or None,
-                    "targetDate5": raw.get("targetDate5") or None,
-                    "targetDate20": raw.get("targetDate20") or None,
                 }
             except (KeyError, ValueError):
                 continue
@@ -1391,578 +1318,8 @@ def model_feature_value(row: dict[str, Any], feature: str) -> float:
     return float(values[feature])
 
 
-def labelled_feature_dates(horizon: int, before: str | None = None) -> list[str]:
-    target_key = f"target{horizon}"
-    target_date_key = f"targetDate{horizon}"
-    dates = {
-        row["date"]
-        for row in iter_features()
-        if row[target_key] is not None
-        and row[target_date_key] is not None
-        and (before is None or row[target_date_key] < before)
-    }
-    return sorted(dates)
-
-
-def fit_ridge(
-    horizon: int,
-    train_end_exclusive: str | None,
-    ridge: float,
-    *,
-    feature_names: list[str] | None = None,
-    train_start_inclusive: str | None = None,
-    candidate_id: str = "rolling-linear-ridge",
-    model_type: str = "rolling-standardized-ridge",
-) -> dict[str, Any]:
-    target_key = f"target{horizon}"
-    target_date_key = f"targetDate{horizon}"
-    feature_names = list(feature_names or MODEL_FEATURES)
-    stats = RunningStats(len(feature_names))
-    row_dates: set[str] = set()
-    target_dates: list[str] = []
-    for row in iter_features():
-        target = row[target_key]
-        target_date = row[target_date_key]
-        if (
-            target is None
-            or target_date is None
-            or (train_end_exclusive and target_date >= train_end_exclusive)
-            or (train_start_inclusive and row["date"] < train_start_inclusive)
-        ):
-            continue
-        stats.add([model_feature_value(row, feature) for feature in feature_names])
-        row_dates.add(row["date"])
-        target_dates.append(target_date)
-    if len(row_dates) < MINIMUM_TRAINING_DATES:
-        raise RuntimeError(
-            f"only {len(row_dates)} matured training dates/{stats.n} rows for "
-            f"{horizon}-session model; require {MINIMUM_TRAINING_DATES} dates"
-        )
-    scales = stats.scales()
-    dim = len(feature_names) + 1
-    xtx = [[0.0] * dim for _ in range(dim)]
-    xty = [0.0] * dim
-    for row in iter_features():
-        target = row[target_key]
-        target_date = row[target_date_key]
-        if (
-            target is None
-            or target_date is None
-            or (train_end_exclusive and target_date >= train_end_exclusive)
-            or (train_start_inclusive and row["date"] < train_start_inclusive)
-        ):
-            continue
-        design = [1.0] + [
-            (model_feature_value(row, feature) - stats.mean[i]) / scales[i]
-            for i, feature in enumerate(feature_names)
-        ]
-        for i in range(dim):
-            xty[i] += design[i] * target
-            for j in range(i, dim):
-                xtx[i][j] += design[i] * design[j]
-    for i in range(dim):
-        for j in range(i):
-            xtx[i][j] = xtx[j][i]
-        if i > 0:
-            xtx[i][i] += ridge
-    coefficients = solve_linear(xtx, xty)
-    return {
-        "horizonSessions": horizon,
-        "candidateId": candidate_id,
-        "modelType": model_type,
-        "ridge": ridge,
-        "trainingRows": stats.n,
-        "trainingDates": len(row_dates),
-        "trainingWindowSessions": PRIMARY_WINDOW_SESSIONS,
-        "trainingStart": min(row_dates),
-        "trainingEnd": max(row_dates),
-        "trainingTargetDateMax": max(target_dates),
-        "featureNames": feature_names,
-        "featureMeans": dict(zip(feature_names, stats.mean)),
-        "featureScales": dict(zip(feature_names, scales)),
-        "intercept": coefficients[0],
-        "coefficients": dict(zip(feature_names, coefficients[1:])),
-    }
-
-
-def predict(model: dict[str, Any], row: dict[str, Any]) -> float:
-    value = float(model["intercept"])
-    feature_names = model.get("featureNames") or MODEL_FEATURES
-    for feature in feature_names:
-        scale = float(model["featureScales"][feature]) or 1.0
-        value += (
-            (model_feature_value(row, feature) - float(model["featureMeans"][feature]))
-            / scale
-            * float(model["coefficients"][feature])
-        )
-    return value
-
-
-def average_ranks(values: list[float]) -> list[float]:
-    order = sorted(range(len(values)), key=values.__getitem__)
-    ranks = [0.0] * len(values)
-    i = 0
-    while i < len(order):
-        j = i + 1
-        while j < len(order) and values[order[j]] == values[order[i]]:
-            j += 1
-        rank = (i + j - 1) / 2 + 1
-        for position in order[i:j]:
-            ranks[position] = rank
-        i = j
-    return ranks
-
-
-def pearson(left: list[float], right: list[float]) -> float | None:
-    if len(left) < 3:
-        return None
-    lm, rm = statistics.fmean(left), statistics.fmean(right)
-    numerator = sum((x - lm) * (y - rm) for x, y in zip(left, right))
-    lden = math.sqrt(sum((x - lm) ** 2 for x in left))
-    rden = math.sqrt(sum((y - rm) ** 2 for y in right))
-    return numerator / (lden * rden) if lden and rden else None
-
-
-def evaluate_fold(model: dict[str, Any], horizon: int, start: str, end: str) -> dict[str, Any]:
-    target_key = f"target{horizon}"
-    by_date: dict[str, list[tuple[float, float]]] = defaultdict(list)
-    directional_hits = 0
-    directional_total = 0
-    for row in iter_features():
-        target = row[target_key]
-        if target is None or not (start <= row["date"] <= end):
-            continue
-        estimate = predict(model, row)
-        by_date[row["date"]].append((estimate, target))
-        if estimate != 0 and target != 0:
-            directional_total += 1
-            directional_hits += int((estimate > 0) == (target > 0))
-
-    rank_ics: list[float] = []
-    spreads: list[float] = []
-    bin_stats = [
-        {"observations": 0, "directionalHits": 0, "targetSum": 0.0, "dates": set()}
-        for _ in range(5)
-    ]
-    for trading_date, pairs in by_date.items():
-        if len(pairs) < 8:
-            continue
-        estimates = [pair[0] for pair in pairs]
-        targets = [pair[1] for pair in pairs]
-        estimate_ranks = average_ranks(estimates)
-        ic = pearson(estimate_ranks, average_ranks(targets))
-        if ic is not None:
-            rank_ics.append(ic)
-        denominator = max(1, len(pairs) - 1)
-        for rank_value, target in zip(estimate_ranks, targets):
-            percentile = (rank_value - 1) / denominator * 100
-            bin_index = min(4, int(percentile // 20))
-            expected_positive = percentile >= 50
-            stats = bin_stats[bin_index]
-            stats["observations"] += 1
-            stats["directionalHits"] += int((target > 0) == expected_positive)
-            stats["targetSum"] += target
-            stats["dates"].add(trading_date)
-        ordered = sorted(pairs, key=lambda pair: pair[0])
-        bucket = max(1, len(ordered) // 5)
-        bottom = statistics.fmean(value for _, value in ordered[:bucket])
-        top = statistics.fmean(value for _, value in ordered[-bucket:])
-        spreads.append(top - bottom)
-    return {
-        "start": start,
-        "end": end,
-        "dates": len(rank_ics),
-        "observations": directional_total,
-        "rankIc": statistics.fmean(rank_ics) if rank_ics else None,
-        "rankIcPositiveDateShare": (
-            sum(value > 0 for value in rank_ics) / len(rank_ics) if rank_ics else None
-        ),
-        "directionalHitRate": directional_hits / directional_total if directional_total else None,
-        "topBottomSpreadPct": statistics.fmean(spreads) * 100 if spreads else None,
-        "_binStats": [
-            {
-                "observations": stats["observations"],
-                "directionalHits": stats["directionalHits"],
-                "targetSum": stats["targetSum"],
-                "dates": len(stats["dates"]),
-            }
-            for stats in bin_stats
-        ],
-    }
-
-
-def aggregate_folds(folds: list[dict[str, Any]]) -> dict[str, Any]:
-    usable = [fold for fold in folds if fold["dates"]]
-    total_dates = sum(fold["dates"] for fold in usable)
-    total_observations = sum(fold["observations"] for fold in usable)
-
-    def weighted(metric: str, weight: str) -> float | None:
-        pairs = [(fold[metric], fold[weight]) for fold in usable if fold.get(metric) is not None]
-        denominator = sum(pair[1] for pair in pairs)
-        return sum(pair[0] * pair[1] for pair in pairs) / denominator if denominator else None
-
-    combined_bins = [
-        {"observations": 0, "directionalHits": 0, "targetSum": 0.0, "dates": 0}
-        for _ in range(5)
-    ]
-    for fold in usable:
-        for index, stats in enumerate(fold.get("_binStats", [])):
-            for key in combined_bins[index]:
-                combined_bins[index][key] += stats[key]
-    calibration = []
-    for index, stats in enumerate(combined_bins):
-        observations = stats["observations"]
-        calibration.append(
-            {
-                "scoreRange": f"{index * 20}-{(index + 1) * 20}",
-                "dates": stats["dates"],
-                "observations": observations,
-                "directionalConsistency": (
-                    stats["directionalHits"] / observations if observations else None
-                ),
-                "meanRelativeReturnPct": (
-                    stats["targetSum"] / observations * 100 if observations else None
-                ),
-            }
-        )
-    public_folds = []
-    for fold in usable:
-        public_folds.append({key: value for key, value in fold.items() if not key.startswith("_")})
-    return {
-        "evaluationDates": total_dates,
-        "observations": total_observations,
-        "rankIc": weighted("rankIc", "dates"),
-        "rankIcPositiveDateShare": weighted("rankIcPositiveDateShare", "dates"),
-        "directionalHitRate": weighted("directionalHitRate", "observations"),
-        "topBottomSpreadPct": weighted("topBottomSpreadPct", "dates"),
-        "positiveFoldShare": (
-            sum((fold.get("rankIc") or 0) > 0 for fold in usable) / len(usable)
-            if usable
-            else None
-        ),
-        "calibration": calibration,
-        "folds": public_folds,
-    }
-
-
-def walk_forward_evaluate(
-    horizon: int,
-    candidate: dict[str, Any],
-    test_dates: list[str],
-    *,
-    block_sessions: int = WALK_FORWARD_BLOCK_SESSIONS,
-) -> dict[str, Any]:
-    folds: list[dict[str, Any]] = []
-    skipped: list[dict[str, Any]] = []
-    for offset in range(0, len(test_dates), block_sessions):
-        block = test_dates[offset : offset + block_sessions]
-        if not block:
-            continue
-        start, end = block[0], block[-1]
-        matured_dates = labelled_feature_dates(horizon, before=start)
-        if len(matured_dates) < PRIMARY_WINDOW_SESSIONS:
-            skipped.append(
-                {
-                    "start": start,
-                    "end": end,
-                    "reason": f"only {len(matured_dates)} matured dates before fold",
-                    "minimumMaturedTrainingDates": PRIMARY_WINDOW_SESSIONS,
-                }
-            )
-            continue
-        train_start = matured_dates[-PRIMARY_WINDOW_SESSIONS]
-        model = fit_ridge(
-            horizon,
-            start,
-            float(candidate["ridge"]),
-            feature_names=list(candidate["featureNames"]),
-            train_start_inclusive=train_start,
-            candidate_id=str(candidate["id"]),
-            model_type=str(candidate["type"]),
-        )
-        result = evaluate_fold(model, horizon, start, end)
-        result.update(
-            {
-                "candidateId": candidate["id"],
-                "trainingRows": model["trainingRows"],
-                "trainingDates": model["trainingDates"],
-                "trainingStart": model["trainingStart"],
-                "trainingEnd": model["trainingEnd"],
-                "trainingTargetDateMax": model["trainingTargetDateMax"],
-                "purgeSessions": horizon,
-                "embargoPolicy": "training targetDate strictly precedes test start",
-            }
-        )
-        folds.append(result)
-    result = aggregate_folds(folds)
-    result.update(
-        {
-            "candidateId": candidate["id"],
-            "modelType": candidate["type"],
-            "featureCount": len(candidate["featureNames"]),
-            "ridge": candidate["ridge"],
-            "rollingTrainingSessions": PRIMARY_WINDOW_SESSIONS,
-            "blockSessions": block_sessions,
-            "skippedFolds": skipped,
-        }
-    )
-    return result
-
-
-def compact_evaluation(result: dict[str, Any]) -> dict[str, Any]:
-    keys = (
-        "evaluationDates",
-        "observations",
-        "rankIc",
-        "rankIcPositiveDateShare",
-        "directionalHitRate",
-        "topBottomSpreadPct",
-        "positiveFoldShare",
-    )
-    return {key: result.get(key) for key in keys}
-
-
-def candidate_catalog(ridge: float) -> list[dict[str, Any]]:
-    candidates = []
-    for template in MODEL_CANDIDATES:
-        candidate = {**template, "featureNames": list(template["featureNames"])}
-        if candidate["complexity"] == "baseline":
-            candidate["ridge"] = float(ridge)
-        else:
-            candidate["ridge"] = max(40.0, float(ridge) * 4.0)
-        candidates.append(candidate)
-    return candidates
-
-
-def select_candidate(
-    candidates: list[dict[str, Any]],
-    evaluations: dict[str, dict[str, dict[str, Any]]],
-) -> tuple[dict[str, Any], str]:
-    baseline = candidates[0]
-    complex_candidate = candidates[1]
-    base_selection = evaluations[baseline["id"]]["selection"]
-    complex_selection = evaluations[complex_candidate["id"]]["selection"]
-    base_stress = evaluations[baseline["id"]]["stress"]
-    complex_stress = evaluations[complex_candidate["id"]]["stress"]
-    base_ic = base_selection.get("rankIc")
-    complex_ic = complex_selection.get("rankIc")
-    base_spread = base_selection.get("topBottomSpreadPct")
-    complex_spread = complex_selection.get("topBottomSpreadPct")
-    base_stress_ic = base_stress.get("rankIc")
-    complex_stress_ic = complex_stress.get("rankIc")
-    improvement = (
-        complex_ic - base_ic
-        if complex_ic is not None and base_ic is not None
-        else float("-inf")
-    )
-    complex_passes = (
-        complex_selection.get("evaluationDates", 0) >= 378
-        and improvement >= 0.01
-        and complex_ic is not None
-        and complex_ic > 0
-        and complex_spread is not None
-        and complex_spread > 0
-        and (base_spread is None or complex_spread >= base_spread - 0.10)
-        and (
-            complex_stress_ic is None
-            or base_stress_ic is None
-            or complex_stress_ic >= base_stress_ic - 0.025
-        )
-    )
-    if complex_passes:
-        return complex_candidate, (
-            f"locked before holdout: primary-selection rank IC improved by {improvement:.4f}; "
-            "spread stayed positive and older stress did not breach the predeclared tolerance"
-        )
-    reason = (
-        "locked before holdout: nonlinear candidate did not clear the predeclared "
-        "+0.01 primary rank-IC improvement, positive-spread and older-stress vetoes"
-    )
-    return baseline, reason
-
-
-def status_from_locked_gate(selection: dict[str, Any], holdout: dict[str, Any]) -> tuple[str, list[str]]:
-    reasons: list[str] = []
-    selection_ic = selection.get("rankIc")
-    selection_spread = selection.get("topBottomSpreadPct")
-    holdout_ic = holdout.get("rankIc")
-    holdout_spread = holdout.get("topBottomSpreadPct")
-    if selection.get("evaluationDates", 0) < 378:
-        reasons.append("primary selection has fewer than 378 independent dates")
-    if holdout.get("evaluationDates", 0) < 200:
-        reasons.append("locked holdout has fewer than 200 independent dates")
-    passed = (
-        not reasons
-        and selection_ic is not None
-        and selection_ic >= 0.03
-        and selection_spread is not None
-        and selection_spread > 0
-        and holdout_ic is not None
-        and holdout_ic >= 0.02
-        and holdout_spread is not None
-        and holdout_spread > 0
-    )
-    limited = (
-        not reasons
-        and selection_ic is not None
-        and selection_ic > 0
-        and selection_spread is not None
-        and selection_spread > 0
-        and holdout_ic is not None
-        and holdout_ic >= 0
-        and holdout_spread is not None
-        and holdout_spread >= 0
-    )
-    if passed:
-        return "passed", ["primary selection and untouched holdout both cleared the strict gate"]
-    if limited:
-        return "limited", ["direction is positive in both phases but strict passed thresholds were not met"]
-    if selection_ic is None or selection_ic <= 0:
-        reasons.append("primary-selection rank IC is not positive")
-    if selection_spread is None or selection_spread <= 0:
-        reasons.append("primary-selection top-bottom spread is not positive")
-    if holdout_ic is None or holdout_ic < 0:
-        reasons.append("locked-holdout rank IC is negative or unavailable")
-    if holdout_spread is None or holdout_spread < 0:
-        reasons.append("locked-holdout top-bottom spread is negative or unavailable")
-    return "insufficient", reasons
-
-
-def backtest_horizon(
-    horizon: int,
-    ridge: float,
-) -> dict[str, Any]:
-    dates = labelled_feature_dates(horizon)
-    required = MINIMUM_TRAINING_DATES + SELECTION_WINDOW_SESSIONS + LOCKED_HOLDOUT_SESSIONS
-    if len(dates) < required:
-        return {
-            "status": "insufficient",
-            "horizonSessions": horizon,
-            "walkForward": "504-session rolling training; locked 252-session holdout",
-            "evaluationDates": 0,
-            "observations": 0,
-            "rankIc": None,
-            "directionalHitRate": None,
-            "topBottomSpreadPct": None,
-            "folds": [],
-            "gateReasons": [f"only {len(dates)} labelled dates; require at least {required}"],
-        }
-    registry = read_json(HOLDOUT_REGISTRY_PATH)
-    expected_taxonomy_hash = canonical_json_sha256(read_json(TAXONOMY_PATH))
-    if registry.get("protocolId") != HOLDOUT_PROTOCOL_ID:
-        raise RuntimeError("holdout registry protocolId does not match the coded protocol")
-    if registry.get("taxonomyHash") != expected_taxonomy_hash:
-        raise RuntimeError("holdout registry taxonomyHash does not match the current taxonomy")
-    openings = registry.get("horizons", {}).get(str(horizon), {}).get("openings", [])
-    if not openings:
-        raise RuntimeError(f"holdout registry has no immutable opening for horizon {horizon}")
-    last_opened_end = str(openings[-1]["end"])
-    new_dates = [item for item in dates if item > last_opened_end]
-    if len(new_dates) < LOCKED_HOLDOUT_SESSIONS:
-        research_dates = dates[-SELECTION_WINDOW_SESSIONS:]
-        candidates = candidate_catalog(ridge)
-        evaluations = {
-            candidate["id"]: {
-                "selection": walk_forward_evaluate(horizon, candidate, research_dates),
-                "stress": {"evaluationDates": 0, "rankIc": None},
-            }
-            for candidate in candidates
-        }
-        selected, selection_reason = select_candidate(candidates, evaluations)
-        research = evaluations[selected["id"]]["selection"]
-        return {
-            "status": "insufficient",
-            "horizonSessions": horizon,
-            "walkForward": "research only; previously opened holdout is never reused",
-            "selectedCandidateId": selected["id"],
-            "selectionReason": selection_reason,
-            "researchSelection": compact_evaluation(research),
-            "holdoutState": {
-                "status": "waiting-for-new-unseen-dates",
-                "lastOpenedEnd": last_opened_end,
-                "newMaturedDates": len(new_dates),
-                "requiredNewMaturedDates": LOCKED_HOLDOUT_SESSIONS,
-            },
-            "gateReasons": [
-                f"only {len(new_dates)}/252 brand-new matured dates after immutable holdout boundary {last_opened_end}; locked holdout cannot be reopened or rolled"
-            ],
-            "evaluationDates": 0,
-            "observations": 0,
-            "rankIc": None,
-            "rankIcPositiveDateShare": None,
-            "directionalHitRate": None,
-            "topBottomSpreadPct": None,
-            "calibration": research.get("calibration", []),
-            "folds": [{**fold, "phase": "research-only"} for fold in research["folds"]],
-        }
-    holdout_dates = new_dates[:LOCKED_HOLDOUT_SESSIONS]
-    selection_pool = [item for item in dates if item < holdout_dates[0]]
-    selection_dates = selection_pool[-SELECTION_WINDOW_SESSIONS:]
-    selection_start_index = dates.index(selection_dates[0])
-    stress_candidates = dates[MINIMUM_TRAINING_DATES:selection_start_index]
-    candidates = candidate_catalog(ridge)
-    evaluations: dict[str, dict[str, dict[str, Any]]] = {}
-    for candidate in candidates:
-        evaluations[candidate["id"]] = {
-            "selection": walk_forward_evaluate(horizon, candidate, selection_dates),
-            "stress": walk_forward_evaluate(
-                horizon,
-                candidate,
-                stress_candidates,
-                block_sessions=126,
-            ),
-        }
-    selected, selection_reason = select_candidate(candidates, evaluations)
-    holdout = walk_forward_evaluate(horizon, selected, holdout_dates)
-    record_holdout_opening(
-        horizon,
-        holdout_dates,
-        selection_end=selection_dates[-1],
-        candidate_id=selected["id"],
-    )
-    status, gate_reasons = status_from_locked_gate(
-        evaluations[selected["id"]]["selection"],
-        holdout,
-    )
-    selected_selection = evaluations[selected["id"]]["selection"]
-    selected_stress = evaluations[selected["id"]]["stress"]
-    public_folds = [
-        {**fold, "phase": "primary-selection"} for fold in selected_selection["folds"]
-    ] + [{**fold, "phase": "locked-holdout"} for fold in holdout["folds"]]
-    return {
-        "status": status,
-        "horizonSessions": horizon,
-        "walkForward": (
-            "504-session rolling training; 63-session time blocks; labels must mature before each "
-            "test boundary; candidate locked on the preceding 504 sessions; final 252 sessions "
-            "opened once as holdout; older history retained as secondary stress test"
-        ),
-        "selectedCandidateId": selected["id"],
-        "selectionReason": selection_reason,
-        "candidateComparisons": {
-            candidate["id"]: {
-                "complexity": candidate["complexity"],
-                "featureCount": len(candidate["featureNames"]),
-                "ridge": candidate["ridge"],
-                "primarySelection": compact_evaluation(evaluations[candidate["id"]]["selection"]),
-                "olderHistoryStress": compact_evaluation(evaluations[candidate["id"]]["stress"]),
-            }
-            for candidate in candidates
-        },
-        "primarySelection": compact_evaluation(selected_selection),
-        "lockedHoldout": compact_evaluation(holdout),
-        "olderHistoryStress": compact_evaluation(selected_stress),
-        "gateReasons": gate_reasons,
-        "evaluationDates": holdout["evaluationDates"],
-        "observations": holdout["observations"],
-        "rankIc": holdout["rankIc"],
-        "rankIcPositiveDateShare": holdout["rankIcPositiveDateShare"],
-        "directionalHitRate": holdout["directionalHitRate"],
-        "topBottomSpreadPct": holdout["topBottomSpreadPct"],
-        "calibration": selected_selection["calibration"],
-        "folds": public_folds,
-    }
-
+# Legacy mutable-panel label generation and ridge fitting were removed.
+# Training labels now exist only in prediction_dataset.py snapshots.
 
 def latest_rows() -> dict[str, dict[str, Any]]:
     latest: dict[str, dict[str, Any]] = {}
@@ -2014,150 +1371,6 @@ def visualization_artifact(latest: dict[str, dict[str, Any]]) -> dict[str, Any]:
             ],
         },
     }
-
-
-def train_model(args: argparse.Namespace) -> dict[str, Any]:
-    if not FEATURE_PATH.exists():
-        raise SystemExit("feature file missing; run 'features' first")
-    candidate_output = getattr(args, "candidate_output", None)
-    promotion_requested = bool(getattr(args, "promote", False))
-    if promotion_requested:
-        raise SystemExit(
-            "direct --promote is disabled: promotion must verify an already-audited candidate "
-            "and its SHA-256 without retraining"
-        )
-    validated_candidate_path: Path | None = None
-    if candidate_output:
-        validated_candidate_path = (ROOT / candidate_output).resolve()
-        candidate_dir = (MODEL_DIR / "candidates").resolve()
-        if not validated_candidate_path.is_relative_to(candidate_dir):
-            raise SystemExit("candidate output must stay inside models/sector-rotation/candidates")
-        if validated_candidate_path == MODEL_PATH.resolve():
-            raise SystemExit("candidate output cannot overwrite the frozen baseline")
-    if MODEL_PATH.exists() and not candidate_output and not promotion_requested:
-        raise SystemExit(
-            "frozen model exists; weekly research must use --candidate-output. "
-            "Training is not a publication path and cannot replace the baseline"
-        )
-    taxonomy = read_json(TAXONOMY_PATH)
-    manifest = load_manifest()
-    latest = latest_rows()
-    as_of = max(row["date"] for row in latest.values())
-    latest_cross_section = {
-        code: row for code, row in latest.items() if row["date"] == as_of
-    }
-    backtests = {
-        str(horizon): backtest_horizon(horizon, args.ridge)
-        for horizon in (5, 20)
-    }
-    catalog = {candidate["id"]: candidate for candidate in candidate_catalog(args.ridge)}
-    final_models: dict[str, dict[str, Any]] = {}
-    for horizon in (5, 20):
-        selected_id = backtests[str(horizon)].get("selectedCandidateId", next(iter(catalog)))
-        selected = catalog[selected_id]
-        matured_dates = labelled_feature_dates(horizon)
-        if len(matured_dates) < PRIMARY_WINDOW_SESSIONS:
-            raise RuntimeError(
-                f"only {len(matured_dates)} matured dates for final {horizon}-session fit"
-            )
-        final_models[str(horizon)] = fit_ridge(
-            horizon,
-            None,
-            float(selected["ridge"]),
-            feature_names=list(selected["featureNames"]),
-            train_start_inclusive=matured_dates[-PRIMARY_WINDOW_SESSIONS],
-            candidate_id=str(selected["id"]),
-            model_type=str(selected["type"]),
-        )
-    feature_manifest = manifest.get("features", {})
-    coverage_complete = (
-        len(latest_cross_section) == len(taxonomy["indices"])
-        and feature_manifest.get("sourceCoverageCount") == len(taxonomy["indices"])
-        and feature_manifest.get("coverageCount") == len(taxonomy["indices"])
-        and feature_manifest.get("featureDateMinCount") == len(taxonomy["indices"])
-        and feature_manifest.get("featureDateMaxCount") == len(taxonomy["indices"])
-        and feature_manifest.get("featurePanelComplete") is True
-    )
-    if not coverage_complete:
-        for result in backtests.values():
-            result["status"] = "insufficient"
-            result["coverageGate"] = f"{len(latest_cross_section)}/{len(taxonomy['indices'])}@{as_of}"
-    statuses = {result["status"] for result in backtests.values()}
-    overall = "passed" if statuses == {"passed"} else "limited" if statuses & {"passed", "limited"} else "insufficient"
-    audit_gate_eligible = coverage_complete and overall == "passed" and all(
-        backtests[str(horizon)]["status"] == "passed" for horizon in (5, 20)
-    )
-    artifact_version = getattr(args, "version", None)
-    if candidate_output and not artifact_version:
-        artifact_version = f"{datetime.now(SHANGHAI):%Y.%m.%d-%H%M%S}-candidate"
-    artifact = {
-        "schemaVersion": 2,
-        "id": "guanchao-a-share-sector-rotation",
-        "version": artifact_version or f"{datetime.now(SHANGHAI):%Y.%m.%d}-v2",
-        "trainedAt": now_iso(),
-        "asOf": as_of,
-        "trainingStart": min(model["trainingStart"] for model in final_models.values()),
-        "trainingEnd": max(model["trainingEnd"] for model in final_models.values()),
-        "taxonomyHash": canonical_json_sha256(taxonomy),
-        "taxonomy": taxonomy,
-        "data": {
-            "owner": "中证指数有限公司",
-            "endpoint": CSI_API,
-            "fallbackEndpoint": BAIDU_KLINE_API,
-            "verificationEndpoint": TENCENT_KLINE_API,
-            "evidenceClass": "official-primary-with-vendor-fallback",
-            "coverageCount": len(latest_cross_section),
-            "availableSeriesCount": len(latest),
-            "universeCount": len(taxonomy["indices"]),
-            "trainingCoverageComplete": coverage_complete,
-            "featureManifest": manifest.get("features", {}),
-        },
-        "method": {
-            "type": "rolling-candidate-selected-ridge",
-            "target": "5/20交易日前瞻行业收益减同日可用行业横截面均值",
-            "primaryWindow": "最近504个完整交易日滚动训练（约2年）；每日只推理，周六审计才可重训",
-            "validation": "候选只在预留holdout之前的504日walk-forward选择；目标到期日必须早于测试边界；最后252日锁定保留集只打开一次；无随机切分",
-            "stressTest": "更早历史使用相同504日滚动训练作为制度压力测试，不与最近窗口混合拟合，也不允许用保留集反选候选",
-            "candidatePolicy": "固定比较可解释线性岭回归与小型交互岭回归；复杂候选须至少改善0.01 primary rank IC、头尾差为正且不触发旧制度压力否决",
-            "score": "推理值仅用于当日行业横截面0–100排名，非概率、非承诺收益",
-            "confidenceScore": "0–100仅表示历史样本外校准证据强度，不是上涨概率或胜率；只有量价一类证据时页面等级封顶low",
-            "eventOverlay": "事件记忆独立保存；每日只匹配与追加，不自动重训数值模型",
-        },
-        "features": [
-            {"id": feature, "description": MODEL_FEATURE_DESCRIPTIONS[feature]}
-            for feature in sorted(
-                {feature for model in final_models.values() for feature in model["featureNames"]}
-            )
-        ],
-        "models": final_models,
-        "backtest": {"status": overall, "horizons": backtests},
-        "promotion": {
-            "promotionReady": False,
-            "auditGateEligible": audit_gate_eligible,
-            "policy": "training never promotes; a separate audited publisher must verify candidate/audit hashes, taxonomy, coverage, both passed horizons, and expected current baseline hash",
-        },
-        "visualizationData": visualization_artifact(latest_cross_section),
-        "limitations": [
-            "固定观察池由10个一级行业与军工、移动互联网两个重点主题指数构成；重点标签不参与打分，主题指数与一级行业可能重叠。",
-            "行业指数成交量和成交额是指数层观察，不等于机构真实持仓或已确认资金流。",
-            "模型只覆盖量价与横截面相对强弱；新闻、机构观点和国家队线索不泄漏进基础模型。",
-            "最近504交易日是主制度窗口；更早历史只作压力测试。近期保留集改善不能抵消旧制度下的脆弱性。",
-            "交易成本、指数样本调整、不可交易性和极端事件会削弱样本外表现。",
-            "confidenceScore不是概率；仅有量价一种证据类别时，页面预测置信度等级上限为low。",
-        ],
-    }
-    output_path = MODEL_PATH
-    if candidate_output:
-        assert validated_candidate_path is not None
-        output_path = validated_candidate_path
-    write_json_atomic(output_path, artifact)
-    print(
-        f"[train] output={output_path.relative_to(ROOT)} status={overall} "
-        f"coverage={len(latest_cross_section)}/{len(taxonomy['indices'])}@{as_of} "
-        f"5dIC={backtests['5']['rankIc']} 20dIC={backtests['20']['rankIc']}",
-        flush=True,
-    )
-    return artifact
 
 
 def percentile_scores(items: list[tuple[str, float]]) -> dict[str, float]:
@@ -3756,24 +2969,6 @@ def append_event(args: argparse.Namespace) -> None:
     print(f"[events] appended {event['contentHash'][:12]} size={EVENT_PATH.stat().st_size}B")
 
 
-def pipeline(args: argparse.Namespace) -> None:
-    if bool(getattr(args, "promote", False)):
-        raise SystemExit(
-            "direct --promote is disabled: pipeline may create an audit candidate but never publish it"
-        )
-    fetch_args = argparse.Namespace(
-        start=args.start,
-        end=args.end,
-        interval=args.interval,
-        min_rows=args.min_rows,
-        refresh=args.refresh,
-    )
-    fetch_a_share_history(fetch_args)
-    build_features(args)
-    train_model(args)
-    infer(args)
-
-
 def refresh_and_infer(args: argparse.Namespace) -> None:
     """Refresh structured inputs, rebuild features, then apply the frozen model."""
     fetch_a_share_history(args)
@@ -3793,21 +2988,11 @@ def parser() -> argparse.ArgumentParser:
     fetch.set_defaults(func=fetch_a_share_history)
 
     features = commands.add_parser("features", help="build streaming cross-sectional features")
+    features.add_argument("--history-dir", help="explicit read-only history directory for snapshot staging")
+    features.add_argument("--benchmark-history", help="explicit 000985 history for snapshot staging")
+    features.add_argument("--output-feature-file", help="explicit feature output; does not update daily manifest")
+    features.add_argument("--as-of", help="exclude all source rows after this YYYY-MM-DD cutoff")
     features.set_defaults(func=build_features)
-
-    train = commands.add_parser("train", help="walk-forward research and write an isolated audit candidate")
-    train.add_argument("--ridge", type=float, default=20.0)
-    train.add_argument(
-        "--candidate-output",
-        help="write an isolated artifact under models/sector-rotation/candidates for audit only",
-    )
-    train.add_argument("--version", help="explicit artifact version (recommended for audited candidates)")
-    train.add_argument(
-        "--promote",
-        action="store_true",
-        help="disabled safety trap; training is never allowed to replace the frozen baseline",
-    )
-    train.set_defaults(func=train_model)
 
     inference = commands.add_parser("infer", help="apply frozen model only")
     inference.set_defaults(func=infer)
@@ -3833,24 +3018,6 @@ def parser() -> argparse.ArgumentParser:
     event_prune = commands.add_parser("events-prune", help="prune oldest fully evaluated events above 28MB")
     event_prune.set_defaults(func=prune_event_memory)
 
-    full = commands.add_parser("pipeline", help="fetch, feature, train, infer")
-    full.add_argument("--start", default="2016-01-01")
-    full.add_argument("--end", default=datetime.now(SHANGHAI).date().isoformat())
-    full.add_argument("--interval", type=float, default=0.65)
-    full.add_argument("--min-rows", type=int, default=250)
-    full.add_argument("--refresh", action="store_true")
-    full.add_argument("--ridge", type=float, default=20.0)
-    full.add_argument(
-        "--candidate-output",
-        help="write an audit-only artifact under models/sector-rotation/candidates",
-    )
-    full.add_argument("--version", help="explicit audited candidate version")
-    full.add_argument(
-        "--promote",
-        action="store_true",
-        help="disabled safety trap; pipeline is never allowed to replace the frozen baseline",
-    )
-    full.set_defaults(func=pipeline)
     return root
 
 

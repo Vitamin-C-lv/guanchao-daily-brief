@@ -1,0 +1,7 @@
+{
+  "name": "wrong-absolute-label",
+  "baseDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "mutation": { "type": "set-panel-value", "date": "2016-04-05", "code": "000990", "field": "absoluteUp1", "value": "0" },
+  "rehash": ["panel", "manifest", "index"],
+  "expectedErrorPattern": "wrong absolute label"
+}

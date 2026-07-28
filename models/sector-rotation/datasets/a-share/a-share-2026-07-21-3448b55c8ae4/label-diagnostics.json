@@ -1,0 +1,32 @@
+{
+  "horizons": {
+    "1": {
+      "absoluteUpPositiveRate": 0.5015333333333334,
+      "crossSectionSizeMax": 12,
+      "crossSectionSizeMin": 12,
+      "matureDates": 2500,
+      "matureRows": 30000,
+      "outperformancePositiveRate": 0.4745666666666667,
+      "topQuartilePositiveRate": 0.25
+    },
+    "20": {
+      "absoluteUpPositiveRate": 0.4961037216176273,
+      "crossSectionSizeMax": 12,
+      "crossSectionSizeMin": 12,
+      "matureDates": 2481,
+      "matureRows": 29772,
+      "outperformancePositiveRate": 0.4632540642214161,
+      "topQuartilePositiveRate": 0.25
+    },
+    "5": {
+      "absoluteUpPositiveRate": 0.5091813568376068,
+      "crossSectionSizeMax": 12,
+      "crossSectionSizeMin": 12,
+      "matureDates": 2496,
+      "matureRows": 29952,
+      "outperformancePositiveRate": 0.47415865384615385,
+      "topQuartilePositiveRate": 0.25
+    }
+  },
+  "schemaVersion": 1
+}

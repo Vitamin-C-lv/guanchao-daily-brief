@@ -1,0 +1,197 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/prediction-dataset.schema.json",
+  "title": "Guanchao immutable prediction dataset manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion", "datasetId", "identitySha256", "identityComponents", "status", "market",
+    "createdAt", "codeCommit", "dataAsOf", "featureStart", "featureEnd", "taxonomy", "benchmark",
+    "calendar", "contracts", "horizons", "targets", "panel", "maturity", "quality", "sourceManifest",
+    "labelDiagnostics", "warnings"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "datasetId": { "type": "string", "pattern": "^a-share-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-f0-9]{12}$" },
+    "identitySha256": { "$ref": "#/$defs/sha256" },
+    "identityComponents": { "$ref": "#/$defs/identity" },
+    "status": { "enum": ["active", "candidate", "legacy_recovered"] },
+    "market": { "const": "A_SHARE" },
+    "createdAt": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" },
+    "codeCommit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "dataAsOf": { "$ref": "#/$defs/date" },
+    "featureStart": { "$ref": "#/$defs/date" },
+    "featureEnd": { "$ref": "#/$defs/date" },
+    "taxonomy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "canonicalSha256", "sourceFileSha256"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "canonicalSha256": { "$ref": "#/$defs/sha256" },
+        "sourceFileSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "benchmark": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["code", "name", "contractVersion", "source"],
+      "properties": {
+        "code": { "const": "000985" },
+        "name": { "const": "中证全指" },
+        "contractVersion": { "type": "string", "pattern": "^a-share-benchmark-csi-all-share-v[0-9]+$" },
+        "source": { "type": "string", "minLength": 1 }
+      }
+    },
+    "calendar": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id", "source", "sha256", "sessionCalendarSha256", "sessions", "firstDate", "lastDate",
+        "holidayArtifact", "holidayArtifactSha256"
+      ],
+      "properties": {
+        "id": { "const": "a-share-benchmark-session-calendar-v1" },
+        "source": { "const": "benchmark-history" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "sessionCalendarSha256": { "$ref": "#/$defs/sha256" },
+        "sessions": { "type": "integer", "minimum": 1 },
+        "firstDate": { "$ref": "#/$defs/date" },
+        "lastDate": { "$ref": "#/$defs/date" },
+        "holidayArtifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": { "type": "string", "minLength": 1 },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "holidayArtifactSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "contracts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataset", "features", "labels", "benchmark"],
+      "properties": {
+        "dataset": { "const": "1" },
+        "features": { "type": "string", "pattern": "^a-share-price-volume-v[0-9]+$" },
+        "labels": { "type": "string", "pattern": "^a-share-labels-v[0-9]+(?:[-a-z0-9]+)?$" },
+        "benchmark": { "type": "string", "pattern": "^a-share-benchmark-csi-all-share-v[0-9]+$" }
+      }
+    },
+    "horizons": { "const": [1, 5, 20] },
+    "targets": { "const": ["absolute_up", "outperformance", "top_quartile", "expected_excess"] },
+    "panel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path", "sha256", "uncompressedSha256", "rows", "dates", "sectors", "columns",
+        "compressedBytes", "uncompressedBytes"
+      ],
+      "properties": {
+        "path": { "const": "panel.csv.gz" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "uncompressedSha256": { "$ref": "#/$defs/sha256" },
+        "rows": { "type": "integer", "minimum": 1 },
+        "dates": { "type": "integer", "minimum": 1 },
+        "sectors": { "const": 12 },
+        "columns": {
+          "type": "array",
+          "minItems": 4,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "compressedBytes": { "type": "integer", "minimum": 1 },
+        "uncompressedBytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "maturity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["1", "5", "20"],
+      "properties": {
+        "1": { "$ref": "#/$defs/maturity" },
+        "5": { "$ref": "#/$defs/maturity" },
+        "20": { "$ref": "#/$defs/maturity" }
+      }
+    },
+    "quality": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "missingFeatureValues", "missingLabelValuesByHorizon", "duplicateKeys", "invalidTargetDates",
+        "crossSectionSizeMin", "crossSectionSizeMax"
+      ],
+      "properties": {
+        "missingFeatureValues": { "type": "integer", "minimum": 0 },
+        "missingLabelValuesByHorizon": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["1", "5", "20"],
+          "properties": {
+            "1": { "type": "integer", "minimum": 0 },
+            "5": { "type": "integer", "minimum": 0 },
+            "20": { "type": "integer", "minimum": 0 }
+          }
+        },
+        "duplicateKeys": { "type": "integer", "minimum": 0 },
+        "invalidTargetDates": { "type": "integer", "minimum": 0 },
+        "crossSectionSizeMin": { "type": "integer", "minimum": 1 },
+        "crossSectionSizeMax": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "sourceManifest": { "$ref": "#/$defs/fileReference" },
+    "labelDiagnostics": { "$ref": "#/$defs/fileReference" },
+    "warnings": { "type": "array", "items": { "type": "string" } }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "fileReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "market", "dataAsOf", "panelUncompressedSha256", "datasetSchemaVersion", "labelContractVersion",
+        "featureContractVersion", "benchmarkContractVersion", "benchmarkCode", "taxonomySha256", "calendarSha256"
+      ],
+      "properties": {
+        "market": { "const": "A_SHARE" },
+        "dataAsOf": { "$ref": "#/$defs/date" },
+        "panelUncompressedSha256": { "$ref": "#/$defs/sha256" },
+        "datasetSchemaVersion": { "const": 1 },
+        "labelContractVersion": { "type": "string", "pattern": "^a-share-labels-v[0-9]+(?:[-a-z0-9]+)?$" },
+        "featureContractVersion": { "type": "string", "pattern": "^a-share-price-volume-v[0-9]+$" },
+        "benchmarkContractVersion": { "type": "string", "pattern": "^a-share-benchmark-csi-all-share-v[0-9]+$" },
+        "benchmarkCode": { "const": "000985" },
+        "taxonomySha256": { "$ref": "#/$defs/sha256" },
+        "calendarSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "maturity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "matureDates", "matureRows", "immatureDates", "firstTargetDate", "lastTargetDate", "topQuartilePositiveRate"
+      ],
+      "properties": {
+        "matureDates": { "type": "integer", "minimum": 0 },
+        "matureRows": { "type": "integer", "minimum": 0 },
+        "immatureDates": { "type": "integer", "minimum": 0 },
+        "firstTargetDate": { "type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "lastTargetDate": { "type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+        "topQuartilePositiveRate": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+      }
+    }
+  }
+}

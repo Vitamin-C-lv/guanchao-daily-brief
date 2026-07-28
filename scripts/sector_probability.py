@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any, Iterable
 
 import sector_rotation as rotation
+import prediction_dataset as datasets
 
 try:
     import numpy as np
@@ -111,41 +112,20 @@ def spearman(left: list[float], right: list[float]) -> float | None:
     return numerator / denominator if denominator else None
 
 
-def load_panel() -> list[dict[str, Any]]:
-    rows = [dict(row) for row in rotation.iter_features()]
-    by_date: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for row in rows:
-        by_date[row["date"]].append(row)
-    for horizon in HORIZONS:
-        raw_key = f"raw_forward{horizon}"
-        benchmark_key = f"benchmark_forward{horizon}"
-        excess_key = f"excess_forward{horizon}"
-        target_date_key = f"targetDate{horizon}"
-        for date_rows in by_date.values():
-            complete = [
-                row for row in date_rows
-                if row.get(raw_key) is not None
-                and row.get(benchmark_key) is not None
-                and row.get(excess_key) is not None
-                and row.get(target_date_key) is not None
-            ]
-            if len(complete) != len(date_rows) or len(complete) < 4:
-                continue
-            ordered = sorted(complete, key=lambda row: float(row[excess_key]), reverse=True)
-            top_count = max(1, math.ceil(len(ordered) * 0.25))
-            top_codes = {row["code"] for row in ordered[:top_count]}
-            for rank, row in enumerate(ordered, start=1):
-                row[f"target_absoluteUp_{horizon}"] = int(float(row[raw_key]) > 0)
-                row[f"target_outperformance_{horizon}"] = int(float(row[excess_key]) > 0)
-                row[f"target_topQuartile_{horizon}"] = int(row["code"] in top_codes)
-                row[f"target_expectedExcess_{horizon}"] = float(row[excess_key])
-                row[f"realized_rank_{horizon}"] = rank
-                row[f"realized_rank_percentile_{horizon}"] = 1 - (rank - 1) / max(1, len(ordered) - 1)
-    return rows
+def label_field(target: str, horizon: int) -> str:
+    """Map model targets to snapshot columns; labels are never derived here."""
+    return f"{target}{horizon}"
+
+
+def load_verified_dataset(snapshot: Path) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    try:
+        return datasets.load_verified_snapshot(snapshot)
+    except datasets.DatasetError as exc:
+        raise SystemExit(f"invalid training dataset snapshot: {exc}") from exc
 
 
 def labelled_dates(panel: list[dict[str, Any]], horizon: int, before: str | None = None) -> list[str]:
-    target_key = f"target_topQuartile_{horizon}"
+    target_key = label_field("topQuartile", horizon)
     date_key = f"targetDate{horizon}"
     return sorted({
         row["date"] for row in panel
@@ -328,7 +308,7 @@ def out_of_fold_predictions(panel: list[dict[str, Any]], horizon: int) -> list[d
     test_set = set(test_dates)
     rows_by_date: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in panel:
-        if row["date"] in test_set and row.get(f"target_topQuartile_{horizon}") is not None:
+        if row["date"] in test_set and row.get(label_field("topQuartile", horizon)) is not None:
             rows_by_date[row["date"]].append(row)
     predictions: list[dict[str, Any]] = []
     for offset in range(0, len(test_dates), BLOCK_SESSIONS):
@@ -340,12 +320,12 @@ def out_of_fold_predictions(panel: list[dict[str, Any]], horizon: int) -> list[d
         train_start = matured[-TRAINING_SESSIONS]
         models = {
             target: fit_model(
-                panel, horizon, f"target_{target}_{horizon}", "logistic", train_start, start
+                panel, horizon, label_field(target, horizon), "logistic", train_start, start
             )
             for target in BINARY_TARGETS
         }
         excess_model = fit_model(
-            panel, horizon, f"target_expectedExcess_{horizon}", "linear", train_start, start
+            panel, horizon, label_field("expectedExcess", horizon), "linear", train_start, start
         )
         if any(model["trainingTargetDateMax"] >= start for model in [*models.values(), excess_model]):
             raise RuntimeError(f"label leakage at {start} h{horizon}")
@@ -362,11 +342,11 @@ def out_of_fold_predictions(panel: list[dict[str, Any]], horizon: int) -> list[d
                     "rawProbabilities": {target: sigmoid(score) for target, score in scores.items()},
                     "predictedExcess": score_model(excess_model, row),
                     "targets": {
-                        target: int(row[f"target_{target}_{horizon}"])
+                        target: int(row[label_field(target, horizon)])
                         for target in BINARY_TARGETS
                     },
-                    "realizedExcess": float(row[f"target_expectedExcess_{horizon}"]),
-                    "realizedRank": int(row[f"realized_rank_{horizon}"]),
+                    "realizedExcess": float(row[label_field("expectedExcess", horizon)]),
+                    "realizedRank": int(row[f"realizedRank{horizon}"]),
                     "regime": regime,
                 })
     if len({item["date"] for item in predictions}) != OOF_SESSIONS:
@@ -490,9 +470,8 @@ def ranking_metrics(
     }
 
 
-def data_diagnostics(panel: list[dict[str, Any]]) -> dict[str, Any]:
+def data_diagnostics(panel: list[dict[str, Any]], dataset_manifest: dict[str, Any]) -> dict[str, Any]:
     taxonomy = rotation.read_json(rotation.TAXONOMY_PATH)
-    manifest = rotation.load_manifest()
     latest_date = max(row["date"] for row in panel)
     latest = [row for row in panel if row["date"] == latest_date]
     vectors: dict[str, list[float]] = {}
@@ -508,7 +487,6 @@ def data_diagnostics(panel: list[dict[str, Any]]) -> dict[str, Any]:
                 except (TypeError, ValueError):
                     missing.append(feature)
             vectors[item["code"]] = values
-        history = manifest.get("aShareHistory", {}).get(item["code"], {})
         sectors.append({
             "code": item["code"],
             "name": item["shortName"],
@@ -519,7 +497,7 @@ def data_diagnostics(panel: list[dict[str, Any]]) -> dict[str, Any]:
             "mapping": {
                 "industryIndex": "mapped" if row else "missing",
                 "indexCode": item["code"],
-                "historySource": history.get("source"),
+                "historySource": "immutable-dataset-source-manifest",
                 "etf": "not-yet-backfilled",
                 "institutionFlow": "not-yet-backfilled",
             },
@@ -537,11 +515,7 @@ def data_diagnostics(panel: list[dict[str, Any]]) -> dict[str, Any]:
     for feature in PROBABILITY_FEATURES:
         values = [feature_value(row, feature) for row in latest]
         feature_std.append({"feature": feature, "crossSectionStd": statistics.pstdev(values)})
-    fetch = manifest.get("aShareFetch", {})
-    benchmark = manifest.get("aShareBenchmark", {})
-    source_failures = list(fetch.get("failures", []))
-    if benchmark.get("failure"):
-        source_failures.append({"code": benchmark.get("code"), "error": benchmark["failure"]})
+    source_failures: list[dict[str, Any]] = []
     enhanced_groups = {
         "priceRelativeStrength": 0.25,
         "turnoverAndVolume": 0.25,
@@ -568,14 +542,14 @@ def data_diagnostics(panel: list[dict[str, Any]]) -> dict[str, Any]:
             "benchmark": {
                 "code": rotation.A_SHARE_BENCHMARK["code"],
                 "name": rotation.A_SHARE_BENCHMARK["shortName"],
-                "status": benchmark.get("status", "missing"),
-                "source": benchmark.get("source"),
+                "status": "immutable-snapshot",
+                "source": dataset_manifest["benchmark"]["source"],
             },
             "focusPolicy": "focus changes collection depth only; no score bonus or prior override",
         },
         "sourceHealth": {
             "failures": source_failures,
-            "fallbackEligibleCodes": fetch.get("fallbackEligibleCodes", []),
+            "fallbackEligibleCodes": [],
             "fallbackOrSourceBySector": [
                 {"code": sector["code"], "source": sector["mapping"]["historySource"]}
                 for sector in sectors
@@ -684,11 +658,11 @@ def train_horizon(panel: list[dict[str, Any]], horizon: int, diagnostics: dict[s
     matured = labelled_dates(panel, horizon)
     start = matured[-TRAINING_SESSIONS]
     models = {
-        target: fit_model(panel, horizon, f"target_{target}_{horizon}", "logistic", start, None)
+        target: fit_model(panel, horizon, label_field(target, horizon), "logistic", start, None)
         for target in BINARY_TARGETS
     }
     models["expectedExcess"] = fit_model(
-        panel, horizon, f"target_expectedExcess_{horizon}", "linear", start, None
+        panel, horizon, label_field("expectedExcess", horizon), "linear", start, None
     )
     current = current_predictions(panel, models, calibrations)
     reasons = abstain_reasons(current, diagnostics, calibrations, ranking)
@@ -734,14 +708,12 @@ def train_horizon(panel: list[dict[str, Any]], horizon: int, diagnostics: dict[s
     }
 
 
-def train(output: Path) -> dict[str, Any]:
-    if not rotation.FEATURE_PATH.exists():
-        raise SystemExit("feature file missing; run rotation:features first")
-    panel = load_panel()
-    diagnostics = data_diagnostics(panel)
+def train(output: Path, dataset_snapshot: Path) -> dict[str, Any]:
+    dataset_manifest, panel = load_verified_dataset(dataset_snapshot)
+    source_manifest = datasets.read_json(dataset_snapshot / datasets.SOURCE_MANIFEST_NAME)
+    feature_source = source_manifest["featureFile"]
+    diagnostics = data_diagnostics(panel, dataset_manifest)
     horizons = {str(horizon): train_horizon(panel, horizon, diagnostics) for horizon in HORIZONS}
-    taxonomy = rotation.read_json(rotation.TAXONOMY_PATH)
-    manifest = rotation.load_manifest().get("features", {})
     as_of = diagnostics["asOf"]
     payload = {
         "schemaVersion": 2,
@@ -755,8 +727,18 @@ def train(output: Path) -> dict[str, Any]:
         "trainingEnd": max(
             result["models"]["topQuartile"]["trainingEnd"] for result in horizons.values()
         ),
-        "taxonomyHash": rotation.canonical_json_sha256(taxonomy),
-        "featureDataSha256": manifest.get("sha256"),
+        "taxonomyHash": dataset_manifest["taxonomy"]["canonicalSha256"],
+        "featureDataSha256": feature_source["fullFileSha256"],
+        "datasetId": dataset_manifest["datasetId"],
+        "datasetSchemaVersion": dataset_manifest["schemaVersion"],
+        "datasetPanelSha256": dataset_manifest["panel"]["sha256"],
+        "datasetManifestSha256": datasets.sha256_path(dataset_snapshot / datasets.SNAPSHOT_MANIFEST_NAME),
+        "labelDiagnosticsSha256": dataset_manifest["labelDiagnostics"]["sha256"],
+        "labelContractVersion": dataset_manifest["contracts"]["labels"],
+        "featureContractVersion": dataset_manifest["contracts"]["features"],
+        "benchmarkContractVersion": dataset_manifest["contracts"]["benchmark"],
+        "calendarSha256": dataset_manifest["calendar"]["sessionCalendarSha256"],
+        "holidayCalendarArtifactSha256": dataset_manifest["calendar"]["holidayArtifactSha256"],
         "benchmark": {
             "code": rotation.A_SHARE_BENCHMARK["code"],
             "name": rotation.A_SHARE_BENCHMARK["shortName"],
@@ -800,8 +782,13 @@ def parser() -> argparse.ArgumentParser:
     root.add_argument("command", choices=["train"])
     root.add_argument(
         "--output",
-        default=str(OUTPUT_PATH.relative_to(rotation.ROOT)).replace("\\", "/"),
-        help="project-relative output path",
+        required=True,
+        help="audit-only output under models/sector-rotation/candidates",
+    )
+    root.add_argument(
+        "--dataset-snapshot",
+        required=True,
+        help="verified immutable dataset snapshot; mutable FEATURE_PATH is never a training input",
     )
     return root
 
@@ -809,9 +796,10 @@ def parser() -> argparse.ArgumentParser:
 def main() -> None:
     args = parser().parse_args()
     output = (rotation.ROOT / args.output).resolve()
-    if not output.is_relative_to(rotation.MODEL_DIR.resolve()):
-        raise SystemExit("model output must stay under models/sector-rotation")
-    train(output)
+    candidate_root = (rotation.MODEL_DIR / "candidates").resolve()
+    if not output.is_relative_to(candidate_root):
+        raise SystemExit("training output must stay under models/sector-rotation/candidates; frozen production model cannot be overwritten")
+    train(output, Path(args.dataset_snapshot).resolve())
 
 
 if __name__ == "__main__":

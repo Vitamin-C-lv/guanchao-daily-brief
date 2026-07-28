@@ -1,0 +1,193 @@
+{
+  "benchmark": {
+    "code": "000985",
+    "contractVersion": "a-share-benchmark-csi-all-share-v1",
+    "name": "中证全指",
+    "source": "https://www.csindex.com.cn/csindex-home/perf/index-perf"
+  },
+  "calendar": {
+    "firstDate": "2016-01-04",
+    "holidayArtifact": {
+      "path": "models/sector-rotation/cn-market-calendar-2026.json",
+      "sha256": "f99e4db48dbea3a13fe98a6900f192e11b39f18e774386f121144f7337e3d624"
+    },
+    "holidayArtifactSha256": "f99e4db48dbea3a13fe98a6900f192e11b39f18e774386f121144f7337e3d624",
+    "id": "a-share-benchmark-session-calendar-v1",
+    "lastDate": "2026-07-21",
+    "sessionCalendarSha256": "2313c96d9cb84bce3d57a86ff70da8b1e61836899dc593f74549a4b07caf21eb",
+    "sessions": 2561,
+    "sha256": "2313c96d9cb84bce3d57a86ff70da8b1e61836899dc593f74549a4b07caf21eb",
+    "source": "benchmark-history"
+  },
+  "codeCommit": "72f7533c48e4db4686e5f5e7f386e443f7e59d3c",
+  "contracts": {
+    "benchmark": "a-share-benchmark-csi-all-share-v1",
+    "dataset": "1",
+    "features": "a-share-price-volume-v2",
+    "labels": "a-share-labels-v1"
+  },
+  "createdAt": "2026-07-27T09:07:59Z",
+  "dataAsOf": "2026-07-21",
+  "datasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "featureEnd": "2026-07-21",
+  "featureStart": "2016-04-05",
+  "horizons": [
+    1,
+    5,
+    20
+  ],
+  "identityComponents": {
+    "benchmarkCode": "000985",
+    "benchmarkContractVersion": "a-share-benchmark-csi-all-share-v1",
+    "calendarSha256": "2313c96d9cb84bce3d57a86ff70da8b1e61836899dc593f74549a4b07caf21eb",
+    "dataAsOf": "2026-07-21",
+    "datasetSchemaVersion": 1,
+    "featureContractVersion": "a-share-price-volume-v2",
+    "labelContractVersion": "a-share-labels-v1",
+    "market": "A_SHARE",
+    "panelUncompressedSha256": "927146b5b71be46725ef5b74be15a35a58524fb6202e522a857da0f1a7b7896c",
+    "taxonomySha256": "2cdb81a8cfbc2c2705bcbba45f14b601265f368accb68a94db74c062ac3c363a"
+  },
+  "identitySha256": "3448b55c8ae44e7f4d95fd5cb8a1c8b229d40bdf070124f4350ac8226a18a963",
+  "labelDiagnostics": {
+    "path": "label-diagnostics.json",
+    "sha256": "10a886d28eebf0ceecee3274273c3498951ae944b9e70aa16ba40545a6fa6dcd"
+  },
+  "market": "A_SHARE",
+  "maturity": {
+    "1": {
+      "firstTargetDate": "2016-04-06",
+      "immatureDates": 1,
+      "lastTargetDate": "2026-07-21",
+      "matureDates": 2500,
+      "matureRows": 30000,
+      "topQuartilePositiveRate": 0.25
+    },
+    "20": {
+      "firstTargetDate": "2016-05-04",
+      "immatureDates": 20,
+      "lastTargetDate": "2026-07-21",
+      "matureDates": 2481,
+      "matureRows": 29772,
+      "topQuartilePositiveRate": 0.25
+    },
+    "5": {
+      "firstTargetDate": "2016-04-12",
+      "immatureDates": 5,
+      "lastTargetDate": "2026-07-21",
+      "matureDates": 2496,
+      "matureRows": 29952,
+      "topQuartilePositiveRate": 0.25
+    }
+  },
+  "panel": {
+    "columns": [
+      "date",
+      "code",
+      "name",
+      "momentum5",
+      "momentum20",
+      "momentum60",
+      "reversal1",
+      "volatility20",
+      "drawdown60",
+      "amountRatio5v20",
+      "volumeRatio5v20",
+      "priceVolumeAcceleration",
+      "cs_momentum5",
+      "cs_momentum20",
+      "cs_momentum60",
+      "cs_reversal1",
+      "cs_volatility20",
+      "cs_drawdown60",
+      "cs_amountRatio5v20",
+      "cs_volumeRatio5v20",
+      "cs_priceVolumeAcceleration",
+      "targetDate1",
+      "horizonSessions1",
+      "sectorStartClose1",
+      "sectorEndClose1",
+      "benchmarkStartClose1",
+      "benchmarkEndClose1",
+      "sectorForwardReturn1",
+      "benchmarkForwardReturn1",
+      "excessForwardReturn1",
+      "absoluteUp1",
+      "outperformance1",
+      "topQuartile1",
+      "expectedExcess1",
+      "realizedRank1",
+      "realizedRankPercentile1",
+      "targetDate5",
+      "horizonSessions5",
+      "sectorStartClose5",
+      "sectorEndClose5",
+      "benchmarkStartClose5",
+      "benchmarkEndClose5",
+      "sectorForwardReturn5",
+      "benchmarkForwardReturn5",
+      "excessForwardReturn5",
+      "absoluteUp5",
+      "outperformance5",
+      "topQuartile5",
+      "expectedExcess5",
+      "realizedRank5",
+      "realizedRankPercentile5",
+      "targetDate20",
+      "horizonSessions20",
+      "sectorStartClose20",
+      "sectorEndClose20",
+      "benchmarkStartClose20",
+      "benchmarkEndClose20",
+      "sectorForwardReturn20",
+      "benchmarkForwardReturn20",
+      "excessForwardReturn20",
+      "absoluteUp20",
+      "outperformance20",
+      "topQuartile20",
+      "expectedExcess20",
+      "realizedRank20",
+      "realizedRankPercentile20"
+    ],
+    "compressedBytes": 8814224,
+    "dates": 2501,
+    "path": "panel.csv.gz",
+    "rows": 30012,
+    "sectors": 12,
+    "sha256": "16f43560015ea6f3778f18298f9abc5a99aaf3824b880e203c9b8c63aac95d89",
+    "uncompressedBytes": 29160248,
+    "uncompressedSha256": "927146b5b71be46725ef5b74be15a35a58524fb6202e522a857da0f1a7b7896c"
+  },
+  "quality": {
+    "crossSectionSizeMax": 12,
+    "crossSectionSizeMin": 12,
+    "duplicateKeys": 0,
+    "invalidTargetDates": 0,
+    "missingFeatureValues": 0,
+    "missingLabelValuesByHorizon": {
+      "1": 12,
+      "20": 240,
+      "5": 60
+    }
+  },
+  "schemaVersion": 1,
+  "sourceManifest": {
+    "path": "source-manifest.json",
+    "sha256": "1ee55411c763259ccd3446d66bc4906f96871f40bfc8b96455c7741051d90b88"
+  },
+  "status": "candidate",
+  "targets": [
+    "absolute_up",
+    "outperformance",
+    "top_quartile",
+    "expected_excess"
+  ],
+  "taxonomy": {
+    "canonicalSha256": "2cdb81a8cfbc2c2705bcbba45f14b601265f368accb68a94db74c062ac3c363a",
+    "id": "a-core12-v2",
+    "sourceFileSha256": "ba1a80b2d59386f9f4578150fd105915332f7e4a24767bc5ccb7e4eb5f1b6f6b"
+  },
+  "warnings": [
+    "candidate snapshot: frozen production featureDataSha256 83d693e8f4c01dc7f50cd53f53aae66a860a428dac1449617aea0ad8a54432be was not recovered"
+  ]
+}

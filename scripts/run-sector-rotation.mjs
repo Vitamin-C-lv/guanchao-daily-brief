@@ -6,7 +6,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const userArgs = process.argv.slice(2).filter((argument) => argument !== "--");
 
 if (userArgs.length === 0) {
-  console.error("用法: node scripts/run-sector-rotation.mjs <fetch|signals|features|train|probability-train|infer|history|refresh|pipeline|events-append|events-prune> [...参数]");
+  console.error("用法: node scripts/run-sector-rotation.mjs <fetch|signals|features|probability-train|infer|history|refresh|events-append|events-prune> [...参数]");
   process.exit(2);
 }
 
@@ -18,18 +18,20 @@ const script = path.join(root, "scripts", probabilityTrain ? "sector_probability
 const scriptArgs = probabilityTrain ? ["train", ...userArgs.slice(1)] : predictionHistory || rotationSignals ? userArgs.slice(1) : userArgs;
 
 const candidates = [];
-if (process.env.CODEX_PYTHON) {
+if (!probabilityTrain && process.env.CODEX_PYTHON) {
   candidates.push({ command: process.env.CODEX_PYTHON, prefix: [], label: "CODEX_PYTHON" });
 }
-candidates.push(
-  { command: "python", prefix: [], label: "python" },
-  { command: "py", prefix: ["-3"], label: "py -3" },
-  {
-    command: "uv",
-    prefix: ["run", "--no-project", "--python", "3.12", "--with", "requests", ...(probabilityTrain ? ["--with", "numpy"] : []), "python"],
-    label: "uv managed Python",
-  },
-);
+if (!probabilityTrain) {
+  candidates.push(
+    { command: "python", prefix: [], label: "python" },
+    { command: "py", prefix: ["-3"], label: "py -3" },
+  );
+}
+candidates.push({
+  command: "uv",
+  prefix: ["run", "--no-project", "--python", "3.12", "--with", "requests", ...(probabilityTrain ? ["--with", "numpy"] : []), "python"],
+  label: "uv managed Python",
+});
 
 let selected = null;
 for (const candidate of candidates) {
@@ -61,7 +63,7 @@ if (result.error) {
   console.error(`行业轮动 ${selected.label} 启动失败: ${result.error.message}`);
   process.exit(1);
 }
-if (result.status === 0 && ["history", "refresh", "infer", "pipeline"].includes(userArgs[0])) {
+if (result.status === 0 && ["history", "refresh", "infer"].includes(userArgs[0])) {
   const normalized = spawnSync(process.execPath, [normalizer], {
     cwd: root,
     stdio: "inherit",

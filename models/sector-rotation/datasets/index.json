@@ -1,0 +1,32 @@
+{
+  "datasets": [
+    {
+      "creationStatus": "candidate",
+      "datasetId": "a-share-2026-07-21-3448b55c8ae4",
+      "lifecycleStatus": "candidate",
+      "manifestSha256": "e35cf6b815b8dce18c6dae6ffe0e4a441b6962756d3cfdd890d27c65d4ab4c83",
+      "market": "A_SHARE",
+      "panelSha256": "16f43560015ea6f3778f18298f9abc5a99aaf3824b880e203c9b8c63aac95d89",
+      "path": "a-share/a-share-2026-07-21-3448b55c8ae4",
+      "statusHistory": [
+        {
+          "changedAt": "2026-07-27T09:07:59Z",
+          "codeCommit": "72f7533c48e4db4686e5f5e7f386e443f7e59d3c",
+          "from": null,
+          "reason": "initial registration",
+          "to": "candidate"
+        }
+      ]
+    }
+  ],
+  "legacyProduction": [
+    {
+      "asOf": "2026-07-21",
+      "featureDataSha256": "83d693e8f4c01dc7f50cd53f53aae66a860a428dac1449617aea0ad8a54432be",
+      "modelPath": "models/sector-rotation/a-share-relative-probability-v2.json",
+      "reason": "No registered worktree contained the exact frozen compressed feature panel; a free official CSI rebuild produced only a candidate snapshot.",
+      "status": "reproduction_unavailable"
+    }
+  ],
+  "schemaVersion": 1
+}
