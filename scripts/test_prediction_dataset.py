@@ -6,6 +6,7 @@ from __future__ import annotations
 import csv
 import gzip
 import json
+import subprocess
 import shutil
 import tempfile
 import unittest
@@ -220,6 +221,20 @@ class PredictionDatasetContractTests(unittest.TestCase):
         self.assertEqual(manifest["calendar"]["sha256"], datasets.read_json(SNAPSHOT / "source-manifest.json")["marketCalendarSha256"])
         for horizon in ("1", "5", "20"):
             self.assertGreaterEqual(manifest["maturity"][horizon]["matureDates"], 1008)
+
+    def test_canonical_text_hash_contract_matches_node_and_rejects_bom(self) -> None:
+        lf = b'{"a":1}\n{"b":2}\n'
+        crlf = b'{"a":1}\r\n{"b":2}\r\n'
+        mixed = b'{"a":1}\r{"b":2}\r\n\n'
+        self.assertEqual(datasets.canonical_text_bytes(lf), b'{"a":1}\n{"b":2}\n')
+        self.assertEqual(datasets.sha256_canonical_text(lf), datasets.sha256_canonical_text(crlf))
+        self.assertEqual(datasets.sha256_canonical_text(lf), datasets.sha256_canonical_text(mixed))
+        with self.assertRaisesRegex(datasets.DatasetError, "UTF-8 BOM"):
+            datasets.canonical_text_bytes(b"\xef\xbb\xbf{}")
+        node = r"C:\Users\18442\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
+        script = "import { sha256CanonicalText } from './scripts/validate-prediction-dataset.mjs'; console.log(sha256CanonicalText(Buffer.from('{\\\"a\\\":1}\\r\\n')));"
+        result = subprocess.run([node, "--input-type=module", "-e", script], cwd=rotation.ROOT, capture_output=True, text=True, check=True)
+        self.assertEqual(result.stdout.strip(), datasets.sha256_canonical_text(b'{"a":1}\n'))
 
     def test_snapshot_immutable_write_and_lifecycle_rules(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

@@ -9,9 +9,9 @@
     "firstDate": "2016-01-04",
     "holidayArtifact": {
       "path": "models/sector-rotation/cn-market-calendar-2026.json",
-      "sha256": "f99e4db48dbea3a13fe98a6900f192e11b39f18e774386f121144f7337e3d624"
+      "sha256": "e73e01e9559e8124fa0f76dc18d24c0547254cdc087664dc94f43caf0fb9500e"
     },
-    "holidayArtifactSha256": "f99e4db48dbea3a13fe98a6900f192e11b39f18e774386f121144f7337e3d624",
+    "holidayArtifactSha256": "e73e01e9559e8124fa0f76dc18d24c0547254cdc087664dc94f43caf0fb9500e",
     "id": "a-share-benchmark-session-calendar-v1",
     "lastDate": "2026-07-21",
     "sessionCalendarSha256": "2313c96d9cb84bce3d57a86ff70da8b1e61836899dc593f74549a4b07caf21eb",
@@ -173,7 +173,7 @@
   "schemaVersion": 1,
   "sourceManifest": {
     "path": "source-manifest.json",
-    "sha256": "1ee55411c763259ccd3446d66bc4906f96871f40bfc8b96455c7741051d90b88"
+    "sha256": "af5c9ee4ee87d99dc7322224f0393dd6ea41ad4524536c12a97935419ce84c28"
   },
   "status": "candidate",
   "targets": [
@@ -185,7 +185,7 @@
   "taxonomy": {
     "canonicalSha256": "2cdb81a8cfbc2c2705bcbba45f14b601265f368accb68a94db74c062ac3c363a",
     "id": "a-core12-v2",
-    "sourceFileSha256": "ba1a80b2d59386f9f4578150fd105915332f7e4a24767bc5ccb7e4eb5f1b6f6b"
+    "sourceFileSha256": "b2bcc245b0f3ba4cef164c3ca67ed24f5a71dff35c2890466aa8fd3b86c7ae69"
   },
   "warnings": [
     "candidate snapshot: frozen production featureDataSha256 83d693e8f4c01dc7f50cd53f53aae66a860a428dac1449617aea0ad8a54432be was not recovered"
