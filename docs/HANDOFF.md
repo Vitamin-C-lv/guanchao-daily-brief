@@ -34,7 +34,7 @@ P1-B 以 GitHub 跟踪的不可变 snapshot/evaluation gzip 事件为权威，�
 
 ## P1-D：A股特征覆盖契约v2与市场广度v1
 
-- P1-D 分支：`feature/p1d-a-share-market-breadth`；实现 HEAD：`23a1bfdc7f84b7b3c461c10f2fb4d4a8c95084c6`；本地 Windows 工作树：`D:\周报个人网站-p1d-a-share-market-breadth`。
+- P1-D 分支：`feature/p1d-a-share-market-breadth`；实现与点时测试 HEAD：`a898629e5dbe2b0850431ec57bbe4562e0c70da9`；本地 Windows 工作树：`D:\周报个人网站-p1d-a-share-market-breadth`。
 - coverage contract：`prediction-feature-coverage-v2`。`modelInputCompleteness=26/26=1.00`；`modelFeatureCoverage=0.50`，兼容字段 `productionFeatureCoverage` 明确标记为其 deprecated alias；`productionSignalCoverage=0.50`、`trainingReadyCoverage=0.50`、`providerHealthCoverage=0.50`，直到真实 breadth 运行质量改变该运行态值。
 - 生产模型 lineage sidecar：`models/sector-rotation/a-share-relative-probability-v2.lineage.json`，绑定模型 SHA、datasetId、manifest SHA 和 feature/label/benchmark 契约；不修改模型字节。
 - marketBreadth v1：成员关系使用 CSI 官方成分文件，行情使用现有腾讯公开日 K 路径。只允许当日 15:05（上海）以后为当日写不可变 snapshot；禁止用当前成员关系回填历史，未形成点时历史前 `trainingReady=false`。
