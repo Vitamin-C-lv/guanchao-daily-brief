@@ -44,6 +44,8 @@
     "market:data:daily": "node scripts/run-market-evidence.mjs daily",
     "market:data:weekly": "node scripts/run-market-evidence.mjs weekly",
     "market:data:health": "node scripts/run-market-evidence.mjs health",
+    "market-data:run": "node scripts/run-market-evidence.mjs run",
+    "validate:writer-packet": "node scripts/validate-writer-packet.mjs",
     "validate:market-data": "node scripts/validate-market-evidence.mjs",
     "test:market-data": "node scripts/run-market-evidence.mjs test",
     "validate:brief": "node scripts/validate-brief.mjs",
