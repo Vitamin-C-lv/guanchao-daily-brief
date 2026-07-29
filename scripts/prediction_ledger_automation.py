@@ -79,7 +79,10 @@ def run(mode: str, root: Path, rotation_path: Path, *, code_commit: str, iso_wee
     before = ledger.verify_ledger(root)
     ledger.require_restored_ledger(root, expected_snapshot_count=before["snapshotCount"])
     payload = json.loads(ledger.canonical_text_bytes(rotation_path, artifact=str(rotation_path)))
-    payload_date = str(payload.get("generatedAt", "")[:10])
+    # A refresh timestamp can move on a non-trading day while the frozen market
+    # input is still the same trading session.  Snapshot identity and immutable
+    # prediction IDs are keyed by the data-as-of session, never generatedAt.
+    payload_date = str(payload.get("dataAsOf") or payload.get("asOf") or payload.get("generatedAt", "")[:10])
     index = json.loads(ledger.canonical_text_bytes(root / "index.json", artifact="ledger index"))
     snapshot_report: dict[str, Any]
     if index.get("lastPredictionDate") and payload_date <= index["lastPredictionDate"]:
