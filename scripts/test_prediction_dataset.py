@@ -231,7 +231,9 @@ class PredictionDatasetContractTests(unittest.TestCase):
         self.assertEqual(datasets.sha256_canonical_text(lf), datasets.sha256_canonical_text(mixed))
         with self.assertRaisesRegex(datasets.DatasetError, "UTF-8 BOM"):
             datasets.canonical_text_bytes(b"\xef\xbb\xbf{}")
-        node = r"C:\Users\18442\.cache\codex-runtimes\codex-primary-runtime\dependencies\node\bin\node.exe"
+        node = shutil.which("node")
+        if node is None:
+            self.fail("node executable is required for Python/JavaScript hash equivalence")
         script = "import { sha256CanonicalText } from './scripts/validate-prediction-dataset.mjs'; console.log(sha256CanonicalText(Buffer.from('{\\\"a\\\":1}\\r\\n')));"
         result = subprocess.run([node, "--input-type=module", "-e", script], cwd=rotation.ROOT, capture_output=True, text=True, check=True)
         self.assertEqual(result.stdout.strip(), datasets.sha256_canonical_text(b'{"a":1}\n'))
