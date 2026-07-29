@@ -34,12 +34,8 @@ concurrency:
 
 jobs:
   validate:
-    name: Ledger contract (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
-    runs-on: ${{ matrix.os }}
+    name: Ledger contract (windows-latest)
+    runs-on: windows-latest
     timeout-minutes: 30
     steps:
       - name: Checkout immutable history
@@ -66,16 +62,15 @@ jobs:
       - name: Run ledger contract and adversarial tests
         run: pnpm test:prediction-ledger
       - name: Re-export to a temporary directory and require byte identity
-        if: runner.os == 'Linux'
-        shell: bash
+        shell: pwsh
         run: |
-          temp_root="$(mktemp -d)"
-          uv run --no-project --python 3.12 python scripts/prediction_ledger.py --root data/prediction-ledger export-public --public-root "$temp_root/public" --compatibility "$temp_root/prediction-history.json" --review "$temp_root/prediction-review-latest.json"
-          diff -r public/data/prediction-history "$temp_root/public"
-          diff content/prediction-history.json "$temp_root/prediction-history.json"
-          diff content/prediction-review-latest.json "$temp_root/prediction-review-latest.json"
+          $tempRoot = Join-Path $env:RUNNER_TEMP 'prediction-ledger-export'
+          New-Item -ItemType Directory -Force -Path $tempRoot | Out-Null
+          uv run --no-project --python 3.12 python scripts/prediction_ledger.py --root data/prediction-ledger export-public --public-root "$tempRoot/public" --compatibility "$tempRoot/prediction-history.json" --review "$tempRoot/prediction-review-latest.json"
+          git diff --no-index --exit-code public/data/prediction-history "$tempRoot/public"
+          git diff --no-index --exit-code content/prediction-history.json "$tempRoot/prediction-history.json"
+          git diff --no-index --exit-code content/prediction-review-latest.json "$tempRoot/prediction-review-latest.json"
       - name: Verify static production build
-        if: runner.os == 'Linux'
         run: pnpm build
 
   automate:

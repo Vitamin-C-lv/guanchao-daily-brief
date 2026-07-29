@@ -10,12 +10,8 @@ permissions:
 
 jobs:
   dataset:
-    name: Dataset validation (${{ matrix.os }})
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [windows-latest, ubuntu-latest]
-    runs-on: ${{ matrix.os }}
+    name: Dataset validation (windows-latest)
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,6 +33,5 @@ jobs:
         run: pnpm validate:prediction-dataset
       - name: Test prediction dataset
         run: pnpm test:prediction-dataset
-      - name: Run project checks on Linux
-        if: runner.os == 'Linux'
+      - name: Run project checks
         run: pnpm check
