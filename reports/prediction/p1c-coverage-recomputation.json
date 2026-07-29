@@ -1,0 +1,240 @@
+{
+  "latestProductionEvidence": {
+    "contentAsOf": "2026-07-24",
+    "diagnosticValues": [
+      {
+        "horizon": "current",
+        "modelInputCompleteness": 1,
+        "productionFeatureCoverage": 0.5
+      },
+      {
+        "horizon": 1,
+        "modelInputCompleteness": 1,
+        "productionFeatureCoverage": 0.5
+      },
+      {
+        "horizon": 5,
+        "modelInputCompleteness": 1,
+        "productionFeatureCoverage": 0.5
+      },
+      {
+        "horizon": 20,
+        "modelInputCompleteness": 1,
+        "productionFeatureCoverage": 0.5
+      }
+    ],
+    "perFeatureProductionCache": "not Git-tracked; the audited baseline preserves summary diagnostics but not a 2026-07-24 per-feature matrix"
+  },
+  "modelInputCompleteness": {
+    "definition": "finite frozen model inputs across all 12 sectors at model artifact asOf",
+    "denominator": 26,
+    "numerator": 26,
+    "value": 1.0
+  },
+  "productionFeatureCoverage": {
+    "availableGroups": [
+      "priceRelativeStrength",
+      "turnoverAndVolume"
+    ],
+    "definition": "weighted implemented production feature groups, not the model-vector feature count",
+    "denominator": 1.0,
+    "missingGroups": [
+      "marketBreadth",
+      "etfAndInstitutionFlow",
+      "policyAndEventMapping"
+    ],
+    "numerator": 0.5,
+    "value": 0.5
+  },
+  "recentFrozenPanel": {
+    "end": "2026-07-21",
+    "expectedObservations": 240,
+    "perFeature": [
+      {
+        "featureId": "momentum5",
+        "latestCrossSectionStd": 0.04085788992457805,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "momentum20",
+        "latestCrossSectionStd": 0.0825092441301316,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "momentum60",
+        "latestCrossSectionStd": 0.11192005794565325,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "reversal1",
+        "latestCrossSectionStd": 0.03427796268388308,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "volatility20",
+        "latestCrossSectionStd": 0.009768648895609555,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "drawdown60",
+        "latestCrossSectionStd": 0.06838543710064009,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "amountRatio5v20",
+        "latestCrossSectionStd": 0.2766730286671472,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "volumeRatio5v20",
+        "latestCrossSectionStd": 0.1982801449163868,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "priceVolumeAcceleration",
+        "latestCrossSectionStd": 0.008229621681577115,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "cs_momentum5",
+        "latestCrossSectionStd": 0.9999999999999959,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "cs_momentum20",
+        "latestCrossSectionStd": 0.9999999999999782,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "cs_momentum60",
+        "latestCrossSectionStd": 1.0000000000000029,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "cs_reversal1",
+        "latestCrossSectionStd": 0.9999999999999962,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "cs_volatility20",
+        "latestCrossSectionStd": 1.0000000000000153,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "cs_drawdown60",
+        "latestCrossSectionStd": 0.999999999999989,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "cs_amountRatio5v20",
+        "latestCrossSectionStd": 1.0000000000000107,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "cs_volumeRatio5v20",
+        "latestCrossSectionStd": 0.9999999999999823,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "cs_priceVolumeAcceleration",
+        "latestCrossSectionStd": 1.000000000000007,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "nl_momentum_acceleration",
+        "latestCrossSectionStd": 0.606085404593748,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "nl_medium_trend_acceleration",
+        "latestCrossSectionStd": 1.2968785222870756,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "nl_momentum5_x_amount",
+        "latestCrossSectionStd": 0.7471481501295228,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "nl_momentum20_x_volume",
+        "latestCrossSectionStd": 1.0396669896350976,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "nl_trend_x_drawdown",
+        "latestCrossSectionStd": 0.992879692440792,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "nl_reversal_x_volatility",
+        "latestCrossSectionStd": 1.2051648042872813,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "nl_momentum5_squared",
+        "latestCrossSectionStd": 0.9813159134004705,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      },
+      {
+        "featureId": "nl_drawdown_squared",
+        "latestCrossSectionStd": 1.270774711911061,
+        "nullCount": 0,
+        "observations": 240,
+        "zeroVarianceSessions": 0
+      }
+    ],
+    "sectorsPerSession": 12,
+    "sessions": 20,
+    "start": "2026-06-24"
+  }
+}
