@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"index_count_mismatch","expectedError":"index count or content mismatch","description":"Root index record count differs from derived files."}

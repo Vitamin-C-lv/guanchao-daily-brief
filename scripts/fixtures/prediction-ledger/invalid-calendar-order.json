@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"invalid_calendar_order","expectedError":"calendar sessions must be unique and ascending","description":"Evaluation calendar is unsorted and duplicated."}

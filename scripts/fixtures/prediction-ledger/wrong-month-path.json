@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"wrong_month_path","expectedError":"month path","description":"Snapshot is stored under a month different from dataAsOf."}

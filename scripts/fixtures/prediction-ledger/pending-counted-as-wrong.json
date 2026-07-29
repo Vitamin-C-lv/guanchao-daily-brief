@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"pending_counted_as_wrong","expectedError":"pending counted as wrong","description":"An immature prediction is incorrectly placed in evaluated failures."}

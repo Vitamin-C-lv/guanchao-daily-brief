@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"schema_extra_property","expectedError":"must NOT have additional properties","description":"Strict snapshot schema receives an unknown root property."}

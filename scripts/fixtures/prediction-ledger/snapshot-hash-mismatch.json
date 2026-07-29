@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"snapshot_hash_mismatch","expectedError":"hash mismatch","description":"Snapshot payload changes without recomputing its embedded digest."}
