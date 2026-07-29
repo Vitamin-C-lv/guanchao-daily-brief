@@ -1,0 +1,52 @@
+{
+  "authority": "Git repository immutable event files",
+  "benchmark": {
+    "aShare": {
+      "code": "000985",
+      "contractVersion": "a-share-benchmark-csi-all-share-v1",
+      "name": "中证全指"
+    }
+  },
+  "contractVersion": "prediction-ledger-v1",
+  "hashModes": {
+    "binary": "raw-bytes-v1",
+    "gzip": "deterministic-gzip-v1",
+    "manifestFileSha256": "raw compressed artifact bytes",
+    "selfHashExclusion": "integrity.payloadSha256 and integrity.compressedSha256 are zeroed before both embedded digests are computed",
+    "text": "utf8-canonical-lf-v1"
+  },
+  "immutableRules": {
+    "evaluationFilesAppendOnly": true,
+    "legacyExcludedFromCurrentMetrics": true,
+    "predictionAndEvaluationSeparated": true,
+    "publicLimitsNeverDeleteAuthority": true,
+    "revisionEventsSupersedeWithoutOverwrite": true,
+    "samePredictionIdDifferentCoreFails": true,
+    "sameRunIdSameBytesIsIdempotent": true,
+    "snapshotFilesAppendOnly": true
+  },
+  "probabilityUnit": "percentage_points_0_to_100",
+  "returnUnit": "percentage_points",
+  "schemaVersion": 1,
+  "schemas": {
+    "contract": "schemas/prediction-ledger-contract.schema.json",
+    "evaluation": "schemas/prediction-evaluation.schema.json",
+    "index": "schemas/prediction-ledger-index.schema.json",
+    "publicShard": "schemas/prediction-public-shard.schema.json",
+    "snapshot": "schemas/prediction-snapshot.schema.json",
+    "weeklyReview": "schemas/prediction-weekly-review.schema.json"
+  },
+  "snapshotIdentity": [
+    "markets",
+    "dataAsOf",
+    "publicationEdition",
+    "publicationVersion",
+    "models",
+    "horizons",
+    "predictionPayloadSha256"
+  ],
+  "topQuartileTieBreak": [
+    "expected_excess_desc",
+    "sector_id_asc"
+  ]
+}
