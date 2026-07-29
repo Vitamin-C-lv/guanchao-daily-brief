@@ -1,12 +1,13 @@
-# P1-C 审计交接
+# P1-C 完成交接
 
 ## 当前定位
 
 - 仓库：`Vitamin-C-lv/guanchao-daily-brief`
 - 生产站：`https://guanchao-daily-brief.vercel.app/`
 - P1-C 精确 main 基线：`2c4dc081bb591830f78d532b32416a92f6446b40`。
-- P1-C 分支：`feature/p1c-ledger-feature-coverage-audit`；仅审计与诊断，不训练、不改模型、不写 main。
-- P1-C 审计结果：账本的本地隔离 no-op、单次 append、重复幂等、独立 evaluation、review 重建、verify 与两次公开导出字节一致均已验证。GitHub main dry-run 作为外部证据单独记录。
+- P1-C 分支：`feature/p1c-ledger-feature-coverage-audit`；PR #14 已以 squash 合并。
+- P1-C merge SHA / 当前 main：`d1b3e44cbe54f815a25f7829f793d3986402a018`。
+- P1-C 审计已完成：账本的本地隔离 no-op、单次 append、重复幂等、独立 evaluation、review 重建、verify 与两次公开导出字节一致均已验证；GitHub dry-run 也已通过。
 
 P1-B 的不可变账本边界保持不变。P1-C 没有修改账本 Schema、snapshot/evaluation 身份规则、模型、dataset 或页面。
 
@@ -30,7 +31,7 @@ P1-B 以 GitHub 跟踪的不可变 snapshot/evaluation gzip 事件为权威，�
 
 `modelInputCompleteness=100%` 是冻结 26 输入向量的完整性；`productionFeatureCoverage=50%` 是五个生产级差异特征组中仅量价相对强弱（25%）和成交额/量（25%）已实现的加权状态。缺失组为 market breadth（20%）、ETF/institution flow（20%）、policy/event mapping（10%）。概率校准、1 日扣费后 spread、当前 published probability 样本等既有门禁仍未通过，未被放宽。
 
-下一阶段仅建议命名为：**P1-D：A股生产特征补全**。候选顺序：market breadth、policy/event mapping、ETF/institution flow（后者尚不推荐）。P1-C 不实施任何候选。
+下一阶段冻结为：**P1-D：A股特征覆盖契约v2与市场广度v1**。范围仅限覆盖契约的显式拆分、生产模型 lineage sidecar、A 股 market breadth 生产观察和每日诊断链路；不得训练、不改模型/概率/门槛/账本/UI。候选顺序仍为 market breadth、policy/event mapping、ETF/institution flow（后两者不在 P1-D）。
 
 审计限制：最新 2026-07-24 内容只保留覆盖摘要，未跟踪逐特征生产缓存；生产模型 JSON 未嵌入 datasetId/feature contract，因此关联由冻结仓库状态/manifest 证实而非模型自身字段。详见 `docs/audits/P1C_*.md` 和 `reports/prediction/p1c-*.json`。
 
