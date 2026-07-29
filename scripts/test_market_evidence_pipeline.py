@@ -34,6 +34,17 @@ class PipelineTests(unittest.TestCase):
         self.assertEqual(result["spread2s10sBp"],50.0); self.assertEqual(result["changesBp"]["spread2s10sBp"]["20d"],0.0)
         self.assertEqual(result["nominalSource"]["sourceId"],"us-treasury-nominal-xml")
         self.assertEqual(result["realSource"]["sourceId"],"us-treasury-real-xml")
+    def test_bp_normalization_preserves_yields_and_changes(self):
+        nominal=[{"date":f"2026-06-{day:02d}","values":{"BC_2YEAR":4.26+(day-1)*0.001,"BC_10YEAR":4.61+(day-1)*0.001,"BC_30YEAR":5.09+(day-1)*0.001}} for day in range(1,22)]
+        real=[{"date":row["date"],"values":{"TC_10YEAR":2.41}} for row in nominal]
+        treasury=sources.build_treasury({"us-treasury-nominal-xml":source("us-treasury-nominal-xml",nominal),"us-treasury-real-xml":source("us-treasury-real-xml",real)},"2026-06-21")
+        treasury["spread2s10sBp"]=35.00000000000006
+        treasury["changesBp"]["nominal2y"]={"1d":0.3333333333333,"5d":-0.6666666666667,"20d":1.234567}
+        first=packet.packet("daily","2026-06-21",treasury,[]); second=packet.packet("daily","2026-06-21",treasury,[])
+        self.assertEqual(first["treasuryFactor"]["nominal10y"],4.63)
+        self.assertEqual(first["treasuryFactor"]["spread2s10sBp"],35)
+        self.assertEqual(first["treasuryFactor"]["changesBp"]["nominal2y"],{"1d":0.33,"5d":-0.67,"20d":1.23})
+        self.assertEqual(first["writerPacketId"],second["writerPacketId"])
     def test_calendar_and_stale(self):
         self.assertFalse(sources.is_us_trading_day("2026-07-04")); self.assertFalse(sources.is_us_trading_day("2026-07-03")); self.assertEqual(sources.latest_us_trading_day("2026-07-04"),"2026-07-02")
         nominal,real=self.rows(); result=sources.build_treasury({"us-treasury-nominal-xml":source("us-treasury-nominal-xml",nominal),"us-treasury-real-xml":source("us-treasury-real-xml",real)},"2026-07-29")

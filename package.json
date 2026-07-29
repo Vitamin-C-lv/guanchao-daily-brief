@@ -19,7 +19,7 @@
     "test:prediction-python": "uv run --no-project --python 3.12 --with requests python -m unittest scripts/test_prediction_contract_python.py scripts/test_market_breadth.py",
     "test:prediction-dataset": "uv run --no-project --python 3.12 --with requests --with numpy python scripts/test_prediction_dataset.py && node --test scripts/prediction-dataset.test.mjs",
     "test:prediction-ledger": "uv run --no-project --python 3.12 --with requests python -m unittest scripts/test_prediction_ledger.py scripts/test_prediction_ledger_fixtures.py scripts/test_prediction_ledger_automation.py && node --test scripts/prediction-ledger.test.mjs",
-    "test": "node --test scripts/market-observer-domain.test.mjs scripts/prediction-contract.test.mjs scripts/prediction-dataset.test.mjs",
+    "test": "node --test scripts/market-observer-domain.test.mjs scripts/prediction-contract.test.mjs scripts/prediction-dataset.test.mjs scripts/writer-packet.test.mjs",
     "archive:market-observer": "node scripts/archive-market-observer.mjs",
     "rotation:fetch": "node scripts/run-sector-rotation.mjs fetch",
     "rotation:signals": "node scripts/run-sector-rotation.mjs signals",

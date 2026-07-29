@@ -12,6 +12,14 @@ def _json_value(value:Any)->Any:
  if isinstance(value,dict):return {key:_json_value(item) for key,item in value.items()}
  if isinstance(value,float) and value.is_integer():return int(value)
  return value
+def _bp(value:Any)->Any:
+ if value is None:return None
+ normalized=round(float(value),2)
+ return int(normalized) if normalized.is_integer() else normalized
+def _normalize_treasury_bp(treasury:dict)->dict:
+ normalized={**treasury,'spread2s10sBp':_bp(treasury.get('spread2s10sBp'))}
+ normalized['changesBp']={key:{window:_bp(value) for window,value in changes.items()} for key,changes in treasury.get('changesBp',{}).items()}
+ return normalized
 def canonical(x:Any)->bytes:return json.dumps(_json_value(x),ensure_ascii=False,sort_keys=True,separators=(',',':')).encode('utf-8')
 def digest(x:Any)->str:return hashlib.sha256(canonical(x)).hexdigest()
 def now_utc()->str:return datetime.now(UTC).isoformat(timespec='seconds')
@@ -38,6 +46,7 @@ def _fact(key,label,treasury,source_id):
  changes=treasury.get('changesBp',{}).get(key,{})
  return {'factId':f'treasury-{key}-{treasury.get("asOf")}', 'topic':'treasury','market':'US','label':label,'value':treasury.get(key),'unit':'percent' if key!='spread2s10sBp' else 'bp','change1d':changes.get('1d'),'change5d':changes.get('5d'),'change20d':changes.get('20d'),'changeUnit':'bp','asOf':treasury.get('asOf'),'releasedAt':treasury.get('releasedAt'),'status':treasury.get('status'),'sourceId':source_id,'sourceUrl':source.get('sourceUrl') if source else None}
 def packet(edition:str,requested_as_of:str,treasury:dict,sources:list[dict],breadth:dict|None=None)->dict:
+ treasury=_normalize_treasury_bp(treasury)
  facts=[_fact('nominal2y','US Treasury 2Y',treasury,'us-treasury-nominal-xml'),_fact('nominal10y','US Treasury 10Y',treasury,'us-treasury-nominal-xml'),_fact('nominal30y','US Treasury 30Y',treasury,'us-treasury-nominal-xml'),_fact('real10y','US Treasury real 10Y',treasury,'us-treasury-real-xml'),_fact('spread2s10sBp','US Treasury 2s10s spread',treasury,'us-treasury-nominal-xml')]
  required=[s for s in sources if s.get('required')]; required_ok=all(s.get('status')=='ready' for s in required)
  provider_status='ready' if all(s.get('status')=='ready' for s in sources) else 'partial'
