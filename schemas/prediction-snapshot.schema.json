@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/prediction-snapshot.schema.json",
+  "title": "Immutable prediction publication snapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "runId", "createdAt", "dataAsOf", "edition", "codeCommit", "markets", "models", "predictions", "identity", "integrity"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "runId": {"type": "string", "pattern": "^prun-[0-9]{8}-[a-f0-9]{20}$"},
+    "createdAt": {"type": "string", "format": "date-time"},
+    "dataAsOf": {"type": "string", "format": "date"},
+    "edition": {"enum": ["daily", "closing", "manual", "migration"]},
+    "codeCommit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+    "markets": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
+    "models": {"type": "array", "items": {"$ref": "#/$defs/model"}},
+    "predictions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/prediction"}},
+    "migration": {"type": "object", "additionalProperties": false, "required": ["sourceKind", "sourceSha256", "grouping", "lineage"], "properties": {
+      "sourceKind": {"type": "string"}, "sourceSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "grouping": {"type": "string"}, "lineage": {"type": "string"}
+    }},
+    "identity": {"type": "object", "additionalProperties": false, "required": ["markets", "dataAsOf", "publicationEdition", "publicationVersion", "models", "horizons", "predictionPayloadSha256"], "properties": {
+      "markets": {"type": "array", "items": {"type": "string"}}, "dataAsOf": {"type": "string", "format": "date"},
+      "publicationEdition": {"type": "string"}, "publicationVersion": {"type": "string", "format": "date-time"},
+      "models": {"type": "array", "items": {"$ref": "#/$defs/model"}}, "horizons": {"type": "array", "items": {"enum": [1, 5, 20]}},
+      "predictionPayloadSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+    }},
+    "integrity": {"$ref": "#/$defs/integrity"}
+  },
+  "$defs": {
+    "model": {
+      "type": "object", "additionalProperties": false,
+      "required": ["market", "modelVersion", "artifactSha256", "availability"],
+      "properties": {
+        "market": {"type": "string"}, "modelVersion": {"type": "string"},
+        "artifactSha256": {"type": ["string", "null"], "pattern": "^[a-f0-9]{64}$"},
+        "availability": {"enum": ["trained", "not_trained", "not_implemented"]}
+      }
+    },
+    "prediction": {
+      "type": "object", "additionalProperties": false,
+      "required": ["predictionId", "predictionDate", "market", "sectorId", "sectorName", "horizonSessions", "dueDate", "modelVersion", "modelAvailability", "publicationStatus", "outputMode", "calibrationStatus", "probabilitySource", "probabilityTarget", "rawScore", "rawProbability", "calibratedProbability", "absoluteUpProbability", "outperformanceProbability", "topQuartileProbability", "expectedExcessReturn", "historicalBaseRate", "effectiveEdge", "observationScore", "abstainReasons", "dataAsOf", "createdAt", "modelInputCompleteness", "productionFeatureCoverage", "claim", "evidence", "counterEvidence", "trigger", "invalidation", "sourceUrls", "legacy", "benchmark", "universe"],
+      "properties": {
+        "predictionId": {"type": "string", "minLength": 8}, "predictionDate": {"type": "string", "format": "date"},
+        "market": {"type": "string"}, "sectorId": {"type": "string"}, "sectorName": {"type": "string"},
+        "horizonSessions": {"enum": [1, 5, 20]}, "dueDate": {"type": ["string", "null"], "format": "date"},
+        "modelVersion": {"type": "string"}, "modelAvailability": {"enum": ["trained", "not_trained", "not_implemented"]},
+        "publicationStatus": {"enum": ["published", "abstained", "insufficient_data", "not_applicable"]},
+        "outputMode": {"type": "string"}, "calibrationStatus": {"type": "string"},
+        "probabilitySource": {"enum": ["raw_model", "calibrated_model", "historical_base_rate", "legacy_unknown", "none"]},
+        "probabilityTarget": {"enum": ["absolute_up", "relative_outperformance", "top_quartile", "none"]},
+        "rawScore": {"type": ["number", "null"]}, "rawProbability": {"$ref": "#/$defs/probability"},
+        "calibratedProbability": {"$ref": "#/$defs/probability"}, "absoluteUpProbability": {"$ref": "#/$defs/probability"},
+        "outperformanceProbability": {"$ref": "#/$defs/probability"}, "topQuartileProbability": {"$ref": "#/$defs/probability"},
+        "expectedExcessReturn": {"type": ["number", "null"]}, "historicalBaseRate": {"$ref": "#/$defs/probability"},
+        "effectiveEdge": {"type": ["number", "null"]}, "observationScore": {"type": ["number", "null"]},
+        "abstainReasons": {"type": "array", "items": {"type": "string"}}, "dataAsOf": {"type": "string", "format": "date"},
+        "createdAt": {"type": "string", "format": "date-time"}, "modelInputCompleteness": {"type": ["number", "null"]},
+        "productionFeatureCoverage": {"type": ["number", "null"]}, "claim": {"type": "string"},
+        "evidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}}, "counterEvidence": {"type": "array", "items": {"$ref": "#/$defs/evidence"}},
+        "trigger": {"type": "string"}, "invalidation": {"type": "string"},
+        "sourceUrls": {"type": "array", "items": {"type": "string", "format": "uri"}}, "legacy": {"type": "boolean"},
+        "benchmark": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/benchmark"}]}, "universe": {"$ref": "#/$defs/universe"}
+      }
+    },
+    "evidence": {"type": "object", "additionalProperties": false, "required": ["label", "observation", "sourceIndexes"], "properties": {
+      "label": {"type": "string"}, "observation": {"type": "string"}, "sourceIndexes": {"type": "array", "items": {"type": "integer", "minimum": 0}}
+    }},
+    "benchmark": {"type": "object", "additionalProperties": false, "required": ["code", "name", "contractVersion"], "properties": {
+      "code": {"type": "string"}, "name": {"type": "string"}, "contractVersion": {"type": "string"}
+    }},
+    "universe": {"type": "object", "additionalProperties": false, "required": ["id", "sectorIds", "topQuartileFraction", "tieBreak"], "properties": {
+      "id": {"type": "string"}, "sectorIds": {"type": "array", "items": {"type": "string"}},
+      "topQuartileFraction": {"type": ["number", "null"], "minimum": 0, "maximum": 1}, "tieBreak": {"type": "array", "items": {"type": "string"}}
+    }},
+    "probability": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+    "integrity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["contractVersion", "hashMode", "payloadSha256", "compressedSha256"],
+      "properties": {
+        "contractVersion": {"const": "prediction-ledger-v1"}, "hashMode": {"$ref": "#/$defs/hashMode"},
+        "payloadSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "compressedSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    },
+    "hashMode": {"type": "object", "additionalProperties": false, "required": ["text", "binary", "gzip", "selfHashExclusion"], "properties": {
+      "text": {"const": "utf8-canonical-lf-v1"}, "binary": {"const": "raw-bytes-v1"}, "gzip": {"const": "deterministic-gzip-v1"}, "selfHashExclusion": {"const": "integrity-digests-zeroed-v1"}
+    }}
+  }
+}

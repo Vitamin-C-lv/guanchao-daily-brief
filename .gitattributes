@@ -2,6 +2,10 @@ models/sector-rotation/datasets/**/*.json text eol=lf
 schemas/prediction-dataset.schema.json text eol=lf
 scripts/**/*.py text eol=lf
 scripts/**/*.mjs text eol=lf
+data/prediction-ledger/**/*.json text eol=lf
+data/prediction-ledger/**/*.json.gz binary
+public/data/prediction-history/**/*.json text eol=lf
+schemas/prediction-*.schema.json text eol=lf
 *.md text eol=lf
 models/sector-rotation/datasets/**/*.gz binary
 # The frozen production artifact has a recorded worktree byte hash; retain its

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/prediction-ledger-contract.schema.json",
+  "title": "Prediction ledger contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "contractVersion", "authority", "hashModes", "snapshotIdentity", "immutableRules", "probabilityUnit", "returnUnit", "benchmark", "topQuartileTieBreak", "schemas"],
+  "properties": {
+    "schemaVersion": {"const": 1}, "contractVersion": {"const": "prediction-ledger-v1"},
+    "authority": {"const": "Git repository immutable event files"},
+    "hashModes": {
+      "type": "object", "additionalProperties": false,
+      "required": ["text", "binary", "gzip", "selfHashExclusion", "manifestFileSha256"],
+      "properties": {
+        "text": {"const": "utf8-canonical-lf-v1"}, "binary": {"const": "raw-bytes-v1"},
+        "gzip": {"const": "deterministic-gzip-v1"}, "selfHashExclusion": {"type": "string", "minLength": 20},
+        "manifestFileSha256": {"const": "raw compressed artifact bytes"}
+      }
+    },
+    "snapshotIdentity": {"type": "array", "minItems": 7, "uniqueItems": true, "items": {"type": "string"}},
+    "immutableRules": {"type": "object", "minProperties": 8, "additionalProperties": {"const": true}},
+    "probabilityUnit": {"const": "percentage_points_0_to_100"}, "returnUnit": {"const": "percentage_points"},
+    "benchmark": {"type": "object", "additionalProperties": false, "required": ["aShare"], "properties": {
+      "aShare": {"type": "object", "additionalProperties": false, "required": ["code", "name", "contractVersion"], "properties": {
+        "code": {"const": "000985"}, "name": {"const": "中证全指"}, "contractVersion": {"const": "a-share-benchmark-csi-all-share-v1"}
+      }}
+    }},
+    "topQuartileTieBreak": {"const": ["expected_excess_desc", "sector_id_asc"]},
+    "schemas": {"type": "object", "additionalProperties": false, "required": ["contract", "index", "snapshot", "evaluation", "weeklyReview", "publicShard"], "properties": {
+      "contract": {"const": "schemas/prediction-ledger-contract.schema.json"},
+      "index": {"type": "string"}, "snapshot": {"type": "string"}, "evaluation": {"type": "string"},
+      "weeklyReview": {"type": "string"}, "publicShard": {"type": "string"}
+    }}
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/prediction-evaluation.schema.json",
+  "title": "Immutable prediction evaluation event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "evaluationEventId", "eventType", "predictionId", "evaluatedAt", "evaluationDataAsOf", "horizonSessions", "realizedAbsoluteReturn", "realizedBenchmarkReturn", "realizedExcessReturn", "realizedSectorRank", "realizedSectorCount", "realizedTopQuartile", "targetOutcome", "result", "sourceHashes", "codeCommit", "supersedesEventId", "reason", "identity", "integrity"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "evaluationEventId": {"type": "string", "pattern": "^peval-[0-9]{8}-[a-f0-9]{20}$"},
+    "eventType": {"enum": ["evaluation", "revision"]},
+    "predictionId": {"type": "string", "minLength": 8},
+    "evaluatedAt": {"type": "string", "format": "date-time"},
+    "evaluationDataAsOf": {"type": "string", "format": "date"},
+    "horizonSessions": {"enum": [1, 5, 20]},
+    "realizedAbsoluteReturn": {"type": ["number", "null"]},
+    "realizedBenchmarkReturn": {"type": ["number", "null"]},
+    "realizedExcessReturn": {"type": ["number", "null"]},
+    "realizedSectorRank": {"type": ["integer", "null"], "minimum": 1},
+    "realizedSectorCount": {"type": ["integer", "null"], "minimum": 1},
+    "realizedTopQuartile": {"type": ["boolean", "null"]},
+    "targetOutcome": {"type": ["boolean", "null"]},
+    "result": {"enum": ["correct", "wrong", "near_neutral", "data_insufficient", "model_abstained", "not_applicable"]},
+    "sourceHashes": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string", "pattern": "^[a-f0-9]{64}$"}},
+    "codeCommit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
+    "supersedesEventId": {"type": ["string", "null"]},
+    "reason": {"type": ["string", "null"]},
+    "identity": {"type": "object", "additionalProperties": false, "required": ["predictionId", "evaluationDataAsOf", "horizonSessions", "eventType", "result", "sourceHashes", "supersedesEventId"], "properties": {
+      "predictionId": {"type": "string"}, "evaluationDataAsOf": {"type": "string", "format": "date"}, "horizonSessions": {"enum": [1, 5, 20]},
+      "eventType": {"enum": ["evaluation", "revision"]}, "result": {"type": "string"},
+      "sourceHashes": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}, "supersedesEventId": {"type": ["string", "null"]}
+    }},
+    "integrity": {"$ref": "#/$defs/integrity"}
+  },
+  "$defs": {
+    "integrity": {
+      "type": "object", "additionalProperties": false,
+      "required": ["contractVersion", "hashMode", "payloadSha256", "compressedSha256"],
+      "properties": {
+        "contractVersion": {"const": "prediction-ledger-v1"}, "hashMode": {"type": "object", "additionalProperties": false, "required": ["text", "binary", "gzip", "selfHashExclusion"], "properties": {
+          "text": {"const": "utf8-canonical-lf-v1"}, "binary": {"const": "raw-bytes-v1"}, "gzip": {"const": "deterministic-gzip-v1"}, "selfHashExclusion": {"const": "integrity-digests-zeroed-v1"}
+        }},
+        "payloadSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "compressedSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      }
+    }
+  }
+}
