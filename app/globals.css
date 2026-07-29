@@ -210,10 +210,16 @@ button {
   backdrop-filter: blur(22px);
 }
 
-.title-lockup strong {
-  display: block;
-  font-size: 17px;
-  letter-spacing: -0.02em;
+.desktop-brand {
+  display: flex;
+  width: 180px;
+  align-items: center;
+}
+
+.desktop-brand img {
+  width: 180px;
+  height: auto;
+  object-fit: contain;
 }
 
 .route-title {
@@ -4345,12 +4351,8 @@ footer p {
     margin-left: 70px;
   }
 
-  .title-lockup {
-    display: none;
-  }
-
   .topbar {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 180px minmax(0, 1fr) auto;
   }
 
   .search-box {
@@ -4451,7 +4453,18 @@ footer p {
     display: flex;
     align-items: center;
     min-height: 38px;
+    gap: 5px;
     padding-right: 4px;
+  }
+
+  .desktop-brand {
+    display: none;
+  }
+
+  .mobile-brand img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
   }
 
   .mobile-brand b {

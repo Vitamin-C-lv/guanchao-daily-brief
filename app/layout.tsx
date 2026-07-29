@@ -7,7 +7,6 @@ export const metadata: Metadata = {
   title: "观潮 · 每日早报与每周情报",
   description: "每日与每周 AI 精选的美联储政策、A 股、港股、美股与财经热点。",
   manifest: "/manifest.webmanifest",
-  icons: [{ rel: "icon", url: "/favicon.svg", type: "image/svg+xml" }],
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
