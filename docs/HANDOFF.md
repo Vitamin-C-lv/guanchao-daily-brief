@@ -1,4 +1,4 @@
-# P1-D 交接
+# P1-E 交接
 
 ## 当前定位
 
@@ -8,6 +8,7 @@
 - P1-C 分支：`feature/p1c-ledger-feature-coverage-audit`；PR #14 已以 squash 合并。
 - P1-C merge SHA：`d1b3e44cbe54f815a25f7829f793d3986402a018`。
 - P1-C 交接 PR #15 merge SHA / P1-D main 基线：`2ac399be0b12f74f8e83f4c59184dde706430dc3`。
+- P1-D PR #16 已以 squash 合并；P1-D merge SHA：`ee00cf1220f7e906c80b9038edfd113bfa861f4a`。
 - P1-C 审计已完成：账本的本地隔离 no-op、单次 append、重复幂等、独立 evaluation、review 重建、verify 与两次公开导出字节一致均已验证；GitHub dry-run 也已通过。
 
 P1-B 的不可变账本边界保持不变。P1-C 没有修改账本 Schema、snapshot/evaluation 身份规则、模型、dataset 或页面。
@@ -32,14 +33,18 @@ P1-B 以 GitHub 跟踪的不可变 snapshot/evaluation gzip 事件为权威，�
 
 `modelInputCompleteness=100%` 是冻结 26 输入向量的完整性；`productionFeatureCoverage=50%` 是五个生产级差异特征组中仅量价相对强弱（25%）和成交额/量（25%）已实现的加权状态。缺失组为 market breadth（20%）、ETF/institution flow（20%）、policy/event mapping（10%）。概率校准、1 日扣费后 spread、当前 published probability 样本等既有门禁仍未通过，未被放宽。
 
-## P1-D：A股特征覆盖契约v2与市场广度v1
+## P1-D：A股特征覆盖契约v2与市场广度v1（已合并）
 
-- P1-D 分支：`feature/p1d-a-share-market-breadth`；实现与点时测试 HEAD：`a898629e5dbe2b0850431ec57bbe4562e0c70da9`；本地 Windows 工作树：`D:\周报个人网站-p1d-a-share-market-breadth`。
+- P1-D 分支：`feature/p1d-a-share-market-breadth`；合并前 HEAD：`5cb0f2814cb0b5a0d0fc6bc16e257f4d61019b4a`；本地 Windows 工作树：`D:\周报个人网站-p1d-a-share-market-breadth`。
 - coverage contract：`prediction-feature-coverage-v2`。`modelInputCompleteness=26/26=1.00`；`modelFeatureCoverage=0.50`，兼容字段 `productionFeatureCoverage` 明确标记为其 deprecated alias；`productionSignalCoverage=0.50`、`trainingReadyCoverage=0.50`、`providerHealthCoverage=0.50`，直到真实 breadth 运行质量改变该运行态值。
 - 生产模型 lineage sidecar：`models/sector-rotation/a-share-relative-probability-v2.lineage.json`，绑定模型 SHA、datasetId、manifest SHA 和 feature/label/benchmark 契约；不修改模型字节。
 - marketBreadth v1：成员关系使用 CSI 官方成分文件，行情使用现有腾讯公开日 K 路径。只允许当日 15:05（上海）以后为当日写不可变 snapshot；禁止用当前成员关系回填历史，未形成点时历史前 `trainingReady=false`。
 - 当前真实生产采集状态：CSI 成分关系接口在 2026-07-29 收盘后连续两轮返回 403；没有写入任何 breadth snapshot，也没有以第三方名单、旧名单或零值降级。市场广度为 `unavailable`，`productionReady=false`、`trainingReady=false`；冻结量价模型与 0.50 发布门槛保持不变。
-- 剩余缺失组：marketBreadth 需先恢复官方成员关系可用性；policy/event mapping 与 ETF/institution flow 未开始。下阶段仅在负责人冻结后处理相应 provider 可用性或新组，不训练模型。
+- 剩余缺失组：marketBreadth 需先恢复官方成员关系可用性；policy/event mapping 与 ETF/institution flow 未开始。
+
+## P1-E：确定性市场数据采集管线v1与美债核心因子组
+
+P1-E 从 P1-D 合并后的 main 开始。它固定数据采集、不可变运行快照、writer packet 和 Luna 写作边界；美债因子只作为证据观察，不进入冻结模型、概率或发布门槛。marketBreadth 只可评估一个严格限定的、精确 CSI 指数代码的补充来源；不得历史回填或改变 taxonomy。
 
 审计限制：最新 2026-07-24 内容只保留覆盖摘要，未跟踪逐特征生产缓存；生产模型 JSON 未嵌入 datasetId/feature contract，因此关联由冻结仓库状态/manifest 证实而非模型自身字段。详见 `docs/audits/P1C_*.md` 和 `reports/prediction/p1c-*.json`。
 
