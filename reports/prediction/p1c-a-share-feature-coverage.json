@@ -1,0 +1,1733 @@
+{
+  "baseline": "2c4dc081bb591830f78d532b32416a92f6446b40",
+  "blockers": [
+    "No committed 2026-07-24 per-feature production cache exists; only summary diagnostics are auditable for that latest content date.",
+    "The frozen production model JSON does not embed datasetId or featureContractVersion, so the frozen dataset association is confirmed by repository baseline/manifest but not cryptographically self-described by the model artifact.",
+    "No provider may be selected or implemented until P1-D is explicitly authorized."
+  ],
+  "coverageDenominator": 1.0,
+  "coverageDisplay": "50% (0.50 / 1.00 weighted production-feature groups; equivalently two implemented 25% groups of five groups)",
+  "coverageNumerator": 0.5,
+  "currentExactCoverage": 0.5,
+  "features": [
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.04085788992457805,
+        "max": 0.07065795622499578,
+        "min": 0.025503604278097006
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "momentum5",
+      "featureName": "5个交易日价格动量",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "point-in-time feature",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "momentum5",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.0825092441301316,
+        "max": 0.1294384159948697,
+        "min": 0.0661357857626411
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "momentum20",
+      "featureName": "20个交易日价格动量",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "point-in-time feature",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "momentum20",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.11192005794565325,
+        "max": 0.2870380976598194,
+        "min": 0.10446736889788856
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "momentum60",
+      "featureName": "60个交易日价格动量",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "point-in-time feature",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "momentum60",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.03427796268388308,
+        "max": 0.03427796268388308,
+        "min": 0.009452125316214127
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "reversal1",
+      "featureName": "前一交易日收益率的反向值",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "point-in-time feature",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "reversal1",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.009768648895609555,
+        "max": 0.009768648895609555,
+        "min": 0.006600778008543809
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "volatility20",
+      "featureName": "20个交易日日收益波动率",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "point-in-time feature",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "volatility20",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.06838543710064009,
+        "max": 0.08512616101737325,
+        "min": 0.038758564572874826
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "drawdown60",
+      "featureName": "相对60日最高收盘的回撤",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "point-in-time feature",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "drawdown60",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.2766730286671472,
+        "max": 0.2766730286671472,
+        "min": 0.16191945260145657
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "amountRatio5v20",
+      "featureName": "近5日平均成交额/此前20日平均成交额的对数",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "point-in-time feature",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "amountRatio5v20",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.1982801449163868,
+        "max": 0.22301090990537323,
+        "min": 0.15449335212130974
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "volumeRatio5v20",
+      "featureName": "近5日平均成交量/此前20日平均成交量的对数",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "point-in-time feature",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "volumeRatio5v20",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.008229621681577115,
+        "max": 0.016762473241534,
+        "min": 0.0046393080259032665
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "priceVolumeAcceleration",
+      "featureName": "5日动量与成交额相对放量的交互项",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "point-in-time feature",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "priceVolumeAcceleration",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.9999999999999959,
+        "max": 1.0000000000000289,
+        "min": 0.9999999999999747
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "cs_momentum5",
+      "featureName": "当日行业横截面标准化：5个交易日价格动量",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "cross-sectional z-score",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "cs_momentum5",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.9999999999999782,
+        "max": 1.000000000000017,
+        "min": 0.9999999999999757
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "cs_momentum20",
+      "featureName": "当日行业横截面标准化：20个交易日价格动量",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "cross-sectional z-score",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "cs_momentum20",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 1.0000000000000029,
+        "max": 1.0000000000000187,
+        "min": 0.9999999999999889
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "cs_momentum60",
+      "featureName": "当日行业横截面标准化：60个交易日价格动量",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "cross-sectional z-score",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "cs_momentum60",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.9999999999999962,
+        "max": 1.0000000000000155,
+        "min": 0.9999999999999832
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "cs_reversal1",
+      "featureName": "当日行业横截面标准化：前一交易日收益率的反向值",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "cross-sectional z-score",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "cs_reversal1",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 1.0000000000000153,
+        "max": 1.0000000000000253,
+        "min": 0.9999999999999766
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "cs_volatility20",
+      "featureName": "当日行业横截面标准化：20个交易日日收益波动率",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "cross-sectional z-score",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "cs_volatility20",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.999999999999989,
+        "max": 1.000000000000022,
+        "min": 0.9999999999999702
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "cs_drawdown60",
+      "featureName": "当日行业横截面标准化：相对60日最高收盘的回撤",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "cross-sectional z-score",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "cs_drawdown60",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 1.0000000000000107,
+        "max": 1.0000000000000107,
+        "min": 0.9999999999999832
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "cs_amountRatio5v20",
+      "featureName": "当日行业横截面标准化：近5日平均成交额/此前20日平均成交额的对数",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "cross-sectional z-score",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "cs_amountRatio5v20",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.9999999999999823,
+        "max": 1.000000000000015,
+        "min": 0.9999999999999823
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "cs_volumeRatio5v20",
+      "featureName": "当日行业横截面标准化：近5日平均成交量/此前20日平均成交量的对数",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "cross-sectional z-score",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "cs_volumeRatio5v20",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 1.000000000000007,
+        "max": 1.0000000000000309,
+        "min": 0.9999999999999785
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "cs_priceVolumeAcceleration",
+      "featureName": "当日行业横截面标准化：5日动量与成交额相对放量的交互项",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "cross-sectional z-score",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "cs_priceVolumeAcceleration",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.606085404593748,
+        "max": 1.7485290022855533,
+        "min": 0.4424013271091362
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "nl_momentum_acceleration",
+      "featureName": "5日相对动量减20日相对动量，刻画短期趋势加速度",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "derived interaction",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "nl_momentum_acceleration",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 1.2968785222870756,
+        "max": 1.3344314549648477,
+        "min": 0.2865608855224794
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "nl_medium_trend_acceleration",
+      "featureName": "20日相对动量减60日相对动量，刻画中期趋势变化",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "derived interaction",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "nl_medium_trend_acceleration",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.7471481501295228,
+        "max": 1.1908968434785518,
+        "min": 0.6027469918744136
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "nl_momentum5_x_amount",
+      "featureName": "5日相对动量与成交额活跃度的交互项",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "derived interaction",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "nl_momentum5_x_amount",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 1.0396669896350976,
+        "max": 1.6007336905925023,
+        "min": 0.6284759636987407
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "nl_momentum20_x_volume",
+      "featureName": "20日相对动量与真实成交量活跃度的交互项",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "derived interaction",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "nl_momentum20_x_volume",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.992879692440792,
+        "max": 1.493863298123987,
+        "min": 0.5453925063071722
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "nl_trend_x_drawdown",
+      "featureName": "20日相对动量与60日回撤的交互项",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "derived interaction",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "nl_trend_x_drawdown",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 1.2051648042872813,
+        "max": 1.2342769320236928,
+        "min": 0.5771241951452977
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "nl_reversal_x_volatility",
+      "featureName": "单日反转与20日波动率的交互项",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "derived interaction",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "nl_reversal_x_volatility",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 0.9813159134004705,
+        "max": 1.6885684805330279,
+        "min": 0.7702645168253761
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "nl_momentum5_squared",
+      "featureName": "5日相对动量平方项，用于检测非线性极端状态",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "derived interaction",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "nl_momentum5_squared",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_rotation.py build_features",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "a-share-price-volume-v2",
+      "crossSectionStd": {
+        "latest": 1.270774711911061,
+        "max": 1.4345944655291614,
+        "min": 0.8267203755955659
+      },
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "nl_drawdown_squared",
+      "featureName": "60日回撤平方项，用于检测非线性压力状态",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-21",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": true,
+      "normalizer": "derived interaction",
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "nl_drawdown_squared",
+      "proxy": false,
+      "recommendedAction": "retain; frozen model input",
+      "sourceProvider": "CSI Index (direct history in immutable dataset)",
+      "sourceType": "official_index_market_data",
+      "stale": false,
+      "trainingAvailable": true,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_probability.py:data_diagnostics",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "production-feature-groups-v1 (diagnostic-only)",
+      "crossSectionStd": null,
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "priceRelativeStrength",
+      "featureName": "priceRelativeStrength",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-24",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": false,
+      "normalizer": null,
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "priceRelativeStrength",
+      "proxy": false,
+      "recommendedAction": "retain",
+      "sourceProvider": "CSI sector-index close",
+      "sourceType": "production_feature_group",
+      "stale": false,
+      "trainingAvailable": false,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_probability.py:data_diagnostics",
+      "affectedDates": [],
+      "affectedSectors": [],
+      "contractVersion": "production-feature-groups-v1 (diagnostic-only)",
+      "crossSectionStd": null,
+      "expectedCoverageUplift": 0.0,
+      "failureReason": null,
+      "featureId": "turnoverAndVolume",
+      "featureName": "turnoverAndVolume",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-24",
+      "market": "a-share",
+      "missingRate": 0.0,
+      "modelRequired": false,
+      "normalizer": null,
+      "officialSource": "https://www.csindex.com.cn/csindex-home/perf/index-perf",
+      "productionApproved": true,
+      "productionAvailable": true,
+      "productionField": "turnoverAndVolume",
+      "proxy": false,
+      "recommendedAction": "retain",
+      "sourceProvider": "CSI sector-index trading value and volume",
+      "sourceType": "production_feature_group",
+      "stale": false,
+      "trainingAvailable": false,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_probability.py:data_diagnostics",
+      "affectedDates": [
+        "2026-07-24"
+      ],
+      "affectedSectors": [
+        "000986",
+        "000987",
+        "000988",
+        "000989",
+        "000990",
+        "000991",
+        "000992",
+        "000993",
+        "000994",
+        "000995",
+        "399967",
+        "399970"
+      ],
+      "contractVersion": "production-feature-groups-v1 (diagnostic-only)",
+      "crossSectionStd": null,
+      "expectedCoverageUplift": 0.2,
+      "failureReason": "provider_not_implemented",
+      "featureId": "marketBreadth",
+      "featureName": "marketBreadth",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-24",
+      "market": "a-share",
+      "missingRate": 1.0,
+      "modelRequired": false,
+      "normalizer": null,
+      "officialSource": null,
+      "productionApproved": false,
+      "productionAvailable": false,
+      "productionField": "marketBreadth",
+      "proxy": false,
+      "recommendedAction": "implement cross-sectional constituent breadth from an existing reliable public source",
+      "sourceProvider": null,
+      "sourceType": "production_feature_group",
+      "stale": false,
+      "trainingAvailable": false,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_probability.py:data_diagnostics",
+      "affectedDates": [
+        "2026-07-24"
+      ],
+      "affectedSectors": [
+        "000986",
+        "000987",
+        "000988",
+        "000989",
+        "000990",
+        "000991",
+        "000992",
+        "000993",
+        "000994",
+        "000995",
+        "399967",
+        "399970"
+      ],
+      "contractVersion": "production-feature-groups-v1 (diagnostic-only)",
+      "crossSectionStd": null,
+      "expectedCoverageUplift": 0.2,
+      "failureReason": "provider_not_implemented",
+      "featureId": "etfAndInstitutionFlow",
+      "featureName": "etfAndInstitutionFlow",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-24",
+      "market": "a-share",
+      "missingRate": 1.0,
+      "modelRequired": false,
+      "normalizer": null,
+      "officialSource": null,
+      "productionApproved": false,
+      "productionAvailable": false,
+      "productionField": "etfAndInstitutionFlow",
+      "proxy": false,
+      "recommendedAction": "defer; it combines two unimplemented data classes and is not a one-feature low-risk change",
+      "sourceProvider": null,
+      "sourceType": "production_feature_group",
+      "stale": false,
+      "trainingAvailable": false,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_probability.py:data_diagnostics",
+      "affectedDates": [
+        "2026-07-24"
+      ],
+      "affectedSectors": [
+        "000986",
+        "000987",
+        "000988",
+        "000989",
+        "000990",
+        "000991",
+        "000992",
+        "000993",
+        "000994",
+        "000995",
+        "399967",
+        "399970"
+      ],
+      "contractVersion": "production-feature-groups-v1 (diagnostic-only)",
+      "crossSectionStd": null,
+      "expectedCoverageUplift": 0.1,
+      "failureReason": "adapter_not_wired",
+      "featureId": "policyAndEventMapping",
+      "featureName": "policyAndEventMapping",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-24",
+      "market": "a-share",
+      "missingRate": 1.0,
+      "modelRequired": false,
+      "normalizer": null,
+      "officialSource": null,
+      "productionApproved": false,
+      "productionAvailable": false,
+      "productionField": "policyAndEventMapping",
+      "proxy": false,
+      "recommendedAction": "define deterministic sector mapping and production approval before model use",
+      "sourceProvider": "existing evidence/event inputs",
+      "sourceType": "production_feature_group",
+      "stale": false,
+      "trainingAvailable": false,
+      "zeroVariance": false
+    }
+  ],
+  "hardcoding": {
+    "availabilitySetStatic": true,
+    "coverageValueHardcoded": false,
+    "impact": "50% follows 0.25 + 0.25; it is not a runtime provider-coverage calculation",
+    "location": "scripts/sector_probability.py:data_diagnostics available_groups"
+  },
+  "latestProductionPredictionDate": "2026-07-24",
+  "missingFeatures": [
+    {
+      "adapter": "scripts/sector_probability.py:data_diagnostics",
+      "affectedDates": [
+        "2026-07-24"
+      ],
+      "affectedSectors": [
+        "000986",
+        "000987",
+        "000988",
+        "000989",
+        "000990",
+        "000991",
+        "000992",
+        "000993",
+        "000994",
+        "000995",
+        "399967",
+        "399970"
+      ],
+      "contractVersion": "production-feature-groups-v1 (diagnostic-only)",
+      "crossSectionStd": null,
+      "expectedCoverageUplift": 0.2,
+      "failureReason": "provider_not_implemented",
+      "featureId": "marketBreadth",
+      "featureName": "marketBreadth",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-24",
+      "market": "a-share",
+      "missingRate": 1.0,
+      "modelRequired": false,
+      "normalizer": null,
+      "officialSource": null,
+      "productionApproved": false,
+      "productionAvailable": false,
+      "productionField": "marketBreadth",
+      "proxy": false,
+      "recommendedAction": "implement cross-sectional constituent breadth from an existing reliable public source",
+      "sourceProvider": null,
+      "sourceType": "production_feature_group",
+      "stale": false,
+      "trainingAvailable": false,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_probability.py:data_diagnostics",
+      "affectedDates": [
+        "2026-07-24"
+      ],
+      "affectedSectors": [
+        "000986",
+        "000987",
+        "000988",
+        "000989",
+        "000990",
+        "000991",
+        "000992",
+        "000993",
+        "000994",
+        "000995",
+        "399967",
+        "399970"
+      ],
+      "contractVersion": "production-feature-groups-v1 (diagnostic-only)",
+      "crossSectionStd": null,
+      "expectedCoverageUplift": 0.2,
+      "failureReason": "provider_not_implemented",
+      "featureId": "etfAndInstitutionFlow",
+      "featureName": "etfAndInstitutionFlow",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-24",
+      "market": "a-share",
+      "missingRate": 1.0,
+      "modelRequired": false,
+      "normalizer": null,
+      "officialSource": null,
+      "productionApproved": false,
+      "productionAvailable": false,
+      "productionField": "etfAndInstitutionFlow",
+      "proxy": false,
+      "recommendedAction": "defer; it combines two unimplemented data classes and is not a one-feature low-risk change",
+      "sourceProvider": null,
+      "sourceType": "production_feature_group",
+      "stale": false,
+      "trainingAvailable": false,
+      "zeroVariance": false
+    },
+    {
+      "adapter": "scripts/sector_probability.py:data_diagnostics",
+      "affectedDates": [
+        "2026-07-24"
+      ],
+      "affectedSectors": [
+        "000986",
+        "000987",
+        "000988",
+        "000989",
+        "000990",
+        "000991",
+        "000992",
+        "000993",
+        "000994",
+        "000995",
+        "399967",
+        "399970"
+      ],
+      "contractVersion": "production-feature-groups-v1 (diagnostic-only)",
+      "crossSectionStd": null,
+      "expectedCoverageUplift": 0.1,
+      "failureReason": "adapter_not_wired",
+      "featureId": "policyAndEventMapping",
+      "featureName": "policyAndEventMapping",
+      "horizons": [
+        1,
+        5,
+        20
+      ],
+      "latestAsOf": "2026-07-24",
+      "market": "a-share",
+      "missingRate": 1.0,
+      "modelRequired": false,
+      "normalizer": null,
+      "officialSource": null,
+      "productionApproved": false,
+      "productionAvailable": false,
+      "productionField": "policyAndEventMapping",
+      "proxy": false,
+      "recommendedAction": "define deterministic sector mapping and production approval before model use",
+      "sourceProvider": "existing evidence/event inputs",
+      "sourceType": "production_feature_group",
+      "stale": false,
+      "trainingAvailable": false,
+      "zeroVariance": false
+    }
+  ],
+  "modelFeatureCount": 26,
+  "modelInputCompleteness": 1.0,
+  "nextStageCandidates": [
+    {
+      "dataQualityRisk": "medium",
+      "estimatedCoverageAfter": 0.7,
+      "estimatedCoverageBefore": 0.5,
+      "featureId": "marketBreadth",
+      "historicalDepth": "must prove >=2 years before use",
+      "implementationFiles": [
+        "scripts/sector_rotation.py",
+        "scripts/sector_probability.py",
+        "scripts/prediction_dataset.py"
+      ],
+      "maintenanceRisk": "medium",
+      "reason": "largest single focused missing group with real sector cross-section",
+      "recommendedForNextStage": true,
+      "source": "existing reliable public constituent/market data path subject to P1-D source approval",
+      "updateFrequency": "trading day"
+    },
+    {
+      "dataQualityRisk": "high",
+      "estimatedCoverageAfter": 0.6,
+      "estimatedCoverageBefore": 0.5,
+      "featureId": "policyAndEventMapping",
+      "historicalDepth": "must prove point-in-time history",
+      "implementationFiles": [
+        "scripts/sector_rotation.py",
+        "scripts/sector_probability.py"
+      ],
+      "maintenanceRisk": "medium",
+      "reason": "uses existing evidence/event inputs and has the lowest provider expansion pressure",
+      "recommendedForNextStage": true,
+      "source": "existing evidence/event inputs plus deterministic A-core12 mapping",
+      "updateFrequency": "trading day/event driven"
+    },
+    {
+      "dataQualityRisk": "high",
+      "estimatedCoverageAfter": 0.7,
+      "estimatedCoverageBefore": 0.5,
+      "featureId": "etfAndInstitutionFlow",
+      "historicalDepth": "unverified",
+      "implementationFiles": [
+        "scripts/sector_rotation.py",
+        "scripts/prediction_dataset.py"
+      ],
+      "maintenanceRisk": "high",
+      "reason": "large 20% potential but combines two domains; only begin after a narrow P1-D design decision",
+      "recommendedForNextStage": false,
+      "source": "not selected in P1-C",
+      "updateFrequency": "trading day"
+    }
+  ],
+  "nullHandling": {
+    "evidence": "feature_value rejects missing/non-finite input; dataset construction rejects missing required columns and values; diagnostic contract states missingIsNeverZero=true",
+    "silentZeroDetected": false
+  },
+  "providerFailures": [],
+  "proxyFeatures": [],
+  "recentEffectiveTradingSessions": {
+    "count": 20,
+    "end": "2026-07-21",
+    "source": "immutable frozen dataset panel, not ignored daily cache",
+    "start": "2026-06-24"
+  },
+  "recomputation": {
+    "latestProductionEvidence": {
+      "contentAsOf": "2026-07-24",
+      "diagnosticValues": [
+        {
+          "horizon": "current",
+          "modelInputCompleteness": 1,
+          "productionFeatureCoverage": 0.5
+        },
+        {
+          "horizon": 1,
+          "modelInputCompleteness": 1,
+          "productionFeatureCoverage": 0.5
+        },
+        {
+          "horizon": 5,
+          "modelInputCompleteness": 1,
+          "productionFeatureCoverage": 0.5
+        },
+        {
+          "horizon": 20,
+          "modelInputCompleteness": 1,
+          "productionFeatureCoverage": 0.5
+        }
+      ],
+      "perFeatureProductionCache": "not Git-tracked; the audited baseline preserves summary diagnostics but not a 2026-07-24 per-feature matrix"
+    },
+    "modelInputCompleteness": {
+      "definition": "finite frozen model inputs across all 12 sectors at model artifact asOf",
+      "denominator": 26,
+      "numerator": 26,
+      "value": 1.0
+    },
+    "productionFeatureCoverage": {
+      "availableGroups": [
+        "priceRelativeStrength",
+        "turnoverAndVolume"
+      ],
+      "definition": "weighted implemented production feature groups, not the model-vector feature count",
+      "denominator": 1.0,
+      "missingGroups": [
+        "marketBreadth",
+        "etfAndInstitutionFlow",
+        "policyAndEventMapping"
+      ],
+      "numerator": 0.5,
+      "value": 0.5
+    },
+    "recentFrozenPanel": {
+      "end": "2026-07-21",
+      "expectedObservations": 240,
+      "perFeature": [
+        {
+          "featureId": "momentum5",
+          "latestCrossSectionStd": 0.04085788992457805,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "momentum20",
+          "latestCrossSectionStd": 0.0825092441301316,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "momentum60",
+          "latestCrossSectionStd": 0.11192005794565325,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "reversal1",
+          "latestCrossSectionStd": 0.03427796268388308,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "volatility20",
+          "latestCrossSectionStd": 0.009768648895609555,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "drawdown60",
+          "latestCrossSectionStd": 0.06838543710064009,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "amountRatio5v20",
+          "latestCrossSectionStd": 0.2766730286671472,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "volumeRatio5v20",
+          "latestCrossSectionStd": 0.1982801449163868,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "priceVolumeAcceleration",
+          "latestCrossSectionStd": 0.008229621681577115,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "cs_momentum5",
+          "latestCrossSectionStd": 0.9999999999999959,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "cs_momentum20",
+          "latestCrossSectionStd": 0.9999999999999782,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "cs_momentum60",
+          "latestCrossSectionStd": 1.0000000000000029,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "cs_reversal1",
+          "latestCrossSectionStd": 0.9999999999999962,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "cs_volatility20",
+          "latestCrossSectionStd": 1.0000000000000153,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "cs_drawdown60",
+          "latestCrossSectionStd": 0.999999999999989,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "cs_amountRatio5v20",
+          "latestCrossSectionStd": 1.0000000000000107,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "cs_volumeRatio5v20",
+          "latestCrossSectionStd": 0.9999999999999823,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "cs_priceVolumeAcceleration",
+          "latestCrossSectionStd": 1.000000000000007,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "nl_momentum_acceleration",
+          "latestCrossSectionStd": 0.606085404593748,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "nl_medium_trend_acceleration",
+          "latestCrossSectionStd": 1.2968785222870756,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "nl_momentum5_x_amount",
+          "latestCrossSectionStd": 0.7471481501295228,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "nl_momentum20_x_volume",
+          "latestCrossSectionStd": 1.0396669896350976,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "nl_trend_x_drawdown",
+          "latestCrossSectionStd": 0.992879692440792,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "nl_reversal_x_volatility",
+          "latestCrossSectionStd": 1.2051648042872813,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "nl_momentum5_squared",
+          "latestCrossSectionStd": 0.9813159134004705,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        },
+        {
+          "featureId": "nl_drawdown_squared",
+          "latestCrossSectionStd": 1.270774711911061,
+          "nullCount": 0,
+          "observations": 240,
+          "zeroVarianceSessions": 0
+        }
+      ],
+      "sectorsPerSession": 12,
+      "sessions": 20,
+      "start": "2026-06-24"
+    }
+  },
+  "risks": [
+    {
+      "item": "marketBreadth",
+      "level": "high",
+      "reason": "20% production feature group missing"
+    },
+    {
+      "item": "etfAndInstitutionFlow",
+      "level": "high",
+      "reason": "20% production feature group missing; two data domains combined"
+    },
+    {
+      "item": "policyAndEventMapping",
+      "level": "medium",
+      "reason": "10% group lacks deterministic sector adapter"
+    },
+    {
+      "item": "diagnostic_observability",
+      "level": "medium",
+      "reason": "latest content exposes summary coverage but no Git-tracked per-feature production matrix for 2026-07-24"
+    }
+  ],
+  "sectorMapping": {
+    "allSectorsSameValue": false,
+    "exactDuplicateVectors": [],
+    "expected": [
+      "000986",
+      "000987",
+      "000988",
+      "000989",
+      "000990",
+      "000991",
+      "000992",
+      "000993",
+      "000994",
+      "000995",
+      "399967",
+      "399970"
+    ],
+    "failures": [],
+    "mapped": [
+      "000986",
+      "000987",
+      "000988",
+      "000989",
+      "000990",
+      "000991",
+      "000992",
+      "000993",
+      "000994",
+      "000995",
+      "399967",
+      "399970"
+    ]
+  },
+  "sourceToModelLineage": {
+    "definitionDrift": [
+      "modelInputCompleteness is a 26-input vector availability measure",
+      "productionFeatureCoverage is a five-group implementation-status measure",
+      "the latter is currently a declared static availability set rather than a provider-health-derived per-date calculation"
+    ],
+    "model": {
+      "auditedDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+      "datasetId": null,
+      "featureContractVersion": null,
+      "path": "models/sector-rotation/a-share-relative-probability-v2.json",
+      "sha256": "358e19ae3dacbfdba71db195c0171c627646f33aaadf39250fb0f7b7cbb994d8"
+    },
+    "modelFeatures": [
+      "momentum5",
+      "momentum20",
+      "momentum60",
+      "reversal1",
+      "volatility20",
+      "drawdown60",
+      "amountRatio5v20",
+      "volumeRatio5v20",
+      "priceVolumeAcceleration",
+      "cs_momentum5",
+      "cs_momentum20",
+      "cs_momentum60",
+      "cs_reversal1",
+      "cs_volatility20",
+      "cs_drawdown60",
+      "cs_amountRatio5v20",
+      "cs_volumeRatio5v20",
+      "cs_priceVolumeAcceleration",
+      "nl_momentum_acceleration",
+      "nl_medium_trend_acceleration",
+      "nl_momentum5_x_amount",
+      "nl_momentum20_x_volume",
+      "nl_trend_x_drawdown",
+      "nl_reversal_x_volatility",
+      "nl_momentum5_squared",
+      "nl_drawdown_squared"
+    ],
+    "path": [
+      "CSI sector index history",
+      "scripts/sector_rotation.py build_features",
+      "immutable dataset panel.csv.gz",
+      "scripts/sector_probability.py feature_value/current_predictions",
+      "content/sector-rotation.json and content/prediction-diagnostics.json",
+      "prediction ledger snapshot"
+    ],
+    "productionGroupCalculation": {
+      "available": [
+        "priceRelativeStrength",
+        "turnoverAndVolume"
+      ],
+      "calculation": "sum(weights of statically declared available groups)",
+      "source": "scripts/sector_probability.py:data_diagnostics",
+      "weights": {
+        "etfAndInstitutionFlow": 0.2,
+        "marketBreadth": 0.2,
+        "policyAndEventMapping": 0.1,
+        "priceRelativeStrength": 0.25,
+        "turnoverAndVolume": 0.25
+      }
+    }
+  },
+  "staleFeatures": [],
+  "suitableForNextStage": true,
+  "zeroVarianceFeatures": []
+}

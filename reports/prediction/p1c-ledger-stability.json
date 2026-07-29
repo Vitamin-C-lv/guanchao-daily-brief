@@ -1,0 +1,213 @@
+{
+  "appendSimulation": {
+    "predictionRecordsAfter": 324,
+    "runId": "prun-20260724-e60e4a322b2d5d99a957",
+    "snapshotFilesAfter": 10,
+    "written": true
+  },
+  "baseline": "2c4dc081bb591830f78d532b32416a92f6446b40",
+  "blockers": [
+    "GitHub workflow dry-run is an external dispatch and is intentionally not invoked by this local audit command."
+  ],
+  "concurrency": {
+    "cancelInProgress": false,
+    "group": "prediction-ledger-${{ github.ref }}",
+    "preventsDuplicateMainWriters": true
+  },
+  "currentPublication": {
+    "generatedAt": "2026-07-24T20:19:06+08:00",
+    "lastPredictionDate": "2026-07-24",
+    "matchingSnapshot": true
+  },
+  "dryRun": {
+    "behavior": "runs refresh, append, rebuild and verify in ephemeral runner worktree; skips commit and push when DRY_RUN=true",
+    "githubRun": "success: run 30422855704 on 05bfcf2; Windows contract and append/verify jobs passed; no snapshot appended and commit/push steps skipped because dry_run=true.",
+    "supported": "workflow_dispatch dry_run boolean"
+  },
+  "evaluationSimulation": {
+    "eventId": "peval-20260728-3232010b2ec4c1893f94",
+    "predictionId": "fr-a-20260721-h5-000986-dfa327f4686b",
+    "verification": {
+      "contractVersion": "prediction-ledger-v1",
+      "evaluationEventCount": 301,
+      "manifestCount": 2,
+      "ok": true,
+      "predictionRecordCount": 324,
+      "publicVerified": false,
+      "snapshotCount": 10
+    },
+    "written": true
+  },
+  "findings": [
+    "PR validation has contents: read and cannot write the ledger; automate is strictly main-only.",
+    "The workflow's no-change path commits nothing after a full verify.",
+    "A subsequent daily payload with a newer date will pass the automation date guard and append one deterministic snapshot; an equal/older date is a no-op."
+  ],
+  "idempotency": {
+    "runId": "prun-20260724-e60e4a322b2d5d99a957",
+    "secondWrite": false
+  },
+  "latestSnapshotReason": "content/sector-rotation.json generatedAt is 2026-07-24T20:19:06+08:00 and exactly matches a ledger publication version. No later committed main content generation exists at the audited baseline; this is an expected post-merge/not-yet-scheduled-run state, not a missing-snapshot defect.",
+  "noOp": {
+    "snapshotFilesAfter": 9,
+    "snapshotFilesBefore": 9,
+    "written": false
+  },
+  "partialFailure": "immutable event writes use same-directory temporary files plus os.replace; derived files are rebuilt and verified before commit; a failed runner has no push, while any committed state has passed verification",
+  "permissions": {
+    "automate": "contents: write only",
+    "default": "contents: read",
+    "leastPrivilege": true
+  },
+  "productionWriteRecommended": false,
+  "publicExport": {
+    "byteIdentical": true,
+    "first": {
+      "availableMonths": [
+        "2026-07"
+      ],
+      "contractVersion": "prediction-ledger-v1",
+      "currentRecordCount": 288,
+      "evaluatedRecordCount": 301,
+      "files": [
+        {
+          "path": "2026-07.json",
+          "recordCount": 324,
+          "sha256": "1678ff242b1e62a4c7af7082ef80015f51cd67f34a3915125b64498c3b8b4944",
+          "yearMonth": "2026-07"
+        }
+      ],
+      "firstDate": "2026-07-21",
+      "generatedAt": "2026-07-25T20:00:00+08:00",
+      "lastDate": "2026-07-24",
+      "latestReview": {
+        "isoWeek": "2026-W30",
+        "path": "reviews/2026-W30.json",
+        "sha256": "6990764fdaba9754ed4e5bb92fdf8fb2e1732a68cc14093da559bf7aba556efc"
+      },
+      "legacyRecordCount": 36,
+      "markets": [
+        "a-share",
+        "hk"
+      ],
+      "modelVersions": [
+        "2026-07-20-probability-v1",
+        "2026-07-21-relative-v2",
+        "hk-relative-model-not-trained"
+      ],
+      "pendingRecordCount": 23,
+      "policy": {
+        "completeAuthorityExport": true,
+        "internalFieldsExcluded": true,
+        "recordLimit": null
+      },
+      "recordCount": 324,
+      "schemaVersion": 1,
+      "statusSummary": {
+        "abstained": 144,
+        "insufficient_data": 0,
+        "not_applicable": 144,
+        "published": 36
+      }
+    },
+    "firstTreeSha256": "2a99dd162d7964e2d39eeed019df6fa26cbadf3806bf09aa909803f69ae5f5e0",
+    "second": {
+      "availableMonths": [
+        "2026-07"
+      ],
+      "contractVersion": "prediction-ledger-v1",
+      "currentRecordCount": 288,
+      "evaluatedRecordCount": 301,
+      "files": [
+        {
+          "path": "2026-07.json",
+          "recordCount": 324,
+          "sha256": "1678ff242b1e62a4c7af7082ef80015f51cd67f34a3915125b64498c3b8b4944",
+          "yearMonth": "2026-07"
+        }
+      ],
+      "firstDate": "2026-07-21",
+      "generatedAt": "2026-07-25T20:00:00+08:00",
+      "lastDate": "2026-07-24",
+      "latestReview": {
+        "isoWeek": "2026-W30",
+        "path": "reviews/2026-W30.json",
+        "sha256": "6990764fdaba9754ed4e5bb92fdf8fb2e1732a68cc14093da559bf7aba556efc"
+      },
+      "legacyRecordCount": 36,
+      "markets": [
+        "a-share",
+        "hk"
+      ],
+      "modelVersions": [
+        "2026-07-20-probability-v1",
+        "2026-07-21-relative-v2",
+        "hk-relative-model-not-trained"
+      ],
+      "pendingRecordCount": 23,
+      "policy": {
+        "completeAuthorityExport": true,
+        "internalFieldsExcluded": true,
+        "recordLimit": null
+      },
+      "recordCount": 324,
+      "schemaVersion": 1,
+      "statusSummary": {
+        "abstained": 144,
+        "insufficient_data": 0,
+        "not_applicable": 144,
+        "published": 36
+      }
+    },
+    "secondTreeSha256": "2a99dd162d7964e2d39eeed019df6fa26cbadf3806bf09aa909803f69ae5f5e0"
+  },
+  "pushConflict": "fetch origin main; conflict-safe rebase; reverify; push at most three times; rebase conflict aborts and fails without overwrite",
+  "schedule": {
+    "cron": [
+      "30 7 * * 1-5",
+      "30 10 * * 5"
+    ],
+    "modeResolution": "weekday closing; Friday 10:30 UTC weekly",
+    "timezone": "UTC (GitHub Actions cron); Asia/Shanghai = 15:30 weekdays closing and 18:30 Friday weekly"
+  },
+  "verify": {
+    "contractVersion": "prediction-ledger-v1",
+    "evaluationEventCount": 301,
+    "manifestCount": 2,
+    "ok": true,
+    "predictionRecordCount": 324,
+    "publicVerified": true,
+    "snapshotCount": 10
+  },
+  "weeklyReview": {
+    "counts": {
+      "abstained": 144,
+      "current": 288,
+      "dataInsufficient": 0,
+      "dataInsufficientEvaluation": 0,
+      "evaluated": 0,
+      "insufficientData": 0,
+      "legacy": 36,
+      "matured": 0,
+      "notImplemented": 0,
+      "notTrained": 144,
+      "pending": 0,
+      "published": 0,
+      "records": 324,
+      "totalRecords": 324
+    },
+    "isoWeek": "2026-W30"
+  },
+  "workflow": {
+    "contentChangeGuard": "validate-prediction-ledger.mjs requires content/sector-rotation.json generatedAt to match an immutable snapshot before automation; post-refresh verification repeats the requirement",
+    "githubLedgerAuthority": "actions/checkout fetch-depth 0 checks out ref main and validates data/prediction-ledger; no ignored local ledger path is used",
+    "path": ".github/workflows/prediction-ledger.yml",
+    "trigger": "push main, pull_request, workflow_dispatch, weekdays schedule",
+    "writeEvent": "normal writer only after validate on refs/heads/main; workflow_dispatch dry_run may execute from another ref but cannot commit or push"
+  },
+  "workflowTextAssertions": {
+    "hasDispatchDryRun": true,
+    "hasMainOnlyCondition": true,
+    "hasRetry": true
+  }
+}

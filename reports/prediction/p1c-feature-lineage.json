@@ -1,0 +1,65 @@
+{
+  "definitionDrift": [
+    "modelInputCompleteness is a 26-input vector availability measure",
+    "productionFeatureCoverage is a five-group implementation-status measure",
+    "the latter is currently a declared static availability set rather than a provider-health-derived per-date calculation"
+  ],
+  "model": {
+    "auditedDatasetId": "a-share-2026-07-21-3448b55c8ae4",
+    "datasetId": null,
+    "featureContractVersion": null,
+    "path": "models/sector-rotation/a-share-relative-probability-v2.json",
+    "sha256": "358e19ae3dacbfdba71db195c0171c627646f33aaadf39250fb0f7b7cbb994d8"
+  },
+  "modelFeatures": [
+    "momentum5",
+    "momentum20",
+    "momentum60",
+    "reversal1",
+    "volatility20",
+    "drawdown60",
+    "amountRatio5v20",
+    "volumeRatio5v20",
+    "priceVolumeAcceleration",
+    "cs_momentum5",
+    "cs_momentum20",
+    "cs_momentum60",
+    "cs_reversal1",
+    "cs_volatility20",
+    "cs_drawdown60",
+    "cs_amountRatio5v20",
+    "cs_volumeRatio5v20",
+    "cs_priceVolumeAcceleration",
+    "nl_momentum_acceleration",
+    "nl_medium_trend_acceleration",
+    "nl_momentum5_x_amount",
+    "nl_momentum20_x_volume",
+    "nl_trend_x_drawdown",
+    "nl_reversal_x_volatility",
+    "nl_momentum5_squared",
+    "nl_drawdown_squared"
+  ],
+  "path": [
+    "CSI sector index history",
+    "scripts/sector_rotation.py build_features",
+    "immutable dataset panel.csv.gz",
+    "scripts/sector_probability.py feature_value/current_predictions",
+    "content/sector-rotation.json and content/prediction-diagnostics.json",
+    "prediction ledger snapshot"
+  ],
+  "productionGroupCalculation": {
+    "available": [
+      "priceRelativeStrength",
+      "turnoverAndVolume"
+    ],
+    "calculation": "sum(weights of statically declared available groups)",
+    "source": "scripts/sector_probability.py:data_diagnostics",
+    "weights": {
+      "etfAndInstitutionFlow": 0.2,
+      "marketBreadth": 0.2,
+      "policyAndEventMapping": 0.1,
+      "priceRelativeStrength": 0.25,
+      "turnoverAndVolume": 0.25
+    }
+  }
+}
