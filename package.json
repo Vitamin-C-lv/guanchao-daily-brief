@@ -47,7 +47,7 @@
     "market-data:run": "node scripts/run-market-evidence.mjs run",
     "validate:writer-packet": "node scripts/validate-writer-packet.mjs",
     "validate:market-data": "node scripts/validate-market-evidence.mjs",
-    "test:market-data": "node scripts/run-market-evidence.mjs test",
+    "test:market-data": "uv run --no-project --python 3.12 --with requests --with xlrd python -m unittest scripts/test_market_evidence.py scripts/test_market_evidence_pipeline.py",
     "validate:brief": "node scripts/validate-brief.mjs",
     "validate:weekly": "node scripts/validate-weekly.mjs",
     "validate:assets": "node scripts/validate-generated-assets.mjs",
