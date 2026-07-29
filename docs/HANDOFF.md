@@ -57,6 +57,12 @@ P1-E PR #18 已合并；merge SHA：`16cde0056432b7d839420f545bbabbc4f49475a0`�
 
 审计限制：最新 2026-07-24 内容只保留覆盖摘要，未跟踪逐特征生产缓存；生产模型 JSON 未嵌入 datasetId/feature contract，因此关联由冻结仓库状态/manifest 证实而非模型自身字段。详见 `docs/audits/P1C_*.md` 和 `reports/prediction/p1c-*.json`。
 
+## 2026-07-29 Treasury bp 规范化与品牌资产刷新
+
+- Treasury 热修：PR #20 已以 squash 合并；merge SHA / 后续 Logo 基线：`b3ed821d961ebda39d1b683bcf976d0d19cd0a31`。writer packet 中 `spread2s10sBp` 的 `35.00000000000006` 已规范化为 `35`；所有 bp 值与 1/5/20 日 bp 变化统一最多两位小数，`null` 仍为 `null`。
+- Logo：PR #21 已以 squash 合并；merge SHA / 本次交接同步前 main：`a756a7bdf407888d0ceeb80f9ae7b33053e5f48a`。横版源文件为 `public/brand/guanchao-logo-horizontal.png`，方形 mark 为 `public/brand/guanchao-logo-mark.png`；App Router 图标为 `app/icon.png` 与 `app/apple-icon.png`，并保留 32/16px PNG favicon。
+- 本次仅变更 writer packet 数值展示与品牌资产/图标接入：未训练模型，未改变 EvidenceScore、概率、预测逻辑、数据源、dataset、ledger、发布门槛或预测页面信息架构。
+
 ## 新对话恢复顺序
 
 1. [docs/HANDOFF.md](HANDOFF.md)
