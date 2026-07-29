@@ -119,7 +119,7 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 - 日报不得训练、微调、回测选参、改权重、增删特征、换行业观察池、覆盖 model card 或改变模型版本；也不得根据当天涨跌手工调高分数。模型或输入存在但未通过发布门禁时写 `abstained` 并生成证据观察榜；只有模型/输入本身无法建立时才写 `insufficient`。两种状态都禁止临时训练或默认返回50%。
 - `current` 只呈现截至各市场最新完整交易日的观测排序，不含未来判断。A 股 12 项中若部分代码在同一最新完整交易日经身份与单位核验后可用，必须对可用子集排序并清楚标注“`N/12` 项可比”，不得因单项缺失让整个当前观察区空白；缺失项不得用旧交易日、相邻行业、个股歧义代码或估算值补齐。只有同日可比项为零或来源冲突无法判定时，`current` 才写 `insufficient`。
 - `tomorrow`、`oneWeek` 与 `oneMonth` 分别对应下一个完整交易日、5 个交易日和 20 个交易日。每日运行 `pnpm rotation:refresh`，先采集港股宏观信号，再应用冻结的 `models/sector-rotation/a-share-relative-probability-v2.json`，不得日常重训。三个周期分别使用独立模型，主榜为 `topQuartileProbability`，并同时保存 `outperformanceProbability`、`absoluteUpProbability`、`expectedExcessReturn`、`rawScore`、`rawProbability` 与 `calibratedProbability`。只有原始模型已有样本外区分度且校准未塌缩时才启用校准。最高最低概率差不足3个百分点、全体位于47%–53%、横截面标准差不足、数据完整度低于80%、Brier Skill不为正、RankIC不为正、扣费后Top-Bottom不为正或多数walk-forward窗口方向不一致时，必须 `abstained`，显示“当前没有可靠的板块轮动概率信号，暂不发布概率排名”并降级为明确标注的证据观察榜；观察分不得写成概率。
-- 每次推理后运行 `pnpm rotation:history`。发布预测与模型弃权都追加不可覆盖快照；实际结果到期后写入独立评价账本，不得使用最新模型重算或覆盖历史预测。
+- 每次推理后运行 `pnpm ledger:automation -- --mode daily`。必须先从 Git 恢复并验证非空的 `data/prediction-ledger/`，再将发布预测、模型弃权、未训练/未实现状态追加为不可覆盖快照；实际结果到期后只追加独立评价事件，随后重建月清单、索引和无截断公开分片。不得使用最新模型重算、覆盖或清空历史预测。
 - A 股观察池固定为 `a-core12-v2`（`000986`–`000995`、`399967`、`399970`），港股固定为恒生行业分类一级行业。医疗 `000991`、军工 `399967`、互联网 `399970` 只作固定重点展示，不加分、不改权重、不改变原始排名。美股 `mode` 固定为 `major-index`，任何可用窗口都只能出现纳斯达克、道琼斯、标普 500 三项；不得混入美股行业或概念板块。
 - 推理输入只保留同口径结构化数值及直接 HTTPS 证据页。识别来源中的图表时，优先提取为结构化数字并记录 `sourceUrl`、单位、口径、时间区间与 `extractionConfidence`，不保存原图；低置信度 OCR/视觉识别数值不得进入模型。只有确需保留视觉证据时才可转限宽 WebP，并执行哈希去重与大小门禁。
 - 轮动排名与同单位量能条形图由页面从已验证条目自动渲染；可选历史图使用 `charts` 中的 `line`，只有来源提供完整且同口径的 OHLC 才可使用 `candlestick`。每张图必须带 `asOf`、`unit`、范围/归一化或算法口径 `note`、`sourceIndexes`，最多 4 条系列、每系列最多 60 个点。长期资金的 `knownAt → truthAt` 时间轴和命中/误报汇总仅写入已有对应图表契约的周报或精读文章；未定义类型不得擅自写进轮动 JSON。
@@ -171,11 +171,13 @@ A 股和港股文章在原有 `detail.lead`、`keyPoints`、`sections` 和可选
 
 1. `pnpm validate:rotation`
 2. `pnpm validate:prediction-history`
-3. `pnpm validate:sector-details`
-4. `pnpm validate:rotation-events`
-5. `pnpm validate:market-observer`
-6. `pnpm validate:market-data`
-7. `pnpm test:market-data`
+3. `pnpm validate:prediction-ledger`
+4. `pnpm test:prediction-ledger`
+5. `pnpm validate:sector-details`
+6. `pnpm validate:rotation-events`
+7. `pnpm validate:market-observer`
+8. `pnpm validate:market-data`
+9. `pnpm test:market-data`
 8. `pnpm test:market-observer`
 9. `pnpm validate:brief`
 10. `pnpm validate:weekly`

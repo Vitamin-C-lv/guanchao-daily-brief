@@ -1,0 +1,159 @@
+name: Prediction ledger
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Ledger automation mode
+        required: true
+        default: validate
+        type: choice
+        options: [validate, daily, closing, weekly]
+      iso_week:
+        description: Optional YYYY-Www override for weekly review
+        required: false
+        type: string
+      dry_run:
+        description: Generate and verify without committing or pushing
+        required: true
+        default: true
+        type: boolean
+  schedule:
+    - cron: "30 7 * * 1-5"
+    - cron: "30 10 * * 5"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: prediction-ledger-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    name: Ledger contract (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: Checkout immutable history
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+      - name: Install pnpm
+        uses: pnpm/action-setup@9fd676a19091d4595eefd76e4bd31c97133911f1 # v4.2.0
+        with:
+          version: 11.9.0
+      - name: Install Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.14.0
+          cache: pnpm
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.11.12"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Validate restored ledger and public export
+        run: pnpm validate:prediction-ledger
+      - name: Run ledger contract and adversarial tests
+        run: pnpm test:prediction-ledger
+      - name: Re-export to a temporary directory and require byte identity
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          temp_root="$(mktemp -d)"
+          uv run --no-project --python 3.12 python scripts/prediction_ledger.py --root data/prediction-ledger export-public --public-root "$temp_root/public" --compatibility "$temp_root/prediction-history.json" --review "$temp_root/prediction-review-latest.json"
+          diff -r public/data/prediction-history "$temp_root/public"
+          diff content/prediction-history.json "$temp_root/prediction-history.json"
+          diff content/prediction-review-latest.json "$temp_root/prediction-review-latest.json"
+      - name: Verify static production build
+        if: runner.os == 'Linux'
+        run: pnpm build
+
+  automate:
+    name: Append and publish ledger events
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode != 'validate'))
+    needs: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      LEDGER_MODE: ${{ github.event_name == 'schedule' && github.event.schedule == '30 10 * * 5' && 'weekly' || github.event_name == 'schedule' && 'closing' || inputs.mode }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+    steps:
+      - name: Checkout complete authoritative history
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0
+          ref: main
+      - name: Install pnpm
+        uses: pnpm/action-setup@9fd676a19091d4595eefd76e4bd31c97133911f1 # v4.2.0
+        with:
+          version: 11.9.0
+      - name: Install Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.14.0
+          cache: pnpm
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.11.12"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Refuse an empty or incomplete restore
+        run: pnpm validate:prediction-ledger
+      - name: Refresh frozen-model inputs and publication payload
+        run: pnpm rotation:refresh
+      - name: Append snapshot, mature evaluations, review and public shards
+        shell: bash
+        run: |
+          args=(--mode "$LEDGER_MODE" --code-commit "$GITHUB_SHA")
+          if [[ -n "${{ inputs.iso_week }}" ]]; then args+=(--week "${{ inputs.iso_week }}"); fi
+          uv run --no-project --python 3.12 --with requests python scripts/prediction_ledger_automation.py "${args[@]}" > ledger-automation.json
+          cat ledger-automation.json
+      - name: Verify derived files before commit
+        run: pnpm validate:prediction-ledger
+      - name: Commit only ledger-owned outputs
+        id: commit
+        if: env.DRY_RUN != 'true'
+        shell: bash
+        run: |
+          git config user.name "guanchao-ledger-bot"
+          git config user.email "guanchao-ledger-bot@users.noreply.github.com"
+          git add data/prediction-ledger public/data/prediction-history content/prediction-history.json content/prediction-review-latest.json content/sector-rotation.json content/prediction-diagnostics.json
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            run_id="$(node -e "const r=require('./ledger-automation.json'); console.log(r.snapshot.runId || 'no-new-run')")"
+            git commit -m "chore(predictions): append ${LEDGER_MODE} ledger events ${run_id}"
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Rebase, reverify and push with at most three attempts
+        if: steps.commit.outputs.changed == 'true' && env.DRY_RUN != 'true'
+        shell: bash
+        run: |
+          for attempt in 1 2 3; do
+            git fetch origin main
+            if ! git rebase origin/main; then
+              git rebase --abort || true
+              echo "append-only ledger rebase conflicted; refusing automatic overwrite" >&2
+              exit 1
+            fi
+            pnpm validate:prediction-ledger
+            if git push origin HEAD:main; then exit 0; fi
+            echo "push attempt ${attempt}/3 lost a race; retrying from origin/main" >&2
+          done
+          echo "push failed after three conflict-safe attempts" >&2
+          exit 1

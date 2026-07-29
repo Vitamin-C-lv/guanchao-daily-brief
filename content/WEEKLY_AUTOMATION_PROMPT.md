@@ -91,15 +91,19 @@ Terra 每周必须只读审阅冻结模型、当周 `content/sector-rotation.jso
 
 ## 校验、归档与发布
 
+完成周报内容后先运行 `pnpm ledger:automation -- --mode weekly`，从 Git 权威账本追加已到期评价、生成按模型版本/市场/周期/概率目标/legacy 分层的周度复盘，并重建无截断公开分片。legacy、pending、abstained、not_trained、not_implemented 与 data_insufficient 均不得混入当前模型评分。
+
 依次运行：
 
 1. `pnpm validate:rotation`
 2. `pnpm validate:prediction-history`
-3. `pnpm validate:rotation-events`
-4. `pnpm validate:market-data`
-5. `pnpm test:market-data`
-6. `pnpm validate:brief`
-7. `pnpm validate:weekly`
+3. `pnpm validate:prediction-ledger`
+4. `pnpm test:prediction-ledger`
+5. `pnpm validate:rotation-events`
+6. `pnpm validate:market-data`
+7. `pnpm test:market-data`
+8. `pnpm validate:brief`
+9. `pnpm validate:weekly`
 8. `pnpm archive:weekly`
 9. `pnpm assets:prune`
 10. `pnpm validate:assets`

@@ -6,6 +6,7 @@ from __future__ import annotations
 import gzip
 import hashlib
 import json
+import os
 import tempfile
 from collections import defaultdict
 from functools import lru_cache
@@ -413,6 +414,11 @@ def public_payload(records: list[dict[str, Any]], evaluations: list[dict[str, An
 
 
 def main() -> None:
+    if os.environ.get("ALLOW_LEGACY_LOCAL_PREDICTION_LEDGER") != "1":
+        raise RuntimeError(
+            "legacy local gzip JSONL writer is disabled; use scripts/prediction_ledger.py "
+            "or pnpm ledger:automation so Git-backed immutable events remain authoritative"
+        )
     existing = [
         normalize_record_contract(record) for record in read_jsonl_gzip(SNAPSHOT_LEDGER)
         if record.get("prediction_status") != "published"

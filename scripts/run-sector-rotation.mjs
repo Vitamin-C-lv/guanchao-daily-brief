@@ -14,8 +14,8 @@ const probabilityTrain = userArgs[0] === "probability-train";
 const predictionHistory = userArgs[0] === "history";
 const rotationSignals = userArgs[0] === "signals";
 const normalizer = path.join(root, "scripts", "normalize-prediction-contract.mjs");
-const script = path.join(root, "scripts", probabilityTrain ? "sector_probability.py" : predictionHistory ? "prediction_history.py" : rotationSignals ? "collect-rotation-signals.py" : "sector_rotation.py");
-const scriptArgs = probabilityTrain ? ["train", ...userArgs.slice(1)] : predictionHistory || rotationSignals ? userArgs.slice(1) : userArgs;
+const script = path.join(root, "scripts", probabilityTrain ? "sector_probability.py" : predictionHistory ? "prediction_ledger_automation.py" : rotationSignals ? "collect-rotation-signals.py" : "sector_rotation.py");
+const scriptArgs = probabilityTrain ? ["train", ...userArgs.slice(1)] : predictionHistory ? ["--mode", "closing", ...userArgs.slice(1)] : rotationSignals ? userArgs.slice(1) : userArgs;
 
 const candidates = [];
 if (!probabilityTrain && process.env.CODEX_PYTHON) {

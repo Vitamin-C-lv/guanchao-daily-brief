@@ -52,7 +52,7 @@
 
 - 先核验并写好 `daily-brief.json` 中 A 股/港股本次最新完整 `sessionDate`，再执行一次 `pnpm market:data:daily -- --phase close` 并完整读取 `data/market-evidence/latest.json`。命令内部先运行 `rotation:refresh`，以该日期刷新结构化输入、重建当日特征并应用冻结模型，再用中证日频量价、官方成分表和目标日期一致的腾讯批量收盘行情生成逐字段证据包；不得训练。`current` 只写已发生观测；A 股只要同一最新完整交易日存在经身份和单位核验的可比项，就对可用子集排序并标明“`N/12` 项可比”，不因一项缺失整块留白，也不得混入旧交易日或估算补值。`writerPacket` 中已为 `ready` 的窗口不得因 Luna 当次网页检索未命中而降级；单个广度或集中度字段失败时只标该字段和对应行业，不得抹掉已核验量比。
 - `tomorrow`、`oneWeek` 与 `oneMonth` 只应用冻结的独立 1/5/20 交易日相对收益模型；日常不得重训。主榜使用进入前25%概率或预期相对收益，同时保存跑赢基准概率和绝对上涨概率。若概率差、离散度、完整度、Brier Skill、RankIC、扣费后Top-Bottom或walk-forward稳定性任一门禁失败，必须主动 `abstained`，输出证据观察榜且明确标注“证据分”，不得收缩回50%附近后继续强制排名。
-- 收盘推理前执行 `pnpm rotation:signals`，推理后执行 `pnpm rotation:history`；接口失败逐源记录，历史发布快照不可覆盖，模型弃权日也必须留痕。
+- 收盘推理前执行 `pnpm rotation:signals`，推理后执行 `pnpm ledger:automation -- --mode closing`；必须先从 Git 恢复并验证非空的 `data/prediction-ledger/`，接口失败逐源记录，发布/弃权/模型不可用状态与到期评价分开追加，任何历史事件都不得覆盖或被空账本替换。
 - Luna 每日不得调用训练/调参模式，不得改模型权重、特征、观察池、版本、model card 或历史回测。冻结模型缺失、版本/hash 不一致、预测输入不足或推理失败时将对应预测窗口写 `insufficient`，不得用主编主观看法补分。
 - 精简事件记忆只按早报提示词追加或填写已到期后验：100–200 字事实摘要与 URL/`sourceTier`/`evidenceClass`/行业/分类/`knownAt`/5日和20日结果/hash；非空结果还必须保存逐项 `tradingDates`、版本化官方日历的 `calendarSourceUrl` 与 `calendarSha256`，并通过日历 artifact 重算。港股日历 artifact 缺失时后验保持 `null`。禁止保存原文、PDF、图片或长引文，也不得用当天新增事件重新拟合模型。所有读取逐文件、逐行进行，遵守 32 MB 压缩上限。
 - 图表优先抽取结构化数字，同时保留 `sourceUrl`、单位、口径、时间区间和 `extractionConfidence`；低置信度 OCR 不得入模，不保存原图。确有视觉证据必要时才生成限宽 WebP，并经哈希去重和大小门禁。
@@ -112,11 +112,13 @@
 
 1. `pnpm validate:rotation`
 2. `pnpm validate:prediction-history`
-3. `pnpm validate:sector-details`
-4. `pnpm validate:rotation-events`
-5. `pnpm validate:market-observer`
-6. `pnpm validate:market-data`
-7. `pnpm test:market-data`
+3. `pnpm validate:prediction-ledger`
+4. `pnpm test:prediction-ledger`
+5. `pnpm validate:sector-details`
+6. `pnpm validate:rotation-events`
+7. `pnpm validate:market-observer`
+8. `pnpm validate:market-data`
+9. `pnpm test:market-data`
 8. `pnpm test:market-observer`
 9. `pnpm validate:brief`
 10. `pnpm validate:weekly`
