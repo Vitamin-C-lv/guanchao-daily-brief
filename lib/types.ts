@@ -453,6 +453,219 @@ export interface SectorRotationIndex {
   markets: SectorRotationMarket[];
 }
 
+export type LedgerEvaluationResult =
+  | "correct"
+  | "wrong"
+  | "near_neutral"
+  | "data_insufficient"
+  | "model_abstained"
+  | "not_applicable";
+
+export interface PredictionLedgerPublicEvaluation {
+  evaluationEventId: string;
+  eventType: "evaluation" | "revision";
+  evaluatedAt: string;
+  evaluationDataAsOf: string;
+  realizedAbsoluteReturn: number | null;
+  realizedBenchmarkReturn: number | null;
+  realizedExcessReturn: number | null;
+  realizedSectorRank: number | null;
+  realizedSectorCount: number | null;
+  realizedTopQuartile: boolean | null;
+  targetOutcome: boolean | null;
+  result: LedgerEvaluationResult;
+  supersedesEventId: string | null;
+  reason: string | null;
+}
+
+export interface PredictionLedgerPublicRecord {
+  predictionId: string;
+  predictionDate: string;
+  market: "a-share" | "hk" | "us" | string;
+  sectorId: string;
+  sectorName: string;
+  horizonSessions: 1 | 5 | 20;
+  dueDate: string | null;
+  modelVersion: string;
+  modelAvailability: ModelAvailability;
+  publicationStatus: PublicationStatus;
+  outputMode: PredictionOutputMode;
+  calibrationStatus: CalibrationStatus;
+  probabilitySource: ProbabilitySource;
+  probabilityTarget: ProbabilityTarget;
+  rawScore: number | null;
+  rawProbability: number | null;
+  calibratedProbability: number | null;
+  absoluteUpProbability: number | null;
+  outperformanceProbability: number | null;
+  topQuartileProbability: number | null;
+  expectedExcessReturn: number | null;
+  historicalBaseRate: number | null;
+  effectiveEdge: number | null;
+  observationScore: number | null;
+  abstainReasons: string[];
+  dataAsOf: string;
+  createdAt: string;
+  modelInputCompleteness: number | null;
+  productionFeatureCoverage: number | null;
+  claim: string;
+  evidence: SectorRotationEvidencePoint[];
+  counterEvidence: SectorRotationEvidencePoint[];
+  trigger: string;
+  invalidation: string;
+  sourceUrls: string[];
+  legacy: boolean;
+  benchmark: { code: string; name: string; contractVersion: string } | null;
+  universe: { id: string; sectorIds: string[]; topQuartileFraction: number | null; tieBreak: string[] };
+  evaluation: PredictionLedgerPublicEvaluation | null;
+}
+
+export interface PredictionLedgerRecord extends Omit<PredictionLedgerPublicRecord, "evaluation"> {}
+
+export interface PredictionSnapshot {
+  schemaVersion: 1;
+  runId: string;
+  createdAt: string;
+  dataAsOf: string;
+  edition: "daily" | "closing" | "manual" | "migration";
+  codeCommit: string;
+  markets: string[];
+  models: Array<{ market: string; modelVersion: string; artifactSha256: string | null; availability: ModelAvailability }>;
+  predictions: PredictionLedgerRecord[];
+  identity: Record<string, unknown>;
+  integrity: PredictionLedgerIntegrity;
+  migration?: Record<string, string>;
+}
+
+export interface PredictionEvaluationEvent extends PredictionLedgerPublicEvaluation {
+  schemaVersion: 1;
+  predictionId: string;
+  horizonSessions: 1 | 5 | 20;
+  sourceHashes: Record<string, string>;
+  codeCommit: string;
+  identity: Record<string, unknown>;
+  integrity: PredictionLedgerIntegrity;
+}
+
+export interface PredictionLedgerIntegrity {
+  contractVersion: "prediction-ledger-v1";
+  hashMode: { text: string; binary: string; gzip: string; selfHashExclusion: string };
+  payloadSha256: string;
+  compressedSha256: string;
+}
+
+export interface PredictionLedgerIndex {
+  schemaVersion: 1;
+  contractVersion: "prediction-ledger-v1";
+  snapshotCount: number;
+  predictionRecordCount: number;
+  evaluationEventCount: number;
+  firstPredictionDate: string | null;
+  lastPredictionDate: string | null;
+  markets: string[];
+  modelVersions: string[];
+  statusSummary: Record<PublicationStatus, number>;
+  legacyRecordCount: number;
+  currentRecordCount: number;
+  months: Array<{ month: string; snapshotCount: number; evaluationCount: number; recordCount: number; evaluationEventCount: number; manifestPath: string; manifestSha256: string }>;
+  reviews: Array<{ week: string; path: string; sha256: string }>;
+}
+
+export interface PredictionLedgerContract {
+  schemaVersion: 1;
+  contractVersion: "prediction-ledger-v1";
+  authority: "Git repository immutable event files";
+  hashModes: Record<string, string>;
+  snapshotIdentity: string[];
+  immutableRules: Record<string, true>;
+  probabilityUnit: "percentage_points_0_to_100";
+  returnUnit: "percentage_points";
+}
+
+export interface PredictionLedgerPublicIndex {
+  schemaVersion: 1;
+  contractVersion: "prediction-ledger-v1";
+  generatedAt: string;
+  recordCount: number;
+  firstDate: string | null;
+  lastDate: string | null;
+  files: Array<{ yearMonth: string; path: string; recordCount: number; sha256: string }>;
+  availableMonths: string[];
+  markets: string[];
+  modelVersions: string[];
+  statusSummary: Record<PublicationStatus, number>;
+  legacyRecordCount: number;
+  currentRecordCount: number;
+  evaluatedRecordCount: number;
+  pendingRecordCount: number;
+  latestReview: { isoWeek: string; path: string; sha256: string } | null;
+  policy: { completeAuthorityExport: true; recordLimit: null; internalFieldsExcluded: true };
+}
+
+export interface PredictionHistoryShard {
+  schemaVersion: 1;
+  contractVersion: "prediction-ledger-v1";
+  yearMonth: string;
+  summary: {
+    recordCount: number;
+    markets: string[];
+    modelVersions: string[];
+    statusSummary: Record<PublicationStatus, number>;
+    legacyRecordCount: number;
+    currentRecordCount: number;
+    evaluatedRecordCount: number;
+    pendingRecordCount: number;
+  };
+  contract: {
+    authoritativeLedger: "data/prediction-ledger";
+    legacyExcludedFromCurrentMetrics: true;
+    probabilityTargetsNeverMixed: true;
+    internalFieldsExcluded: true;
+  };
+  records: PredictionLedgerPublicRecord[];
+}
+
+export interface PredictionHistoryFilter {
+  month: string;
+  market: "a-share" | "hk" | "us";
+  horizon: 1 | 5 | 20;
+  status: "all" | "published" | "abstained" | "unavailable" | "evaluated" | "pending";
+  modelVersion: string;
+  probabilityTarget: ProbabilityTarget | "all";
+  lineage: "all" | "current" | "legacy";
+  query: string;
+}
+
+export interface PredictionWeeklyReview {
+  schemaVersion: 1;
+  contractVersion: "prediction-ledger-v1";
+  isoWeek: string;
+  generatedAt: string;
+  counts: Record<string, number>;
+  metrics: Record<string, number | null> & { sampleSize: number };
+  metricReasons: Record<string, string>;
+  targetMetrics: Record<string, unknown>;
+  slices: unknown[];
+  modelVersionComparison: Record<string, unknown>;
+  abstainReasonDistribution: Record<string, number>;
+  largestErrors: Array<Record<string, string | number | null>>;
+  bestCalls: Array<Record<string, string | number | null>>;
+  recommendations: string[];
+  machineRecommendations: {
+    recurringFailureModes: string[];
+    featureCoverageProblems: string[];
+    calibrationWarnings: string[];
+    regimeInstability: string[];
+    recommendedResearchActions: string[];
+    gatePolicy: "do_not_lower_automatically";
+  };
+  policy: {
+    legacyExcludedFromCurrentMetrics: true;
+    pendingAndAbstainedNeverCountedAsWrong: true;
+    probabilityTargetsNeverMixed: true;
+  };
+}
+
 export type SectorPredictionResult =
   | "correct"
   | "wrong"
@@ -519,7 +732,7 @@ export interface SectorPredictionHistoryIndex {
     immutablePublicationSnapshots: true;
     historicalPredictionsRecomputed: false;
     localLedger: string;
-    publicRecordLimit: number;
+    publicRecordLimit: number | null;
   };
   summary: {
     records: number;
@@ -536,6 +749,8 @@ export interface SectorPredictionHistoryIndex {
     currentModelVersion: string;
     legacyExcludedFromCurrentModelMetrics: true;
     probabilityTargetsNeverFallback: true;
+    authoritativeLedger?: string;
+    publicShardIndex?: string;
   };
   records: SectorPredictionHistoryRecord[];
 }

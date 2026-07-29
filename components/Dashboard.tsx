@@ -9,6 +9,7 @@ import {
   FileText,
   Flame,
   Globe2,
+  History,
   Home,
   Landmark,
   LayoutDashboard,
@@ -578,7 +579,7 @@ export default function Dashboard({
 
           {showPredictions ? (
           <section id="predictions" className="section-block route-section prediction-route">
-            <SectionHeading eyebrow="FORECAST RANKING" title="板块上涨概率榜" description="默认先看下一交易日；概率、历史基准、校准区间与失效条件均可下钻查看。" action={<span className="updated-label"><RefreshCw size={13} /> 模型截至 {formatCompactDate(data.meta.dataThrough)}</span>} />
+            <SectionHeading eyebrow="FORECAST RANKING" title="板块上涨概率榜" description="默认先看下一交易日；概率、历史基准、校准区间与失效条件均可下钻查看。" action={<div className="prediction-heading-actions"><Link className="prediction-history-link" href="/predictions/history"><History size={14} />查看历史预测</Link><span className="updated-label"><RefreshCw size={13} /> 模型截至 {formatCompactDate(data.meta.dataThrough)}</span></div>} />
             <div className="prediction-market-tabs" role="tablist" aria-label="切换预测市场">
               {data.markets.map((market, index) => (
                 <button key={market.id} type="button" role="tab" aria-selected={activeMarketCard === index} className={activeMarketCard === index ? "active" : ""} onClick={() => setActiveMarketCard(index)}>{market.shortName}</button>
