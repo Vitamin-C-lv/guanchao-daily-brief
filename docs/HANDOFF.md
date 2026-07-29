@@ -46,7 +46,14 @@ P1-B 以 GitHub 跟踪的不可变 snapshot/evaluation gzip 事件为权威，�
 
 P1-E 从 P1-D 合并后的 main 开始。它固定数据采集、不可变运行快照、writer packet 和 Luna 写作边界；美债因子只作为证据观察，不进入冻结模型、概率或发布门槛。marketBreadth 只可评估一个严格限定的、精确 CSI 指数代码的补充来源；不得历史回填或改变 taxonomy。
 
-当前 P1-E 分支为 `feature/p1e-market-data-pipeline`。固定入口为 `pnpm market-data:run -- --edition daily|weekly --as-of auto`；Treasury XML 因子会进入 immutable run 和 writer packet，CSI WAF 下 breadth 保持 unavailable 而不阻断 partial packet。Luna 只可读取 packet，禁止自主抓取。
+P1-E PR #18 已合并；merge SHA：`16cde0056432b7d839420f545bbabbc4f49475a0`。固定入口为 `pnpm market-data:run -- --edition daily|weekly --as-of auto`；运行时读取启用的 source catalog，通过显式 sourceId 映射生成不可变 run 和 writer packet。相同业务输入的 runId/writerPacketId 稳定，运行审计时间不参与身份。
+
+- Treasury：名义曲线与实际曲线是独立官方 XML 来源。2026-07-29 的最近可用数据为 2026-07-28；2Y/10Y/30Y/real10Y、2s10s 与 1/5/20 个美国有效交易日 bp 变化均保存为 evidence observation。名义/实际日期不同为 partial，超过 catalog 的美国交易日延迟为 stale；`causeAssessment=insufficient_data`，不得把曲线形态写成因果结论。
+- writer packet：`content/writer-packets/daily-latest.json` 与 `weekly-latest.json` 是唯一的量化写作输入；validator 重算身份/hash，并验证 factId、sourceIndex、有限/null 值、单位、日期和 real10Y lineage。Luna 只可读取 packet，禁止自主抓取。
+- Breadth：CSI WAF 下成员来源仍是 `unavailable`，packet 因此为 partial；未接受补充来源，未写 breadth snapshot，未零填充或历史回填。这不会阻断冻结量价模型。
+- P1-E 不训练模型、不改变 EvidenceScore、概率、排名、发布门槛、UI、dataset 或 prediction ledger。生产模型 SHA 仍为 `358e19ae3dacbfdba71db195c0171c627646f33aaadf39250fb0f7b7cbb994d8`；dataset ID 仍为 `a-share-2026-07-21-3448b55c8ae4`；账本仍为 9 snapshots / 324 prediction records / 300 evaluations。
+
+下一阶段仍需由架构负责人冻结；任何 breadth 接入必须先取得可审计、点时的精确 CSI 成分关系，禁止以当前名单回填历史。
 
 审计限制：最新 2026-07-24 内容只保留覆盖摘要，未跟踪逐特征生产缓存；生产模型 JSON 未嵌入 datasetId/feature contract，因此关联由冻结仓库状态/manifest 证实而非模型自身字段。详见 `docs/audits/P1C_*.md` 和 `reports/prediction/p1c-*.json`。
 
