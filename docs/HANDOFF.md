@@ -4,12 +4,11 @@
 
 - 仓库：`Vitamin-C-lv/guanchao-daily-brief`
 - 生产站：`https://guanchao-daily-brief.vercel.app/`
-- main 基线：`71fbd9d260f777e8ca0e0901034ff8cd33b779aa`
-- 当前分支：`feature/p1b-cloud-prediction-ledger`
-- 当前 HEAD：`ebb5edc62a05693cad8099bb12e19b6ef35a4b6c`
-- PR：[#12](https://github.com/Vitamin-C-lv/guanchao-daily-brief/pull/12)，P1-B，合并前治理维护中。
+- P1-B merge SHA / main 交接基线：`0120f1be488fca0729b9309c22a1714986a207ab`
+- 当前发布阶段：P1-B 已进入 main；无活跃开发分支。
+- PR：[#12](https://github.com/Vitamin-C-lv/guanchao-daily-brief/pull/12)，已于 2026-07-29 squash merge。
 
-P1-B 的七个既有提交依次为：`a97c8df` 不可变账本契约、`453b6c1` 云端 snapshot 迁移、`b255a02` evaluation 与周复盘、`1302929` 月度公开分片、`2b55ea6` 历史页、`f264f77` 不可变性与指标测试、`ebb5edc` 自动化验证与归档。
+P1-B 的七个既有提交依次为：`a97c8df` 不可变账本契约、`453b6c1` 云端 snapshot 迁移、`b255a02` evaluation 与周复盘、`1302929` 月度公开分片、`2b55ea6` 历史页、`f264f77` 不可变性与指标测试、`ebb5edc` 自动化验证与归档；合并前治理维护新增 `671c611` 治理文档、`771d040` 周度复盘职责拆分和 `0b602af` Windows CI 收敛。
 
 ## 能力与冻结数据
 
@@ -29,7 +28,7 @@ P1-B 以 GitHub 跟踪的不可变 snapshot/evaluation gzip 事件为权威，�
 
 ## 当前技术债与准确下一步
 
-账本已完成 P1-B 所需契约；本轮只允许将纯周复盘指标拆到 `prediction_ledger_review.py`，并收敛重复 OS CI，不改变 schema、ID、指标或公开数据。当前模型缺少可评分的 published current probability 样本，周指标以 null 和 `insufficient_sample` 表示，这是正确语义而不是待填的零。
+P1-B 已完成并通过本地完整 `pnpm check`、静态构建、Windows `core.autocrlf=true` 隔离验证、GitHub Windows 检查和 Vercel Preview。纯周复盘指标已拆到 `prediction_ledger_review.py`；存储、哈希、不可变性与公开导出语义未变。当前模型缺少可评分的 published current probability 样本，周指标以 null 和 `insufficient_sample` 表示，这是正确语义而不是待填的零。
 
 本轮合并后，下一阶段名称仅为：**P1-C：生产账本运行稳定性与A股生产特征覆盖审计**。不要在本交接所述工作中实施 P1-C。
 
