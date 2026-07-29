@@ -113,6 +113,10 @@ class PredictionContractPythonTest(unittest.TestCase):
         current = generated["markets"][0]["horizons"]["current"]
         self.assertEqual(current["modelAvailability"], "trained")
         self.assertEqual(current["modelInputCompleteness"], 1.0)
+        self.assertEqual(current["modelFeatureCoverage"], 0.5)
+        self.assertEqual(current["productionFeatureCoverage"], 0.5)
+        self.assertEqual(generated["markets"][0]["marketBreadthSummary"]["status"], "unavailable")
+        self.assertEqual(generated["markets"][0]["featureCoverage"]["productionSignalCoverage"], 0.5)
         for source in generated["markets"][0]["sources"]:
             if "indexCode=" in source["url"]:
                 self.assertIn(f"endDate={market['asOf'].replace('-', '')}", source["url"])

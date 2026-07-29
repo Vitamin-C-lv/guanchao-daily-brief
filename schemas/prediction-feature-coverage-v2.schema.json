@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/prediction-feature-coverage-v2.schema.json",
+  "title": "Prediction feature coverage contract v2",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["coverageContractVersion", "modelInputCompleteness", "modelFeatureCoverage", "productionSignalCoverage", "trainingReadyCoverage", "providerHealthCoverage", "productionFeatureCoverage", "deprecatedAliasOf", "groups"],
+  "properties": {
+    "coverageContractVersion": { "const": "prediction-feature-coverage-v2" },
+    "modelInputCompleteness": { "type": "number", "minimum": 0, "maximum": 1 },
+    "modelFeatureCoverage": { "const": 0.5 },
+    "productionSignalCoverage": { "type": "number", "minimum": 0, "maximum": 0.7 },
+    "trainingReadyCoverage": { "const": 0.5 },
+    "providerHealthCoverage": { "type": "number", "minimum": 0, "maximum": 1 },
+    "productionFeatureCoverage": { "const": 0.5 },
+    "deprecatedAliasOf": { "const": "modelFeatureCoverage" },
+    "groups": { "type": "object" }
+  }
+}

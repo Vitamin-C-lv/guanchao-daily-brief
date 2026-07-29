@@ -1,10 +1,93 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "generatedAt": "2026-07-24T20:19:06+08:00",
   "policy": {
     "immutableSnapshotLedger": "data/predictions/snapshots.jsonl.gz",
     "pageReadsDiagnostics": false,
     "unavailableValuesAreNull": true
+  },
+  "featureCoverage": {
+    "coverageContractVersion": "prediction-feature-coverage-v2",
+    "modelInputCompleteness": 1,
+    "modelInputCount": {
+      "available": 26,
+      "required": 26
+    },
+    "modelFeatureCoverage": 0.5,
+    "productionSignalCoverage": 0.5,
+    "trainingReadyCoverage": 0.5,
+    "providerHealthCoverage": 0.5,
+    "productionFeatureCoverage": 0.5,
+    "deprecatedAliasOf": "modelFeatureCoverage",
+    "groups": {
+      "priceRelativeStrength": {
+        "weight": 0.25,
+        "modelRequired": true,
+        "trainingReady": true,
+        "productionStatus": "ready",
+        "providerHealth": 1
+      },
+      "turnoverAndVolume": {
+        "weight": 0.25,
+        "modelRequired": true,
+        "trainingReady": true,
+        "productionStatus": "ready",
+        "providerHealth": 1
+      },
+      "marketBreadth": {
+        "weight": 0.2,
+        "modelRequired": false,
+        "trainingReady": false,
+        "productionStatus": "unavailable",
+        "productionGroupCoverage": 0,
+        "providerHealth": 0,
+        "reason": "immutable forward snapshots begin in P1-D"
+      },
+      "etfAndInstitutionFlow": {
+        "weight": 0.2,
+        "modelRequired": false,
+        "trainingReady": false,
+        "productionStatus": "not_implemented",
+        "providerHealth": 0
+      },
+      "policyAndEventMapping": {
+        "weight": 0.1,
+        "modelRequired": false,
+        "trainingReady": false,
+        "productionStatus": "not_implemented",
+        "providerHealth": 0
+      }
+    }
+  },
+  "marketBreadthSummary": {
+    "status": "unavailable",
+    "groupCoverage": 0,
+    "productionReady": false,
+    "trainingReady": false
+  },
+  "sourceStatus": {
+    "marketBreadth": {
+      "status": "unavailable",
+      "reason": "no immutable market breadth snapshot for 2026-07-24"
+    }
+  },
+  "warnings": [
+    "marketBreadth snapshot unavailable for 2026-07-24"
+  ],
+  "modelLineage": {
+    "ok": true,
+    "schemaVersion": 1,
+    "modelVersion": "2026-07-21-relative-v2",
+    "modelPath": "models/sector-rotation/a-share-relative-probability-v2.json",
+    "modelSha256": "358e19ae3dacbfdba71db195c0171c627646f33aaadf39250fb0f7b7cbb994d8",
+    "datasetId": "a-share-2026-07-21-3448b55c8ae4",
+    "datasetManifestSha256": "072ea900788faa910ddf17853563bc2ceb3bc2334fdcbcd97325f25202c8c756",
+    "featureContractVersion": "a-share-price-volume-v2",
+    "labelContractVersion": "a-share-labels-v1",
+    "benchmarkContractVersion": "a-share-benchmark-csi-all-share-v1",
+    "associationBasis": "repository-baseline-and-dataset-manifest",
+    "trainedFromCommit": "legacy_unknown",
+    "status": "production"
   },
   "entries": [
     {
@@ -25,11 +108,18 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": 1,
       "productionFeatureCoverage": 0.5,
+      "coverageContractVersion": "prediction-feature-coverage-v2",
+      "modelFeatureCoverage": 0.5,
+      "productionSignalCoverage": 0.5,
+      "trainingReadyCoverage": 0.5,
+      "providerHealthCoverage": 0.5,
       "oosMetrics": null,
       "gateThresholds": null,
       "gateActuals": null,
       "gateFailures": [],
-      "sourceFailures": [],
+      "sourceFailures": [
+        "no immutable market breadth snapshot for 2026-07-24"
+      ],
       "warnings": [],
       "rawScoreDistribution": null,
       "rawProbabilityDistribution": null
@@ -52,6 +142,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": 1,
       "productionFeatureCoverage": 0.5,
+      "coverageContractVersion": "prediction-feature-coverage-v2",
+      "modelFeatureCoverage": 0.5,
+      "productionSignalCoverage": 0.5,
+      "trainingReadyCoverage": 0.5,
+      "providerHealthCoverage": 0.5,
       "oosMetrics": {
         "brier": 0.18447062447800666,
         "baselineBrier": 0.1875,
@@ -80,9 +175,12 @@
         "扣除交易成本后的Top-Bottom收益差不大于0",
         "原始前四分位模型未满足概率校准启用条件"
       ],
-      "sourceFailures": [],
+      "sourceFailures": [
+        "no immutable market breadth snapshot for 2026-07-24"
+      ],
       "warnings": [
-        "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。"
+        "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。",
+        "marketBreadth snapshot unavailable for 2026-07-24"
       ],
       "rawScoreDistribution": {
         "count": 12,
@@ -115,6 +213,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": 1,
       "productionFeatureCoverage": 0.5,
+      "coverageContractVersion": "prediction-feature-coverage-v2",
+      "modelFeatureCoverage": 0.5,
+      "productionSignalCoverage": 0.5,
+      "trainingReadyCoverage": 0.5,
+      "providerHealthCoverage": 0.5,
       "oosMetrics": {
         "brier": 0.17922477363109313,
         "baselineBrier": 0.1875,
@@ -142,9 +245,12 @@
         "生产级差异特征完整度仅50%，低于80%",
         "原始前四分位模型未满足概率校准启用条件"
       ],
-      "sourceFailures": [],
+      "sourceFailures": [
+        "no immutable market breadth snapshot for 2026-07-24"
+      ],
       "warnings": [
-        "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。"
+        "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。",
+        "marketBreadth snapshot unavailable for 2026-07-24"
       ],
       "rawScoreDistribution": {
         "count": 12,
@@ -177,6 +283,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": 1,
       "productionFeatureCoverage": 0.5,
+      "coverageContractVersion": "prediction-feature-coverage-v2",
+      "modelFeatureCoverage": 0.5,
+      "productionSignalCoverage": 0.5,
+      "trainingReadyCoverage": 0.5,
+      "providerHealthCoverage": 0.5,
       "oosMetrics": {
         "brier": 0.17824907666013987,
         "baselineBrier": 0.1875,
@@ -204,9 +315,12 @@
         "生产级差异特征完整度仅50%，低于80%",
         "原始前四分位模型未满足概率校准启用条件"
       ],
-      "sourceFailures": [],
+      "sourceFailures": [
+        "no immutable market breadth snapshot for 2026-07-24"
+      ],
       "warnings": [
-        "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。"
+        "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。",
+        "marketBreadth snapshot unavailable for 2026-07-24"
       ],
       "rawScoreDistribution": {
         "count": 12,
@@ -239,6 +353,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": null,
       "productionFeatureCoverage": null,
+      "coverageContractVersion": null,
+      "modelFeatureCoverage": null,
+      "productionSignalCoverage": null,
+      "trainingReadyCoverage": null,
+      "providerHealthCoverage": null,
       "oosMetrics": null,
       "gateThresholds": null,
       "gateActuals": null,
@@ -268,6 +387,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": null,
       "productionFeatureCoverage": null,
+      "coverageContractVersion": null,
+      "modelFeatureCoverage": null,
+      "productionSignalCoverage": null,
+      "trainingReadyCoverage": null,
+      "providerHealthCoverage": null,
       "oosMetrics": null,
       "gateThresholds": null,
       "gateActuals": null,
@@ -299,6 +423,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": null,
       "productionFeatureCoverage": null,
+      "coverageContractVersion": null,
+      "modelFeatureCoverage": null,
+      "productionSignalCoverage": null,
+      "trainingReadyCoverage": null,
+      "providerHealthCoverage": null,
       "oosMetrics": null,
       "gateThresholds": null,
       "gateActuals": null,
@@ -330,6 +459,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": null,
       "productionFeatureCoverage": null,
+      "coverageContractVersion": null,
+      "modelFeatureCoverage": null,
+      "productionSignalCoverage": null,
+      "trainingReadyCoverage": null,
+      "providerHealthCoverage": null,
       "oosMetrics": null,
       "gateThresholds": null,
       "gateActuals": null,
@@ -361,6 +495,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": null,
       "productionFeatureCoverage": null,
+      "coverageContractVersion": null,
+      "modelFeatureCoverage": null,
+      "productionSignalCoverage": null,
+      "trainingReadyCoverage": null,
+      "providerHealthCoverage": null,
       "oosMetrics": null,
       "gateThresholds": null,
       "gateActuals": null,
@@ -390,6 +529,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": null,
       "productionFeatureCoverage": null,
+      "coverageContractVersion": null,
+      "modelFeatureCoverage": null,
+      "productionSignalCoverage": null,
+      "trainingReadyCoverage": null,
+      "providerHealthCoverage": null,
       "oosMetrics": null,
       "gateThresholds": null,
       "gateActuals": null,
@@ -421,6 +565,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": null,
       "productionFeatureCoverage": null,
+      "coverageContractVersion": null,
+      "modelFeatureCoverage": null,
+      "productionSignalCoverage": null,
+      "trainingReadyCoverage": null,
+      "providerHealthCoverage": null,
       "oosMetrics": null,
       "gateThresholds": null,
       "gateActuals": null,
@@ -452,6 +601,11 @@
       "calibratedProbabilityAvailable": false,
       "modelInputCompleteness": null,
       "productionFeatureCoverage": null,
+      "coverageContractVersion": null,
+      "modelFeatureCoverage": null,
+      "productionSignalCoverage": null,
+      "trainingReadyCoverage": null,
+      "providerHealthCoverage": null,
       "oosMetrics": null,
       "gateThresholds": null,
       "gateActuals": null,

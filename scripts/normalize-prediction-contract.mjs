@@ -19,8 +19,6 @@ function marketState(marketId, forecast) {
           calibrationStatus: "disabled",
           probabilitySource: "raw_model",
           probabilityTarget: "top_quartile",
-          modelInputCompleteness: 1,
-          productionFeatureCoverage: 0.5,
         }
       : {
           modelAvailability: "trained",
@@ -29,8 +27,6 @@ function marketState(marketId, forecast) {
           calibrationStatus: "not_applicable",
           probabilitySource: "none",
           probabilityTarget: "none",
-          modelInputCompleteness: 1,
-          productionFeatureCoverage: 0.5,
         };
   }
   const notImplemented = marketId === "us";
@@ -44,6 +40,80 @@ function marketState(marketId, forecast) {
     modelInputCompleteness: null,
     productionFeatureCoverage: null,
   };
+}
+
+function applyCoverageContract(market, horizon) {
+  if (market.id !== "a-share") {
+    Object.assign(horizon, {
+      coverageContractVersion: null,
+      modelFeatureCoverage: null,
+      productionSignalCoverage: null,
+      trainingReadyCoverage: null,
+      providerHealthCoverage: null,
+    });
+    return;
+  }
+  const coverage = market.featureCoverage ?? {};
+  const modelInputCompleteness = finite(coverage.modelInputCompleteness)
+    ? coverage.modelInputCompleteness
+    : finite(horizon.modelInputCompleteness) ? horizon.modelInputCompleteness : null;
+  const modelFeatureCoverage = finite(coverage.modelFeatureCoverage)
+    ? coverage.modelFeatureCoverage
+    : finite(horizon.modelFeatureCoverage) ? horizon.modelFeatureCoverage
+      : finite(horizon.productionFeatureCoverage) ? horizon.productionFeatureCoverage : null;
+  const productionSignalCoverage = finite(coverage.productionSignalCoverage)
+    ? coverage.productionSignalCoverage
+    : finite(horizon.productionSignalCoverage) ? horizon.productionSignalCoverage : modelFeatureCoverage;
+  const trainingReadyCoverage = finite(coverage.trainingReadyCoverage)
+    ? coverage.trainingReadyCoverage
+    : finite(horizon.trainingReadyCoverage) ? horizon.trainingReadyCoverage : modelFeatureCoverage;
+  const providerHealthCoverage = finite(coverage.providerHealthCoverage)
+    ? coverage.providerHealthCoverage
+    : finite(horizon.providerHealthCoverage) ? horizon.providerHealthCoverage : modelFeatureCoverage;
+  Object.assign(horizon, {
+    coverageContractVersion: coverage.coverageContractVersion ?? horizon.coverageContractVersion ?? "prediction-feature-coverage-v2",
+    modelInputCompleteness,
+    modelFeatureCoverage,
+    productionSignalCoverage,
+    trainingReadyCoverage,
+    providerHealthCoverage,
+    // Compatibility only: this remains the frozen model-feature measure and is
+    // intentionally not upgraded by the observation-only breadth signal.
+    productionFeatureCoverage: modelFeatureCoverage,
+  });
+}
+
+function ensureAshareMetadata(market) {
+  if (market.id !== "a-share") return;
+  const current = market.horizons?.current ?? {};
+  const legacyCoverage = finite(current.productionFeatureCoverage) ? current.productionFeatureCoverage : 0;
+  if (!market.featureCoverage) {
+    market.featureCoverage = {
+      coverageContractVersion: "prediction-feature-coverage-v2",
+      modelInputCompleteness: current.modelInputCompleteness ?? null,
+      modelInputCount: { available: 26, required: 26 },
+      modelFeatureCoverage: legacyCoverage,
+      productionSignalCoverage: legacyCoverage,
+      trainingReadyCoverage: legacyCoverage,
+      providerHealthCoverage: legacyCoverage,
+      productionFeatureCoverage: legacyCoverage,
+      deprecatedAliasOf: "modelFeatureCoverage",
+      groups: {
+        priceRelativeStrength: { weight: 0.25, modelRequired: true, trainingReady: true, productionStatus: "ready", providerHealth: 1 },
+        turnoverAndVolume: { weight: 0.25, modelRequired: true, trainingReady: true, productionStatus: "ready", providerHealth: 1 },
+        marketBreadth: { weight: 0.20, modelRequired: false, trainingReady: false, productionStatus: "unavailable", productionGroupCoverage: 0, providerHealth: 0, reason: "immutable forward snapshots begin in P1-D" },
+        etfAndInstitutionFlow: { weight: 0.20, modelRequired: false, trainingReady: false, productionStatus: "not_implemented", providerHealth: 0 },
+        policyAndEventMapping: { weight: 0.10, modelRequired: false, trainingReady: false, productionStatus: "not_implemented", providerHealth: 0 },
+      },
+    };
+  }
+  if (!market.marketBreadthSummary) market.marketBreadthSummary = { status: "unavailable", groupCoverage: 0, productionReady: false, trainingReady: false };
+  if (!market.sourceStatus) market.sourceStatus = { marketBreadth: { status: "unavailable", reason: `no immutable market breadth snapshot for ${market.asOf}` } };
+  if (!Array.isArray(market.warnings)) market.warnings = [`marketBreadth snapshot unavailable for ${market.asOf}`];
+  if (!market.modelLineage) {
+    const lineage = readJson(path.join(root, "models", "sector-rotation", "a-share-relative-probability-v2.lineage.json"));
+    market.modelLineage = { ok: true, ...lineage };
+  }
 }
 
 function diagnosticModelVersion(rotation, marketId) {
@@ -71,6 +141,7 @@ function normalizeDailySourceUrls(market) {
 function normalizeRotation(rotation) {
   const featureVersion = "a-core12-v2:price-volume-cross-section-interactions";
   for (const market of rotation.markets ?? []) {
+    ensureAshareMetadata(market);
     normalizeDailySourceUrls(market);
     for (const [key, horizon] of Object.entries(market.horizons ?? {})) {
       const forecast = key !== "current";
@@ -80,6 +151,7 @@ function normalizeRotation(rotation) {
         modelVersion: diagnosticModelVersion(rotation, market.id),
         featureVersion: market.id === "a-share" ? featureVersion : null,
       });
+      applyCoverageContract(market, horizon);
 
       if (forecast && market.id !== "a-share") {
         horizon.status = "insufficient";
@@ -104,8 +176,12 @@ function normalizeRotation(rotation) {
         horizon.diagnostics = {
           ...(horizon.diagnostics ?? {}),
           modelVersion: rotation.model.version,
-          modelInputCompleteness: 1,
-          productionFeatureCoverage: 0.5,
+          modelInputCompleteness: horizon.modelInputCompleteness,
+          productionFeatureCoverage: horizon.productionFeatureCoverage,
+          modelFeatureCoverage: horizon.modelFeatureCoverage,
+          productionSignalCoverage: horizon.productionSignalCoverage,
+          trainingReadyCoverage: horizon.trainingReadyCoverage,
+          providerHealthCoverage: horizon.providerHealthCoverage,
         };
         delete horizon.diagnostics.dataCompleteness;
       } else {
@@ -263,6 +339,11 @@ function diagnosticEntry(rotation, artifact, market, key, horizon) {
     calibratedProbabilityAvailable: market.id === "a-share" && key !== "current" && artifactHorizon?.calibrations?.topQuartile?.enabled === true,
     modelInputCompleteness: horizon.modelInputCompleteness,
     productionFeatureCoverage: horizon.productionFeatureCoverage,
+    coverageContractVersion: horizon.coverageContractVersion,
+    modelFeatureCoverage: horizon.modelFeatureCoverage,
+    productionSignalCoverage: horizon.productionSignalCoverage,
+    trainingReadyCoverage: horizon.trainingReadyCoverage,
+    providerHealthCoverage: horizon.providerHealthCoverage,
     oosMetrics: market.id === "a-share" && key !== "current" ? oosMetrics(artifactHorizon) : null,
     gateThresholds: artifactHorizon?.audit?.qualityGate?.thresholds ?? null,
     gateActuals: market.id === "a-share" && key !== "current" ? {
@@ -271,9 +352,12 @@ function diagnosticEntry(rotation, artifact, market, key, horizon) {
       qualityGatePassed: artifactHorizon?.audit?.qualityGate?.passed ?? null,
     } : null,
     gateFailures: horizon.gateFailures ?? [],
-    sourceFailures: market.id === "a-share" ? artifact.dataDiagnostics?.sourceHealth?.failures ?? [] : [],
+    sourceFailures: market.id === "a-share" ? [
+      ...(artifact.dataDiagnostics?.sourceHealth?.failures ?? []),
+      ...(market.sourceStatus?.marketBreadth?.reason ? [market.sourceStatus.marketBreadth.reason] : []),
+    ] : [],
     warnings: market.id === "a-share" && key !== "current"
-      ? ["原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。"]
+      ? ["原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。", ...(market.warnings ?? [])]
       : market.id === "hk"
         ? ["港股没有训练面板、标签、训练器或样本外指标。"]
         : market.id === "us"
@@ -285,14 +369,20 @@ function diagnosticEntry(rotation, artifact, market, key, horizon) {
 }
 
 function buildDiagnostics(rotation, artifact) {
+  const aShare = (rotation.markets ?? []).find((market) => market.id === "a-share");
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     generatedAt: rotation.generatedAt,
     policy: {
       immutableSnapshotLedger: "data/predictions/snapshots.jsonl.gz",
       pageReadsDiagnostics: false,
       unavailableValuesAreNull: true,
     },
+    featureCoverage: aShare?.featureCoverage ?? null,
+    marketBreadthSummary: aShare?.marketBreadthSummary ?? null,
+    sourceStatus: aShare?.sourceStatus ?? null,
+    warnings: aShare?.warnings ?? [],
+    modelLineage: aShare?.modelLineage ?? null,
     entries: (rotation.markets ?? []).flatMap((market) => Object.entries(market.horizons ?? {})
       .map(([key, horizon]) => diagnosticEntry(rotation, artifact, market, key, horizon))),
   };

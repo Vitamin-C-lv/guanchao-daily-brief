@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "modelVersion": "2026-07-21-relative-v2",
+  "modelPath": "models/sector-rotation/a-share-relative-probability-v2.json",
+  "modelSha256": "358e19ae3dacbfdba71db195c0171c627646f33aaadf39250fb0f7b7cbb994d8",
+  "datasetId": "a-share-2026-07-21-3448b55c8ae4",
+  "datasetManifestSha256": "072ea900788faa910ddf17853563bc2ceb3bc2334fdcbcd97325f25202c8c756",
+  "featureContractVersion": "a-share-price-volume-v2",
+  "labelContractVersion": "a-share-labels-v1",
+  "benchmarkContractVersion": "a-share-benchmark-csi-all-share-v1",
+  "associationBasis": "repository-baseline-and-dataset-manifest",
+  "trainedFromCommit": "legacy_unknown",
+  "status": "production"
+}

@@ -42,6 +42,9 @@ try:
 except ImportError as exc:  # pragma: no cover - explicit runtime diagnostic
     raise SystemExit("sector_rotation.py requires the small 'requests' package") from exc
 
+import market_breadth
+import prediction_feature_coverage
+
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_DIR = ROOT / "models" / "sector-rotation"
@@ -1632,6 +1635,7 @@ def prediction_state_contract(
     model_input_completeness: float | None,
     production_feature_coverage: float | None,
     gate_failures: list[str],
+    coverage_contract: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Keep model existence, publication and probability lineage independent."""
     return {
@@ -1645,11 +1649,46 @@ def prediction_state_contract(
         "featureVersion": feature_version,
         "modelInputCompleteness": model_input_completeness,
         "productionFeatureCoverage": production_feature_coverage,
+        "coverageContractVersion": coverage_contract.get("coverageContractVersion") if coverage_contract else None,
+        "modelFeatureCoverage": coverage_contract.get("modelFeatureCoverage") if coverage_contract else None,
+        "productionSignalCoverage": coverage_contract.get("productionSignalCoverage") if coverage_contract else None,
+        "trainingReadyCoverage": coverage_contract.get("trainingReadyCoverage") if coverage_contract else None,
+        "providerHealthCoverage": coverage_contract.get("providerHealthCoverage") if coverage_contract else None,
         "gateFailures": gate_failures,
     }
 
 
-def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any]) -> dict[str, Any]:
+def load_market_breadth(as_of: str) -> tuple[dict[str, Any], dict[str, Any], list[str]]:
+    """Read only the exact immutable current-session breadth artifact."""
+    path = market_breadth.snapshot_path(market_breadth.STORE_ROOT, as_of)
+    if not path.exists():
+        return (
+            {"status": "unavailable", "groupCoverage": 0.0, "productionReady": False, "trainingReady": False},
+            {"status": "unavailable", "reason": f"no immutable market breadth snapshot for {as_of}"},
+            [f"marketBreadth snapshot unavailable for {as_of}"],
+        )
+    try:
+        snapshot = market_breadth.read_gzip_json(path)
+        market_breadth.verify_snapshot_payload(snapshot)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        return (
+            {"status": "unavailable", "groupCoverage": 0.0, "productionReady": False, "trainingReady": False},
+            {"status": "unavailable", "reason": f"invalid immutable market breadth snapshot: {exc}"},
+            ["marketBreadth snapshot validation failed"],
+        )
+    if snapshot.get("asOf") != as_of:
+        return (
+            {"status": "stale", "groupCoverage": 0.0, "productionReady": False, "trainingReady": False},
+            {"status": "stale", "reason": "snapshot asOf mismatch"},
+            ["marketBreadth snapshot is stale"],
+        )
+    return snapshot["summary"], snapshot["sourceStatus"], []
+
+
+def a_share_market(
+    artifact: dict[str, Any], probability_artifact: dict[str, Any], model_lineage: dict[str, Any] | None = None
+) -> dict[str, Any]:
+    model_lineage = model_lineage or prediction_feature_coverage.verify_lineage(ROOT)
     taxonomy_data = read_json(TAXONOMY_PATH)
     taxonomy_hash = canonical_json_sha256(taxonomy_data)
     manifest = load_manifest()
@@ -1767,6 +1806,16 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
             for sessions in (1, 5, 20)
         )
     )
+    market_breadth_summary, market_breadth_source_status, market_breadth_warnings = load_market_breadth(as_of)
+    expected_model_inputs = int(probability_artifact.get("dataDiagnostics", {}).get("expectedFeatureCount", 26))
+    current_sector_ratio = len(latest) / universe_count if fresh and universe_count else 0.0
+    feature_coverage = prediction_feature_coverage.build_coverage_contract(
+        expected_model_inputs=expected_model_inputs,
+        available_model_inputs=expected_model_inputs if current_ready and len(latest) == universe_count else 0,
+        price_relative_strength_health=current_sector_ratio,
+        turnover_and_volume_health=current_sector_ratio,
+        market_breadth_summary=market_breadth_summary,
+    )
     current_charts: list[dict[str, Any]] = []
     if current_ready:
         visualization = visualization_artifact({row["code"]: row for row in latest})
@@ -1856,9 +1905,10 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
                     probability_target="none",
                     model_version=probability_artifact.get("version"),
                     feature_version="a-core12-v2:price-volume-cross-section-interactions",
-                    model_input_completeness=0.0,
-                    production_feature_coverage=float(probability_artifact.get("dataDiagnostics", {}).get("productionFeatureCoverage", 0.0)),
+                    model_input_completeness=feature_coverage["modelInputCompleteness"],
+                    production_feature_coverage=feature_coverage["productionFeatureCoverage"],
                     gate_failures=["model_input_missing"],
+                    coverage_contract=feature_coverage,
                 ),
             }
             continue
@@ -1907,8 +1957,12 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
                 ],
                 "diagnostics": {
                     "modelVersion": probability_artifact.get("version"),
-                    "modelInputCompleteness": float(probability_artifact.get("dataDiagnostics", {}).get("modelInputCompleteness", 1.0)),
-                    "productionFeatureCoverage": float(probability_artifact.get("dataDiagnostics", {}).get("productionFeatureCoverage", probability_artifact.get("dataDiagnostics", {}).get("enhancedFeatureGroups", {}).get("completeness", 0))),
+                    "modelInputCompleteness": feature_coverage["modelInputCompleteness"],
+                    "productionFeatureCoverage": feature_coverage["productionFeatureCoverage"],
+                    "modelFeatureCoverage": feature_coverage["modelFeatureCoverage"],
+                    "productionSignalCoverage": feature_coverage["productionSignalCoverage"],
+                    "trainingReadyCoverage": feature_coverage["trainingReadyCoverage"],
+                    "providerHealthCoverage": feature_coverage["providerHealthCoverage"],
                     "rankIc": diagnostic.get("rankIc"),
                     "topBottomSpreadAfterCosts": diagnostic.get("topBottomSpreadAfterCosts"),
                     "predictionCrossSectionStd": diagnostic.get("predictionCrossSectionStd"),
@@ -1922,9 +1976,10 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
                     probability_target="top_quartile",
                     model_version=probability_artifact.get("version"),
                     feature_version="a-core12-v2:price-volume-cross-section-interactions",
-                    model_input_completeness=float(probability_artifact.get("dataDiagnostics", {}).get("modelInputCompleteness", 1.0)),
-                    production_feature_coverage=float(probability_artifact.get("dataDiagnostics", {}).get("productionFeatureCoverage", probability_artifact.get("dataDiagnostics", {}).get("enhancedFeatureGroups", {}).get("completeness", 0))),
+                    model_input_completeness=feature_coverage["modelInputCompleteness"],
+                    production_feature_coverage=feature_coverage["productionFeatureCoverage"],
                     gate_failures=daily_reasons or ["quality_gate_failed"],
+                    coverage_contract=feature_coverage,
                 ),
             }
             continue
@@ -2039,9 +2094,10 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
                 probability_target="top_quartile",
                 model_version=probability_artifact.get("version"),
                 feature_version="a-core12-v2:price-volume-cross-section-interactions",
-                model_input_completeness=float(probability_artifact.get("dataDiagnostics", {}).get("modelInputCompleteness", 1.0)),
-                production_feature_coverage=float(probability_artifact.get("dataDiagnostics", {}).get("productionFeatureCoverage", probability_artifact.get("dataDiagnostics", {}).get("enhancedFeatureGroups", {}).get("completeness", 0))),
+                model_input_completeness=feature_coverage["modelInputCompleteness"],
+                production_feature_coverage=feature_coverage["productionFeatureCoverage"],
                 gate_failures=[],
+                coverage_contract=feature_coverage,
             ),
         }
 
@@ -2062,6 +2118,11 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
             f"最新同日可比数据仅{len(latest)}/{universe_count}项，数据截至{as_of}，"
             f"页面完整交易日为{expected_label}；少于3项时不生成横截面排序。"
         ),
+        "featureCoverage": feature_coverage,
+        "marketBreadthSummary": market_breadth_summary,
+        "sourceStatus": {"marketBreadth": market_breadth_source_status},
+        "warnings": market_breadth_warnings,
+        "modelLineage": model_lineage,
         "sources": a_sources,
         "horizons": {
             "current": {
@@ -2077,9 +2138,10 @@ def a_share_market(artifact: dict[str, Any], probability_artifact: dict[str, Any
                     probability_target="none",
                     model_version=probability_artifact.get("version"),
                     feature_version="a-core12-v2:price-volume-cross-section-interactions",
-                    model_input_completeness=float(probability_artifact.get("dataDiagnostics", {}).get("modelInputCompleteness", 1.0)),
-                    production_feature_coverage=float(probability_artifact.get("dataDiagnostics", {}).get("productionFeatureCoverage", probability_artifact.get("dataDiagnostics", {}).get("enhancedFeatureGroups", {}).get("completeness", 0))),
+                    model_input_completeness=feature_coverage["modelInputCompleteness"],
+                    production_feature_coverage=feature_coverage["productionFeatureCoverage"],
                     gate_failures=[],
+                    coverage_contract=feature_coverage,
                 ),
                 **(
                     {
@@ -2447,6 +2509,10 @@ def infer(_: argparse.Namespace) -> dict[str, Any]:
         raise SystemExit(f"event memory initialization failed: {exc}") from exc
     artifact = read_json(MODEL_PATH)
     probability_artifact = read_json(MULTI_TARGET_MODEL_PATH)
+    try:
+        model_lineage = prediction_feature_coverage.verify_lineage(ROOT)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        raise SystemExit(f"production model lineage verification failed: {exc}") from exc
     metrics = []
     for sessions in (1, 5, 20):
         result = probability_artifact["horizons"][str(sessions)]
@@ -2473,7 +2539,7 @@ def infer(_: argparse.Namespace) -> dict[str, Any]:
                 "summary": "；".join(metrics) + "。未通过闸门的周期不会发布概率排名。",
             },
         },
-        "markets": [a_share_market(artifact, probability_artifact), hk_market(), us_market()],
+        "markets": [a_share_market(artifact, probability_artifact, model_lineage), hk_market(), us_market()],
     }
     # Avoid serializing null reason fields when a market is ready.
     for market in payload["markets"]:
@@ -2959,6 +3025,14 @@ def append_event(args: argparse.Namespace) -> None:
 def refresh_and_infer(args: argparse.Namespace) -> None:
     """Refresh structured inputs, rebuild features, then apply the frozen model."""
     fetch_a_share_history(args)
+    try:
+        breadth_result = market_breadth.collect(str(args.end))
+        print(f"[market-breadth] snapshot={breadth_result['path']} created={breadth_result['created']}", flush=True)
+    except Exception as exc:
+        # Breadth is an independent observation signal.  It can lower provider
+        # health, but must never turn missing data into zero or stop the frozen
+        # price/volume model from producing its existing abstained observation.
+        print(f"[market-breadth] unavailable: {exc}", flush=True)
     build_features(args)
     infer(args)
 
