@@ -21,7 +21,7 @@
   },
   "dryRun": {
     "behavior": "runs refresh, append, rebuild and verify in ephemeral runner worktree; skips commit and push when DRY_RUN=true",
-    "githubRun": "not_run_by_audit_script; dispatch must be performed from authorized GitHub context after code review",
+    "githubRun": "success: run 30422855704 on 05bfcf2; Windows contract and append/verify jobs passed; no snapshot appended and commit/push steps skipped because dry_run=true.",
     "supported": "workflow_dispatch dry_run boolean"
   },
   "evaluationSimulation": {
@@ -203,7 +203,7 @@
     "githubLedgerAuthority": "actions/checkout fetch-depth 0 checks out ref main and validates data/prediction-ledger; no ignored local ledger path is used",
     "path": ".github/workflows/prediction-ledger.yml",
     "trigger": "push main, pull_request, workflow_dispatch, weekdays schedule",
-    "writeEvent": "automate job only after validate, only refs/heads/main and schedule or workflow_dispatch mode != validate"
+    "writeEvent": "normal writer only after validate on refs/heads/main; workflow_dispatch dry_run may execute from another ref but cannot commit or push"
   },
   "workflowTextAssertions": {
     "hasDispatchDryRun": true,

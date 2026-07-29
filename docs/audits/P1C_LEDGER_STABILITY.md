@@ -21,4 +21,4 @@ The static validator requires the exact current `content/sector-rotation.json` p
 
 The latest snapshot is correctly at 2026-07-24 because the committed publication is exactly `2026-07-24T20:19:06+08:00` and has a matching snapshot. No later committed main publication existed at the audited baseline; this is a post-merge/not-yet-scheduled-run state, not a trigger-chain defect.
 
-No production write is recommended by this audit. The external GitHub dry-run result is recorded in the JSON report and final delivery evidence.
+No production write is recommended by this audit. GitHub Actions dry-run [30422855704](https://github.com/Vitamin-C-lv/guanchao-daily-brief/actions/runs/30422855704) passed both the Windows contract job and the append/verify job at `05bfcf2`; no snapshot was appended and its commit/push steps were skipped.
