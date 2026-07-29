@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "sources": [
+    {"sourceId":"us-treasury-nominal-xml","datasetId":"daily_treasury_yield_curve","market":"US","primaryUrl":"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value={year}","fallbackUrls":[],"sourceClass":"official","official":true,"requiredForDaily":false,"requiredForWeekly":true,"freshnessCalendar":"US_TRADING","maxTradingSessionLag":1,"unit":"percent","parserVersion":"v1","normalizerVersion":"v1","enabled":true},
+    {"sourceId":"us-treasury-real-xml","datasetId":"daily_treasury_real_yield_curve","market":"US","primaryUrl":"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_real_yield_curve&field_tdr_date_value={year}","fallbackUrls":[],"sourceClass":"official","official":true,"requiredForDaily":false,"requiredForWeekly":true,"freshnessCalendar":"US_TRADING","maxTradingSessionLag":1,"unit":"percent","parserVersion":"v1","normalizerVersion":"v1","enabled":true},
+    {"sourceId":"csi-constituents","datasetId":"csi-current-constituents","market":"A_SHARE","primaryUrl":"https://www.csindex.com.cn/csindex-home/indexInfo/index-details-data","fallbackUrls":[],"sourceClass":"official","official":true,"requiredForDaily":false,"requiredForWeekly":false,"freshnessCalendar":"CN_TRADING","maxTradingSessionLag":0,"unit":"constituents","parserVersion":"v1","normalizerVersion":"v1","enabled":true}
+  ]
+}

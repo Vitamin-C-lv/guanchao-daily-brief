@@ -1382,6 +1382,18 @@ def parser() -> argparse.ArgumentParser:
 
     health = commands.add_parser("health", help="inspect local coverage without network access")
     health.set_defaults(func=health_report)
+    run = commands.add_parser("run", help="P1-E immutable writer-packet run")
+    run.add_argument("--edition", choices=["daily", "weekly"], required=True)
+    run.add_argument("--as-of", default="auto")
+    run.add_argument("--dry-run", action="store_true")
+    def run_pipeline(args: argparse.Namespace) -> dict[str, Any]:
+        from market_evidence_sources import treasury
+        from market_evidence_packet import persist
+        as_of = iso_today() if args.as_of == "auto" else args.as_of
+        result = persist(args.edition, as_of, treasury(as_of), None, args.dry_run)
+        print(json.dumps(result, ensure_ascii=False, sort_keys=True))
+        return result
+    run.set_defaults(func=run_pipeline)
     return root
 
 

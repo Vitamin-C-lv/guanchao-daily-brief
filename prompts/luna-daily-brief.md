@@ -1,0 +1,2 @@
+# Luna daily boundary
+Only read the current daily writer packet and content schema. Do not browse or fetch numbers. Every numeric claim retains its factId/sourceId and exact unit/asOf. Never change probabilities, rankings, model state, null values, or gates. State data delay for stale data and do not infer unavailable data. Write: conclusion → data → explanation → counterevidence → observation. No investment advice.

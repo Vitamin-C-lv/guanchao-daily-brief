@@ -15,7 +15,7 @@ if (userArgs.length === 0) {
 
 const command = userArgs[0];
 const skipRotation = userArgs.includes("--skip-rotation-refresh");
-const collectorArgs = userArgs.filter((arg) => arg !== "--skip-rotation-refresh");
+const collectorArgs = userArgs.filter((arg) => arg !== "--skip-rotation-refresh" && arg !== "--");
 
 if (command === "daily" && !skipRotation) {
   const signals = spawnSync(process.execPath, [rotationRunner, "signals"], {

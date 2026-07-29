@@ -46,6 +46,8 @@ P1-B 以 GitHub 跟踪的不可变 snapshot/evaluation gzip 事件为权威，�
 
 P1-E 从 P1-D 合并后的 main 开始。它固定数据采集、不可变运行快照、writer packet 和 Luna 写作边界；美债因子只作为证据观察，不进入冻结模型、概率或发布门槛。marketBreadth 只可评估一个严格限定的、精确 CSI 指数代码的补充来源；不得历史回填或改变 taxonomy。
 
+当前 P1-E 分支为 `feature/p1e-market-data-pipeline`。固定入口为 `pnpm market-data:run -- --edition daily|weekly --as-of auto`；Treasury XML 因子会进入 immutable run 和 writer packet，CSI WAF 下 breadth 保持 unavailable 而不阻断 partial packet。Luna 只可读取 packet，禁止自主抓取。
+
 审计限制：最新 2026-07-24 内容只保留覆盖摘要，未跟踪逐特征生产缓存；生产模型 JSON 未嵌入 datasetId/feature contract，因此关联由冻结仓库状态/manifest 证实而非模型自身字段。详见 `docs/audits/P1C_*.md` 和 `reports/prediction/p1c-*.json`。
 
 ## 新对话恢复顺序
