@@ -27,7 +27,8 @@ const probabilitySources = new Set(["raw_model", "calibrated_model", "historical
 const probabilityTargets = new Set(["absolute_up", "relative_outperformance", "top_quartile", "none"]);
 const stateKeys = [
   "modelAvailability", "publicationStatus", "outputMode", "calibrationStatus", "probabilitySource", "probabilityTarget",
-  "modelVersion", "featureVersion", "modelInputCompleteness", "productionFeatureCoverage", "gateFailures",
+  "modelVersion", "featureVersion", "modelInputCompleteness", "productionFeatureCoverage", "coverageContractVersion",
+  "modelFeatureCoverage", "productionSignalCoverage", "trainingReadyCoverage", "providerHealthCoverage", "gateFailures",
 ];
 
 function canonicalJson(value) {
@@ -129,8 +130,17 @@ function validatePredictionState(horizon, label, { kind }) {
   if (!probabilityTargets.has(horizon.probabilityTarget)) fail(`${label}.probabilityTarget 非法`);
   if (horizon.modelVersion !== null) requireString(horizon.modelVersion, `${label}.modelVersion`, { max: 80 });
   if (horizon.featureVersion !== null) requireString(horizon.featureVersion, `${label}.featureVersion`, { max: 120 });
-  for (const key of ["modelInputCompleteness", "productionFeatureCoverage"]) {
+  for (const key of ["modelInputCompleteness", "productionFeatureCoverage", "modelFeatureCoverage", "productionSignalCoverage", "trainingReadyCoverage", "providerHealthCoverage"]) {
     if (horizon[key] !== null) requireFiniteRange(horizon[key], 0, 1, `${label}.${key}`);
+  }
+  if (horizon.modelAvailability === "trained") {
+    if (horizon.coverageContractVersion !== "prediction-feature-coverage-v2") fail(`${label}.coverageContractVersion 必须为prediction-feature-coverage-v2`);
+    if (horizon.productionFeatureCoverage !== horizon.modelFeatureCoverage) fail(`${label}.productionFeatureCoverage 必须是modelFeatureCoverage兼容别名`);
+    if (horizon.modelFeatureCoverage !== 0.5) fail(`${label}.modelFeatureCoverage 必须保持冻结模型0.50`);
+    if (horizon.trainingReadyCoverage !== 0.5) fail(`${label}.trainingReadyCoverage 在P1-D必须保持0.50`);
+    if (horizon.productionSignalCoverage > 0.7) fail(`${label}.productionSignalCoverage 不得高于0.70`);
+  } else if (["coverageContractVersion", "modelFeatureCoverage", "productionSignalCoverage", "trainingReadyCoverage", "providerHealthCoverage"].some((key) => horizon[key] !== null)) {
+    fail(`${label} 非A股冻结模型不得声明覆盖契约v2数值`);
   }
   if (!Array.isArray(horizon.gateFailures) || horizon.gateFailures.some((reason) => typeof reason !== "string" || !reason.trim())) {
     fail(`${label}.gateFailures 必须是字符串数组`);
@@ -489,9 +499,10 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
     else {
       requireString(horizon.diagnostics.modelVersion, `${label}.diagnostics.modelVersion`, { max: 80 });
       requireFiniteRange(horizon.diagnostics.modelInputCompleteness, 0, 1, `${label}.diagnostics.modelInputCompleteness`);
-      requireFiniteRange(horizon.diagnostics.productionFeatureCoverage, 0, 1, `${label}.diagnostics.productionFeatureCoverage`);
+      for (const key of ["productionFeatureCoverage", "modelFeatureCoverage", "productionSignalCoverage", "trainingReadyCoverage", "providerHealthCoverage"]) requireFiniteRange(horizon.diagnostics[key], 0, 1, `${label}.diagnostics.${key}`);
       if (horizon.diagnostics.modelInputCompleteness !== horizon.modelInputCompleteness) fail(`${label}.diagnostics.modelInputCompleteness 必须与状态契约一致`);
       if (horizon.diagnostics.productionFeatureCoverage !== horizon.productionFeatureCoverage) fail(`${label}.diagnostics.productionFeatureCoverage 必须与状态契约一致`);
+      for (const key of ["modelFeatureCoverage", "productionSignalCoverage", "trainingReadyCoverage", "providerHealthCoverage"]) if (horizon.diagnostics[key] !== horizon[key]) fail(`${label}.diagnostics.${key} 必须与状态契约一致`);
       for (const key of ["rankIc", "topBottomSpreadAfterCosts", "predictionCrossSectionStd"]) {
         if (horizon.diagnostics[key] !== null && !Number.isFinite(horizon.diagnostics[key])) fail(`${label}.diagnostics.${key} 必须是数值或null`);
       }
@@ -587,7 +598,7 @@ function validateAshareDailySourceWindows(market, sources, label) {
 }
 
 function validateMarket(market, label) {
-  if (!exactKeys(market, ["id", "label", "mode", "asOf", "status", "taxonomy", "note", "reason", "sources", "horizons"], label)) return;
+  if (!exactKeys(market, ["id", "label", "mode", "asOf", "status", "taxonomy", "note", "reason", "sources", "horizons", "featureCoverage", "marketBreadthSummary", "sourceStatus", "warnings", "modelLineage"], label)) return;
   requireString(market.label, `${label}.label`, { max: 30 });
   requireDate(market.asOf, `${label}.asOf`);
   if (!["ready", "insufficient"].includes(market.status)) fail(`${label}.status 非法`);
@@ -605,6 +616,15 @@ function validateMarket(market, label) {
   const sources = Array.isArray(market.sources) ? market.sources : [];
 
   if (!exactKeys(market.horizons, ["current", "tomorrow", "oneWeek", "oneMonth"], `${label}.horizons`)) return;
+  if (market.id === "a-share") {
+    if (!isObject(market.featureCoverage) || market.featureCoverage.coverageContractVersion !== "prediction-feature-coverage-v2") fail(`${label}.featureCoverage 必须是coverage v2`);
+    if (!isObject(market.marketBreadthSummary) || !["ready", "partial", "stale", "unavailable"].includes(market.marketBreadthSummary.status)) fail(`${label}.marketBreadthSummary 非法`);
+    if (!isObject(market.sourceStatus) || !isObject(market.sourceStatus.marketBreadth)) fail(`${label}.sourceStatus.marketBreadth 缺失`);
+    if (!Array.isArray(market.warnings)) fail(`${label}.warnings 必须是数组`);
+    if (!isObject(market.modelLineage) || market.modelLineage.ok !== true) fail(`${label}.modelLineage 必须是已验证sidecar`);
+  } else if (["featureCoverage", "marketBreadthSummary", "sourceStatus", "warnings", "modelLineage"].some((key) => market[key] !== undefined)) {
+    fail(`${label} 非A股不得携带A股生产覆盖元数据`);
+  }
   validateHorizon(market.horizons.current, market, sources, `${label}.horizons.current`, { kind: "observed" });
   validateHorizon(market.horizons.tomorrow, market, sources, `${label}.horizons.tomorrow`, { kind: "forecast", sessions: 1 });
   validateHorizon(market.horizons.oneWeek, market, sources, `${label}.horizons.oneWeek`, { kind: "forecast", sessions: 5 });

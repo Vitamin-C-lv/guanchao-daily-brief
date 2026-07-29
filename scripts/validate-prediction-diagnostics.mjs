@@ -12,11 +12,16 @@ const finiteOrNull = (value) => value === null || (typeof value === "number" && 
 const required = [
   "market", "horizon", "modelAvailability", "modelVersion", "featureVersion", "dataAsOf", "snapshotCreatedAt",
   "probabilityTarget", "probabilitySource", "calibrationStatus", "publicationStatus", "outputMode", "rawScoreAvailable",
-  "rawProbabilityAvailable", "calibratedProbabilityAvailable", "modelInputCompleteness", "productionFeatureCoverage", "oosMetrics",
+  "rawProbabilityAvailable", "calibratedProbabilityAvailable", "modelInputCompleteness", "productionFeatureCoverage", "coverageContractVersion", "modelFeatureCoverage", "productionSignalCoverage", "trainingReadyCoverage", "providerHealthCoverage", "oosMetrics",
   "gateThresholds", "gateActuals", "gateFailures", "sourceFailures", "warnings", "rawScoreDistribution", "rawProbabilityDistribution",
 ];
 
-if (data.schemaVersion !== 1) fail("schemaVersion 必须为 1");
+if (data.schemaVersion !== 2) fail("schemaVersion 必须为 2");
+for (const key of ["featureCoverage", "marketBreadthSummary", "sourceStatus", "warnings", "modelLineage"]) if (!(key in data)) fail(`顶层${key}缺失`);
+if (data.featureCoverage?.coverageContractVersion !== "prediction-feature-coverage-v2") fail("顶层featureCoverage必须为覆盖契约v2");
+if (!data.marketBreadthSummary || !["ready", "partial", "stale", "unavailable"].includes(data.marketBreadthSummary.status)) fail("顶层marketBreadthSummary非法");
+if (!data.sourceStatus || !data.sourceStatus.marketBreadth || !Array.isArray(data.warnings)) fail("顶层生产信号状态字段非法");
+if (data.modelLineage?.ok !== true) fail("顶层modelLineage必须为已验证sidecar");
 if (!Array.isArray(data.entries) || data.entries.length !== 12) fail("必须为三个市场的 current/1/5/20 共12个诊断条目");
 const identities = new Set();
 for (const [index, entry] of data.entries.entries()) {
@@ -27,7 +32,7 @@ for (const [index, entry] of data.entries.entries()) {
   const identity = `${entry.market}|${entry.horizon}`;
   if (identities.has(identity)) fail(`${label} 重复 market/horizon`);
   identities.add(identity);
-  for (const key of ["modelInputCompleteness", "productionFeatureCoverage"]) {
+  for (const key of ["modelInputCompleteness", "productionFeatureCoverage", "modelFeatureCoverage", "productionSignalCoverage", "trainingReadyCoverage", "providerHealthCoverage"]) {
     if (!finiteOrNull(entry[key]) || (entry[key] !== null && (entry[key] < 0 || entry[key] > 1))) fail(`${label}.${key} 必须为0-1或null`);
   }
   for (const key of ["rawScoreAvailable", "rawProbabilityAvailable", "calibratedProbabilityAvailable"]) {
@@ -39,6 +44,11 @@ for (const [index, entry] of data.entries.entries()) {
       fail(`${label} 无模型状态不得填充模型概率、版本或OOS指标`);
     }
     if (entry.probabilitySource !== "none" || entry.probabilityTarget !== "none" || entry.calibrationStatus !== "not_applicable") fail(`${label} 无模型状态必须关闭概率血缘`);
+  }
+  if (entry.modelAvailability === "trained") {
+    if (entry.coverageContractVersion !== "prediction-feature-coverage-v2") fail(`${label}.coverageContractVersion非法`);
+    if (entry.productionFeatureCoverage !== entry.modelFeatureCoverage || entry.modelFeatureCoverage !== 0.5) fail(`${label} 兼容覆盖别名或冻结模型覆盖非法`);
+    if (entry.trainingReadyCoverage !== 0.5 || entry.productionSignalCoverage > 0.7) fail(`${label} P1-D覆盖边界非法`);
   }
   if (entry.publicationStatus === "abstained") {
     if (entry.modelAvailability !== "trained" || !entry.modelVersion || !entry.gateFailures.length) fail(`${label} abstained 必须有训练模型、版本和 gateFailures`);

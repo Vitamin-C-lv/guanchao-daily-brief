@@ -1666,7 +1666,12 @@
           "productionFeatureCoverage": 0.5,
           "modelVersion": "2026-07-21-relative-v2",
           "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
-          "gateFailures": []
+          "gateFailures": [],
+          "coverageContractVersion": "prediction-feature-coverage-v2",
+          "modelFeatureCoverage": 0.5,
+          "productionSignalCoverage": 0.5,
+          "trainingReadyCoverage": 0.5,
+          "providerHealthCoverage": 0.5
         },
         "tomorrow": {
           "kind": "forecast",
@@ -2105,7 +2110,11 @@
             "topBottomSpreadAfterCosts": -0.001862854829922779,
             "predictionCrossSectionStd": 0.046994092031221166,
             "modelInputCompleteness": 1,
-            "productionFeatureCoverage": 0.5
+            "productionFeatureCoverage": 0.5,
+            "modelFeatureCoverage": 0.5,
+            "productionSignalCoverage": 0.5,
+            "trainingReadyCoverage": 0.5,
+            "providerHealthCoverage": 0.5
           },
           "modelAvailability": "trained",
           "publicationStatus": "abstained",
@@ -2121,7 +2130,12 @@
             "生产级差异特征完整度仅50%，低于80%",
             "扣除交易成本后的Top-Bottom收益差不大于0",
             "原始前四分位模型未满足概率校准启用条件"
-          ]
+          ],
+          "coverageContractVersion": "prediction-feature-coverage-v2",
+          "modelFeatureCoverage": 0.5,
+          "productionSignalCoverage": 0.5,
+          "trainingReadyCoverage": 0.5,
+          "providerHealthCoverage": 0.5
         },
         "oneWeek": {
           "kind": "forecast",
@@ -2559,7 +2573,11 @@
             "topBottomSpreadAfterCosts": 0.006604641569257642,
             "predictionCrossSectionStd": 0.056063518264073985,
             "modelInputCompleteness": 1,
-            "productionFeatureCoverage": 0.5
+            "productionFeatureCoverage": 0.5,
+            "modelFeatureCoverage": 0.5,
+            "productionSignalCoverage": 0.5,
+            "trainingReadyCoverage": 0.5,
+            "providerHealthCoverage": 0.5
           },
           "modelAvailability": "trained",
           "publicationStatus": "abstained",
@@ -2574,7 +2592,12 @@
           "gateFailures": [
             "生产级差异特征完整度仅50%，低于80%",
             "原始前四分位模型未满足概率校准启用条件"
-          ]
+          ],
+          "coverageContractVersion": "prediction-feature-coverage-v2",
+          "modelFeatureCoverage": 0.5,
+          "productionSignalCoverage": 0.5,
+          "trainingReadyCoverage": 0.5,
+          "providerHealthCoverage": 0.5
         },
         "oneMonth": {
           "kind": "forecast",
@@ -3012,7 +3035,11 @@
             "topBottomSpreadAfterCosts": 0.03019307979998138,
             "predictionCrossSectionStd": 0.05489930153174769,
             "modelInputCompleteness": 1,
-            "productionFeatureCoverage": 0.5
+            "productionFeatureCoverage": 0.5,
+            "modelFeatureCoverage": 0.5,
+            "productionSignalCoverage": 0.5,
+            "trainingReadyCoverage": 0.5,
+            "providerHealthCoverage": 0.5
           },
           "modelAvailability": "trained",
           "publicationStatus": "abstained",
@@ -3027,8 +3054,96 @@
           "gateFailures": [
             "生产级差异特征完整度仅50%，低于80%",
             "原始前四分位模型未满足概率校准启用条件"
-          ]
+          ],
+          "coverageContractVersion": "prediction-feature-coverage-v2",
+          "modelFeatureCoverage": 0.5,
+          "productionSignalCoverage": 0.5,
+          "trainingReadyCoverage": 0.5,
+          "providerHealthCoverage": 0.5
         }
+      },
+      "featureCoverage": {
+        "coverageContractVersion": "prediction-feature-coverage-v2",
+        "modelInputCompleteness": 1,
+        "modelInputCount": {
+          "available": 26,
+          "required": 26
+        },
+        "modelFeatureCoverage": 0.5,
+        "productionSignalCoverage": 0.5,
+        "trainingReadyCoverage": 0.5,
+        "providerHealthCoverage": 0.5,
+        "productionFeatureCoverage": 0.5,
+        "deprecatedAliasOf": "modelFeatureCoverage",
+        "groups": {
+          "priceRelativeStrength": {
+            "weight": 0.25,
+            "modelRequired": true,
+            "trainingReady": true,
+            "productionStatus": "ready",
+            "providerHealth": 1
+          },
+          "turnoverAndVolume": {
+            "weight": 0.25,
+            "modelRequired": true,
+            "trainingReady": true,
+            "productionStatus": "ready",
+            "providerHealth": 1
+          },
+          "marketBreadth": {
+            "weight": 0.2,
+            "modelRequired": false,
+            "trainingReady": false,
+            "productionStatus": "unavailable",
+            "productionGroupCoverage": 0,
+            "providerHealth": 0,
+            "reason": "immutable forward snapshots begin in P1-D"
+          },
+          "etfAndInstitutionFlow": {
+            "weight": 0.2,
+            "modelRequired": false,
+            "trainingReady": false,
+            "productionStatus": "not_implemented",
+            "providerHealth": 0
+          },
+          "policyAndEventMapping": {
+            "weight": 0.1,
+            "modelRequired": false,
+            "trainingReady": false,
+            "productionStatus": "not_implemented",
+            "providerHealth": 0
+          }
+        }
+      },
+      "marketBreadthSummary": {
+        "status": "unavailable",
+        "groupCoverage": 0,
+        "productionReady": false,
+        "trainingReady": false
+      },
+      "sourceStatus": {
+        "marketBreadth": {
+          "status": "unavailable",
+          "reason": "no immutable market breadth snapshot for 2026-07-24"
+        }
+      },
+      "warnings": [
+        "marketBreadth snapshot unavailable for 2026-07-24"
+      ],
+      "modelLineage": {
+        "ok": true,
+        "schemaVersion": 1,
+        "modelVersion": "2026-07-21-relative-v2",
+        "modelPath": "models/sector-rotation/a-share-relative-probability-v2.json",
+        "modelSha256": "358e19ae3dacbfdba71db195c0171c627646f33aaadf39250fb0f7b7cbb994d8",
+        "datasetId": "a-share-2026-07-21-3448b55c8ae4",
+        "datasetManifestSha256": "072ea900788faa910ddf17853563bc2ceb3bc2334fdcbcd97325f25202c8c756",
+        "featureContractVersion": "a-share-price-volume-v2",
+        "labelContractVersion": "a-share-labels-v1",
+        "benchmarkContractVersion": "a-share-benchmark-csi-all-share-v1",
+        "associationBasis": "repository-baseline-and-dataset-manifest",
+        "trainedFromCommit": "legacy_unknown",
+        "status": "production"
       }
     },
     {
@@ -3355,7 +3470,12 @@
           "productionFeatureCoverage": null,
           "modelVersion": null,
           "featureVersion": null,
-          "gateFailures": []
+          "gateFailures": [],
+          "coverageContractVersion": null,
+          "modelFeatureCoverage": null,
+          "productionSignalCoverage": null,
+          "trainingReadyCoverage": null,
+          "providerHealthCoverage": null
         },
         "tomorrow": {
           "kind": "forecast",
@@ -3375,7 +3495,12 @@
           "featureVersion": null,
           "gateFailures": [
             "model_not_trained"
-          ]
+          ],
+          "coverageContractVersion": null,
+          "modelFeatureCoverage": null,
+          "productionSignalCoverage": null,
+          "trainingReadyCoverage": null,
+          "providerHealthCoverage": null
         },
         "oneWeek": {
           "kind": "forecast",
@@ -3395,7 +3520,12 @@
           "featureVersion": null,
           "gateFailures": [
             "model_not_trained"
-          ]
+          ],
+          "coverageContractVersion": null,
+          "modelFeatureCoverage": null,
+          "productionSignalCoverage": null,
+          "trainingReadyCoverage": null,
+          "providerHealthCoverage": null
         },
         "oneMonth": {
           "kind": "forecast",
@@ -3415,7 +3545,12 @@
           "featureVersion": null,
           "gateFailures": [
             "model_not_trained"
-          ]
+          ],
+          "coverageContractVersion": null,
+          "modelFeatureCoverage": null,
+          "productionSignalCoverage": null,
+          "trainingReadyCoverage": null,
+          "providerHealthCoverage": null
         }
       }
     },
@@ -3533,7 +3668,12 @@
           "productionFeatureCoverage": null,
           "modelVersion": null,
           "featureVersion": null,
-          "gateFailures": []
+          "gateFailures": [],
+          "coverageContractVersion": null,
+          "modelFeatureCoverage": null,
+          "productionSignalCoverage": null,
+          "trainingReadyCoverage": null,
+          "providerHealthCoverage": null
         },
         "tomorrow": {
           "kind": "forecast",
@@ -3553,7 +3693,12 @@
           "featureVersion": null,
           "gateFailures": [
             "model_not_implemented"
-          ]
+          ],
+          "coverageContractVersion": null,
+          "modelFeatureCoverage": null,
+          "productionSignalCoverage": null,
+          "trainingReadyCoverage": null,
+          "providerHealthCoverage": null
         },
         "oneWeek": {
           "kind": "forecast",
@@ -3573,7 +3718,12 @@
           "featureVersion": null,
           "gateFailures": [
             "model_not_implemented"
-          ]
+          ],
+          "coverageContractVersion": null,
+          "modelFeatureCoverage": null,
+          "productionSignalCoverage": null,
+          "trainingReadyCoverage": null,
+          "providerHealthCoverage": null
         },
         "oneMonth": {
           "kind": "forecast",
@@ -3593,7 +3743,12 @@
           "featureVersion": null,
           "gateFailures": [
             "model_not_implemented"
-          ]
+          ],
+          "coverageContractVersion": null,
+          "modelFeatureCoverage": null,
+          "productionSignalCoverage": null,
+          "trainingReadyCoverage": null,
+          "providerHealthCoverage": null
         }
       }
     }

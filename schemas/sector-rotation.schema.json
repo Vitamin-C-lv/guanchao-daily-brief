@@ -23,7 +23,7 @@
     },
     "predictionState": {
       "type": "object",
-      "required": ["modelAvailability", "publicationStatus", "outputMode", "calibrationStatus", "probabilitySource", "probabilityTarget", "modelVersion", "featureVersion", "modelInputCompleteness", "productionFeatureCoverage", "gateFailures"],
+      "required": ["modelAvailability", "publicationStatus", "outputMode", "calibrationStatus", "probabilitySource", "probabilityTarget", "modelVersion", "featureVersion", "modelInputCompleteness", "productionFeatureCoverage", "coverageContractVersion", "modelFeatureCoverage", "productionSignalCoverage", "trainingReadyCoverage", "providerHealthCoverage", "gateFailures"],
       "properties": {
         "modelAvailability": { "enum": ["trained", "not_trained", "not_implemented"] },
         "publicationStatus": { "enum": ["published", "abstained", "insufficient_data", "not_applicable"] },
@@ -35,6 +35,11 @@
         "featureVersion": { "type": ["string", "null"] },
         "modelInputCompleteness": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
         "productionFeatureCoverage": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "coverageContractVersion": { "type": ["string", "null"] },
+        "modelFeatureCoverage": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "productionSignalCoverage": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "trainingReadyCoverage": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+        "providerHealthCoverage": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
         "gateFailures": { "type": "array", "items": { "type": "string", "minLength": 1 } }
       }
     },
@@ -370,11 +375,15 @@
         "diagnostics": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["modelVersion", "modelInputCompleteness", "productionFeatureCoverage", "rankIc", "topBottomSpreadAfterCosts", "predictionCrossSectionStd"],
+          "required": ["modelVersion", "modelInputCompleteness", "productionFeatureCoverage", "modelFeatureCoverage", "productionSignalCoverage", "trainingReadyCoverage", "providerHealthCoverage", "rankIc", "topBottomSpreadAfterCosts", "predictionCrossSectionStd"],
           "properties": {
             "modelVersion": { "type": "string", "minLength": 1, "maxLength": 80 },
             "modelInputCompleteness": { "type": "number", "minimum": 0, "maximum": 1 },
             "productionFeatureCoverage": { "type": "number", "minimum": 0, "maximum": 1 },
+            "modelFeatureCoverage": { "type": "number", "minimum": 0, "maximum": 1 },
+            "productionSignalCoverage": { "type": "number", "minimum": 0, "maximum": 1 },
+            "trainingReadyCoverage": { "type": "number", "minimum": 0, "maximum": 1 },
+            "providerHealthCoverage": { "type": "number", "minimum": 0, "maximum": 1 },
             "rankIc": { "type": ["number", "null"] },
             "topBottomSpreadAfterCosts": { "type": ["number", "null"] },
             "predictionCrossSectionStd": { "type": ["number", "null"] }
@@ -395,6 +404,11 @@
         "taxonomy": { "$ref": "#/$defs/taxonomy" },
         "note": { "type": "string", "minLength": 1, "maxLength": 400 },
         "reason": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "featureCoverage": { "type": "object" },
+        "marketBreadthSummary": { "type": "object" },
+        "sourceStatus": { "type": "object" },
+        "warnings": { "type": "array", "items": { "type": "string" } },
+        "modelLineage": { "type": "object" },
         "sources": {
           "type": "array",
           "maxItems": 40,
