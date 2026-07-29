@@ -5,7 +5,15 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { gzipSync } from "node:zlib";
-import { parsePanel, serializePanel, verifyDatasetRoot } from "./validate-prediction-dataset.mjs";
+import {
+  BINARY_HASH_MODE,
+  TEXT_HASH_MODE,
+  canonicalTextBytes,
+  parsePanel,
+  serializePanel,
+  sha256CanonicalText,
+  verifyDatasetRoot,
+} from "./validate-prediction-dataset.mjs";
 
 const repositoryRoot = process.cwd();
 const sourceDatasetsRoot = path.join(repositoryRoot, "models", "sector-rotation", "datasets");
@@ -213,10 +221,10 @@ function rehash(context, stages, fixture) {
     if (stage === "panel") writePanel(context, true);
     else if (stage === "source") {
       writeJson(context.sourcePath, context.source);
-      context.manifest.sourceManifest.sha256 = sha256(readFileSync(context.sourcePath));
+      context.manifest.sourceManifest.sha256 = sha256CanonicalText(readFileSync(context.sourcePath), context.sourcePath);
     } else if (stage === "labelDiagnostics") {
       writeJson(context.diagnosticsPath, context.diagnostics);
-      context.manifest.labelDiagnostics.sha256 = sha256(readFileSync(context.diagnosticsPath));
+      context.manifest.labelDiagnostics.sha256 = sha256CanonicalText(readFileSync(context.diagnosticsPath), context.diagnosticsPath);
     } else if (stage === "manifest") {
       if (fixture.name !== "dataset-identity-mismatch") refreshIdentity(context);
       writeJson(context.manifestPath, context.manifest);
@@ -228,7 +236,7 @@ function rehash(context, stages, fixture) {
       entry.datasetId = context.manifest.datasetId;
       entry.path = `a-share/${context.manifest.datasetId}`;
       entry.panelSha256 = context.manifest.panel.sha256;
-      entry.manifestSha256 = sha256(readFileSync(context.manifestPath));
+      entry.manifestSha256 = sha256CanonicalText(readFileSync(context.manifestPath), context.manifestPath);
       context.entry.datasetId = entry.datasetId;
       writeJson(indexPath, index);
     } else {
@@ -297,5 +305,34 @@ test("formal verifier accepts the control snapshot and rejects every real mutati
   for (const filename of readdirSync(fixtureRoot).filter((name) => name.endsWith(".json")).sort()) {
     const fixture = JSON.parse(readFileSync(path.join(fixtureRoot, filename), "utf8"));
     runFixture(fixture);
+  }
+});
+
+test("canonical text hashing is portable across LF, CRLF and mixed endings, while binary hashing is not", () => {
+  const lf = Buffer.from('{"a":1}\n{"b":2}\n', "utf8");
+  const crlf = Buffer.from('{"a":1}\r\n{"b":2}\r\n', "utf8");
+  const mixed = Buffer.from('{"a":1}\r{"b":2}\r\n\n', "utf8");
+  assert.equal(canonicalTextBytes(lf).toString("utf8"), '{"a":1}\n{"b":2}\n');
+  assert.equal(sha256CanonicalText(lf), sha256CanonicalText(crlf));
+  assert.equal(sha256CanonicalText(lf), sha256CanonicalText(mixed));
+  assert.notEqual(sha256(lf), sha256(crlf));
+  assert.equal(TEXT_HASH_MODE, "utf8-canonical-lf-v1");
+  assert.equal(BINARY_HASH_MODE, "raw-bytes-v1");
+  assert.throws(() => canonicalTextBytes(Buffer.from([0xef, 0xbb, 0xbf, 0x7b, 0x7d])), /UTF-8 BOM/);
+});
+
+test("a valid snapshot remains valid after JSON files are checked out with CRLF or mixed endings", { concurrency: false }, () => {
+  const context = loadContext(makeTemporaryDatasetRoot("a-share-2026-07-21-3448b55c8ae4"));
+  try {
+    for (const file of [path.join(context.datasetsRoot, "index.json"), context.manifestPath, context.sourcePath, context.diagnosticsPath]) {
+      const original = readFileSync(file, "utf8").replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+      const converted = file.endsWith("index.json")
+        ? original.replaceAll("\n", "\r\n")
+        : original.split("\n").map((line, index) => (index % 2 ? line.replace(/$/u, "\r") : line)).join("\n");
+      writeFileSync(file, converted, "utf8");
+    }
+    assert.doesNotThrow(() => verifyDatasetRoot({ repositoryRoot, datasetsRoot: context.datasetsRoot }));
+  } finally {
+    rmSync(context.temporary, { recursive: true, force: true });
   }
 });

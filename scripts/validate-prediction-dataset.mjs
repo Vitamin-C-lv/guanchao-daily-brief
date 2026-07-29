@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
+import { TextDecoder } from "node:util";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import { gunzipSync } from "node:zlib";
@@ -25,9 +26,38 @@ export const PANEL_COLUMNS = ["date", "code", "name", ...FEATURE_COLUMNS, ...MOD
 
 const SHA256 = /^[a-f0-9]{64}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+export const TEXT_HASH_MODE = "utf8-canonical-lf-v1";
+export const BINARY_HASH_MODE = "raw-bytes-v1";
 const fail = (message) => { throw new Error(`[prediction-dataset] ${message}`); };
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
-const readJson = (file) => JSON.parse(readFileSync(file, "utf8"));
+const decoder = new TextDecoder("utf-8", { fatal: true });
+
+function decodeUtf8(value, artifact = "text artifact") {
+  const bytes = Buffer.isBuffer(value) ? value : Buffer.from(value);
+  if (bytes.subarray(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf]))) {
+    fail(`UTF-8 BOM is not allowed [artifact=${artifact} hashMode=${TEXT_HASH_MODE}]`);
+  }
+  try {
+    return decoder.decode(bytes);
+  } catch (error) {
+    fail(`invalid UTF-8 text [artifact=${artifact} hashMode=${TEXT_HASH_MODE}]`);
+  }
+}
+
+export function canonicalTextBytes(value, artifact = "text artifact") {
+  const normalized = decodeUtf8(value, artifact).replaceAll("\r\n", "\n").replaceAll("\r", "\n");
+  return Buffer.from(`${normalized.replace(/\n*$/u, "")}\n`, "utf8");
+}
+
+export function sha256Binary(value) {
+  return sha256(value);
+}
+
+export function sha256CanonicalText(value, artifact = "text artifact") {
+  return sha256(canonicalTextBytes(value, artifact));
+}
+
+const readJson = (file) => JSON.parse(decodeUtf8(readFileSync(file), file));
 const equalCanonical = (left, right) => Buffer.compare(canonicalJson(left), canonicalJson(right)) === 0;
 
 function canonicalize(value) {
@@ -118,9 +148,15 @@ export function parsePanel(file, manifest) {
   if (compressed.length < 10 || (compressed[3] & 0x08) !== 0 || compressed.readUInt32LE(4) !== 0) {
     fail("snapshot gzip must use mtime=0 and an empty filename");
   }
-  if (sha256(compressed) !== manifest.panel.sha256) fail("panel SHA-256 mismatch");
+  const compressedHash = sha256Binary(compressed);
+  if (compressedHash !== manifest.panel.sha256) {
+    fail(`panel SHA-256 mismatch [artifact=${file} hashMode=${BINARY_HASH_MODE} expected=${manifest.panel.sha256} actual=${compressedHash}]`);
+  }
   const raw = gunzipSync(compressed);
-  if (sha256(raw) !== manifest.panel.uncompressedSha256) fail("uncompressed panel SHA-256 mismatch");
+  const rawHash = sha256Binary(raw);
+  if (rawHash !== manifest.panel.uncompressedSha256) {
+    fail(`uncompressed panel SHA-256 mismatch [artifact=${file} hashMode=${BINARY_HASH_MODE} expected=${manifest.panel.uncompressedSha256} actual=${rawHash}]`);
+  }
   if (raw.length !== manifest.panel.uncompressedBytes || compressed.length !== manifest.panel.compressedBytes) {
     fail("panel byte count mismatch");
   }
@@ -170,7 +206,6 @@ function verifySourceFiles(source) {
     hash(item.sha256, "source sha256");
     hash(item.fullFileSha256, "source fullFileSha256");
     hash(item.usedContentSha256, "source usedContentSha256");
-    if (item.fullFileSha256 !== item.sha256) fail("source manifest fullFileSha256 mismatch");
     if (!Number.isInteger(item.bytes) || item.bytes < 0 || !Number.isInteger(item.usedRows) || item.usedRows < 0) {
       fail("source manifest bytes/usedRows invalid");
     }
@@ -350,24 +385,36 @@ export function verifySnapshot({ repositoryRoot, datasetsRoot, entry, schemaVali
   const manifestPath = path.join(snapshot, "manifest.json");
   if (!existsSync(manifestPath)) fail(`snapshot manifest missing: ${entry.datasetId}`);
   const manifestBytes = readFileSync(manifestPath);
-  if (sha256(manifestBytes) !== entry.manifestSha256) fail(`manifest SHA-256 mismatch: ${entry.datasetId}`);
-  const manifest = JSON.parse(manifestBytes.toString("utf8"));
+  const manifestHash = sha256CanonicalText(manifestBytes, manifestPath);
+  if (manifestHash !== entry.manifestSha256) {
+    fail(`manifest SHA-256 mismatch: ${entry.datasetId} [artifact=${manifestPath} hashMode=${TEXT_HASH_MODE} expected=${entry.manifestSha256} actual=${manifestHash}]`);
+  }
+  const manifest = JSON.parse(decodeUtf8(manifestBytes, manifestPath));
   assertSchema(manifest, schemaValidate);
   assertIndexEntry(entry);
   if (manifest.datasetId !== entry.datasetId || path.basename(snapshot) !== manifest.datasetId) fail("dataset identity mismatch");
   if (entry.panelSha256 !== manifest.panel.sha256) fail("index panel hash mismatch");
   if (manifest.market !== "A_SHARE" || manifest.benchmark.code !== "000985") fail("invalid fixed A-share manifest fields");
   const sourcePath = path.join(snapshot, manifest.sourceManifest.path);
-  if (!existsSync(sourcePath) || sha256(readFileSync(sourcePath)) !== manifest.sourceManifest.sha256) fail("source manifest SHA-256 mismatch");
+  const sourceHash = existsSync(sourcePath) ? sha256CanonicalText(readFileSync(sourcePath), sourcePath) : null;
+  if (sourceHash !== manifest.sourceManifest.sha256) {
+    fail(`source manifest SHA-256 mismatch [artifact=${sourcePath} hashMode=${TEXT_HASH_MODE} expected=${manifest.sourceManifest.sha256} actual=${sourceHash ?? "missing"}]`);
+  }
   const diagnosticsPath = path.join(snapshot, manifest.labelDiagnostics.path);
-  if (!existsSync(diagnosticsPath) || sha256(readFileSync(diagnosticsPath)) !== manifest.labelDiagnostics.sha256) fail("label diagnostics hash mismatch");
+  const diagnosticsHash = existsSync(diagnosticsPath) ? sha256CanonicalText(readFileSync(diagnosticsPath), diagnosticsPath) : null;
+  if (diagnosticsHash !== manifest.labelDiagnostics.sha256) {
+    fail(`label diagnostics hash mismatch [artifact=${diagnosticsPath} hashMode=${TEXT_HASH_MODE} expected=${manifest.labelDiagnostics.sha256} actual=${diagnosticsHash ?? "missing"}]`);
+  }
   const source = readJson(sourcePath);
   verifySourceFiles(source);
   const taxonomyPath = path.join(repositoryRoot, "models", "sector-rotation", "taxonomy.a-core12-v2.json");
   const calendarPath = path.join(repositoryRoot, "models", "sector-rotation", "cn-market-calendar-2026.json");
   const taxonomy = readJson(taxonomyPath);
   if (manifest.taxonomy.canonicalSha256 !== sha256(canonicalJson(taxonomy))) fail("taxonomy canonical hash mismatch");
-  if (manifest.taxonomy.sourceFileSha256 !== sha256(readFileSync(taxonomyPath))) fail("taxonomy source file hash mismatch");
+  const taxonomySourceHash = sha256CanonicalText(readFileSync(taxonomyPath), taxonomyPath);
+  if (manifest.taxonomy.sourceFileSha256 !== taxonomySourceHash) {
+    fail(`taxonomy source file hash mismatch [artifact=${taxonomyPath} hashMode=${TEXT_HASH_MODE} expected=${manifest.taxonomy.sourceFileSha256} actual=${taxonomySourceHash}]`);
+  }
   const sessionHash = sha256(canonicalJson(source.marketCalendarDays));
   if (
     manifest.calendar.sha256 !== sessionHash
@@ -380,8 +427,11 @@ export function verifySnapshot({ repositoryRoot, datasetsRoot, entry, schemaVali
   if (
     manifest.calendar.holidayArtifact.path !== "models/sector-rotation/cn-market-calendar-2026.json"
     || manifest.calendar.holidayArtifact.sha256 !== manifest.calendar.holidayArtifactSha256
-    || manifest.calendar.holidayArtifact.sha256 !== sha256(readFileSync(calendarPath))
-  ) fail("holiday calendar artifact lineage mismatch");
+    || manifest.calendar.holidayArtifact.sha256 !== sha256CanonicalText(readFileSync(calendarPath), calendarPath)
+  ) {
+    const holidaySourceHash = sha256CanonicalText(readFileSync(calendarPath), calendarPath);
+    fail(`holiday calendar artifact lineage mismatch [artifact=${calendarPath} hashMode=${TEXT_HASH_MODE} expected=${manifest.calendar.holidayArtifact.sha256} actual=${holidaySourceHash}]`);
+  }
   const identity = identityFromManifest(manifest);
   if (!equalCanonical(identity, manifest.identityComponents) || sha256(canonicalJson(identity)) !== manifest.identitySha256) fail("dataset identity mismatch");
   if (manifest.datasetId !== `a-share-${manifest.dataAsOf}-${manifest.identitySha256.slice(0, 12)}`) fail("dataset identity mismatch");

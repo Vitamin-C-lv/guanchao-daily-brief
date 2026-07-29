@@ -1,0 +1,42 @@
+name: Prediction dataset portability
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  dataset:
+    name: Dataset validation (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.14.0
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.11.12"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Validate prediction dataset
+        run: pnpm validate:prediction-dataset
+      - name: Test prediction dataset
+        run: pnpm test:prediction-dataset
+      - name: Run project checks on Linux
+        if: runner.os == 'Linux'
+        run: pnpm check

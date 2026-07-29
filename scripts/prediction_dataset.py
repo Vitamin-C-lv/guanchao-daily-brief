@@ -44,6 +44,9 @@ LABEL_DIAGNOSTICS_NAME = "label-diagnostics.json"
 INDEX_NAME = "index.json"
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+TEXT_HASH_MODE = "utf8-canonical-lf-v1"
+BINARY_HASH_MODE = "raw-bytes-v1"
+UTF8_BOM = b"\xef\xbb\xbf"
 
 
 class DatasetError(RuntimeError):
@@ -101,12 +104,29 @@ def sha256_bytes(value: bytes) -> str:
     return hashlib.sha256(value).hexdigest()
 
 
+def canonical_text_bytes(value: bytes | Path, *, artifact: str = "text artifact") -> bytes:
+    raw = value.read_bytes() if isinstance(value, Path) else value
+    if raw.startswith(UTF8_BOM):
+        raise DatasetError(f"UTF-8 BOM is not allowed [artifact={artifact} hashMode={TEXT_HASH_MODE}]")
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise DatasetError(f"invalid UTF-8 text [artifact={artifact} hashMode={TEXT_HASH_MODE}]") from exc
+    normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+    return (normalized.rstrip("\n") + "\n").encode("utf-8")
+
+
+def sha256_binary_path(path: Path) -> str:
+    return sha256_bytes(path.read_bytes())
+
+
+def sha256_canonical_text(value: bytes | Path, *, artifact: str = "text artifact") -> str:
+    return sha256_bytes(canonical_text_bytes(value, artifact=artifact))
+
+
 def sha256_path(path: Path) -> str:
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    """Compatibility alias for callers whose input is binary source data."""
+    return sha256_binary_path(path)
 
 
 def stable_number(value: float | int | None) -> str:
@@ -226,8 +246,8 @@ PANEL_COLUMNS = [*feature_columns(), *label_columns()]
 
 def read_json(path: Path) -> dict[str, Any]:
     try:
-        value = json.loads(path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
+        value = json.loads(canonical_text_bytes(path, artifact=str(path)).decode("utf-8"))
+    except (OSError, json.JSONDecodeError, DatasetError) as exc:
         raise DatasetError(f"invalid JSON {path}: {exc}") from exc
     if not isinstance(value, dict):
         raise DatasetError(f"JSON object required: {path}")
@@ -475,14 +495,17 @@ def source_file_record(
         used_rows_count = 0
         used_start = None
         used_end = None
-    full_hash = sha256_path(path)
+    full_hash = sha256_binary_path(path)
+    text_source = kind in {"taxonomy", "holiday-calendar"}
+    content_hash = sha256_canonical_text(path, artifact=str(path)) if text_source else full_hash
+    used_content_hash = sha256_canonical_text(used_content, artifact=str(path)) if text_source else sha256_bytes(used_content)
     return {
         "kind": kind,
         "path": _relative_source_path(path),
         "bytes": path.stat().st_size,
-        "sha256": full_hash,
+        "sha256": content_hash,
         "fullFileSha256": full_hash,
-        "usedContentSha256": sha256_bytes(used_content),
+        "usedContentSha256": used_content_hash,
         "usedRows": used_rows_count,
         "usedStart": used_start,
         "usedEnd": used_end,
@@ -671,8 +694,8 @@ def build_snapshot(
     panel_sha = sha256_bytes(compressed_panel)
     panel_uncompressed_sha = sha256_bytes(raw_panel)
     taxonomy_canonical_sha = sha256_bytes(canonical_json(taxonomy))
-    taxonomy_source_sha = sha256_path(taxonomy_path)
-    holiday_source_sha = sha256_path(calendar_path)
+    taxonomy_source_sha = sha256_canonical_text(taxonomy_path, artifact=str(taxonomy_path))
+    holiday_source_sha = sha256_canonical_text(calendar_path, artifact=str(calendar_path))
     session_calendar_sha = sha256_bytes(canonical_json(market_days))
     components = identity_components(
         data_as_of=as_of,
@@ -778,8 +801,8 @@ def build_snapshot(
             "crossSectionSizeMin": min(date_groups.values()),
             "crossSectionSizeMax": max(date_groups.values()),
         },
-        "sourceManifest": {"path": SOURCE_MANIFEST_NAME, "sha256": sha256_bytes(source_bytes)},
-        "labelDiagnostics": {"path": LABEL_DIAGNOSTICS_NAME, "sha256": sha256_bytes(diagnostics_bytes)},
+        "sourceManifest": {"path": SOURCE_MANIFEST_NAME, "sha256": sha256_canonical_text(source_bytes, artifact=SOURCE_MANIFEST_NAME)},
+        "labelDiagnostics": {"path": LABEL_DIAGNOSTICS_NAME, "sha256": sha256_canonical_text(diagnostics_bytes, artifact=LABEL_DIAGNOSTICS_NAME)},
         "warnings": (
             []
             if status == "legacy_recovered"
@@ -799,7 +822,7 @@ def build_snapshot(
             SNAPSHOT_MANIFEST_NAME: manifest_bytes,
         },
     )
-    manifest_sha = sha256_bytes(manifest_bytes)
+    manifest_sha = sha256_canonical_text(manifest_bytes, artifact=SNAPSHOT_MANIFEST_NAME)
     lifecycle_status = status
     entry = {
         "datasetId": dataset_id,
@@ -871,8 +894,7 @@ def _verify_source_files(source: dict[str, Any]) -> None:
             raise DatasetError("source manifest contains duplicate path/kind entries")
         seen.add(key)
         require_sha256(record.get("sha256"), "source sha256")
-        if record.get("fullFileSha256") != record.get("sha256"):
-            raise DatasetError("source manifest fullFileSha256 mismatch")
+        require_sha256(record.get("fullFileSha256"), "source fullFileSha256")
         require_sha256(record.get("usedContentSha256"), "source usedContentSha256")
         if not isinstance(record.get("bytes"), int) or record["bytes"] < 0:
             raise DatasetError("source manifest bytes invalid")
@@ -999,7 +1021,7 @@ def _verify_index_entry(snapshot: Path, manifest: dict[str, Any]) -> None:
         raise DatasetError("snapshot is missing from dataset index")
     if entry.get("path") != f"a-share/{manifest['datasetId']}":
         raise DatasetError("dataset index path mismatch")
-    if entry.get("manifestSha256") != sha256_path(snapshot / SNAPSHOT_MANIFEST_NAME):
+    if entry.get("manifestSha256") != sha256_canonical_text(snapshot / SNAPSHOT_MANIFEST_NAME, artifact=str(snapshot / SNAPSHOT_MANIFEST_NAME)):
         raise DatasetError("index manifest hash mismatch")
     if entry.get("panelSha256") != manifest.get("panel", {}).get("sha256"):
         raise DatasetError("index panel hash mismatch")
@@ -1036,11 +1058,11 @@ def verify_snapshot(snapshot: Path) -> dict[str, Any]:
         raise DatasetError("snapshot panel byte count mismatch")
     source_ref = manifest.get("sourceManifest", {})
     source_path = snapshot / str(source_ref.get("path"))
-    if not source_path.exists() or sha256_path(source_path) != source_ref.get("sha256"):
+    if not source_path.exists() or sha256_canonical_text(source_path, artifact=str(source_path)) != source_ref.get("sha256"):
         raise DatasetError("source manifest hash mismatch")
     diagnostics_ref = manifest.get("labelDiagnostics", {})
     diagnostics_path = snapshot / str(diagnostics_ref.get("path"))
-    if not diagnostics_path.exists() or sha256_path(diagnostics_path) != diagnostics_ref.get("sha256"):
+    if not diagnostics_path.exists() or sha256_canonical_text(diagnostics_path, artifact=str(diagnostics_path)) != diagnostics_ref.get("sha256"):
         raise DatasetError("label diagnostics hash mismatch")
     source = read_json(source_path)
     _verify_source_files(source)
@@ -1061,13 +1083,13 @@ def verify_snapshot(snapshot: Path) -> dict[str, Any]:
     holiday = calendar.get("holidayArtifact", {})
     if holiday.get("sha256") != calendar.get("holidayArtifactSha256"):
         raise DatasetError("holiday calendar artifact hash mismatch")
-    if holiday.get("path") != _relative_source_path(rotation.CALENDAR_PATH) or holiday.get("sha256") != sha256_path(rotation.CALENDAR_PATH):
+    if holiday.get("path") != _relative_source_path(rotation.CALENDAR_PATH) or holiday.get("sha256") != sha256_canonical_text(rotation.CALENDAR_PATH, artifact=str(rotation.CALENDAR_PATH)):
         raise DatasetError("holiday calendar artifact lineage mismatch")
     taxonomy = read_json(rotation.TAXONOMY_PATH)
     taxonomy_meta = manifest.get("taxonomy", {})
     if taxonomy_meta.get("canonicalSha256") != sha256_bytes(canonical_json(taxonomy)):
         raise DatasetError("taxonomy canonical hash mismatch")
-    if taxonomy_meta.get("sourceFileSha256") != sha256_path(rotation.TAXONOMY_PATH):
+    if taxonomy_meta.get("sourceFileSha256") != sha256_canonical_text(rotation.TAXONOMY_PATH, artifact=str(rotation.TAXONOMY_PATH)):
         raise DatasetError("taxonomy source file hash mismatch")
     if manifest.get("benchmark", {}).get("code") != "000985":
         raise DatasetError("benchmark contract code mismatch")
