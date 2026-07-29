@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"duplicate_prediction_conflict","expectedError":"immutable prediction conflict","description":"Same predictionId is republished with a different immutable probability."}

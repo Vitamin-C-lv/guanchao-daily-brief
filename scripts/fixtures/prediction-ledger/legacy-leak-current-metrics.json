@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"legacy_leak_current_metrics","expectedError":"legacy leaked into current metrics","description":"Weekly review drops the legacy-exclusion policy."}

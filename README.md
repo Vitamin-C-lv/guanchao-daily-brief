@@ -42,9 +42,22 @@ pnpm archive:brief
 
 轮动事件记忆位于 `data/rotation-model/events/events.jsonl.gz`，按行流式压缩，只保存直达 URL、100–200 字事实摘要、行业/事件标签、已知时间、到期后验与哈希。非空后验还必须携带逐项交易日、版本化官方交易日历 URL 与 SHA-256；A 股会按本地日历 artifact 重算，港股在对应 artifact 缺失时保持空值。压缩文件 32 MB 硬上限、28 MB 开始清理；不保存新闻全文、PDF、上游图片或视频。历史行情和派生特征同样只保存在本机压缩目录并逐文件读取。
 
-预测账本位于 `data/rotation-model/predictions/`：发布快照与到期评价分成两个 gzip JSONL 文件，网页只导出有限条目的 `content/prediction-history.json`。港股宏观结构化信号位于 `data/rotation-model/signals/hk-macro-daily.csv.gz`，两年数据仅几十 KB；HKMA/Federal Treasury 的接口失败、字段完整度和回退状态写入本地 manifest。
+预测权威账本位于 Git 跟踪的 `data/prediction-ledger/`：每次发布快照与每次到期评价分别保存为不可覆盖、确定性 gzip JSON 事件，按年月组织并由月清单和根索引校验。`public/data/prediction-history/` 是完整、无内部字段、无条数上限的按月公开分片；`content/prediction-history.json` 仅是旧页面兼容视图。原 `data/rotation-model/predictions/` 只保留作一次性迁移来源，不再是权威数据。港股宏观结构化信号位于 `data/rotation-model/signals/hk-macro-daily.csv.gz`，两年数据仅几十 KB；HKMA/Federal Treasury 的接口失败、字段完整度和回退状态写入本地 manifest。
 
 ## 本地运行
+
+## 项目治理与交接
+
+新对话和维护工作请按以下顺序阅读：
+
+1. [交接文档](docs/HANDOFF.md)
+2. [冻结架构](docs/ARCHITECTURE.md)
+3. [架构决策记录](docs/ADR.md)
+4. 本 README
+5. [package.json](package.json)
+6. 当前任务相关源码
+
+治理文档冻结产品、数据、模型、账本、页面和工程边界；工程 Agent 只实施已冻结的设计，不自主扩大范围。
 
 需要 Node.js 20.9 或更高版本与 pnpm。
 
@@ -60,6 +73,8 @@ pnpm dev
 ```powershell
 pnpm validate:rotation
 pnpm validate:prediction-history
+pnpm validate:prediction-ledger
+pnpm test:prediction-ledger
 pnpm validate:rotation-events
 pnpm market:data:health
 pnpm validate:market-data

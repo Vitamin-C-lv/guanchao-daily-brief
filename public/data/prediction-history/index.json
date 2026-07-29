@@ -1,0 +1,48 @@
+{
+  "availableMonths": [
+    "2026-07"
+  ],
+  "contractVersion": "prediction-ledger-v1",
+  "currentRecordCount": 288,
+  "evaluatedRecordCount": 300,
+  "files": [
+    {
+      "path": "2026-07.json",
+      "recordCount": 324,
+      "sha256": "15dbb5c4a162722359ddd4dcb0b4f97e52fd183dc631055615302af78bbd316a",
+      "yearMonth": "2026-07"
+    }
+  ],
+  "firstDate": "2026-07-21",
+  "generatedAt": "2026-07-24T20:19:07+08:00",
+  "lastDate": "2026-07-24",
+  "latestReview": {
+    "isoWeek": "2026-W30",
+    "path": "reviews/2026-W30.json",
+    "sha256": "b7f5edebf0d40c7e5114a5b39817a154390ef37f345fe40bd51517f6cb410895"
+  },
+  "legacyRecordCount": 36,
+  "markets": [
+    "a-share",
+    "hk"
+  ],
+  "modelVersions": [
+    "2026-07-20-probability-v1",
+    "2026-07-21-relative-v2",
+    "hk-relative-model-not-trained"
+  ],
+  "pendingRecordCount": 24,
+  "policy": {
+    "completeAuthorityExport": true,
+    "internalFieldsExcluded": true,
+    "recordLimit": null
+  },
+  "recordCount": 324,
+  "schemaVersion": 1,
+  "statusSummary": {
+    "abstained": 144,
+    "insufficient_data": 0,
+    "not_applicable": 144,
+    "published": 36
+  }
+}

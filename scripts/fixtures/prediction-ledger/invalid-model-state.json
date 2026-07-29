@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"invalid_model_state","expectedError":"invalid model availability","description":"Prediction contains an unsupported model availability state."}

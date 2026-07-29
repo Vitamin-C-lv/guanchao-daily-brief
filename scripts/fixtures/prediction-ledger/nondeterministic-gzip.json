@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"nondeterministic_gzip","expectedError":"gzip is nondeterministic","description":"Gzip header contains a timestamp or filename."}

@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"empty_ledger_overwrite","expectedError":"empty ledger would overwrite","description":"Empty checkout attempts to replace a known non-empty remote ledger."}

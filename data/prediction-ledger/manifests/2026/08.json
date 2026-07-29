@@ -1,0 +1,631 @@
+{
+  "contractVersion": "prediction-ledger-v1",
+  "entries": [
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-106386c339de9c507880",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-106386c339de9c507880.json.gz",
+      "runId": null,
+      "sha256": "7f857707d3bed203a035571bf54d03e4b25b5d03752dad7b90738f11478a431f",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-13e0fe439f616b302a7a",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-13e0fe439f616b302a7a.json.gz",
+      "runId": null,
+      "sha256": "fbae7ae14a90251d4a026c71c3152d97ab03a9073c76d1667eb1086cea00db3a",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-3947b6b9bb5bd10a96df",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-3947b6b9bb5bd10a96df.json.gz",
+      "runId": null,
+      "sha256": "af1f0e810ca17341b54deb439bd2114af87f1ee6837bc6553c282799663767f2",
+      "size": 648
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-46d971958b425ddedc0d",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-46d971958b425ddedc0d.json.gz",
+      "runId": null,
+      "sha256": "b70ecc8db11196aaccfa6ee82039d11d0a261d00c4a49dfd431ea729445872fc",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-5363981e1375c304debb",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-5363981e1375c304debb.json.gz",
+      "runId": null,
+      "sha256": "6c4c26c0dc94c21e0fd76d9d89bfa946c57e0b289fc1346bf74b0bd3008a40a4",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-6310db3284bfe936f859",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-6310db3284bfe936f859.json.gz",
+      "runId": null,
+      "sha256": "252cc664f0e2eafdbd29acd48b3bc43b8dff0798f5038a11ccd48b66f528d984",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-7701e7ce6b5a1e43f0d2",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-7701e7ce6b5a1e43f0d2.json.gz",
+      "runId": null,
+      "sha256": "53eaa5819928a64bca7fb79f998774617f222048688eb3a761bdaabe236340d1",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-98b95cf3f2a317881db9",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-98b95cf3f2a317881db9.json.gz",
+      "runId": null,
+      "sha256": "971dcc3a3667d7d89df7aecd61075f9fa93f92871d7934093d12413bf341ea5d",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-b44d9ca4987da56554d3",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-b44d9ca4987da56554d3.json.gz",
+      "runId": null,
+      "sha256": "418cae336083e7f08ed65332669cefd464d80de09cb872f29ddc7b5fec93cb05",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-d643c1d658b15d784159",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-d643c1d658b15d784159.json.gz",
+      "runId": null,
+      "sha256": "bdece2785e4efc4e0d337aa587d4873dda919a662a9270b758b056ce589039cd",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-da1327dbd7bd5ef80f7d",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-da1327dbd7bd5ef80f7d.json.gz",
+      "runId": null,
+      "sha256": "2b3f90ccafecb9a48ae3bb62d4454801792f56510b9912dccd0febad32b07f9e",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-22T09:06:54+08:00",
+      "dataAsOf": "2026-08-18",
+      "eventId": "peval-20260818-db098fc8e8e4c821502e",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260818-db098fc8e8e4c821502e.json.gz",
+      "runId": null,
+      "sha256": "f4644aab5c572c504f86c231f976bf59e148d23cbcda56b09a0ec2b88b79953d",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-028b06d29732b4367350",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-028b06d29732b4367350.json.gz",
+      "runId": null,
+      "sha256": "c9379e58f742c8c6e3e0353e644f0533416924b4804e1abff87846c69be7abb6",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-02f39fd92c37b4446205",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-02f39fd92c37b4446205.json.gz",
+      "runId": null,
+      "sha256": "7575be2c2d782b717ed5899f6bb68f114d791f23203e55531d94584cf36917e4",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-376445a6d5433610146b",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-376445a6d5433610146b.json.gz",
+      "runId": null,
+      "sha256": "3e911eea1abffd49468315236a4d3d4cace0e5f0ed9d633e9605f13eb1051cda",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-38782fe85ca88b845097",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-38782fe85ca88b845097.json.gz",
+      "runId": null,
+      "sha256": "5b707659a998dea6c369aa81f704557ddd240782211a2284b4ee6eaba8b972a0",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-52a21b0545480bfb4422",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-52a21b0545480bfb4422.json.gz",
+      "runId": null,
+      "sha256": "eb6a4a81409489b7d59e1397d73bd0ac7092dad5809c27b4b4a70e4f27548798",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-673db1e267253d90318f",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-673db1e267253d90318f.json.gz",
+      "runId": null,
+      "sha256": "7666c8acacc22507f4cac593a9ddbc922f3142696863a27d4a1bafa58c1b2388",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-67997541c6bf1ac072f4",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-67997541c6bf1ac072f4.json.gz",
+      "runId": null,
+      "sha256": "36168d58086a5b37e49115e30b4e904641dd80b563150f9bd71df14ed1a69459",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-77c84f7b023f3d6a99ba",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-77c84f7b023f3d6a99ba.json.gz",
+      "runId": null,
+      "sha256": "626cbc225cd24e46d7d299172aaa753c078adca9c7f7e59f265199e02349dad6",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-833f094fcc114ebeeca7",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-833f094fcc114ebeeca7.json.gz",
+      "runId": null,
+      "sha256": "df9582a960cda6649d94995c7f08aa7a9a5f1947c383ff974bae7f712768c1bb",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-9fd8fc2af8d588006cb2",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-9fd8fc2af8d588006cb2.json.gz",
+      "runId": null,
+      "sha256": "36ed350f31507edfa0dee2247b40214e10267c37d4ef1823ae9bf1eb8781938e",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-b9d519096cdec4291b9b",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-b9d519096cdec4291b9b.json.gz",
+      "runId": null,
+      "sha256": "c8ddc89ec3bca6ad9a3551cf375b186edea07aea036c81b526fda701ac7c604a",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-22T20:35:23+08:00",
+      "dataAsOf": "2026-08-19",
+      "eventId": "peval-20260819-c99ba66da826eb035b4b",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260819-c99ba66da826eb035b4b.json.gz",
+      "runId": null,
+      "sha256": "9f23295656b47d58d6bea2b94ab3030e944045ed7f92170ecee58b25f24d08b3",
+      "size": 654
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-030428ffcb174ac46de4",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-030428ffcb174ac46de4.json.gz",
+      "runId": null,
+      "sha256": "553ea4f59e7f6d13948a3ea5e233986658bb87ae99f360fbcceb0804f3b20356",
+      "size": 647
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-08a23b1747a4a4f8ba9c",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-08a23b1747a4a4f8ba9c.json.gz",
+      "runId": null,
+      "sha256": "67651d5895c9ea7fedf478c933cbf839c7d339f32d52e154a97c573ea74e57e7",
+      "size": 646
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-4aa4ea4d939273188012",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-4aa4ea4d939273188012.json.gz",
+      "runId": null,
+      "sha256": "3c9ca1a6eb2057a8cd77cf746d41ddbc7bd3898b9182786c212fd6f18a292804",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-5e0ead2279b317fa76a5",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-5e0ead2279b317fa76a5.json.gz",
+      "runId": null,
+      "sha256": "1632e182048b1f20cca689476871175b174a40f2ed1f927ccb5ac8d1c6ceb235",
+      "size": 648
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-643154708eae87bc2637",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-643154708eae87bc2637.json.gz",
+      "runId": null,
+      "sha256": "d245623fa07e27db00cff9ce20b158085476d6017be4a33e992358bc6e300b33",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-685b60b7d1b78109a9f9",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-685b60b7d1b78109a9f9.json.gz",
+      "runId": null,
+      "sha256": "683734cbf863b73256f0f7abc53adeaa38631dec770ff534f20bcb91ea9d0157",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-7b394d8917dccbcd4561",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-7b394d8917dccbcd4561.json.gz",
+      "runId": null,
+      "sha256": "94bec60cefebfc40be34783531879d72b65174e8febebd456f0509a290f5cf35",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-7b46a67dbe491474c72c",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-7b46a67dbe491474c72c.json.gz",
+      "runId": null,
+      "sha256": "b1e0191702b71ba6d061c41622d27a73a3a7c4e61bfe731506fdf4bc7d6b0d4e",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-aa7e47a8007782185b9c",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-aa7e47a8007782185b9c.json.gz",
+      "runId": null,
+      "sha256": "341ce03a54cbc6eaaad1bb1b86b09cd271b6ded900639218be56579f61b183e7",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-c10c3a3e38b828617c89",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-c10c3a3e38b828617c89.json.gz",
+      "runId": null,
+      "sha256": "aa1d9c52ebeadeb30190ff66302050cffaf9c04c51b6d848d185573924e4f17d",
+      "size": 648
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-c36c6572b739f6ce4c3d",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-c36c6572b739f6ce4c3d.json.gz",
+      "runId": null,
+      "sha256": "7165b6e9db29f3cec3b9a4b5b9605d825e659f85d465568d793b6805a520a476",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-23T20:15:14+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": "peval-20260820-e02e3446ff69430fec54",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260820-e02e3446ff69430fec54.json.gz",
+      "runId": null,
+      "sha256": "f345231ee4c8cbc721b2c271b376a21e05bbac4042ee6a374390b0e1cddf453d",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-1f2d0d427f966a265b02",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-1f2d0d427f966a265b02.json.gz",
+      "runId": null,
+      "sha256": "cbb3eda04872bf18edddd3657177ee612c9fcb44eb5c98ec082879669c996fd3",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-219aa662a2919798e74f",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-219aa662a2919798e74f.json.gz",
+      "runId": null,
+      "sha256": "c4c7865a8920cc8e5b1634919de61ddf91bddf59357b5eb985101d8f3bc4ff61",
+      "size": 649
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-273b5c3c5e21885fcbf8",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-273b5c3c5e21885fcbf8.json.gz",
+      "runId": null,
+      "sha256": "8d1eb2c46464fb9de2196694b9151cb9b46eec26f8bd79cf87d53d999e85065e",
+      "size": 648
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-2cfbbc25e561a9f27223",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-2cfbbc25e561a9f27223.json.gz",
+      "runId": null,
+      "sha256": "4518d2a5c3e1c647f2e5a3faf96975f92a2a66d9516f70225e5430c1b64f57be",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-4343329e223b1dcb576b",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-4343329e223b1dcb576b.json.gz",
+      "runId": null,
+      "sha256": "90a9dadf5cc72ca1720beb213e9daae3a652a042a204c01208b89eebf4939fac",
+      "size": 647
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-5b1a4a2a3e3b2868c39f",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-5b1a4a2a3e3b2868c39f.json.gz",
+      "runId": null,
+      "sha256": "24debb55f634292ec54e16e5f16bf749f6a9f8e4d26a0d32604c27d9ce3a890a",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-b4fd9332b373b60ba68a",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-b4fd9332b373b60ba68a.json.gz",
+      "runId": null,
+      "sha256": "911aaa9b687e7f41433ad29af90e1c538904e12671c0db26ae1a04f980ab97de",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-c0da959fb9cb6fae990f",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-c0da959fb9cb6fae990f.json.gz",
+      "runId": null,
+      "sha256": "a5219390cdf4f585230041a6d7c4b47231eb4898fc37f51da68bde046683638f",
+      "size": 651
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-d29a583382ee67761220",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-d29a583382ee67761220.json.gz",
+      "runId": null,
+      "sha256": "ed66a1512fcfe0e7689c66a01e99102e973bde9cbba628d5e99c420f8b48ffb8",
+      "size": 648
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-e4fff9907d1000bc588e",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-e4fff9907d1000bc588e.json.gz",
+      "runId": null,
+      "sha256": "40aaca30d50e9cb6e88690a274065ed947f901819659dfb5ea8b0deba0539e49",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-ecab4ea1767ab8567204",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-ecab4ea1767ab8567204.json.gz",
+      "runId": null,
+      "sha256": "4ee90faa66106908ce769b3922e4387d948d5670e122fe8097de5484a608a42a",
+      "size": 650
+    },
+    {
+      "createdAt": "2026-07-24T20:19:07+08:00",
+      "dataAsOf": "2026-08-21",
+      "eventId": "peval-20260821-efc02c7706a8d9480b86",
+      "kind": "evaluation",
+      "modelVersions": [
+        "2026-07-21-relative-v2"
+      ],
+      "path": "evaluations/2026/08/peval-20260821-efc02c7706a8d9480b86.json.gz",
+      "runId": null,
+      "sha256": "865bd97298816e9b0fed886521ecdc8f27cf63da3b95294674beb0dbe17fb15f",
+      "size": 651
+    }
+  ],
+  "schemaVersion": 1,
+  "yearMonth": "2026-08"
+}

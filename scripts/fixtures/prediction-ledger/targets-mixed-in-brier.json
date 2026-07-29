@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"targets_mixed_in_brier","expectedError":"probability targets mixed","description":"Absolute-up and top-quartile events are combined in one Brier score."}

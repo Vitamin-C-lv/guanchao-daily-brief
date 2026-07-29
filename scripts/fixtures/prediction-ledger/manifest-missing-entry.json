@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"manifest_missing_entry","expectedError":"manifest mismatch","description":"Monthly manifest omits an immutable artifact."}

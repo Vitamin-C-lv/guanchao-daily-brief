@@ -1,0 +1,1 @@
+{"fixtureVersion":1,"mutation":"abstention_counted_as_wrong","expectedError":"abstention counted as wrong","description":"An abstained observation is incorrectly scored as a failed prediction."}

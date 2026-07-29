@@ -2481,20 +2481,7 @@ def infer(_: argparse.Namespace) -> dict[str, Any]:
             market.pop("reason", None)
     write_json_atomic(CONTENT_PATH, payload)
     print(f"[infer] wrote {CONTENT_PATH.relative_to(ROOT)}", flush=True)
-    history_script = ROOT / "scripts" / "prediction_history.py"
-    if history_script.exists():
-        result = subprocess.run(
-            [sys.executable, str(history_script)],
-            cwd=ROOT,
-            capture_output=True,
-            text=True,
-            timeout=60,
-            check=False,
-        )
-        if result.returncode != 0:
-            raise RuntimeError(f"prediction history update failed: {result.stderr.strip()}")
-        if result.stdout.strip():
-            print(result.stdout.strip(), flush=True)
+    print("[infer] publication payload ready; prediction ledger append is an explicit post-infer step", flush=True)
     return payload
 
 

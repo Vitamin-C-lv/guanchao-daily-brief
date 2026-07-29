@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/prediction-ledger-index.schema.json",
+  "title": "Prediction ledger index",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "contractVersion", "snapshotCount", "predictionRecordCount", "evaluationEventCount", "firstPredictionDate", "lastPredictionDate", "markets", "modelVersions", "statusSummary", "legacyRecordCount", "currentRecordCount", "months", "reviews"],
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "contractVersion": {"const": "prediction-ledger-v1"},
+    "snapshotCount": {"type": "integer", "minimum": 0},
+    "predictionRecordCount": {"type": "integer", "minimum": 0},
+    "evaluationEventCount": {"type": "integer", "minimum": 0},
+    "firstPredictionDate": {"type": ["string", "null"], "format": "date"},
+    "lastPredictionDate": {"type": ["string", "null"], "format": "date"},
+    "markets": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "modelVersions": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "statusSummary": {
+      "type": "object", "additionalProperties": false,
+      "required": ["published", "abstained", "insufficient_data", "not_applicable"],
+      "properties": {
+        "published": {"type": "integer", "minimum": 0}, "abstained": {"type": "integer", "minimum": 0},
+        "insufficient_data": {"type": "integer", "minimum": 0}, "not_applicable": {"type": "integer", "minimum": 0}
+      }
+    },
+    "legacyRecordCount": {"type": "integer", "minimum": 0},
+    "currentRecordCount": {"type": "integer", "minimum": 0},
+    "months": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["month", "snapshotCount", "evaluationCount", "recordCount", "evaluationEventCount", "manifestPath", "manifestSha256"],
+        "properties": {
+          "month": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}$"},
+          "snapshotCount": {"type": "integer", "minimum": 0}, "evaluationCount": {"type": "integer", "minimum": 0},
+          "recordCount": {"type": "integer", "minimum": 0}, "evaluationEventCount": {"type": "integer", "minimum": 0},
+          "manifestPath": {"type": "string", "pattern": "^manifests/[0-9]{4}/[0-9]{2}\\.json$"},
+          "manifestSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        }
+      }
+    },
+    "reviews": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["week", "path", "sha256"],
+        "properties": {"week": {"type": "string"}, "path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}}
+      }
+    }
+  }
+}

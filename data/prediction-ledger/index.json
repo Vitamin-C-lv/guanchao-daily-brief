@@ -1,0 +1,53 @@
+{
+  "contractVersion": "prediction-ledger-v1",
+  "currentRecordCount": 288,
+  "evaluationEventCount": 300,
+  "firstPredictionDate": "2026-07-21",
+  "lastPredictionDate": "2026-07-24",
+  "legacyRecordCount": 36,
+  "markets": [
+    "a-share",
+    "hk"
+  ],
+  "modelVersions": [
+    "2026-07-20-probability-v1",
+    "2026-07-21-relative-v2",
+    "hk-relative-model-not-trained"
+  ],
+  "months": [
+    {
+      "evaluationCount": 252,
+      "evaluationEventCount": 252,
+      "manifestPath": "manifests/2026/07.json",
+      "manifestSha256": "c89054b651cdd988049789386bcf770189d6587413616a11d83f6ce9e12bc369",
+      "month": "2026-07",
+      "recordCount": 324,
+      "snapshotCount": 9
+    },
+    {
+      "evaluationCount": 48,
+      "evaluationEventCount": 48,
+      "manifestPath": "manifests/2026/08.json",
+      "manifestSha256": "a764d7dbbecfd7935590c4f997d8fef96600d2b95cf2472de927611ad8074c9d",
+      "month": "2026-08",
+      "recordCount": 0,
+      "snapshotCount": 0
+    }
+  ],
+  "predictionRecordCount": 324,
+  "reviews": [
+    {
+      "path": "reviews/2026/2026-W30.json",
+      "sha256": "b7f5edebf0d40c7e5114a5b39817a154390ef37f345fe40bd51517f6cb410895",
+      "week": "2026-W30"
+    }
+  ],
+  "schemaVersion": 1,
+  "snapshotCount": 9,
+  "statusSummary": {
+    "abstained": 144,
+    "insufficient_data": 0,
+    "not_applicable": 144,
+    "published": 36
+  }
+}
