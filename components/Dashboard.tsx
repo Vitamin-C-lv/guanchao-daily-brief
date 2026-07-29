@@ -24,6 +24,7 @@ import {
   TrendingDown,
   TrendingUp,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -453,11 +454,14 @@ export default function Dashboard({
 
       <main className="dashboard">
         <header className="topbar">
-          <Link className="mobile-brand" href="/" aria-label="观潮首页"><b>观潮</b></Link>
-          <div className="title-lockup">
-            <span className="eyebrow">DAILY MARKET INTELLIGENCE</span>
-            <strong>观潮 · 每日早报</strong>
-          </div>
+          <Link className="desktop-brand" href="/" aria-label="观潮首页">
+            <Image src="/brand/guanchao-logo-horizontal.png" alt="观潮 Guanchao Daily Brief" width={180} height={90} priority unoptimized />
+            <span className="sr-only">观潮 · 每日早报</span>
+          </Link>
+          <Link className="mobile-brand" href="/" aria-label="观潮首页">
+            <Image src="/brand/guanchao-logo-mark.png" alt="观潮 Guanchao Daily Brief" width={40} height={40} priority unoptimized />
+            <b>观潮</b>
+          </Link>
           {showSearch ? (
             <label className="search-box">
               <Search size={17} />
