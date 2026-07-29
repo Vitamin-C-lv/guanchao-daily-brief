@@ -76,8 +76,11 @@ jobs:
   automate:
     name: Append and publish ledger events
     if: >-
-      github.ref == 'refs/heads/main' &&
-      (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode != 'validate'))
+      (
+        github.ref == 'refs/heads/main' &&
+        (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.mode != 'validate'))
+      ) ||
+      (github.event_name == 'workflow_dispatch' && inputs.dry_run)
     needs: validate
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -91,7 +94,7 @@ jobs:
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
-          ref: main
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run && github.ref || 'main' }}
       - name: Install pnpm
         uses: pnpm/action-setup@9fd676a19091d4595eefd76e4bd31c97133911f1 # v4.2.0
         with:
@@ -116,8 +119,11 @@ jobs:
         run: |
           args=(--mode "$LEDGER_MODE" --code-commit "$GITHUB_SHA")
           if [[ -n "${{ inputs.iso_week }}" ]]; then args+=(--week "${{ inputs.iso_week }}"); fi
+          set +e
           uv run --no-project --python 3.12 --with requests python scripts/prediction_ledger_automation.py "${args[@]}" > ledger-automation.json
+          automation_status=$?
           cat ledger-automation.json
+          if [[ "$automation_status" -ne 0 ]]; then exit "$automation_status"; fi
       - name: Verify derived files before commit
         run: pnpm validate:prediction-ledger
       - name: Commit only ledger-owned outputs
