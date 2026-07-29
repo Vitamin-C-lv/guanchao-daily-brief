@@ -46,6 +46,19 @@ pnpm archive:brief
 
 ## 本地运行
 
+## 项目治理与交接
+
+新对话和维护工作请按以下顺序阅读：
+
+1. [交接文档](docs/HANDOFF.md)
+2. [冻结架构](docs/ARCHITECTURE.md)
+3. [架构决策记录](docs/ADR.md)
+4. 本 README
+5. [package.json](package.json)
+6. 当前任务相关源码
+
+治理文档冻结产品、数据、模型、账本、页面和工程边界；工程 Agent 只实施已冻结的设计，不自主扩大范围。
+
 需要 Node.js 20.9 或更高版本与 pnpm。
 
 ```powershell
