@@ -124,6 +124,10 @@ jobs:
           automation_status=$?
           cat ledger-automation.json
           if [[ "$automation_status" -ne 0 ]]; then exit "$automation_status"; fi
+          if node -e "const report=require('./ledger-automation.json'); process.exit(report.snapshot?.written ? 1 : 0)"; then
+            echo "No new A-share session: restoring ephemeral prediction payloads to their matching immutable publication."
+            git restore --source=HEAD --worktree content/sector-rotation.json content/prediction-diagnostics.json
+          fi
       - name: Verify derived files before commit
         run: pnpm validate:prediction-ledger
       - name: Commit only ledger-owned outputs
