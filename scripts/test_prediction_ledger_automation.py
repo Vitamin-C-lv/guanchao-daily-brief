@@ -24,7 +24,7 @@ class LedgerAutomationTests(unittest.TestCase):
             ledger.initialize_ledger(root)
             (root / "index.json").write_text(json.dumps({"lastPredictionDate": "2026-07-24"}), encoding="utf-8")
             rotation = Path(directory) / "rotation.json"
-            rotation.write_text(json.dumps({"generatedAt": "2026-07-29T20:00:00+08:00", "dataAsOf": "2026-07-24"}), encoding="utf-8")
+            rotation.write_text(json.dumps({"generatedAt": "2026-07-29T20:00:00+08:00", "markets": [{"id": "a-share", "asOf": "2026-07-24"}]}), encoding="utf-8")
             verification = {"snapshotCount": 9, "predictionRecordCount": 324, "evaluationEventCount": 300}
             with patch.object(automation.ledger, "verify_ledger", side_effect=[verification, verification]), patch.object(automation.ledger, "require_restored_ledger"), patch.object(automation, "append_available_evaluations", return_value={"appended": 0}), patch.object(automation.ledger, "export_public", return_value={"recordCount": 324, "files": []}), patch.object(automation.ledger, "snapshot_from_rotation_payload") as create_snapshot:
                 result = automation.run("closing", root, rotation, code_commit="1" * 40, iso_week="2026-W30")

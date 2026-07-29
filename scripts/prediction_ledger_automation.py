@@ -72,6 +72,19 @@ def latest_iso_week(root: Path) -> str:
     return f"{iso.year}-W{iso.week:02d}"
 
 
+def publication_data_as_of(payload: dict[str, Any]) -> str:
+    """Return the A-share session represented by a mixed-market publication."""
+    direct = payload.get("dataAsOf") or payload.get("asOf")
+    if direct:
+        return str(direct)
+    markets = payload.get("markets")
+    entries = markets.values() if isinstance(markets, dict) else markets if isinstance(markets, list) else []
+    for market in entries:
+        if isinstance(market, dict) and str(market.get("id") or market.get("market")) == "a-share" and market.get("asOf"):
+            return str(market["asOf"])
+    return str(payload.get("generatedAt", "")[:10])
+
+
 def run(mode: str, root: Path, rotation_path: Path, *, code_commit: str, iso_week: str | None) -> dict[str, Any]:
     if mode not in {"daily", "closing", "weekly"}:
         raise ledger.LedgerError("mode must be daily, closing or weekly")
@@ -82,7 +95,7 @@ def run(mode: str, root: Path, rotation_path: Path, *, code_commit: str, iso_wee
     # A refresh timestamp can move on a non-trading day while the frozen market
     # input is still the same trading session.  Snapshot identity and immutable
     # prediction IDs are keyed by the data-as-of session, never generatedAt.
-    payload_date = str(payload.get("dataAsOf") or payload.get("asOf") or payload.get("generatedAt", "")[:10])
+    payload_date = publication_data_as_of(payload)
     index = json.loads(ledger.canonical_text_bytes(root / "index.json", artifact="ledger index"))
     snapshot_report: dict[str, Any]
     if index.get("lastPredictionDate") and payload_date <= index["lastPredictionDate"]:
