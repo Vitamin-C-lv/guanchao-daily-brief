@@ -17,6 +17,27 @@
 
 任何下游层不得反向修改上游事实。AI只可摘要事实、组织证据、撰写解释、生成反证和观察项；不得修改原始数据、模型输出、概率、排名、收益、评价、发布状态、模型版本或数据完整度。
 
+## P1-G qualitative research layer
+
+定量市场数据与定性研究资料是分离的不可变输入。P1-G 的完整未来流向为：
+
+```text
+scheduler
+→ source adapters
+→ raw/hash-only snapshots
+→ research source runs
+→ research documents
+→ source-grounded observations
+→ events/deduplication/coverage
+→ immutable research bundle
+→ immutable writer context
+→ Luna
+→ P1-F validate/apply
+→ content pages
+```
+
+research bundle 仅建模来源、文档、观察、事件与 coverage；它不能改模型、概率、EvidenceScore、排名、publicationStatus、门槛或 prediction ledger，也不作投资结论。source run、document 与 bundle 均不可覆盖；latest 是派生视图，不能作为 writer 权威输入。Luna 不得直接浏览、抓取或读取任意 latest 文件，未来只能读取同时绑定 immutable quantitative writer packet、qualitative research bundle、baseline content 及其 SHA/schema 的 `writer-context-v1`。
+
 ## 数据层
 
 供应商结果统一为 `ProviderResult<T>`：`provider`、`requestedAt`、`asOf`、`status`、`data`、`coverage`、`sourceUrl`、`warnings`、`rawSnapshotId`。`status` 仅可为 `ready`、`partial`、`stale`、`unavailable`、`rate_limited` 或 `schema_changed`。数据源优先级为官方机构/交易所/指数公司/公告、官方文件、可靠公开接口、第三方公开补充、新闻线索。

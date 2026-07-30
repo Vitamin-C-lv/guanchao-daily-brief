@@ -1,8 +1,13 @@
-# P1-E 交接
+# P1-GA 交接
 
 ## 当前定位
 
 - 仓库：`Vitamin-C-lv/guanchao-daily-brief`
+- 当前 main 基线：`746378a23ef9ed622f723b2af4921db3d20168e3`。
+- P1-F PR #23 已 squash merge；P1-F merge SHA：`746378a23ef9ed622f723b2af4921db3d20168e3`。
+- 当前阶段为 P1-GA：只冻结 `research-bundle-v1` 契约，不实现采集。
+- 下一阶段 P1-GB：source catalog 和首批确定性 adapter。
+- 原 P1-F 恢复资料保留于 `D:\Codex-Recovery`，不进入仓库。
 - 生产站：`https://guanchao-daily-brief.vercel.app/`
 - P1-C 精确 main 基线：`2c4dc081bb591830f78d532b32416a92f6446b40`。
 - P1-C 分支：`feature/p1c-ledger-feature-coverage-audit`；PR #14 已以 squash 合并。
@@ -69,9 +74,13 @@ P1-E PR #18 已合并；merge SHA：`16cde0056432b7d839420f545bbabbc4f49475a0`�
 2. [docs/ARCHITECTURE.md](ARCHITECTURE.md)
 3. [docs/ADR.md](ADR.md)
 4. [docs/EXECUTION_ENVIRONMENT.md](EXECUTION_ENVIRONMENT.md)
-5. [README.md](../README.md)
-6. [package.json](../package.json)
-7. 当前任务相关源码
+5. [docs/WRITER_PACKET_CONTRACT.md](WRITER_PACKET_CONTRACT.md)
+6. [docs/DATA_COLLECTION_RUNBOOK.md](DATA_COLLECTION_RUNBOOK.md)
+7. [docs/RESEARCH_BUNDLE_CONTRACT.md](RESEARCH_BUNDLE_CONTRACT.md)
+8. [`data/research-bundles/contract.json`](../data/research-bundles/contract.json)
+9. [README.md](../README.md)
+10. [package.json](../package.json)
+11. 当前任务相关源码
 
 ## P1-F writer job queue
 
