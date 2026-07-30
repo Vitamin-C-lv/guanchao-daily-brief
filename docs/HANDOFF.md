@@ -75,9 +75,15 @@ P1-E PR #18 已合并；merge SHA：`16cde0056432b7d839420f545bbabbc4f49475a0`�
 
 ## P1-F writer job queue
 
-P1-F adds an immutable file-backed writer queue: market-data run → writer packet → writer request
-→ externally supplied Luna result → validation → atomic apply. `data/writer-jobs` holds immutable
-requests and accepted gzip results; its index and `content/writer-jobs/*-pending.json` are
-rebuildable pointers. Prepare, validate and apply never train a model, change EvidenceScore,
-probabilities, rankings or gates, touch the prediction ledger, or call OpenAI/Luna. The scheduled
-workflow prepares validated requests only; external review owns full validation and merge.
+P1-F is queue/apply infrastructure: immutable packet snapshot → writer request → externally
+supplied result → contract validation → atomic daily/weekly apply with rollback. It provides
+immutable packet snapshots, request/result queue files, deterministic accepted gzip, manual request
+preparation, and rebuildable index/pending pointers. It does not provide a research bundle,
+automatic Luna execution, automatic publication, or scheduled writing; the workflow is
+manual-only until immutable `writer-context-v1` exists.
+
+The next frozen inputs are `research-bundle-v1` and `writer-context-v1`. A future context must
+reference the immutable quantitative writer packet, immutable qualitative research bundle,
+immutable baseline content, and each artifact's SHA and Schema version. Luna must still not browse
+autonomously. P1-F never trains a model, changes EvidenceScore, probabilities, rankings or gates,
+or touches the prediction ledger.

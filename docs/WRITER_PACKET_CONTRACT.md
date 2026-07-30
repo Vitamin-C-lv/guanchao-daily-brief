@@ -29,3 +29,10 @@ applied, must not contain a half article, and never enters accepted storage.
 Accepted results are deterministic gzip artifacts and cannot be overwritten by a different stable
 identity. Weekly report, weekly index, and weekly notice are derived and committed in one rollback
 transaction. Writer apply never changes the prediction ledger.
+
+P1-F is queue/apply infrastructure, not a complete research bundle or automatic writer. Manual
+request preparation may freeze a quantitative packet and request, but automatic Luna execution,
+automatic content publication, and scheduled writing remain disabled. The next frozen inputs are
+`research-bundle-v1` and `writer-context-v1`; a future context must reference immutable
+quantitative packet, qualitative bundle, and baseline content artifacts with each SHA and Schema
+version. Luna must still not browse autonomously.

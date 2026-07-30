@@ -1,10 +1,7 @@
-name: Prepare writer request
+name: Prepare writer request manually
 
 on:
-  # 20:15 Asia/Shanghai on weekdays (12:15 UTC); Friday weekly at 21:00 (13:00 UTC).
-  schedule:
-    - cron: "15 12 * * 1-5"
-    - cron: "0 13 * * 5"
+  # Scheduled preparation remains disabled until immutable writer-context-v1 provides sufficient qualitative and quantitative inputs.
   workflow_dispatch:
     inputs:
       edition: { description: Writer edition, required: true, default: daily, type: choice, options: [daily, weekly] }
@@ -18,8 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      EDITION: ${{ github.event_name == 'schedule' && github.event.schedule == '0 13 * * 5' && 'weekly' || github.event_name == 'schedule' && 'daily' || inputs.edition }}
-      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+      EDITION: ${{ inputs.edition }}
+      DRY_RUN: ${{ inputs.dry_run }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with: { fetch-depth: 0, ref: main }
