@@ -53,6 +53,8 @@
     "validate:writer-packet": "node scripts/validate-writer-packet.mjs",
     "production:prepare": "node scripts/writer-jobs.mjs prepare",
     "writer-job:validate": "node scripts/writer-jobs.mjs validate",
+    "writer-result:template": "node scripts/writer-jobs.mjs template",
+    "writer-job:export": "node scripts/writer-jobs.mjs export",
     "production:apply": "node scripts/writer-jobs.mjs apply",
     "test:writer-jobs": "node --test scripts/writer-jobs.test.mjs",
     "test:writer-context": "node --test scripts/writer-context.test.mjs",
