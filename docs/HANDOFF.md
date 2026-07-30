@@ -5,8 +5,8 @@
 - 仓库：`Vitamin-C-lv/guanchao-daily-brief`
 - 当前 main 基线：`746378a23ef9ed622f723b2af4921db3d20168e3`。
 - P1-F PR #23 已 squash merge；P1-F merge SHA：`746378a23ef9ed622f723b2af4921db3d20168e3`。
-- 当前阶段为 P1-GA 最终加固：冻结 `research-bundle-v1` 的 canonical array、canonical UTC timestamp、发布日期精度和 raw snapshot lineage；尚未引入采集或 production artifact。
-- P1-GA 契约验证器补足 sourceRunId、adapter lineage、document→sourceRunId/rawSnapshotId 精确绑定、`publishedDate`、contentHashBasis/version compatibility、递归 bundle business view、audit-only artifact reuse、calendar 时间例外和包含关系 coverage 计数。重复方法 v1 仅 `exact-url|content-hash`，后者绑定 basis/version/hash。
+- 当前阶段完成 P1-GA 最终加固 + P1-GB/P1-GC 首批工程包：冻结 `research-bundle-v1` 的 canonical array、canonical UTC timestamp、发布日期精度和 raw snapshot lineage，并实现受限官方采集、不可变存储、daily/weekly builder、dry-run 和 rebuild。
+- `config/research-sources.json` 只允许 Federal Reserve RSS、BLS RSS 和 Federal Register JSON；`scripts/research-pipeline.mjs` 是唯一 pipeline，限量 GET、显式 bot identity、无 cookie/auth/browser/重试，RSS/Atom 和结构化 JSON 只保存 bounded metadata/hash/raw response。A_SHARE/HK 没有合规 adapter 时必须为 unavailable；不创建或提交 production artifact。
 - 原 P1-F 恢复资料保留于 `D:\Codex-Recovery`，不进入仓库。
 - 生产站：`https://guanchao-daily-brief.vercel.app/`
 - P1-C 精确 main 基线：`2c4dc081bb591830f78d532b32416a92f6446b40`。

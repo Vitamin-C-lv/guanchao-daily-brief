@@ -54,3 +54,20 @@ sources are never called. Each enabled source appears in the immutable run, incl
 the source result retains URL, status, parser/normalizer versions and raw response hash but not
 raw XML or HTML. No cookies, browser automation, WAF challenge parameters or user credentials
 are used.
+
+## Research bundle collection
+
+The qualitative research path is separate from market-data and writer packets. Validate its
+catalog with `pnpm validate:research-sources`, then preview a bounded official collection with
+`pnpm research:run -- --edition daily|weekly --as-of auto --dry-run --output <absolute-outside-repo-path>`.
+Only a reviewed non-dry run may create immutable raw/source-run/document/bundle artifacts. Do not
+use `--output` inside the repository. `pnpm research:rebuild` never accesses the network; it
+revalidates existing gzip artifacts before rebuilding index/latest and fails closed on damage.
+
+The sole permitted initial catalog entries are Federal Reserve press RSS, BLS latest RSS and the
+Federal Register documents JSON endpoint. The runner sends only a declared `User-Agent` GET,
+follows at most three explicitly allowed HTTPS redirects, has no cookies/auth/referer/proxy or
+retry loop, rejects XML entity declarations, and never follows an item link, PDF link, raw text
+link or full-text URL. A provider failure stays `unavailable`, `rate_limited` or `schema_changed`;
+it is not replaced with fixture data. A_SHARE and HK are honestly `unavailable` until compliant
+official adapters are separately frozen.
