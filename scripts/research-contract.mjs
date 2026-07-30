@@ -179,6 +179,32 @@ export function normalizeTimestamp(value) {
   return new Date(value).toISOString();
 }
 
+export function effectivePublicationDate(document) {
+  if (document.publishedDate !== null) return document.publishedDate;
+  if (document.publishedAt === null) return null;
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit"
+  }).formatToParts(new Date(document.publishedAt));
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
+
+export function compareDocumentPublication(left, right) {
+  const leftDate = effectivePublicationDate(left);
+  const rightDate = effectivePublicationDate(right);
+  if (leftDate === null && rightDate !== null) return 1;
+  if (leftDate !== null && rightDate === null) return -1;
+  if (leftDate !== rightDate) return codePointCompare(leftDate ?? "", rightDate ?? "");
+  const leftPrecise = left.publishedAt !== null;
+  const rightPrecise = right.publishedAt !== null;
+  if (leftPrecise !== rightPrecise) return leftPrecise ? -1 : 1;
+  if (leftPrecise && left.publishedAt !== right.publishedAt) return codePointCompare(left.publishedAt, right.publishedAt);
+  return codePointCompare(left.documentId, right.documentId);
+}
+
 function shanghaiEnd(date) {
   return new Date(`${date}T23:59:59+08:00`);
 }
@@ -528,12 +554,7 @@ function validateCluster(cluster, context, index, occupied) {
     return document;
   });
   const canonical = documents.get(cluster.canonicalDocumentId);
-  const expectedCanonical = [...members].sort((left, right) => {
-    if (left.publishedAt === null && right.publishedAt !== null) return 1;
-    if (left.publishedAt !== null && right.publishedAt === null) return -1;
-    if (left.publishedAt !== right.publishedAt) return codePointCompare(left.publishedAt ?? "", right.publishedAt ?? "");
-    return codePointCompare(left.documentId, right.documentId);
-  })[0];
+  const expectedCanonical = [...members].sort(compareDocumentPublication)[0];
   if (canonical.documentId !== expectedCanonical.documentId) fail("CLUSTER_CANONICAL", `${errorPath}.canonicalDocumentId`, "wrong canonical document");
   const sameUrl = members.every((document) => document.canonicalUrl === canonical.canonicalUrl);
   const sameHash = members.every((document) => document.contentHashBasis === canonical.contentHashBasis && document.contentHashVersion === canonical.contentHashVersion && document.contentSha256 === canonical.contentSha256);

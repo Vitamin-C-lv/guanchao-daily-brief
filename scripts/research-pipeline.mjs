@@ -7,6 +7,7 @@ import { XMLParser } from "fast-xml-parser";
 import {
   ResearchContractError,
   canonicalJson,
+  compareDocumentPublication,
   compareImmutableCandidate,
   computeBundleId,
   computeClusterId,
@@ -34,16 +35,18 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const XML_TYPES = ["application/atom+xml", "application/rss+xml", "application/xml", "text/xml"];
 
 export class ResearchPipelineError extends Error {
-  constructor(code, errorPath, message) {
+  constructor(code, errorPath, message, { diagnostic = null, finalHost = null } = {}) {
     super(message);
     this.name = "ResearchPipelineError";
     this.code = code;
     this.path = errorPath;
+    this.diagnostic = diagnostic;
+    this.finalHost = finalHost;
   }
 }
 
-function fail(code, errorPath, message) {
-  throw new ResearchPipelineError(code, errorPath, message);
+function fail(code, errorPath, message, details) {
+  throw new ResearchPipelineError(code, errorPath, message, details);
 }
 
 function sha256Bytes(value) {
@@ -192,6 +195,20 @@ function header(response, name) {
   return response.headers?.get?.(name) ?? response.headers?.[name] ?? "";
 }
 
+function safeHost(value) {
+  try {
+    return new URL(value).hostname.toLowerCase();
+  } catch {
+    return "unknown";
+  }
+}
+
+function contentTypeWarning(value) {
+  const type = (value ?? "").split(";", 1)[0].trim().toLowerCase();
+  const safe = type.replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "missing";
+  return `content-type-${safe}`;
+}
+
 export function buildFederalRegisterUrl(source, window) {
   const url = new URL(source.url);
   url.searchParams.append("conditions[publication_date][gte]", window.start);
@@ -202,7 +219,7 @@ export function buildFederalRegisterUrl(source, window) {
 }
 
 export async function fetchOfficialSource(source, { userAgent = USER_AGENT, fetchImpl = globalThis.fetch, requestUrl: initialUrl = source.url } = {}) {
-  if (typeof fetchImpl !== "function") fail("UNAVAILABLE", "fetch", "Node fetch is unavailable");
+  if (typeof fetchImpl !== "function") fail("UNAVAILABLE", "fetch", "fetch unavailable", { diagnostic: "network-failure", finalHost: safeHost(initialUrl) });
   let requestUrl = initialUrl;
   for (let redirects = 0; redirects <= 3; redirects += 1) {
     const controller = new AbortController();
@@ -210,36 +227,41 @@ export async function fetchOfficialSource(source, { userAgent = USER_AGENT, fetc
     let response;
     try {
       response = await fetchImpl(requestUrl, { method: "GET", headers: { "User-Agent": userAgent }, redirect: "manual", signal: controller.signal });
-    } catch (cause) {
-      if (controller.signal.aborted) fail("UNAVAILABLE", "fetch", "timeout");
-      fail("UNAVAILABLE", "fetch", cause instanceof Error ? cause.message : "network failure");
+    } catch {
+      if (controller.signal.aborted) fail("UNAVAILABLE", "fetch", "request timed out", { diagnostic: "timeout", finalHost: safeHost(requestUrl) });
+      fail("UNAVAILABLE", "fetch", "network request failed", { diagnostic: "network-failure", finalHost: safeHost(requestUrl) });
     } finally {
       clearTimeout(timer);
     }
     if ([301, 302, 303, 307, 308].includes(response.status)) {
-      if (redirects === 3) fail("UNAVAILABLE", "fetch", "redirect limit exceeded");
+      if (redirects === 3) fail("UNAVAILABLE", "fetch", "redirect limit exceeded", { diagnostic: "redirect-limit-exceeded", finalHost: safeHost(requestUrl) });
       const location = header(response, "location");
-      if (!location) fail("UNAVAILABLE", "fetch", "redirect location missing");
-      const next = new URL(location, requestUrl);
-      if (next.protocol !== "https:" || !source.allowedRedirectHosts.includes(next.hostname.toLowerCase())) fail("UNAVAILABLE", "fetch", "redirect host rejected");
+      if (!location) fail("UNAVAILABLE", "fetch", "redirect location missing", { diagnostic: "redirect-location-missing", finalHost: safeHost(requestUrl) });
+      let next;
+      try {
+        next = new URL(location, requestUrl);
+      } catch {
+        fail("UNAVAILABLE", "fetch", "redirect location invalid", { diagnostic: "redirect-location-invalid", finalHost: safeHost(requestUrl) });
+      }
+      if (next.protocol !== "https:" || !source.allowedRedirectHosts.includes(next.hostname.toLowerCase())) fail("UNAVAILABLE", "fetch", "redirect host rejected", { diagnostic: "redirect-host-rejected", finalHost: safeHost(requestUrl) });
       requestUrl = next.href;
       continue;
     }
-    if (response.status === 429) fail("RATE_LIMITED", "fetch", "HTTP 429");
-    if (!response.ok) fail("UNAVAILABLE", "fetch", `HTTP ${response.status}`);
-    if (!expectedContentType(source, header(response, "content-type"))) fail("SCHEMA_CHANGED", "fetch", "content type mismatch");
+    if (response.status === 429) fail("RATE_LIMITED", "fetch", "rate limited", { diagnostic: "http-status-429", finalHost: safeHost(requestUrl) });
+    if (!response.ok) fail("UNAVAILABLE", "fetch", "HTTP request failed", { diagnostic: `http-status-${Number.isInteger(response.status) ? response.status : "unknown"}`, finalHost: safeHost(requestUrl) });
+    if (!expectedContentType(source, header(response, "content-type"))) fail("SCHEMA_CHANGED", "fetch", "content type mismatch", { diagnostic: contentTypeWarning(header(response, "content-type")), finalHost: safeHost(requestUrl) });
     const contentLength = Number(header(response, "content-length"));
-    if (Number.isFinite(contentLength) && contentLength > source.maxResponseBytes) fail("SCHEMA_CHANGED", "fetch", "response exceeds cap");
+    if (Number.isFinite(contentLength) && contentLength > source.maxResponseBytes) fail("SCHEMA_CHANGED", "fetch", "response exceeds cap", { diagnostic: "response-too-large", finalHost: safeHost(requestUrl) });
     let bytes;
     try {
       bytes = Buffer.from(await response.arrayBuffer());
-    } catch (cause) {
-      fail("UNAVAILABLE", "fetch", cause instanceof Error ? cause.message : "response read failure");
+    } catch {
+      fail("UNAVAILABLE", "fetch", "response read failed", { diagnostic: "response-read-failure", finalHost: safeHost(requestUrl) });
     }
-    if (bytes.length > source.maxResponseBytes) fail("SCHEMA_CHANGED", "fetch", "response exceeds cap");
+    if (bytes.length > source.maxResponseBytes) fail("SCHEMA_CHANGED", "fetch", "response exceeds cap", { diagnostic: "response-too-large", finalHost: safeHost(requestUrl) });
     return { bytes, finalUrl: requestUrl, contentType: header(response, "content-type") };
   }
-  fail("UNAVAILABLE", "fetch", "redirect failure");
+  fail("UNAVAILABLE", "fetch", "redirect failure", { diagnostic: "redirect-failure", finalHost: safeHost(requestUrl) });
 }
 
 function values(value) {
@@ -292,16 +314,16 @@ function feedItemHash(source, item) {
 
 export function parseOfficialFeed(bytes, source) {
   const xml = Buffer.from(bytes).toString("utf8");
-  if (/<!DOCTYPE|<!ENTITY/i.test(xml)) fail("SCHEMA_CHANGED", "feed", "DOCTYPE or ENTITY is forbidden");
+  if (/<!DOCTYPE|<!ENTITY/i.test(xml)) fail("SCHEMA_CHANGED", "feed", "DOCTYPE or ENTITY is forbidden", { diagnostic: "xml-doctype-forbidden" });
   let parsed;
   try {
     parsed = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@_", textNodeName: "#text", processEntities: false, trimValues: true }).parse(xml);
   } catch {
-    fail("SCHEMA_CHANGED", "feed", "XML parse failure");
+    fail("SCHEMA_CHANGED", "feed", "XML parse failure", { diagnostic: "xml-parse-failure" });
   }
   const isRss = plainObject(parsed.rss) && parsed.rss.channel;
   const isAtom = plainObject(parsed.feed);
-  if (!isRss && !isAtom) fail("SCHEMA_CHANGED", "feed", "RSS or Atom root required");
+  if (!isRss && !isAtom) fail("SCHEMA_CHANGED", "feed", "RSS or Atom root required", { diagnostic: "xml-root-invalid" });
   const entries = isRss ? values(parsed.rss.channel.item) : values(parsed.feed.entry);
   const items = [];
   const warnings = [];
@@ -330,9 +352,10 @@ export function parseFederalRegisterDocuments(bytes, source) {
   try {
     data = JSON.parse(Buffer.from(bytes).toString("utf8"));
   } catch {
-    fail("SCHEMA_CHANGED", "federal-register", "JSON parse failure");
+    fail("SCHEMA_CHANGED", "federal-register", "JSON parse failure", { diagnostic: "json-parse-failure" });
   }
-  if (!plainObject(data) || !Number.isInteger(data.count) || !Array.isArray(data.results)) fail("SCHEMA_CHANGED", "federal-register", "count and results required");
+  if (!plainObject(data) || !Number.isInteger(data.count) || data.count < 0) fail("SCHEMA_CHANGED", "federal-register", "valid count required", { diagnostic: "json-count-invalid" });
+  if (!Array.isArray(data.results)) fail("SCHEMA_CHANGED", "federal-register", "results array required", { diagnostic: "json-results-invalid" });
   const items = [];
   const warnings = [];
   for (const result of data.results) {
@@ -368,14 +391,18 @@ function daysOld(asOf, publishedDate) {
   return Math.floor((Date.parse(`${asOf}T00:00:00Z`) - Date.parse(`${publishedDate}T00:00:00Z`)) / 86400000);
 }
 
-function unavailableRun(source, asOf, requestedAt, code) {
-  return seal({ sourceRunId: "", sourceId: source.sourceId, provider: source.provider, sourceClass: source.sourceClass, adapterId: source.adapterId, adapterVersion: source.adapterVersion, requestedAt, asOf: asOfTimestamp(asOf), status: code === "RATE_LIMITED" ? "rate_limited" : code === "SCHEMA_CHANGED" ? "schema_changed" : "unavailable", sourceUrl: source.url, marketScopes: source.marketScopes, topics: source.topics, coverage: { itemCount: 0, note: code.toLowerCase() }, snapshotPolicy: "none", rawSnapshotId: null, warnings: [code.toLowerCase()], integrity: { businessSha256: "", sha256: "" } }, "sourceRunId", computeSourceRunId);
+function unavailableRun(source, asOf, requestedAt, code, diagnostic) {
+  const status = code === "RATE_LIMITED" ? "rate_limited" : code === "SCHEMA_CHANGED" ? "schema_changed" : "unavailable";
+  const coverageNote = status === "rate_limited" ? "official source rate limited" : status === "schema_changed" ? "official source schema changed" : "official source unavailable";
+  return seal({ sourceRunId: "", sourceId: source.sourceId, provider: source.provider, sourceClass: source.sourceClass, adapterId: source.adapterId, adapterVersion: source.adapterVersion, requestedAt, asOf: asOfTimestamp(asOf), status, sourceUrl: source.url, marketScopes: source.marketScopes, topics: source.topics, coverage: { itemCount: 0, note: coverageNote }, snapshotPolicy: "none", rawSnapshotId: null, warnings: [diagnostic], integrity: { businessSha256: "", sha256: "" } }, "sourceRunId", computeSourceRunId);
 }
 
 export async function collectResearchSource(source, { asOf, window, userAgent = USER_AGENT, fetchImpl = globalThis.fetch, now = new Date() } = {}) {
   const requestedAt = now.toISOString();
+  let finalHost = safeHost(source.url);
   try {
     const response = await fetchOfficialSource(source, { userAgent, fetchImpl, requestUrl: source.adapterId === "federal-register-json" ? buildFederalRegisterUrl(source, window) : source.url });
+    finalHost = safeHost(response.finalUrl);
     const parsed = source.adapterId === "official-feed" ? parseOfficialFeed(response.bytes, source) : parseFederalRegisterDocuments(response.bytes, source);
     const limited = parsed.items.slice(0, source.maxItems);
     const warnings = sortedUnique([...parsed.warnings, ...(parsed.items.length > limited.length ? ["max-items-truncated"] : [])]);
@@ -387,9 +414,12 @@ export async function collectResearchSource(source, { asOf, window, userAgent = 
     const registry = loadRegistry();
     validateSourceRun(sourceRun, registry);
     for (const document of documents) validateDocument(document, [sourceRun], registry);
-    return { source, sourceRun, documents, raw: { rawSnapshotId, bytes: response.bytes, asOf }, warnings, window };
+    return { source, sourceRun, documents, raw: { rawSnapshotId, bytes: response.bytes, asOf }, warnings, window, finalHost };
   } catch (cause) {
-    if (cause instanceof ResearchPipelineError) return { source, sourceRun: unavailableRun(source, asOf, requestedAt, cause.code), documents: [], raw: null, warnings: [cause.code.toLowerCase()], window };
+    if (cause instanceof ResearchPipelineError) {
+      const diagnostic = cause.diagnostic ?? (cause.code === "RATE_LIMITED" ? "http-status-429" : cause.code === "SCHEMA_CHANGED" ? "schema-changed" : "network-failure");
+      return { source, sourceRun: unavailableRun(source, asOf, requestedAt, cause.code, diagnostic), documents: [], raw: null, warnings: [diagnostic], window, finalHost: cause.finalHost ?? finalHost };
+    }
     throw cause;
   }
 }
@@ -401,12 +431,7 @@ function documentWindowDate(document) {
 }
 
 function canonicalClusterDocument(documents) {
-  return [...documents].sort((left, right) => {
-    if (left.publishedAt !== null && right.publishedAt !== null && left.publishedAt !== right.publishedAt) return left.publishedAt.localeCompare(right.publishedAt);
-    if (left.publishedAt !== null) return -1;
-    if (right.publishedAt !== null) return 1;
-    return left.documentId.localeCompare(right.documentId);
-  })[0];
+  return [...documents].sort(compareDocumentPublication)[0];
 }
 
 export function buildDuplicateClusters(documents) {
@@ -473,8 +498,13 @@ export function buildResearchBundle({ edition, asOf, window = resolveResearchWin
   return sealed;
 }
 
-function artifactPath(kind, value, root) {
-  const month = kind === "document" && value.publishedDate ? value.publishedDate.slice(0, 7).replace("-", "/") : value.asOf?.slice(0, 7).replace("-", "/");
+function artifactPath(kind, value, root, bundleAsOf) {
+  let businessDate = kind === "sourceRun" ? value.asOf?.slice(0, 10) : value.asOf;
+  if (kind === "document") {
+    businessDate = value.publishedDate ?? (value.publishedAt === null ? bundleAsOf : shanghaiDate(new Date(value.publishedAt)));
+  }
+  if (!validDate(businessDate)) fail("STORAGE_PATH", kind, "valid business date required");
+  const month = businessDate.slice(0, 7).replace("-", "/");
   const id = kind === "sourceRun" ? value.sourceRunId : kind === "document" ? value.documentId : value.bundleId;
   const base = kind === "sourceRun" ? "source-runs" : kind === "document" ? "documents" : "bundles";
   return path.join(root, "data", "research-bundles", base, month, `${id}.json.gz`);
@@ -509,10 +539,10 @@ function readTreeFiles(directory) {
   });
 }
 
-function planImmutableJson(kind, value, root, sourceRuns) {
-  const file = artifactPath(kind, value, root);
+function planImmutableJson(kind, value, root, sourceRuns, bundleAsOf) {
+  const file = artifactPath(kind, value, root, bundleAsOf);
   const bytes = gzipCanonical(value);
-  if (!fs.existsSync(file)) return { file, bytes, created: true, kind };
+  if (!fs.existsSync(file)) return { file, bytes, created: true, reused: false, shouldWrite: true, kind };
   const existing = readGzipJson(file);
   try {
     if (kind === "sourceRun") validateSourceRun(existing, loadRegistry());
@@ -531,13 +561,16 @@ function planImmutableJson(kind, value, root, sourceRuns) {
       throw cause;
     }
   }
-  return { file, bytes: existingBytes, created: false, kind };
+  return { file, bytes: existingBytes, created: false, reused: true, shouldWrite: false, kind };
 }
 
 function planRaw(raw, root) {
-  const file = rawArtifactPath(raw, root);
+  const rawRoot = path.join(root, "data", "research-bundles", "raw");
+  const matches = readTreeFiles(rawRoot).filter((item) => path.basename(item) === `${raw.rawSnapshotId}.bin.gz`);
+  if (matches.length > 1) fail("ARTIFACT_CORRUPT", rawRoot, "duplicate raw snapshot paths");
+  const file = matches[0] ?? rawArtifactPath(raw, root);
   const bytes = gzipRaw(raw.bytes);
-  if (!fs.existsSync(file)) return { file, bytes, created: true, kind: "raw" };
+  if (!fs.existsSync(file)) return { file, bytes, created: true, reused: false, shouldWrite: true, kind: "raw" };
   let existing;
   try {
     existing = gunzipSync(fs.readFileSync(file));
@@ -546,13 +579,34 @@ function planRaw(raw, root) {
   }
   if (sha256Bytes(existing) !== raw.rawSnapshotId) fail("ARTIFACT_CORRUPT", file, "raw artifact hash mismatch");
   if (Buffer.compare(existing, raw.bytes) !== 0) fail("IMMUTABLE_CONFLICT", file, "raw artifact differs");
-  return { file, bytes, created: false, kind: "raw" };
+  return { file, bytes: fs.readFileSync(file), created: false, reused: true, shouldWrite: false, kind: "raw" };
+}
+
+function uniquePlans(plans) {
+  const byFile = new Map();
+  for (const plan of plans) {
+    const key = path.resolve(plan.file).toLowerCase();
+    const existing = byFile.get(key);
+    if (!existing) {
+      byFile.set(key, plan);
+      continue;
+    }
+    if (Buffer.compare(existing.bytes, plan.bytes) !== 0) fail("IMMUTABLE_CONFLICT", plan.file, "duplicate plan bytes differ");
+  }
+  return [...byFile.values()];
 }
 
 function applyWrite(plan, transaction) {
+  if (!plan.shouldWrite) return;
   if (!transaction.before.has(plan.file)) transaction.before.set(plan.file, fs.existsSync(plan.file) ? fs.readFileSync(plan.file) : null);
   fs.mkdirSync(path.dirname(plan.file), { recursive: true });
-  fs.writeFileSync(plan.file, plan.bytes);
+  const temporary = `${plan.file}.${process.pid}.${Date.now()}.tmp`;
+  try {
+    fs.writeFileSync(temporary, plan.bytes);
+    fs.renameSync(temporary, plan.file);
+  } finally {
+    if (fs.existsSync(temporary)) fs.unlinkSync(temporary);
+  }
 }
 
 function rollback(transaction) {
@@ -566,11 +620,52 @@ function rollback(transaction) {
   }
 }
 
+function validateScannedArtifacts(found, registry) {
+  const rawById = new Map();
+  for (const entry of found.raw) {
+    if (rawById.has(entry.rawSnapshotId)) fail("ARTIFACT_CORRUPT", entry.file, "duplicate raw snapshot paths");
+    rawById.set(entry.rawSnapshotId, entry);
+  }
+  const sourceRuns = new Map();
+  for (const entry of found.sourceRuns) {
+    const sourceRun = validateSourceRun(entry.value, registry);
+    if (sourceRuns.has(sourceRun.sourceRunId)) fail("ARTIFACT_CORRUPT", entry.file, "duplicate source run paths");
+    sourceRuns.set(sourceRun.sourceRunId, entry.value);
+    if (["ready", "partial", "stale"].includes(sourceRun.status) && !rawById.has(sourceRun.rawSnapshotId)) fail("ARTIFACT_CORRUPT", entry.file, "source run raw snapshot missing");
+    if (["unavailable", "rate_limited", "schema_changed"].includes(sourceRun.status) && sourceRun.rawSnapshotId !== null) fail("ARTIFACT_CORRUPT", entry.file, "failed source run references raw snapshot");
+  }
+  for (const entry of found.documents) {
+    const document = validateDocument(entry.value, sourceRuns, registry);
+    if (!rawById.has(document.rawSnapshotId)) fail("ARTIFACT_CORRUPT", entry.file, "document raw snapshot missing");
+  }
+  for (const entry of found.bundles) {
+    const bundle = validateBundle(entry.value, registry);
+    for (const sourceRun of bundle.sourceRuns) {
+      if (["ready", "partial", "stale"].includes(sourceRun.status) && !rawById.has(sourceRun.rawSnapshotId)) fail("ARTIFACT_CORRUPT", entry.file, "bundle source run raw snapshot missing");
+      if (["unavailable", "rate_limited", "schema_changed"].includes(sourceRun.status) && sourceRun.rawSnapshotId !== null) fail("ARTIFACT_CORRUPT", entry.file, "bundle failed source run references raw snapshot");
+    }
+    for (const document of bundle.documents) if (!rawById.has(document.rawSnapshotId)) fail("ARTIFACT_CORRUPT", entry.file, "bundle document raw snapshot missing");
+  }
+  return found;
+}
+
 function scanResearchArtifacts(root) {
   const registry = loadRegistry();
   const artifactRoot = path.join(root, "data", "research-bundles");
   const kinds = ["source-runs", "documents", "bundles"];
-  const found = { sourceRuns: [], documents: [], bundles: [] };
+  const found = { raw: [], sourceRuns: [], documents: [], bundles: [] };
+  for (const file of readTreeFiles(path.join(artifactRoot, "raw")).filter((item) => item.endsWith(".bin.gz"))) {
+    const match = path.basename(file).match(/^([a-f0-9]{64})\.bin\.gz$/);
+    if (!match) fail("ARTIFACT_CORRUPT", file, "raw filename must be lowercase SHA-256");
+    let rawBytes;
+    try {
+      rawBytes = gunzipSync(fs.readFileSync(file));
+    } catch {
+      fail("ARTIFACT_CORRUPT", file, "raw artifact gzip is invalid");
+    }
+    if (sha256Bytes(rawBytes) !== match[1]) fail("ARTIFACT_CORRUPT", file, "raw artifact hash does not match filename");
+    found.raw.push({ file, rawSnapshotId: match[1], rawBytes, bytes: fs.readFileSync(file), artifactPath: path.relative(root, file).split(path.sep).join("/") });
+  }
   for (const kind of kinds) {
     for (const file of readTreeFiles(path.join(artifactRoot, kind)).filter((item) => item.endsWith(".json.gz"))) {
       const value = readGzipJson(file);
@@ -580,20 +675,47 @@ function scanResearchArtifacts(root) {
       if (kind === "bundles") found.bundles.push(entry);
     }
   }
-  const sourceRuns = new Map();
-  for (const entry of found.sourceRuns) sourceRuns.set(validateSourceRun(entry.value, registry).sourceRunId, entry.value);
-  for (const entry of found.documents) validateDocument(entry.value, sourceRuns, registry);
-  for (const entry of found.bundles) validateBundle(entry.value, registry);
-  return found;
+  return validateScannedArtifacts(found, registry);
 }
 
-function derivedPlans(root, transaction) {
+function virtualResearchArtifacts(root, sourceResults, bundle, plans) {
   const found = scanResearchArtifacts(root);
+  const addRaw = (raw) => {
+    const plan = plans.find((candidate) => candidate.kind === "raw" && path.basename(candidate.file) === `${raw.rawSnapshotId}.bin.gz`);
+    if (!plan || found.raw.some((entry) => path.resolve(entry.file).toLowerCase() === path.resolve(plan.file).toLowerCase())) return;
+    found.raw.push({ file: plan.file, rawSnapshotId: raw.rawSnapshotId, rawBytes: raw.bytes, bytes: plan.bytes, artifactPath: path.relative(root, plan.file).split(path.sep).join("/") });
+  };
+  const addJson = (kind, collection, value, id) => {
+    const plan = plans.find((candidate) => candidate.kind === kind && path.basename(candidate.file) === `${id}.json.gz`);
+    if (!plan || collection.some((entry) => path.resolve(entry.file).toLowerCase() === path.resolve(plan.file).toLowerCase())) return;
+    collection.push({ file: plan.file, value, bytes: plan.bytes, artifactPath: path.relative(root, plan.file).split(path.sep).join("/") });
+  };
+  for (const result of sourceResults) {
+    if (result.raw) addRaw(result.raw);
+    addJson("sourceRun", found.sourceRuns, result.sourceRun, result.sourceRun.sourceRunId);
+    for (const document of result.documents) addJson("document", found.documents, document, document.documentId);
+  }
+  addJson("bundle", found.bundles, bundle, bundle.bundleId);
+  return validateScannedArtifacts(found, loadRegistry());
+}
+
+function derivedPlan(file, bytes, kind) {
+  if (!fs.existsSync(file)) return { file, bytes, created: true, reused: false, shouldWrite: true, kind };
+  const existing = fs.readFileSync(file);
+  if (Buffer.compare(existing, bytes) === 0) return { file, bytes: existing, created: false, reused: true, shouldWrite: false, kind };
+  return { file, bytes, created: false, reused: false, shouldWrite: true, kind };
+}
+
+function derivedPlans(root, found = scanResearchArtifacts(root)) {
   const index = { schemaVersion: "research-bundle-index-v1", sourceRuns: found.sourceRuns.map((entry) => ({ id: entry.value.sourceRunId, schemaVersion: "research-source-run-v1", asOf: entry.value.asOf, artifactPath: entry.artifactPath, artifactSha256: sha256Bytes(entry.bytes) })).sort((left, right) => left.id.localeCompare(right.id)), documents: found.documents.map((entry) => ({ id: entry.value.documentId, schemaVersion: "research-document-v1", publishedDate: entry.value.publishedDate, artifactPath: entry.artifactPath, artifactSha256: sha256Bytes(entry.bytes) })).sort((left, right) => left.id.localeCompare(right.id)), bundles: found.bundles.map((entry) => ({ id: entry.value.bundleId, schemaVersion: "research-bundle-v1", asOf: entry.value.asOf, artifactPath: entry.artifactPath, artifactSha256: sha256Bytes(entry.bytes) })).sort((left, right) => left.id.localeCompare(right.id)) };
-  const plans = [{ file: path.join(root, "data", "research-bundles", "index.json"), bytes: Buffer.from(canonicalJson(index), "utf8"), created: !fs.existsSync(path.join(root, "data", "research-bundles", "index.json")), kind: "index" }];
+  const indexFile = path.join(root, "data", "research-bundles", "index.json");
+  const plans = [derivedPlan(indexFile, Buffer.from(canonicalJson(index), "utf8"), "index")];
   for (const edition of ["daily", "weekly"]) {
     const latest = found.bundles.filter((entry) => entry.value.edition === edition).sort((left, right) => left.value.asOf.localeCompare(right.value.asOf) || left.value.bundleId.localeCompare(right.value.bundleId)).at(-1);
-    if (latest) plans.push({ file: path.join(root, "content", "research-bundles", `${edition}-latest.json`), bytes: Buffer.from(canonicalJson(latest.value), "utf8"), created: !fs.existsSync(path.join(root, "content", "research-bundles", `${edition}-latest.json`)), kind: `${edition}-latest` });
+    if (latest) {
+      const latestFile = path.join(root, "content", "research-bundles", `${edition}-latest.json`);
+      plans.push(derivedPlan(latestFile, Buffer.from(canonicalJson(latest.value), "utf8"), `${edition}-latest`));
+    }
   }
   return plans;
 }
@@ -605,12 +727,12 @@ function injectedFailure(failAt, stage, count) {
 export function rebuildResearchDerivedViews({ root = repositoryRoot, transaction = null, failAt = null } = {}) {
   const own = transaction ?? { before: new Map() };
   try {
-    const plans = derivedPlans(root, own);
+    const plans = derivedPlans(root);
     for (let index = 0; index < plans.length; index += 1) {
       applyWrite(plans[index], own);
-      if (injectedFailure(failAt, plans[index].kind === "index" ? "index" : "latest", index + 1)) fail("STORAGE_WRITE", plans[index].file, "injected derived write failure");
+      if (plans[index].shouldWrite && injectedFailure(failAt, plans[index].kind === "index" ? "index" : "latest", index + 1)) fail("STORAGE_WRITE", plans[index].file, "injected derived write failure");
     }
-    return { indexPath: path.join(root, "data", "research-bundles", "index.json"), written: plans.map((plan) => plan.file) };
+    return { indexPath: path.join(root, "data", "research-bundles", "index.json"), written: plans.filter((plan) => plan.shouldWrite).map((plan) => plan.file), created: plans.filter((plan) => plan.created).map((plan) => plan.file), reused: plans.filter((plan) => plan.reused).map((plan) => plan.file), wouldWrite: plans.filter((plan) => plan.shouldWrite).map((plan) => plan.file), plans };
   } catch (cause) {
     if (!transaction) rollback(own);
     throw cause;
@@ -620,17 +742,19 @@ export function rebuildResearchDerivedViews({ root = repositoryRoot, transaction
 export function writeImmutableResearchArtifacts({ sourceResults, bundle, root = repositoryRoot, dryRun = false, failAt = null } = {}) {
   const sourceRuns = sourceResults.map((result) => result.sourceRun);
   const documents = sourceResults.flatMap((result) => result.documents);
-  const plans = [
+  const plans = uniquePlans([
     ...sourceResults.filter((result) => result.raw).map((result) => planRaw(result.raw, root)),
-    ...sourceRuns.map((value) => planImmutableJson("sourceRun", value, root, sourceRuns)),
-    ...documents.map((value) => planImmutableJson("document", value, root, sourceRuns)),
-    planImmutableJson("bundle", bundle, root, sourceRuns)
-  ];
-  const summary = { created: plans.filter((plan) => plan.created).map((plan) => path.relative(root, plan.file).split(path.sep).join("/")), reused: plans.filter((plan) => !plan.created).map((plan) => path.relative(root, plan.file).split(path.sep).join("/")), wouldWrite: plans.map((plan) => path.relative(root, plan.file).split(path.sep).join("/")) };
+    ...sourceRuns.map((value) => planImmutableJson("sourceRun", value, root, sourceRuns, bundle.asOf)),
+    ...documents.map((value) => planImmutableJson("document", value, root, sourceRuns, bundle.asOf)),
+    planImmutableJson("bundle", bundle, root, sourceRuns, bundle.asOf)
+  ]);
+  const relative = (file) => path.relative(root, file).split(path.sep).join("/");
+  const summary = { created: plans.filter((plan) => plan.created).map((plan) => relative(plan.file)), reused: plans.filter((plan) => plan.reused).map((plan) => relative(plan.file)), wouldWrite: plans.filter((plan) => plan.shouldWrite).map((plan) => relative(plan.file)) };
   if (dryRun) {
-    const derived = [path.join(root, "data", "research-bundles", "index.json"), path.join(root, "content", "research-bundles", `${bundle.edition}-latest.json`)];
-    summary.wouldWrite.push(...derived.map((file) => path.relative(root, file).split(path.sep).join("/")));
-    summary.created.push(...derived.filter((file) => !fs.existsSync(file)).map((file) => path.relative(root, file).split(path.sep).join("/")));
+    const derived = derivedPlans(root, virtualResearchArtifacts(root, sourceResults, bundle, plans));
+    summary.wouldWrite.push(...derived.filter((plan) => plan.shouldWrite).map((plan) => relative(plan.file)));
+    summary.created.push(...derived.filter((plan) => plan.created).map((plan) => relative(plan.file)));
+    summary.reused.push(...derived.filter((plan) => plan.reused).map((plan) => relative(plan.file)));
     return summary;
   }
   const transaction = { before: new Map() };
@@ -638,13 +762,15 @@ export function writeImmutableResearchArtifacts({ sourceResults, bundle, root = 
     let stage = 0;
     for (const plan of plans) {
       applyWrite(plan, transaction);
+      if (!plan.shouldWrite) continue;
       stage += 1;
       const stageName = plan.kind === "sourceRun" ? "source-run" : plan.kind === "document" ? "document" : plan.kind;
       if (injectedFailure(failAt, stageName, stage)) fail("STORAGE_WRITE", plan.file, "injected write failure");
     }
     const derived = rebuildResearchDerivedViews({ root, transaction, failAt });
-    summary.created.push(...derived.written.filter((file) => !transaction.before.get(file)).map((file) => path.relative(root, file).split(path.sep).join("/")));
-    summary.wouldWrite.push(...derived.written.map((file) => path.relative(root, file).split(path.sep).join("/")));
+    summary.created.push(...derived.created.map(relative));
+    summary.reused.push(...derived.reused.map(relative));
+    summary.wouldWrite.push(...derived.wouldWrite.map(relative));
     return summary;
   } catch (cause) {
     rollback(transaction);
@@ -658,7 +784,8 @@ function ensureOutsideRepository(output, root) {
   if (!relative || (!relative.startsWith("..") && !path.isAbsolute(relative))) fail("PIPELINE_ARGUMENT", "output", "output must be outside repository root");
 }
 
-export async function runResearchPipeline({ edition, asOf = "auto", dryRun = false, output = null, root = repositoryRoot, fetchImpl = globalThis.fetch, now = new Date(), catalog = null } = {}) {
+export async function runResearchPipeline({ edition, asOf = "auto", dryRun = false, write = false, output = null, root = repositoryRoot, fetchImpl = globalThis.fetch, now = new Date(), catalog = null } = {}) {
+  if (dryRun === write) fail("PIPELINE_ARGUMENT", "mode", "exactly one of dryRun or write is required");
   const registry = loadRegistry();
   const loadedCatalog = validateResearchSourceCatalog(catalog ?? loadResearchSourceCatalog(), registry);
   const window = resolveResearchWindow({ edition, asOf, now });
@@ -668,7 +795,8 @@ export async function runResearchPipeline({ edition, asOf = "auto", dryRun = fal
   const allDocuments = sourceResults.flatMap((result) => result.documents);
   const bundle = buildResearchBundle({ edition, asOf: window.end, window, sourceRuns: sourceResults.map((result) => result.sourceRun), documents: allDocuments, sources: active, generatedAt: now.toISOString(), registry });
   const storage = writeImmutableResearchArtifacts({ sourceResults, bundle, root, dryRun });
-  const summary = { edition, asOf: window.end, window, sourceStatuses: Object.fromEntries(sourceResults.map((result) => [result.source.sourceId, result.sourceRun.status])), rawSnapshotCount: sourceResults.filter((result) => result.raw).length, sourceRunCount: sourceResults.length, documentArtifactCount: allDocuments.length, bundleDocumentCount: bundle.documents.length, bundleId: bundle.bundleId, coverage: bundle.coverage, created: storage.created, reused: storage.reused, wouldWrite: storage.wouldWrite, dryRun };
+  const sourceDiagnostics = sourceResults.map((result) => ({ sourceId: result.source.sourceId, status: result.sourceRun.status, warnings: result.sourceRun.warnings, coverageNote: result.sourceRun.coverage.note, rawSnapshotPresent: result.raw !== null, documentCount: result.documents.length, finalHost: result.finalHost }));
+  const summary = { edition, asOf: window.end, window, sourceStatuses: Object.fromEntries(sourceResults.map((result) => [result.source.sourceId, result.sourceRun.status])), sourceDiagnostics, rawSnapshotCount: sourceResults.filter((result) => result.raw).length, sourceRunCount: sourceResults.length, documentArtifactCount: allDocuments.length, bundleDocumentCount: bundle.documents.length, bundleId: bundle.bundleId, coverage: bundle.coverage, created: storage.created, reused: storage.reused, wouldWrite: storage.wouldWrite, dryRun };
   if (output !== null) {
     ensureOutsideRepository(output, root);
     fs.mkdirSync(path.dirname(output), { recursive: true });
@@ -680,8 +808,10 @@ export async function runResearchPipeline({ edition, asOf = "auto", dryRun = fal
 function parseArgs(args) {
   const parsed = {};
   for (let index = 0; index < args.length; index += 1) {
+    if (args[index] === "--") continue;
     if (!args[index].startsWith("--")) fail("PIPELINE_ARGUMENT", "arguments", "unknown positional argument");
     const name = args[index].slice(2);
+    if (!name || Object.hasOwn(parsed, name)) fail("PIPELINE_ARGUMENT", "arguments", "invalid or duplicate option");
     parsed[name] = args[index + 1] && !args[index + 1].startsWith("--") ? args[++index] : true;
   }
   return parsed;
@@ -701,8 +831,10 @@ async function runCli() {
     return;
   }
   if (command === "run") {
-    if (typeof args.edition !== "string" || (args["dry-run"] !== undefined && args["dry-run"] !== true) || (args.output !== undefined && typeof args.output !== "string")) fail("PIPELINE_ARGUMENT", "run", "usage: run --edition daily|weekly --as-of YYYY-MM-DD|auto [--dry-run] [--output absolute-path]");
-    console.log(JSON.stringify(await runResearchPipeline({ edition: args.edition, asOf: args["as-of"] ?? "auto", dryRun: args["dry-run"] === true, output: args.output ?? null })));
+    const allowed = new Set(["edition", "as-of", "dry-run", "write", "output", "root", "catalog"]);
+    if (Object.keys(args).some((key) => !allowed.has(key)) || typeof args.edition !== "string" || (args["as-of"] !== undefined && typeof args["as-of"] !== "string") || (args["dry-run"] !== undefined && args["dry-run"] !== true) || (args.write !== undefined && args.write !== true) || (args.output !== undefined && typeof args.output !== "string") || (args.root !== undefined && typeof args.root !== "string") || (args.catalog !== undefined && typeof args.catalog !== "string") || ((args["dry-run"] === true) === (args.write === true))) fail("PIPELINE_ARGUMENT", "run", "usage: run --edition daily|weekly --as-of YYYY-MM-DD|auto (--dry-run|--write) [--root path] [--output absolute-path]");
+    const catalog = args.catalog ? readJson(path.resolve(args.catalog), "CATALOG_SCHEMA") : null;
+    console.log(JSON.stringify(await runResearchPipeline({ edition: args.edition, asOf: args["as-of"] ?? "auto", dryRun: args["dry-run"] === true, write: args.write === true, output: args.output ?? null, root: args.root ? path.resolve(args.root) : repositoryRoot, catalog })));
     return;
   }
   fail("PIPELINE_ARGUMENT", "command", "usage: validate-catalog | run | rebuild");

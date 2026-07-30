@@ -2,7 +2,7 @@
 
 ## 阶段与边界
 
-P1-GA 冻结 `research-bundle-v1` 的架构、数据边界、身份、来源政策和存储约定；P1-GB/P1-GC 在同一 frozen contract 上实现 source catalog、首批确定性 adapter、不可变 source run/document/raw/bundle 存储和 daily/weekly builder。后续顺序固定为 P1-H（`writer-context-v1`）→ P1-I（自动 Luna、验证、P1-F apply 与发布）。
+P1-G 冻结 `research-bundle-v1` 的架构、数据边界、身份、来源政策和存储约定，并在同一 frozen contract 上实现 source catalog、首批确定性 adapter、不可变 source run/document/raw/bundle 存储和 daily/weekly builder。后续顺序固定为 P1-H（`writer-context-v1`）→ P1-I（受控 writer execution、验证、P1-F apply 演练）。
 
 首批只采集 Federal Reserve RSS、BLS RSS 和 Federal Register JSON 的官方元数据/结构化记录；不采集媒体、网页正文、HTML 正文提取、AI 事实抽取、自动 Luna、writer context/request 集成、定时工作流、页面、数据库或模型。research bundle 只组织来源、文档、观察、事件和覆盖状态；它不作投资结论，且不得修改模型、概率、`EvidenceScore`、排名、`publicationStatus`、发布门槛或 prediction ledger。
 
@@ -93,6 +93,18 @@ document、observation、event、cluster 与 bundle 的确定性公式与排序�
 
 raw source run、document 和 bundle 永不覆盖；index/latest 是可重建派生视图。真实运行以 deterministic gzip（mtime=0）写入，dry-run 完成 fetch/parse/seal/validate/写入计划但绝不在仓库创建 artifact；不提交空 index/latest、虚假 production bundle 或任何 gzip 数据文件。
 
-P1-GA 的唯一 canonical identity 与验证器是 [`scripts/research-contract.mjs`](../scripts/research-contract.mjs)：它提供 canonical JSON、SHA-256、URL 规范化、business/stable artifact view、ID、evidenceState 和严格结构/语义验证。只读 CLI 为 `node scripts/research-contract.mjs validate-registry` 与 `node scripts/research-contract.mjs validate-bundle --file <path>`；后者不访问网络、不写文件、不读取 gzip 或目录。唯一 collection pipeline 是 [`scripts/research-pipeline.mjs`](../scripts/research-pipeline.mjs)：catalog validation、bounded official fetch、RSS/Atom/Federal Register parse、immutable storage、rebuild 和 dry-run 都在此文件；它不包含 service/repository/manager 层，也不写任何正文或 AI observation。
+每个 storage plan 都明确给出 `file`、`bytes`、`created`、`reused`、`shouldWrite`、`kind`。新 artifact 才允许 `created: true, reused: false, shouldWrite: true`；完全相同或仅 audit-only 字段变化时必须复用首次冻结字节，返回 `created: false, reused: true, shouldWrite: false`。raw、source run、document、bundle、index 与 latest 在 `shouldWrite: false` 时都不得调用写入，也不得改变 mtime。summary 的 `wouldWrite` 只列实际计划写入的路径。
+
+document 存储年月显式接收 bundle `asOf`：优先使用来源 `publishedDate`；只有 `publishedAt` 时转成 Asia/Shanghai 业务日期；两者都缺失时仅将 bundle `asOf` 用作物理分区，不向 document 伪造 `asOf`。bundle 窗口仍排除无有效发布日期的 document，index 则如实保留 `publishedDate: null`。
+
+rebuild 在规划 index/latest 之前递归扫描 `raw/**/*.bin.gz`。raw 文件名必须是其解压字节的 64 位小写 SHA-256，gzip 必须可解压，同一 raw ID 只能有一个物理路径；`ready|partial|stale` source run 及所有 document 的 raw 必须存在并与 source run 精确一致，失败状态不得引用 raw。任一 raw/source/document/bundle 校验失败时，现有 index/latest 保持原字节和 mtime。
+
+duplicate canonical 的唯一共享比较器按 effective publication 排序：业务日期升序；同日精确 `publishedAt` 早于 date-only；timestamp-only 先换算上海日期；null-date 最后；最终以 `documentId` 断平。builder 和 validator 调用同一实现。带 offset 的 feed timestamp 同时保留来源日历 `publishedDate` 和 canonical UTC `publishedAt`。
+
+provider warning 只能是稳定、受控且不含响应正文、headers、cookie、token、堆栈或敏感 query 的诊断，如 `http-status-403`、`timeout`、`network-failure`、`content-type-text-html`、`response-too-large`、`xml-root-invalid`、`json-count-invalid`。这些 warning、最终 hostname 和 document 数只进入 dry-run `sourceDiagnostics`，不进入业务身份。Federal Register 的 `{ "count": 0, "results": [] }` 是合法 `ready` 零结果。
+
+collection CLI 默认不写，`run` 必须且只能选择 `--dry-run` 或 `--write`；缺失或同时提供两个模式都以 `PIPELINE_ARGUMENT` fail closed。`--write` 只用于明确审核后的目标或隔离 temp/sandbox，验收不得在真实开发 worktree 执行。
+
+P1-G 的唯一 canonical identity 与验证器是 [`scripts/research-contract.mjs`](../scripts/research-contract.mjs)：它提供 canonical JSON、SHA-256、URL 规范化、business/stable artifact view、ID、evidenceState、共享 publication comparator 和严格结构/语义验证。只读 CLI 为 `node scripts/research-contract.mjs validate-registry` 与 `node scripts/research-contract.mjs validate-bundle --file <path>`；后者不访问网络、不写文件、不读取 gzip 或目录。唯一 collection pipeline 是 [`scripts/research-pipeline.mjs`](../scripts/research-pipeline.mjs)：catalog validation、bounded official fetch、RSS/Atom/Federal Register parse、immutable storage、raw-aware rebuild 和 dry-run 都在此文件；它不包含 service/repository/manager 层，也不写任何正文或 AI observation。
 
 research bundle 不可直接交给 Luna。P1-H 的 `writer-context-v1` 必须同时引用 immutable quantitative writer packet（schema version、artifact path/SHA、writerPacketId）、qualitative research bundle（schema version、artifact path/SHA、bundleId）和 baseline content（schema version、artifact path/SHA、contentIdentity），并绑定 `writerPromptSha256`、`targetSchemaVersion`、`validatorSha256`。它将扩展 ADR-012 与 P1-F 的 `writer-request-v1`，但保留 Luna 不得自主浏览的原则；本阶段绝不修改 P1-F 代码。
