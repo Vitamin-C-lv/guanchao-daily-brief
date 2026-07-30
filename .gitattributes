@@ -1,4 +1,7 @@
 models/sector-rotation/datasets/**/*.json text eol=lf
+models/sector-rotation/candidates/**/*.json text eol=lf
+models/sector-rotation/shadow-config.json text eol=lf
+data/model-research/**/*.json text eol=lf
 schemas/prediction-dataset.schema.json text eol=lf
 scripts/**/*.py text eol=lf
 scripts/**/*.mjs text eol=lf

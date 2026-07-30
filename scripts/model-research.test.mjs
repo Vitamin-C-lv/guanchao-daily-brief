@@ -7,6 +7,7 @@ import test from "node:test";
 const contract = JSON.parse(readFileSync(new URL("../data/model-research/contract.json", import.meta.url), "utf8"));
 const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 const source = readFileSync(new URL("./model_research.py", import.meta.url), "utf8");
+const attributes = readFileSync(new URL("../.gitattributes", import.meta.url), "utf8");
 
 test("package exposes all model research commands", () => {
   for (const name of ["model-research:validate", "model-research:train", "model-research:evaluate", "model-research:shadow", "test:model-research"]) {
@@ -76,4 +77,10 @@ test("shadow configuration cannot publish", () => {
   assert.equal(shadow.active, false);
   assert.equal(shadow.publicationEnabled, false);
   assert.match(shadow.reason, /separate reviewed PR/);
+});
+
+test("candidate artifacts are forced to LF on Windows checkouts", () => {
+  assert.match(attributes, /^models\/sector-rotation\/candidates\/\*\*\/\*\.json text eol=lf$/m);
+  assert.match(attributes, /^models\/sector-rotation\/shadow-config\.json text eol=lf$/m);
+  assert.match(attributes, /^data\/model-research\/\*\*\/\*\.json text eol=lf$/m);
 });
