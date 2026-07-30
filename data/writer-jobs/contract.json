@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "writer-job-contract-v1",
+  "requestSchemaVersion": "writer-request-v1",
+  "resultSchemaVersion": "writer-result-v1",
+  "storage": {
+    "requests": "data/writer-jobs/requests/YYYY/MM/<jobId>.json",
+    "accepted": "data/writer-jobs/accepted/YYYY/MM/<jobId>.json.gz",
+    "index": "data/writer-jobs/index.json",
+    "pending": "content/writer-jobs/<edition>-pending.json"
+  },
+  "identity": "canonical JSON SHA-256; wall-clock timestamps and local paths are excluded"
+}

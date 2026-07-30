@@ -21,3 +21,14 @@ Validate packets with `pnpm validate:writer-packet`. The validator recomputes pa
 integrity identities, checks fact/source lineage, finite/null semantics, units, Treasury source
 separation and dates. Structured content validation must require numeric claims to retain the
 packet factId and matching value/unit/asOf.
+
+## Writer request/result v1
+
+`writer-request-v1` is immutable and contains stable jobId, edition/date, real createdAt, packet
+identity/path/hash, targets, allowed fact IDs, required sections, prompt path and ready/partial
+status. Wall-clock time and local paths do not affect jobId. `writer-result-v1` contains stable
+resultId, job/packet identities, engine metadata, target payloads and fact references.
+`pnpm writer-job:validate` rejects unknown requests, targets or facts; mismatched value/unit/date;
+unavailable/stale deterministic claims; and frozen model/probability/ranking/publication fields.
+`pnpm production:apply` validates again and writes deterministic accepted gzip without touching the
+prediction ledger.

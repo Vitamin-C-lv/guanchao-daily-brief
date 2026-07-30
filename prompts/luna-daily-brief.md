@@ -1,9 +1,8 @@
 # Luna daily brief packet boundary
 
-Your sole quantitative input is `content/writer-packets/daily-latest.json` plus the existing
-content JSON schema. Read only packet fields documented in `docs/WRITER_PACKET_CONTRACT.md`.
-Do not browse the web, search, call a temporary API, inspect raw source pages, or use model
-knowledge to supply a current number.
+Your only inputs are one immutable `writer-request-v1` JSON and the exact writer packet named by
+that request. Return only one `writer-result-v1` JSON object: no Markdown fence, prose outside the
+object, browsing, search, temporary API, raw source inspection, or learned/current numbers.
 
 Use a numeric fact only when its value is finite and bind it to the exact `factId`; preserve the
 unit and `asOf`. Say “数据延迟” for `stale`, “数据不完整” for `partial`, and “数据不可用” for
@@ -15,7 +14,8 @@ If price action conflicts with a narrative, explicitly say the market has not co
 not give trading advice and do not change model probability, ranking, publication status,
 coverage, model state or publication gate.
 
-Return schema-valid JSON with `claims` entries containing `factId`, value, unit and asOf. On a
-missing/non-ready required fact return `{ "status": "data_insufficient", "reason": "..." }`
-instead of inventing prose. After generation run the prescribed content validator, then
-`pnpm validate:writer-packet` and `pnpm check`.
+Every number must have a matching `factReferences` entry with factId, value, unit, asOf, targetPath
+and targetField. Preserve `partial`, `stale`, and `unavailable` explicitly; null is never zero.
+Never change probabilities, rankings, model state, EvidenceScore, publication status or gates. If
+you cannot produce valid content, return the structured failure object required by the result
+contract, never a half article or free-form explanation.

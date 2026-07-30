@@ -68,6 +68,16 @@ P1-E PR #18 已合并；merge SHA：`16cde0056432b7d839420f545bbabbc4f49475a0`�
 1. [docs/HANDOFF.md](HANDOFF.md)
 2. [docs/ARCHITECTURE.md](ARCHITECTURE.md)
 3. [docs/ADR.md](ADR.md)
-4. [README.md](../README.md)
-5. [package.json](../package.json)
-6. 当前任务相关源码
+4. [docs/EXECUTION_ENVIRONMENT.md](EXECUTION_ENVIRONMENT.md)
+5. [README.md](../README.md)
+6. [package.json](../package.json)
+7. 当前任务相关源码
+
+## P1-F writer job queue
+
+P1-F adds an immutable file-backed writer queue: market-data run → writer packet → writer request
+→ externally supplied Luna result → validation → atomic apply. `data/writer-jobs` holds immutable
+requests and accepted gzip results; its index and `content/writer-jobs/*-pending.json` are
+rebuildable pointers. Prepare, validate and apply never train a model, change EvidenceScore,
+probabilities, rankings or gates, touch the prediction ledger, or call OpenAI/Luna. The scheduled
+workflow prepares validated requests only; external review owns full validation and merge.
