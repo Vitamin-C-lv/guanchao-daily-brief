@@ -29,19 +29,25 @@ P1-GA 只冻结 `research-bundle-v1` 的架构、数据边界、身份、来源�
 
 不得加入 `trusted`、`verified`、`reliable` 等无法审计的模糊类别。
 
-每个 `research-source-run-v1` 都有 `sourceId`、`provider`、`sourceClass`、`requestedAt`、`asOf`、`status`、`sourceUrl`、`marketScopes`、`topics`、`coverage`、`snapshotPolicy`、`rawSnapshotId` 和 `warnings`。`status` 只允许 `ready`、`partial`、`stale`、`unavailable`、`rate_limited`、`schema_changed`；`snapshotPolicy` 只允许 `stored`、`hash_only`、`none`。
+每个 `research-source-run-v1` 都有 `sourceRunId`、`sourceId`、`provider`、`sourceClass`、`requestedAt`、`asOf`、`status`、`sourceUrl`、`marketScopes`、`topics`、`coverage`、`snapshotPolicy`、`rawSnapshotId`、`warnings` 和 `integrity`。`sourceId` 是 catalog 中稳定的来源标识；`sourceRunId` 是本次业务采集结果的不可变身份。`status` 只允许 `ready`、`partial`、`stale`、`unavailable`、`rate_limited`、`schema_changed`；`snapshotPolicy` 只允许 `stored`、`hash_only`、`none`。
 
-`ready`、`partial`、`stale` 必须有 64 位小写 SHA-256 `rawSnapshotId`，且 policy 只能为 `stored` 或 `hash_only`。`unavailable`、`rate_limited`、`schema_changed` 必须为 `rawSnapshotId: null`、`snapshotPolicy: none`、`coverage.itemCount: 0` 并至少给出一条 warning。`coverage` 至少有非负整数 `itemCount` 和 `note`。`requestedAt` 只用于审计；`asOf` 为 ISO 时间或 `null`，不得伪造当前时间。
+`ready`、`partial`、`stale` 必须有 64 位小写 SHA-256 `rawSnapshotId`，且 policy 只能为 `stored` 或 `hash_only`。`unavailable`、`rate_limited`、`schema_changed` 必须为 `rawSnapshotId: null`、`snapshotPolicy: none`、`coverage.itemCount: 0` 并至少给出一条 warning。`coverage` 至少有非负整数 `itemCount` 和 `note`。`requestedAt` 是带时区 ISO-8601 审计时间；`asOf` 是带时区 ISO-8601 时间或 `null`，不得伪造当前时间。
+
+`sourceRunId` 是规范化 `sourceId`、`provider`、`sourceClass`、`asOf`、`status`、`sourceUrl`、去重并字典序排序的 `marketScopes`/`topics`、固定键顺序的 `coverage`、`snapshotPolicy` 与 `rawSnapshotId` 的小写 SHA-256。它排除 `sourceRunId`、`requestedAt`、`warnings`、`integrity`、本地路径和机器信息。`integrity.businessSha256 === sourceRunId`；`integrity.sha256` 对完整 canonical source run（排除自身 `integrity.sha256`）哈希。同 ID 完整内容相同幂等，不同则 fail closed。bundle 的 sourceRuns 必须按 `sourceRunId` 排序。
 
 ## 文档、观察、事件与重复关系
 
-每个 `research-document-v1` 记录 `documentId`、来源、发布者、标题、HTTPS canonical URL、`publishedAt`、`accessedAt`、语言、内容类型、内容 SHA、raw snapshot SHA、市场、主题和 warnings。语言仅为 `zh`、`en`、`mixed`、`other`；内容类型仅为 `html`、`rss`、`atom`、`json`、`xml`、`pdf-metadata`、`press-release`、`filing`、`research-paper`、`social-post`、`community-post`。document 必须引用 bundle 内 source run，禁止搜索结果页；`publishedAt` 可为 `null`，但不可用抓取时间冒充。
+每个 `research-document-v1` 记录 `documentId`、`sourceRunId`、`sourceId`、`publisherId`、展示用 `publisher`、标题、HTTPS canonical URL、`publishedAt`、`accessedAt`、语言、内容类型、内容 SHA、raw snapshot SHA、市场、主题、warnings 和 `integrity`。`sourceRunId` 必须精确引用 bundle 中唯一 source run，且 document `sourceId` 必须严格等于该 run 的 `sourceId`；source class 只能由该 source run 解析，document 不得复制或覆盖。`publisherId` 是稳定小写 ASCII slug（`^[a-z0-9][a-z0-9._-]{1,79}$`）；展示名 `publisher` 不能用于独立性判断。语言仅为 `zh`、`en`、`mixed`、`other`；内容类型仅为 `html`、`rss`、`atom`、`json`、`xml`、`pdf-metadata`、`press-release`、`filing`、`research-paper`、`social-post`、`community-post`。`publishedAt` 为带时区 ISO-8601 时间或 `null`，不可用抓取时间冒充；`accessedAt` 必须为带时区 ISO-8601 时间。
 
-文档只保存元数据与限定长度的证据片段，禁止完整正文、HTML、base64 或二进制。不得保存 cookies、token、认证头或个人数据，也不得下载或嵌入图片、视频和任意 PDF 二进制。
+canonical URL 必须使用 URL parser：scheme/hostname 小写、仅 HTTPS、移除 fragment 和默认 443 端口、空 path 归一为 `/`，但不得猜测删除有业务语义的 path 或 query；来源特定 query 清理留给 P1-GB。禁止 Google、Bing 等搜索结果页。普通网页/API/feed 的 `contentSha256` 对 HTTP content decoding 后、字符解码及正文解析前的响应实体字节计算，`stored` 与 `hash_only` 共用此定义。PDF 正文禁止下载时，`pdf-metadata` 只能哈希规范化公开 metadata，并在 warning 或 locator 标明 metadata-only；不得用标题拼接字符串伪造内容 hash。
 
-每个 observation 含 `observationId`、`kind`、主体、`statement`、`occurredAt`、`asOf`、市场、主题、实体、`evidenceState`、`basis`、warnings。`kind` 仅为 `hard-fact`、`official-statement`、`company-disclosure`、`market-event`、`calendar-event`、`analysis-context`、`counterevidence`。每条 basis 含 document ID、`supports|contradicts|context` relation、excerpt 与 locator；至少一条 `supports`，且每个 document 必须存在。statement 最多 400 字符、excerpt 最多 500、locator 最多 160；excerpt 仅保留最小必要证据，不能变相保存文章。时间不得晚于 bundle `asOf`，市场与主题不能为空，observation 禁止概率、排名或投资建议。
+文档只保存元数据与限定长度的证据片段，禁止完整正文、HTML、base64 或二进制。不得保存 cookies、token、认证头或个人数据，也不得下载或嵌入图片、视频和任意 PDF 二进制。`documentId` 是规范化 `sourceRunId`、`canonicalUrl`、`publishedAt`、`contentSha256` 的 SHA-256，排除 `documentId`、`accessedAt`、warnings、integrity、本地路径和机器信息；`integrity.businessSha256 === documentId`，而 `integrity.sha256` 对完整 canonical document（排除自身 `integrity.sha256`）哈希。
 
-event 只组织已有 observations：它有确定性 `eventId`、类型、标题、时间、市场、主题和 observation IDs；至少引用一个已存在 observation，不增加新事实，也不含概率、预测或 importance 分数。重复 cluster 使用 `exact-url`、`content-hash`、`publisher-reprint`、`semantic-signature`；至少两个现有 documents，包含 canonical document，且一个 document 不得属于两个 cluster。后两者只标记关系，绝不删除或改写来源审计记录。
+每个 observation 含 `observationId`、`kind`、主体、`statement`、`occurredAt`、`asOf`、市场、主题、实体、`evidenceState`、`basis`、warnings。`kind` 仅为 `hard-fact`、`official-statement`、`company-disclosure`、`market-event`、`calendar-event`、`analysis-context`、`counterevidence`。每条 basis 含 document ID、`supports|contradicts|context` relation、excerpt 与 locator；至少一条 `supports`，且每个 document 必须存在。statement 最多 400 字符、excerpt 最多 500、locator 最多 160；excerpt 仅保留最小必要证据，不能变相保存文章。市场与主题不能为空，observation 禁止概率、排名或投资建议。
+
+observation identity 明确包含 kind、subject、statement、occurredAt、asOf、marketScopes、topics、entities、evidenceState、basis；排除自身 ID、warnings 和审计字段。marketScopes/topics 先去重字典序排序，entities 是最长 120 字符的非空字符串数组、去重后按稳定字符串标识排序，basis 按 documentId/relation/locator/excerpt 排序，且同一四元组不得重复。`observation.asOf` 为不晚于 bundle `asOf` 的 `YYYY-MM-DD`；`occurredAt` 为带时区 ISO-8601 或 `null`。非 calendar-event 的非空 occurredAt 不得晚于 asOf 对应上海时间 23:59:59；calendar-event 可晚于 asOf，仅当至少一个 supports 的 document 在该业务日结束前发布且 statement 明确描述已公布的未来日历，仍按常规 evidenceState 推导。
+
+event 只组织已有 observations：它有确定性 `eventId`、类型、标题、时间、市场、主题和 observation IDs；identity 包含 eventType/title/occurredAt/去重排序 marketScopes/去重排序 topics/去重排序 observationIds。至少引用一个已存在 observation，不增加新事实，也不含概率、预测或 importance 分数；event occurredAt 必须遵守其引用 observations 的时间语义。重复 cluster identity 包含 method、canonicalDocumentId、去重排序 memberDocumentIds，方法依次为 `exact-url`、`content-hash`、`publisher-reprint`、`semantic-signature`；一个 document 只能选择最高优先级的可证明方法进入一个 cluster。canonical document 选择最早 publishedAt；同值或均为 null 时选最小 documentId，null 排在有效发布时间之后。cluster 至少两个现有 documents，必须包含 canonical document；后两类只标记关系，绝不删除或改写来源审计记录。
 
 ## 确定性 evidence state
 
@@ -49,19 +55,21 @@ event 只组织已有 observations：它有确定性 `eventId`、类型、标题
 
 1. 只要有 `contradicts`，即为 `conflicting`。
 2. 否则，只要有来自 `official-primary`、`company-filing`、`exchange-market-data` 或 `primary-research` 的 `supports`，即为 `confirmed`。
-3. 否则，没有权威一手来源但有至少两个不同 publisher 的 supports，即为 `corroborated`。
+3. 否则，只有 `major-media`、`specialist-media`、`vendor-market-data`、`vendor-estimate` 可参与交叉验证；按稳定 `publisherId` 计数，去重后至少两个独立主体的 supports 才是 `corroborated`。
 4. 否则，全部 supports 仅来自 community/social signal，即为 `unverified`。
 5. 其余单一 publisher 支持为 `single-source`。
 
-同一 publisher 的不同 URL 不构成独立交叉验证。community/social signal 永远不能产生 `confirmed` 或 `corroborated`。AI 不得填写与此派生规则不一致的 evidence state，且社区或社交线索不得写成已确认事实。
+同一 `publisherId` 的不同 URL 只算一次；同一 duplicate cluster 的 documents 合计最多贡献一个 publisher，`publisher-reprint`/`semantic-signature` 不增加独立数。community/social signal 不参与 corroborated 计数，且永远不能产生 `confirmed` 或 `corroborated`。`confirmed` 仅表示权威一手材料直接支持 statement，不表示未来、因果或推断的绝对真理；analysis-context 只有准确描述来源的分析或方法时可 confirmed，不得升级为已证明市场因果。AI 不得填写与此派生规则不一致的 evidence state，且社区或社交线索不得写成已确认事实。
 
 ## Bundle、覆盖与身份
 
 `research-bundle-v1` 含 schema version、`daily|weekly` edition、`asOf`、`generatedAt`、窗口、source policy version、source runs、documents、observations、events、duplicate clusters、coverage、warnings、`bundleId`、integrity。窗口必须有 start/end/`Asia/Shanghai`，end 等于 asOf、start 不晚于 end。daily/weekly 都必须覆盖 `A_SHARE`、`HK`、`US`、`FED`；`GLOBAL` 只能补充。
 
-数组按 `sourceId`、`documentId`、`observationId`、`eventId`、`clusterId` 稳定排序。coverage 分 markets、topics、totals；每个 market/topic 有 status、document/observation count 和 reasons，status 仅为 `ready|partial|unavailable`。所有计数必须与实际数组一致；`unavailable` 必有 reason，`partial` 必解释缺失或降级。`0` 是实际计数，不证明来源可用。
+数组按 `sourceRunId`、`documentId`、`observationId`、`eventId`、`clusterId` 稳定排序。bundle ID 不能直接 hash 完整 bundle：它只 hash 递归 business view，即 schemaVersion、edition、asOf、window、sourcePolicyVersion、排序的 sourceRunIds/documentIds、observations/events/duplicate clusters 的业务视图及 coverage；不得含 generatedAt、warnings、integrity、source run requestedAt、document accessedAt、任何完整审计字段、本地路径或机器信息。完整对象仍可嵌入 sourceRuns/documents。`integrity` 必有 `businessSha256` 与 `sha256`；前者等于 bundleId，后者对完整 canonical bundle（排除自身 `integrity.sha256`）哈希；同 bundleId 而完整 hash 不同必须 fail closed。
 
-document ID 是规范化 `sourceId`、`canonicalUrl`、`publishedAt`、`contentSha256` 的 SHA-256；不含 accessedAt、warnings、本地路径或机器信息。observation 在 hash 前稳定排序 basis/markets/topics/entities，排除自身 ID、warnings 和审计时间。event 与 cluster 对规范化业务字段哈希。bundle 对规范化业务内容哈希；`generatedAt` 不参与，`integrity.businessSha256` 必须等于 `bundleId`。相同身份不同内容一律 fail closed。
+coverage 分 markets、topics、totals；每项 market/topic 分别必有 market/topic、status、documentCount、observationCount、reasons，status 仅为 `ready|partial|unavailable`。markets 按 enum 顺序恰好各有一项 `A_SHARE`、`HK`、`US`、`FED`，可有零或一项 `GLOBAL`；topics 不重复、按 enum 排序并至少包含 bundle 已出现 topics。market/topic 的 documentCount 与 observationCount 分别是其 scope/topic 数组包含该值的唯一 ID 数量；不同类别可重叠，禁止求和后与顶层数组长度比较。totals 必须直接等于对应数组长度，`conflictingObservations` 是 conflicting observation 数。`unavailable`/`partial` 必有 reasons，`ready` 的 reasons 必为空数组。`0` 是实际计数，不证明来源可用。
+
+document、observation、event、cluster 与 bundle 的确定性公式与排序规则以注册表为准；所有同一身份不同内容均 fail closed。
 
 `forbiddenKeys` 是键名禁令，而非普通文本关键词过滤；完整列表由机器可读注册表冻结。它禁止正文/HTML/二进制/认证材料，也禁止概率、收益、评分、排名、publication status、模型版本、预测、importance 和 sentiment 等越界业务字段。
 
@@ -69,7 +77,7 @@ document ID 是规范化 `sourceId`、`canonicalUrl`、`publishedAt`、`contentS
 
 `stored` 仅允许官方 JSON/XML/RSS/Atom、政府公开发布、公司正式公告、交易所披露和允许公开再分发的结构化文件。`hash_only` 默认用于 major/specialist media、community、social 及版权不明确页面，仅保留 canonical URL、响应内容 SHA、标题与发布时间、最小证据片段、响应状态和抓取审计信息。`none` 用于 unavailable、rate limited、schema changed 或明确禁止抓取/存储的来源。
 
-禁止登录、付费墙、CAPTCHA 或 WAF 绕过，禁止伪造 cookie、隐藏自动化身份和大规模保存新闻正文。官方结构化文件的不可变 snapshot 只能由后续 source policy 明确允许。
+禁止 robots 规则或明确网站条款禁止的自动访问、登录、付费墙、CAPTCHA 或 WAF 绕过，禁止伪造 cookie/认证、隐藏自动化身份、保存个人敏感数据和大规模保存新闻正文。robots 或条款禁止时必须 `snapshotPolicy: none`、status 为实际 `unavailable`，warning 说明政策性不可采集；不得标为 `schema_changed`。官方结构化文件的不可变 snapshot 只能由后续 source policy 明确允许。
 
 ## 存储与未来 writer context
 

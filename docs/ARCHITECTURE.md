@@ -36,7 +36,9 @@ scheduler
 → content pages
 ```
 
-research bundle 仅建模来源、文档、观察、事件与 coverage；它不能改模型、概率、EvidenceScore、排名、publicationStatus、门槛或 prediction ledger，也不作投资结论。source run、document 与 bundle 均不可覆盖；latest 是派生视图，不能作为 writer 权威输入。Luna 不得直接浏览、抓取或读取任意 latest 文件，未来只能读取同时绑定 immutable quantitative writer packet、qualitative research bundle、baseline content 及其 SHA/schema 的 `writer-context-v1`。
+research bundle 仅建模来源、文档、观察、事件与 coverage；它不能改模型、概率、EvidenceScore、排名、publicationStatus、门槛或 prediction ledger，也不作投资结论。source run、document 与 bundle 均不可覆盖：source run 以 sourceRunId 绑定业务采集结果，document 精确引用 sourceRunId 并从中解析 source class，bundleId 只 hash 递归 business view 而不 hash 完整审计对象。每层的 business SHA 和完整 canonical SHA 分离，身份冲突 fail closed。latest 是派生视图，不能作为 writer 权威输入。Luna 不得直接浏览、抓取或读取任意 latest 文件，未来只能读取同时绑定 immutable quantitative writer packet、qualitative research bundle、baseline content 及其 SHA/schema 的 `writer-context-v1`。
+
+定性证据的确认状态由来源类别、稳定 publisherId、重复转载关系与反证关系确定性派生。community/social 只能作为线索，不计入交叉验证；calendar-event 可引用业务日结束前已发布的未来日历，其他事实不得越过 bundle 的上海业务日。coverage 对 market/topic 按包含关系计唯一 ID，不将重叠分类求和为顶层数量。
 
 ## 数据层
 

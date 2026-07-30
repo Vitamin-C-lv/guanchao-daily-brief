@@ -44,24 +44,32 @@
   },
   "schemas": {
     "research-source-run-v1": {
-      "requiredKeys": ["sourceId", "provider", "sourceClass", "requestedAt", "asOf", "status", "sourceUrl", "marketScopes", "topics", "coverage", "snapshotPolicy", "rawSnapshotId", "warnings"],
+      "requiredKeys": ["sourceRunId", "sourceId", "provider", "sourceClass", "requestedAt", "asOf", "status", "sourceUrl", "marketScopes", "topics", "coverage", "snapshotPolicy", "rawSnapshotId", "warnings", "integrity"],
       "coverageRequiredKeys": ["itemCount", "note"],
       "rules": [
         "itemCount is an integer greater than or equal to zero",
         "ready, partial, and stale require a lowercase 64-character SHA-256 rawSnapshotId and stored or hash_only snapshotPolicy",
         "unavailable, rate_limited, and schema_changed require rawSnapshotId null, snapshotPolicy none, coverage.itemCount 0, and at least one warning",
-        "requestedAt is audit time and is excluded from business identity",
-        "asOf is an ISO timestamp or null and must never be fabricated from the current time"
+        "requestedAt is a timezone-bearing ISO-8601 audit timestamp and is excluded from business identity",
+        "asOf is a timezone-bearing ISO-8601 timestamp or null and must never be fabricated from the current time",
+        "sourceRunId is lowercase 64-character SHA-256 of canonical sourceId, provider, sourceClass, asOf, status, sourceUrl, sorted unique marketScopes, sorted unique topics, fixed-key-order coverage, snapshotPolicy, and rawSnapshotId",
+        "integrity.businessSha256 equals sourceRunId; integrity.sha256 hashes the complete canonical source run excluding integrity.sha256 itself",
+        "same sourceRunId with identical complete content is idempotent; different complete content fails closed"
       ]
     },
     "research-document-v1": {
-      "requiredKeys": ["documentId", "sourceId", "publisher", "title", "canonicalUrl", "publishedAt", "accessedAt", "language", "contentType", "contentSha256", "rawSnapshotId", "marketScopes", "topics", "warnings"],
+      "requiredKeys": ["documentId", "sourceRunId", "sourceId", "publisherId", "publisher", "title", "canonicalUrl", "publishedAt", "accessedAt", "language", "contentType", "contentSha256", "rawSnapshotId", "marketScopes", "topics", "warnings", "integrity"],
       "rules": [
-        "sourceId references a source run in the bundle",
-        "canonicalUrl is HTTPS and is not a Google, Bing, or other search-results URL",
-        "contentSha256 and rawSnapshotId are lowercase 64-character SHA-256 values",
+        "sourceRunId references exactly one source run in the bundle and sourceId exactly equals that run's sourceId",
+        "sourceClass is resolved from sourceRunId and is never copied or overridden by a document",
+        "publisherId is a stable lowercase ASCII slug matching ^[a-z0-9][a-z0-9._-]{1,79}$; publisher is display-only",
+        "canonicalUrl uses a URL parser: https scheme and hostname are lowercase, fragment and default port 443 are removed, an empty path becomes /, and business-semantic path/query is preserved",
+        "canonicalUrl is not a Google, Bing, or other search-results URL; source-specific query cleanup is deferred to P1-GB",
+        "contentSha256 and rawSnapshotId are lowercase 64-character SHA-256 values; ordinary HTTP responses hash entity bytes after HTTP content decoding and before character decoding or body parsing",
+        "pdf-metadata hashes normalized public metadata only when PDF body download is prohibited and records metadata-only in warning or locator",
         "publishedAt may be null but accessedAt must not be substituted for it",
-        "metadata and bounded evidence excerpts only; full text, HTML, base64, and binary content are prohibited"
+        "metadata and bounded evidence excerpts only; full text, HTML, base64, and binary content are prohibited",
+        "documentId is SHA-256 of canonical sourceRunId, canonicalUrl, publishedAt, and contentSha256; integrity.businessSha256 equals documentId; integrity.sha256 hashes the complete canonical document excluding integrity.sha256 itself"
       ]
     },
     "research-bundle-v1": {
@@ -71,19 +79,25 @@
       "eventRequiredKeys": ["eventId", "eventType", "title", "occurredAt", "marketScopes", "topics", "observationIds"],
       "duplicateClusterRequiredKeys": ["clusterId", "method", "canonicalDocumentId", "memberDocumentIds"],
       "coverageRequiredKeys": ["markets", "topics", "totals"],
-      "coverageMarketOrTopicRequiredKeys": ["status", "documentCount", "observationCount", "reasons"],
+      "coverageMarketRequiredKeys": ["market", "status", "documentCount", "observationCount", "reasons"],
+      "coverageTopicRequiredKeys": ["topic", "status", "documentCount", "observationCount", "reasons"],
       "coverageTotalsRequiredKeys": ["sourceRuns", "documents", "observations", "events", "duplicateClusters", "conflictingObservations"],
       "rules": [
         "window contains start, end, and Asia/Shanghai timezone; end equals asOf and start is not later than end",
-        "sourceRuns, documents, observations, events, and duplicateClusters sort by their identity field",
+        "sourceRuns sort by sourceRunId; documents, observations, events, and duplicateClusters sort by their identity field",
         "observations have at least one supports basis, reference existing documents, have nonempty marketScopes and topics, and do not add probability, ranking, or investment advice",
-        "occurredAt and observation asOf are not later than bundle asOf",
+        "observation asOf is YYYY-MM-DD and is not later than bundle asOf; observation occurredAt is a timezone-bearing ISO-8601 timestamp or null",
+        "non-calendar observation occurredAt is not later than Asia/Shanghai 23:59:59 of bundle asOf; calendar-event may be later only when an already-published support document announces the future calendar",
         "events only organize existing observations and add no new facts, probability, forecast, or importance score",
         "duplicate cluster members exist, number at least two, include canonicalDocumentId, and a document belongs to at most one cluster",
         "exact-url clusters require equal canonicalUrl; content-hash clusters require equal contentSha256; publisher-reprint and semantic-signature retain every source audit record",
-        "daily and weekly coverage include A_SHARE, HK, US, and FED; GLOBAL is supplemental only",
-        "coverage counts exactly equal arrays; unavailable has nonempty reasons; partial states explain gaps; zero is an actual count rather than availability",
-        "bundleId equals integrity.businessSha256; the same bundleId with different content fails closed; generatedAt is audit time and is excluded from bundle identity"
+        "duplicate method precedence is exact-url, content-hash, publisher-reprint, semantic-signature; a document in at most one cluster uses the highest provable method",
+        "canonical duplicate document is earliest publishedAt, then smallest documentId; null publishedAt sorts after valid times",
+        "daily and weekly coverage has exactly one each of A_SHARE, HK, US, FED and zero or one GLOBAL, sorted by market enum; topics are unique, enum-sorted, and include every observed topic",
+        "market and topic counts are unique documents or observations whose corresponding scope array contains that market or topic; overlapping categories must not be summed against top-level array lengths",
+        "coverage totals equal array lengths and conflictingObservations counts observations with evidenceState conflicting; unavailable and partial require reasons, ready requires an empty reasons array; zero is an actual count rather than availability",
+        "bundleId is SHA-256 of recursive business view: schemaVersion, edition, asOf, window, sourcePolicyVersion, sorted sourceRunIds, sorted documentIds, observation/event/duplicate-cluster business views, and coverage",
+        "integrity.businessSha256 equals bundleId; integrity.sha256 hashes the complete canonical bundle excluding integrity.sha256 itself; the same bundleId with different integrity.sha256 fails closed; generatedAt is audit time and is excluded from bundle identity"
       ]
     },
     "research-source-policy-v1": {
@@ -97,41 +111,52 @@
   "identity": {
     "hash": "SHA-256 of canonicalized business content using deterministic ordering",
     "sourceRun": {
-      "excludes": ["requestedAt", "warnings", "localPath", "collectionMachine"]
+      "formula": ["sourceId", "provider", "sourceClass", "asOf", "status", "sourceUrl", "marketScopes", "topics", "coverage", "snapshotPolicy", "rawSnapshotId"],
+      "sortBeforeHash": ["marketScopes unique lexicographic", "topics unique lexicographic", "coverage fixed key order"],
+      "excludes": ["sourceRunId", "requestedAt", "warnings", "integrity", "localPath", "collectionMachine"]
     },
     "document": {
-      "formula": ["sourceId", "canonicalUrl", "publishedAt", "contentSha256"],
-      "excludes": ["accessedAt", "warnings", "localPath", "collectionMachine"]
+      "formula": ["sourceRunId", "canonicalUrl", "publishedAt", "contentSha256"],
+      "excludes": ["documentId", "accessedAt", "warnings", "integrity", "localPath", "collectionMachine"]
     },
     "observation": {
-      "sortBeforeHash": ["basis", "marketScopes", "topics", "entities"],
+      "formula": ["kind", "subject", "statement", "occurredAt", "asOf", "marketScopes", "topics", "entities", "evidenceState", "basis"],
+      "sortBeforeHash": ["marketScopes unique lexicographic", "topics unique lexicographic", "entities unique stable-string order", "basis by documentId, relation, locator, excerpt"],
+      "entity": "nonempty string with at most 120 characters",
+      "basisUniqueness": ["documentId", "relation", "locator", "excerpt"],
       "excludes": ["observationId", "warnings", "auditTime"]
     },
     "event": {
-      "formula": "canonicalized business fields",
+      "formula": ["eventType", "title", "occurredAt", "marketScopes", "topics", "observationIds"],
+      "sortBeforeHash": ["marketScopes unique lexicographic", "topics unique lexicographic", "observationIds unique lexicographic"],
       "excludes": ["eventId", "warnings", "auditTime"]
     },
     "duplicateCluster": {
-      "formula": "canonicalized cluster business fields",
+      "formula": ["method", "canonicalDocumentId", "memberDocumentIds"],
+      "sortBeforeHash": ["memberDocumentIds unique lexicographic"],
       "excludes": ["clusterId", "warnings", "auditTime"]
     },
     "bundle": {
-      "formula": "canonicalized business content",
-      "excludes": ["generatedAt", "warnings", "auditTime"]
+      "businessView": ["schemaVersion", "edition", "asOf", "window", "sourcePolicyVersion", "sourceRunIds", "documentIds", "observationBusinessViews", "eventBusinessViews", "duplicateClusterBusinessViews", "coverage"],
+      "excludes": ["generatedAt", "warnings", "integrity", "sourceRun.requestedAt", "document.accessedAt", "auditFields", "localPath", "collectionMachine"]
     },
     "conflictBehavior": "same identity and same content is idempotent; same identity and different content fails closed"
   },
   "evidenceStateRules": {
     "precedence": [
       "any contradicts basis produces conflicting",
-      "without contradicts, a supports basis from official-primary, company-filing, exchange-market-data, or primary-research produces confirmed",
-      "without an authoritative primary source, supports from at least two distinct publishers produce corroborated",
+      "without contradicts, a supports document whose source run class is official-primary, company-filing, exchange-market-data, or primary-research produces confirmed",
+      "without an authoritative primary source, at least two eligible independent publisherId values produce corroborated",
       "supports solely from community-signal or social-signal produce unverified",
       "all other single-publisher support produces single-source"
     ],
     "constraints": [
-      "different URLs from the same publisher are not independent corroboration",
-      "community-signal and social-signal never produce confirmed or corroborated",
+      "only major-media, specialist-media, vendor-market-data, and vendor-estimate documents are eligible corroborating publishers",
+      "publisherId, not display publisher, defines independence; the same publisherId counts once",
+      "documents in one duplicate cluster collectively contribute at most one publisher; publisher-reprint and semantic-signature do not add independent support",
+      "community-signal and social-signal never participate in corroborated counting or produce confirmed/corroborated",
+      "confirmed means direct support by authoritative primary material, not certainty about a future, causal, or inferential claim",
+      "analysis-context is confirmed only when its statement accurately describes the source analysis or method, never as proof of market causality",
       "AI must not assign an evidenceState inconsistent with this derivation"
     ]
   },
@@ -141,14 +166,18 @@
     "locatorMaxCharacters": 160,
     "minimumSupportsPerObservation": 1,
     "minimumDocumentsPerDuplicateCluster": 2,
-    "timezone": "Asia/Shanghai"
+    "timezone": "Asia/Shanghai",
+    "bundleAsOfFormat": "YYYY-MM-DD",
+    "windowDateFormat": "YYYY-MM-DD",
+    "timestampFormat": "timezone-bearing ISO-8601"
   },
   "sourcePolicy": {
     "storedAllowed": ["official JSON/XML/RSS/Atom", "government public releases", "company formal announcements", "exchange disclosures", "publicly redistributable structured files"],
     "hashOnlyDefault": ["major-media pages", "specialist-media pages", "community pages", "social pages", "copyright-unclear pages"],
     "hashOnlyRetains": ["canonical URL", "response content SHA-256", "title and publishedAt", "minimal necessary evidence excerpt", "response status and collection audit metadata"],
-    "noneRequired": ["unavailable", "rate_limited", "schema_changed", "source explicitly prohibited from collection or storage"],
-    "prohibited": ["login bypass", "paywall bypass", "CAPTCHA bypass", "WAF evasion", "fabricated cookies", "hidden automation identity", "bulk retention of news full text", "cookies", "tokens", "authentication headers", "personal data", "media image, video, or PDF binary download or embedding"]
+    "noneRequired": ["unavailable", "rate_limited", "schema_changed", "robots or site terms prohibit collection", "source explicitly prohibited from collection or storage"],
+    "policyBlockedStatus": "unavailable with a warning that collection is policy-prohibited, never schema_changed",
+    "prohibited": ["robots rules bypass", "site-terms-prohibited automated access", "login bypass", "paywall bypass", "CAPTCHA bypass", "WAF evasion", "fabricated cookies or authentication", "hidden automation identity", "bulk retention of news full text", "sensitive personal data retention", "cookies", "tokens", "authentication headers", "personal data", "media image, video, or PDF binary download or embedding"]
   },
   "writerContextBoundary": {
     "researchBundleDirectToLuna": false,
