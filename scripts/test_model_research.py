@@ -392,6 +392,94 @@ class DatasetTests(unittest.TestCase):
             self.assertEqual(result["status"], "valid")
 
 
+class TrainedArtifactTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.index = research.read_json(research.CANDIDATE_ROOT / "index.json")
+        cls.shadow = research.read_json(research.SHADOW_CONFIG_PATH)
+        cls.entries = cls.index["candidates"]
+        cls.candidates = [research.read_json(research.ROOT / entry["path"]) for entry in cls.entries]
+
+    def test_candidate_store_validates(self):
+        self.assertEqual(research.validate_candidate_store()["candidateCount"], 23)
+
+    def test_candidate_index_count(self):
+        self.assertEqual(len(self.entries), 23)
+
+    def test_candidate_index_sorted(self):
+        self.assertEqual([item["candidateId"] for item in self.entries], sorted(item["candidateId"] for item in self.entries))
+
+    def test_candidate_index_unique(self):
+        self.assertEqual(len({item["candidateId"] for item in self.entries}), 23)
+
+    def test_candidate_artifact_hashes(self):
+        self.assertTrue(all(research.sha256_path(research.ROOT / item["path"]) == item["sha256"] for item in self.entries))
+
+    def test_candidate_artifacts_are_canonical_pretty_json(self):
+        self.assertTrue(all(research.json_bytes(candidate) == (research.ROOT / entry["path"]).read_bytes() for candidate, entry in zip(self.candidates, self.entries)))
+
+    def test_candidate_ids_bind_business_identity(self):
+        self.assertTrue(all(candidate["candidateId"] == research.sha256_bytes(research.canonical_json(candidate["businessIdentity"])) for candidate in self.candidates))
+
+    def test_candidate_code_sha_binds_trainer(self):
+        code_sha = research.sha256_path(Path(research.__file__).resolve())
+        self.assertTrue(all(candidate["businessIdentity"]["codeSha256"] == code_sha for candidate in self.candidates))
+
+    def test_all_candidates_inactive(self):
+        self.assertTrue(all(candidate["active"] is False for candidate in self.candidates))
+
+    def test_all_horizons_complete(self):
+        self.assertTrue(all(set(candidate["horizons"]) == {"1", "5", "20"} for candidate in self.candidates))
+
+    def test_all_targets_complete(self):
+        expected = {*research.BINARY_TARGETS, research.CONTINUOUS_TARGET}
+        self.assertTrue(all(set(item["models"]) == expected for candidate in self.candidates for item in candidate["horizons"].values()))
+
+    def test_candidate_artifacts_exclude_daily_oof(self):
+        self.assertTrue(all("_daily" not in item["selectionEvaluation"] and "_daily" not in item["holdoutEvaluation"] for candidate in self.candidates for item in candidate["horizons"].values()))
+
+    def test_shadow_config_inactive(self):
+        self.assertFalse(self.shadow["active"])
+
+    def test_shadow_config_disables_publication(self):
+        self.assertFalse(self.shadow["publicationEnabled"])
+
+    def test_recommended_candidate_is_indexed(self):
+        self.assertIn(self.shadow["recommendedCandidateId"], {item["candidateId"] for item in self.entries})
+
+    def test_recommended_candidate_sha(self):
+        entry = next(item for item in self.entries if item["candidateId"] == self.shadow["recommendedCandidateId"])
+        self.assertEqual(self.shadow["candidateSha256"], entry["sha256"])
+
+    def test_no_candidate_is_production_path(self):
+        production = {research.repository_relative(path) for path in research.PRODUCTION_MODELS}
+        self.assertTrue(all(item["path"] not in production for item in self.entries))
+
+    def test_production_model_hashes_remain_frozen(self):
+        self.assertEqual(
+            [research.sha256_path(path) for path in research.PRODUCTION_MODELS],
+            [
+                "62b6e689083dc0003cbc31e986e509adbe884086a4d7b059cba9d7072223dd1c",
+                "1e30a85c51e67f60fac63b86cdf20dbd62b78a2add2b60d572089fd2d34137f6",
+                "358e19ae3dacbfdba71db195c0171c627646f33aaadf39250fb0f7b7cbb994d8",
+            ],
+        )
+
+    def test_shadow_inference_is_byte_stable_and_no_write(self):
+        candidate = research.ROOT / self.shadow["candidatePath"]
+        before = research.production_boundary()
+        with tempfile.TemporaryDirectory() as temporary:
+            output = Path(temporary) / "shadow.json"
+            first = research.run_shadow(candidate, SNAPSHOT, output)
+            second = research.run_shadow(candidate, SNAPSHOT, output)
+            self.assertEqual((first["status"], second["status"]), ("created", "reused"))
+            self.assertEqual(first["sha256"], second["sha256"])
+            value = research.read_json(output)
+            self.assertTrue(value["productionBoundaryByteInvariant"])
+            self.assertFalse(value["contentWritten"] or value["predictionLedgerWritten"] or value["productionModelWritten"])
+        self.assertEqual(before, research.production_boundary())
+
+
 def _add_grid_test(name: str, grid_name: str, expected: float) -> None:
     def test(self):
         contract = research.validate_contract()

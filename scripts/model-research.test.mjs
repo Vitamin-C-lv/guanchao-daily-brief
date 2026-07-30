@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import test from "node:test";
 
 const contract = JSON.parse(readFileSync(new URL("../data/model-research/contract.json", import.meta.url), "utf8"));
@@ -53,4 +54,26 @@ test("validate CLI succeeds without automatic dataset discovery", () => {
 test("check gate includes model research validation and tests", () => {
   assert.match(packageJson.scripts.check, /model-research:validate/);
   assert.match(packageJson.scripts.check, /test:model-research/);
+});
+
+test("candidate index is complete and sorted", () => {
+  const index = JSON.parse(readFileSync(new URL("../models/sector-rotation/candidates/index.json", import.meta.url), "utf8"));
+  assert.equal(index.candidates.length, 23);
+  assert.deepEqual(index.candidates.map((item) => item.candidateId), [...index.candidates.map((item) => item.candidateId)].sort());
+  assert.equal(index.activeCandidateId, null);
+});
+
+test("candidate index hashes bind committed artifacts", () => {
+  const index = JSON.parse(readFileSync(new URL("../models/sector-rotation/candidates/index.json", import.meta.url), "utf8"));
+  for (const entry of index.candidates) {
+    const bytes = readFileSync(new URL(`../${entry.path}`, import.meta.url));
+    assert.equal(createHash("sha256").update(bytes).digest("hex"), entry.sha256);
+  }
+});
+
+test("shadow configuration cannot publish", () => {
+  const shadow = JSON.parse(readFileSync(new URL("../models/sector-rotation/shadow-config.json", import.meta.url), "utf8"));
+  assert.equal(shadow.active, false);
+  assert.equal(shadow.publicationEnabled, false);
+  assert.match(shadow.reason, /separate reviewed PR/);
 });
