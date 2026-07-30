@@ -79,8 +79,11 @@ test("shadow configuration cannot publish", () => {
   assert.match(shadow.reason, /separate reviewed PR/);
 });
 
-test("candidate artifacts are forced to LF on Windows checkouts", () => {
+test("model research and frozen production artifacts retain portable line endings", () => {
   assert.match(attributes, /^models\/sector-rotation\/candidates\/\*\*\/\*\.json text eol=lf$/m);
   assert.match(attributes, /^models\/sector-rotation\/shadow-config\.json text eol=lf$/m);
   assert.match(attributes, /^data\/model-research\/\*\*\/\*\.json text eol=lf$/m);
+  assert.match(attributes, /^models\/sector-rotation\/a-share-v1\.json text eol=lf$/m);
+  assert.match(attributes, /^models\/sector-rotation\/a-share-up-probability-v1\.json text eol=lf$/m);
+  assert.match(attributes, /^models\/sector-rotation\/a-share-relative-probability-v2\.json text eol=crlf$/m);
 });
