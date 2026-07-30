@@ -3,7 +3,7 @@
   "businessIdentity": {
     "calibrationMethod": "platt",
     "candidateFamily": "regression-ridge-challenger",
-    "codeSha256": "ee150d4df17f41b126ece178893d7cf6c41643844e1250e9a02fea60ca72393c",
+    "codeSha256": "5d9ca6e247db26e93dd9a45b501b299c24aed7d85dff2fd950376aa0934ec813",
     "datasetIdentitySha256": "3448b55c8ae44e7f4d95fd5cb8a1c8b229d40bdf070124f4350ac8226a18a963",
     "datasetManifestSha256": "072ea900788faa910ddf17853563bc2ceb3bc2334fdcbcd97325f25202c8c756",
     "datasetSnapshotPath": "models/sector-rotation/datasets/a-share/a-share-2026-07-21-3448b55c8ae4",
@@ -73,7 +73,7 @@
       }
     }
   },
-  "candidateId": "3b71cbaffae77e17850fd15e1150b2dcfab37b63581b223fa480c1567ce24dac",
+  "candidateId": "0d4a2e7b11659e4e6890f69ca1a3befd61cd33e59f7ecc4d962e26052a2af4a3",
   "horizons": {
     "1": {
       "calibrationMethod": "platt",

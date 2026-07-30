@@ -1367,7 +1367,7 @@ def run_training(snapshot: Path, output: Path, candidate_output: Path) -> dict[s
             internal_daily[challenger["candidateId"]][str(horizon)]["holdout"],
             repetitions=int(contract["bootstrap"]["repetitions"]),
             block_length=int(contract["bootstrap"]["blockLengthSessions"]),
-            seed=int(contract["bootstrap"]["seed"]) + horizon,
+            seed=int(contract["bootstrap"]["seed"]),
         )
         for horizon in HORIZONS
     }

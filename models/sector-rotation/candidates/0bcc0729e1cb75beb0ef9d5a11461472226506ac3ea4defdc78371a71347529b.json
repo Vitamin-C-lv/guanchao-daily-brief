@@ -3,7 +3,7 @@
   "businessIdentity": {
     "calibrationMethod": "platt",
     "candidateFamily": "calibrator-ridge-challenger",
-    "codeSha256": "ee150d4df17f41b126ece178893d7cf6c41643844e1250e9a02fea60ca72393c",
+    "codeSha256": "5d9ca6e247db26e93dd9a45b501b299c24aed7d85dff2fd950376aa0934ec813",
     "datasetIdentitySha256": "3448b55c8ae44e7f4d95fd5cb8a1c8b229d40bdf070124f4350ac8226a18a963",
     "datasetManifestSha256": "072ea900788faa910ddf17853563bc2ceb3bc2334fdcbcd97325f25202c8c756",
     "datasetSnapshotPath": "models/sector-rotation/datasets/a-share/a-share-2026-07-21-3448b55c8ae4",
@@ -14,7 +14,7 @@
       20
     ],
     "hyperparameters": {
-      "calibratorRidge": 0.5,
+      "calibratorRidge": 1.0,
       "excludedNonlinearGroups": [],
       "featureSet": "current-nonlinear",
       "logisticRidge": 40.0,
@@ -73,7 +73,7 @@
       }
     }
   },
-  "candidateId": "fffb87507c135d2bb9de0583b75c1a67a7702cea52ea5aae45642cb8ab717631",
+  "candidateId": "0bcc0729e1cb75beb0ef9d5a11461472226506ac3ea4defdc78371a71347529b",
   "horizons": {
     "1": {
       "calibrationMethod": "platt",
@@ -81,35 +81,35 @@
         "absoluteUp": {
           "baseRate": 0.47668650793650796,
           "dates": 504,
-          "intercept": -0.09332938187936912,
+          "intercept": -0.09332940701115264,
           "method": "platt-on-purged-time-ordered-oof",
           "observations": 6048,
-          "ridge": 0.5,
+          "ridge": 1.0,
           "scoreMean": -0.044078566305563414,
           "scoreScale": 0.3328305323924939,
-          "slope": 0.06570522937493654
+          "slope": 0.06568299744070961
         },
         "outperformance": {
           "baseRate": 0.47767857142857145,
           "dates": 504,
-          "intercept": -0.08934547602856972,
+          "intercept": -0.08934547577974265,
           "method": "platt-on-purged-time-ordered-oof",
           "observations": 6048,
-          "ridge": 0.5,
+          "ridge": 1.0,
           "scoreMean": -0.07775676374185098,
           "scoreScale": 0.14234329261611056,
-          "slope": 0.004101609313344099
+          "slope": 0.004100251119082135
         },
         "topQuartile": {
           "baseRate": 0.25,
           "dates": 504,
-          "intercept": -1.1006373252881587,
+          "intercept": -1.100635474444919,
           "method": "platt-on-purged-time-ordered-oof",
           "observations": 6048,
-          "ridge": 0.5,
+          "ridge": 1.0,
           "scoreMean": -1.1052125732939782,
           "scoreScale": 0.2727714633146092,
-          "slope": 0.09008755858045482
+          "slope": 0.0900461937174019
         }
       },
       "holdoutEvaluation": {
@@ -118,46 +118,46 @@
         "probabilityMetrics": {
           "absoluteUp": {
             "baselineBrier": 0.25108318308033095,
-            "brier": 0.25172818117435475,
-            "brierSkill": -0.0025688621838819703,
-            "calibrationIntercept": -0.16026273394286147,
-            "calibrationSlope": -2.127436692219502,
-            "crossSectionProbabilityStd": 0.005271488031332387,
+            "brier": 0.25172792643502684,
+            "brierSkill": -0.002567847622393815,
+            "calibrationIntercept": -0.16032999207669746,
+            "calibrationSlope": -2.1281567725211983,
+            "crossSectionProbabilityStd": 0.0052697064295858746,
             "dates": 252,
-            "expectedCalibrationError": 0.036936823637535796,
-            "logLoss": 0.6966108471402407,
+            "expectedCalibrationError": 0.03693629388455344,
+            "logLoss": 0.6966103346003366,
             "observations": 3024,
             "rocAuc": 0.47301501716253397
           },
           "outperformance": {
             "baselineBrier": 0.24893338411753593,
-            "brier": 0.24894120593600738,
-            "brierSkill": -3.142133185218832e-05,
-            "calibrationIntercept": -0.9715488973474155,
-            "calibrationSlope": -9.175411653038331,
-            "crossSectionProbabilityStd": 0.0007786970531208838,
+            "brier": 0.24894120304983794,
+            "brierSkill": -3.140973770854316e-05,
+            "calibrationIntercept": -0.9718204449093937,
+            "calibrationSlope": -9.178450976996245,
+            "crossSectionProbabilityStd": 0.0007784392181965574,
             "dates": 252,
-            "expectedCalibrationError": 0.012424522130925209,
-            "logLoss": 0.6910285424189606,
+            "expectedCalibrationError": 0.012424623780030286,
+            "logLoss": 0.6910285366309035,
             "observations": 3024,
             "rocAuc": 0.4896277124173813
           },
           "topQuartile": {
             "baselineBrier": 0.1875,
-            "brier": 0.18644903820145992,
-            "brierSkill": 0.00560512959221382,
-            "calibrationIntercept": 2.468790984962098,
-            "calibrationSlope": 3.247909010238757,
-            "crossSectionProbabilityStd": 0.012925504113189327,
+            "brier": 0.18644943582068707,
+            "brierSkill": 0.005603008956335587,
+            "calibrationIntercept": 2.4704271264912823,
+            "calibrationSlope": 3.2494010145742047,
+            "crossSectionProbabilityStd": 0.012919483730671895,
             "dates": 252,
-            "expectedCalibrationError": 0.0013995621258490805,
-            "logLoss": 0.5595464544989707,
+            "expectedCalibrationError": 0.0018618755707928009,
+            "logLoss": 0.559547509017712,
             "observations": 3024,
             "rocAuc": 0.5754044073047601
           }
         },
         "rankingReturnMetrics": {
-          "abstentionShare": 0.23015873015873015,
+          "abstentionShare": 0.23412698412698413,
           "afterCostSpread": -0.0021539437503053267,
           "blocks": [
             {
@@ -188,7 +188,7 @@
           "crossSectionSpearman": 0.04498279498279498,
           "maxDrawdownCumulativeSpread": -0.5427938250769426,
           "positiveWindowShare": 1.0,
-          "probabilityDispersion": 0.012925504113189327,
+          "probabilityDispersion": 0.012919483730671895,
           "rankIc": 0.04498279498279498,
           "regimeBreakdown": {
             "risk-off": {
@@ -249,7 +249,7 @@
             "missingFeatureValues": 0,
             "nullsImputedAsZero": false
           },
-          "probabilityDispersion": 0.012925504113189327,
+          "probabilityDispersion": 0.012919483730671895,
           "regimeSensitivity": 0.07370205552023733,
           "sectorConcentration": 0.20238095238095238
         }
@@ -763,40 +763,40 @@
         "probabilityMetrics": {
           "absoluteUp": {
             "baselineBrier": 0.25070064605631914,
-            "brier": 0.250418656545224,
-            "brierSkill": 0.0011248056817204644,
-            "calibrationIntercept": 0.6285588942555329,
-            "calibrationSlope": 4.421287550502448,
-            "crossSectionProbabilityStd": 0.003910183490336054,
+            "brier": 0.25041872900144285,
+            "brierSkill": 0.0011245166668336637,
+            "calibrationIntercept": 0.6287967265244386,
+            "calibrationSlope": 4.423267643251833,
+            "crossSectionProbabilityStd": 0.003908436428338765,
             "dates": 126,
-            "expectedCalibrationError": 0.03290110611627928,
-            "logLoss": 0.6939874608906511,
+            "expectedCalibrationError": 0.032898331646275814,
+            "logLoss": 0.693987604108983,
             "observations": 1512,
             "rocAuc": 0.5364323696306807
           },
           "outperformance": {
             "baselineBrier": 0.24930557499634512,
-            "brier": 0.2493028775194101,
-            "brierSkill": 1.0819962349639667e-05,
-            "calibrationIntercept": 0.09813278397852414,
-            "calibrationSlope": 2.4830270561407066,
-            "crossSectionProbabilityStd": 0.0005678552311896462,
+            "brier": 0.249302878514784,
+            "brierSkill": 1.0815969763822153e-05,
+            "calibrationIntercept": 0.09822370358862634,
+            "calibrationSlope": 2.4841232680558605,
+            "crossSectionProbabilityStd": 0.0005676046485424237,
             "dates": 126,
-            "expectedCalibrationError": 0.006316544437257654,
-            "logLoss": 0.6917523735986957,
+            "expectedCalibrationError": 0.006316578304234821,
+            "logLoss": 0.6917523755954169,
             "observations": 1512,
             "rocAuc": 0.49953409200586113
           },
           "topQuartile": {
             "baselineBrier": 0.1875,
-            "brier": 0.18747654857910853,
-            "brierSkill": 0.00012507424475449724,
-            "calibrationIntercept": -0.48396985501759504,
-            "calibrationSlope": 0.5560150587581886,
-            "crossSectionProbabilityStd": 0.014304744317006462,
+            "brier": 0.18747642307775117,
+            "brierSkill": 0.0001257435853271316,
+            "calibrationIntercept": -0.4835895333993813,
+            "calibrationSlope": 0.5563620718973606,
+            "crossSectionProbabilityStd": 0.014295755839471538,
             "dates": 126,
-            "expectedCalibrationError": 0.004403287527832877,
-            "logLoss": 0.5622740423284756,
+            "expectedCalibrationError": 0.004402045169821489,
+            "logLoss": 0.5622737097592676,
             "observations": 1512,
             "rocAuc": 0.5121753776956599
           }
@@ -821,7 +821,7 @@
           "crossSectionSpearman": -0.06432456432456432,
           "maxDrawdownCumulativeSpread": -0.5842363903018314,
           "positiveWindowShare": 0.0,
-          "probabilityDispersion": 0.014304744317006462,
+          "probabilityDispersion": 0.014295755839471538,
           "rankIc": -0.06432456432456432,
           "regimeBreakdown": {
             "risk-off": {
@@ -882,7 +882,7 @@
             "missingFeatureValues": 0,
             "nullsImputedAsZero": false
           },
-          "probabilityDispersion": 0.014304744317006462,
+          "probabilityDispersion": 0.014295755839471538,
           "regimeSensitivity": 0.0816477396989157,
           "sectorConcentration": 0.19576719576719576
         }
@@ -895,35 +895,35 @@
         "absoluteUp": {
           "baseRate": 0.4341931216931217,
           "dates": 504,
-          "intercept": -0.2657854130500532,
+          "intercept": -0.2657847988005207,
           "method": "platt-on-purged-time-ordered-oof",
           "observations": 6048,
-          "ridge": 0.5,
+          "ridge": 1.0,
           "scoreMean": -0.12828912493544276,
           "scoreScale": 0.5672855227762935,
-          "slope": 0.1374349416127517
+          "slope": 0.13738851745931793
         },
         "outperformance": {
           "baseRate": 0.4661044973544973,
           "dates": 504,
-          "intercept": -0.13607786127762816,
+          "intercept": -0.1360776585982872,
           "method": "platt-on-purged-time-ordered-oof",
           "observations": 6048,
-          "ridge": 0.5,
+          "ridge": 1.0,
           "scoreMean": -0.0666516980507823,
           "scoreScale": 0.3786220283669937,
-          "slope": 0.08733133486015943
+          "slope": 0.08730194190285803
         },
         "topQuartile": {
           "baseRate": 0.25,
           "dates": 504,
-          "intercept": -1.099504177979363,
+          "intercept": -1.0995033965358592,
           "method": "platt-on-purged-time-ordered-oof",
           "observations": 6048,
-          "ridge": 0.5,
+          "ridge": 1.0,
           "scoreMean": -1.0783646444483879,
           "scoreScale": 0.39932806130063825,
-          "slope": -0.05982669934783142
+          "slope": -0.059800411398215486
         }
       },
       "holdoutEvaluation": {
@@ -932,40 +932,40 @@
         "probabilityMetrics": {
           "absoluteUp": {
             "baselineBrier": 0.2622517435472132,
-            "brier": 0.2798507445290936,
-            "brierSkill": -0.06710727922658033,
-            "calibrationIntercept": -0.42939727359186225,
-            "calibrationSlope": -2.03941587887866,
-            "crossSectionProbabilityStd": 0.01601337328822046,
+            "brier": 0.27984412734252356,
+            "brierSkill": -0.06708204703372433,
+            "calibrationIntercept": -0.42957918039903414,
+            "calibrationSlope": -2.0401050060155344,
+            "crossSectionProbabilityStd": 0.016008145935278554,
             "dates": 252,
-            "expectedCalibrationError": 0.1507040549596757,
-            "logLoss": 0.7550560745080007,
+            "expectedCalibrationError": 0.15102851711588258,
+            "logLoss": 0.7550414241169123,
             "observations": 3024,
             "rocAuc": 0.3842202909872083
           },
           "outperformance": {
             "baselineBrier": 0.2469568025898631,
-            "brier": 0.24579888607381342,
-            "brierSkill": 0.00468874112357498,
-            "calibrationIntercept": 0.10897295213604959,
-            "calibrationSlope": 2.61485057974415,
-            "crossSectionProbabilityStd": 0.012492094717114094,
+            "brier": 0.24579918252348368,
+            "brierSkill": 0.004687540712542959,
+            "calibrationIntercept": 0.10909222113004553,
+            "calibrationSlope": 2.615730951815673,
+            "crossSectionProbabilityStd": 0.012487902911048374,
             "dates": 252,
-            "expectedCalibrationError": 0.027551784184585936,
-            "logLoss": 0.6847149778851915,
+            "expectedCalibrationError": 0.0275519280247884,
+            "logLoss": 0.6847155810720881,
             "observations": 3024,
             "rocAuc": 0.5564733972258932
           },
           "topQuartile": {
             "baselineBrier": 0.1875,
-            "brier": 0.18845301782854357,
-            "brierSkill": -0.005082761752232434,
-            "calibrationIntercept": -8.72051512704564,
-            "calibrationSlope": -7.019085100277207,
-            "crossSectionProbabilityStd": 0.007146238519679622,
+            "brier": 0.18845257126256496,
+            "brierSkill": -0.005080380067013168,
+            "calibrationIntercept": -8.723902218337495,
+            "calibrationSlope": -7.022170653556077,
+            "crossSectionProbabilityStd": 0.007143084380812212,
             "dates": 252,
-            "expectedCalibrationError": 0.0030486953364975977,
-            "logLoss": 0.5648973396513721,
+            "expectedCalibrationError": 0.003047387825487302,
+            "logLoss": 0.5648961306748429,
             "observations": 3024,
             "rocAuc": 0.42520272855369856
           }
@@ -1002,7 +1002,7 @@
           "crossSectionSpearman": -0.020646020646020644,
           "maxDrawdownCumulativeSpread": -7.222883982182825,
           "positiveWindowShare": 0.25,
-          "probabilityDispersion": 0.007146238519679622,
+          "probabilityDispersion": 0.007143084380812212,
           "rankIc": -0.020646020646020644,
           "regimeBreakdown": {
             "risk-off": {
@@ -1063,7 +1063,7 @@
             "missingFeatureValues": 0,
             "nullsImputedAsZero": false
           },
-          "probabilityDispersion": 0.007146238519679622,
+          "probabilityDispersion": 0.007143084380812212,
           "regimeSensitivity": 0.030608036031764846,
           "sectorConcentration": 0.11904761904761904
         }
@@ -1577,40 +1577,40 @@
         "probabilityMetrics": {
           "absoluteUp": {
             "baselineBrier": 0.2602618207776938,
-            "brier": 0.25793238863349843,
-            "brierSkill": 0.008950341380209781,
-            "calibrationIntercept": 2.4926179207911603,
-            "calibrationSlope": 6.541376212315789,
-            "crossSectionProbabilityStd": 0.006227480183036437,
+            "brier": 0.2579333472813159,
+            "brierSkill": 0.00894665798241212,
+            "calibrationIntercept": 2.493708106810138,
+            "calibrationSlope": 6.544330643210208,
+            "crossSectionProbabilityStd": 0.006224670724185704,
             "dates": 126,
-            "expectedCalibrationError": 0.10295529782737398,
-            "logLoss": 0.7092175516710373,
+            "expectedCalibrationError": 0.10295481182529737,
+            "logLoss": 0.7092195019846527,
             "observations": 1512,
             "rocAuc": 0.6044601596415068
           },
           "outperformance": {
             "baselineBrier": 0.24819555451352923,
-            "brier": 0.24714300681068727,
-            "brierSkill": 0.004240799980906096,
-            "calibrationIntercept": 0.3841174530595239,
-            "calibrationSlope": 4.838858966087195,
-            "crossSectionProbabilityStd": 0.006887660104841768,
+            "brier": 0.24714341799501693,
+            "brierSkill": 0.0042391432859243405,
+            "calibrationIntercept": 0.384377709913703,
+            "calibrationSlope": 4.841012043985829,
+            "crossSectionProbabilityStd": 0.006884598115538803,
             "dates": 126,
-            "expectedCalibrationError": 0.02083716881919974,
-            "logLoss": 0.687421886158657,
+            "expectedCalibrationError": 0.02083743222577173,
+            "logLoss": 0.6874227126844263,
             "observations": 1512,
             "rocAuc": 0.5496479171370513
           },
           "topQuartile": {
             "baselineBrier": 0.1875,
-            "brier": 0.1878332961284476,
-            "brierSkill": -0.0017775793517205152,
-            "calibrationIntercept": -1.3216331153224663,
-            "calibrationSlope": -0.2013469456891934,
-            "crossSectionProbabilityStd": 0.013545081922259986,
+            "brier": 0.18783297145947436,
+            "brierSkill": -0.0017758477838631936,
+            "calibrationIntercept": -1.321761429330203,
+            "calibrationSlope": -0.20146392820488307,
+            "crossSectionProbabilityStd": 0.013537319723178532,
             "dates": 126,
-            "expectedCalibrationError": 0.0012980140905077984,
-            "logLoss": 0.5632471954062702,
+            "expectedCalibrationError": 0.0012972626900599857,
+            "logLoss": 0.5632462926982333,
             "observations": 1512,
             "rocAuc": 0.504859419762418
           }
@@ -1635,7 +1635,7 @@
           "crossSectionSpearman": 0.038905538905538904,
           "maxDrawdownCumulativeSpread": -2.2123270296669446,
           "positiveWindowShare": 0.5,
-          "probabilityDispersion": 0.013545081922259986,
+          "probabilityDispersion": 0.013537319723178532,
           "rankIc": 0.038905538905538904,
           "regimeBreakdown": {
             "risk-off": {
@@ -1696,7 +1696,7 @@
             "missingFeatureValues": 0,
             "nullsImputedAsZero": false
           },
-          "probabilityDispersion": 0.013545081922259986,
+          "probabilityDispersion": 0.013537319723178532,
           "regimeSensitivity": 0.25361305361305364,
           "sectorConcentration": 0.18518518518518517
         }
@@ -1709,35 +1709,35 @@
         "absoluteUp": {
           "baseRate": 0.47238756613756616,
           "dates": 504,
-          "intercept": -0.1102675904924283,
+          "intercept": -0.11026813145921234,
           "method": "platt-on-purged-time-ordered-oof",
           "observations": 6048,
-          "ridge": 0.5,
+          "ridge": 1.0,
           "scoreMean": 0.007901415834855747,
           "scoreScale": 0.6468806560650077,
-          "slope": 0.16255688317076744
+          "slope": 0.16249892728091617
         },
         "outperformance": {
           "baseRate": 0.47685185185185186,
           "dates": 504,
-          "intercept": -0.09266082026886627,
+          "intercept": -0.09266081906922968,
           "method": "platt-on-purged-time-ordered-oof",
           "observations": 6048,
-          "ridge": 0.5,
+          "ridge": 1.0,
           "scoreMean": -0.06764463785603558,
           "scoreScale": 0.3175885985260588,
-          "slope": -0.010060059324730836
+          "slope": -0.010056730398747684
         },
         "topQuartile": {
           "baseRate": 0.25,
           "dates": 504,
-          "intercept": -1.0991298907811908,
+          "intercept": -1.099129389216484,
           "method": "platt-on-purged-time-ordered-oof",
           "observations": 6048,
-          "ridge": 0.5,
+          "ridge": 1.0,
           "scoreMean": -1.1018989052882735,
           "scoreScale": 0.3803671102100076,
-          "slope": 0.045354904791196395
+          "slope": 0.04533291207383128
         }
       },
       "holdoutEvaluation": {
@@ -1746,40 +1746,40 @@
         "probabilityMetrics": {
           "absoluteUp": {
             "baselineBrier": 0.25317305580925786,
-            "brier": 0.2592102555509366,
-            "brierSkill": -0.023846138454113985,
-            "calibrationIntercept": -0.13205868719308786,
-            "calibrationSlope": -2.224997205851483,
-            "crossSectionProbabilityStd": 0.013092228879414462,
+            "brier": 0.2592078105904112,
+            "brierSkill": -0.023836481184237757,
+            "calibrationIntercept": -0.13214739457252028,
+            "calibrationSlope": -2.2257907599698976,
+            "crossSectionProbabilityStd": 0.013087599000119382,
             "dates": 252,
-            "expectedCalibrationError": 0.0784374311583988,
-            "logLoss": 0.7117597668460528,
+            "expectedCalibrationError": 0.07843505882421199,
+            "logLoss": 0.7117547265656575,
             "observations": 3024,
             "rocAuc": 0.43440971120279276
           },
           "outperformance": {
             "baselineBrier": 0.24885177836566724,
-            "brier": 0.24882383413189194,
-            "brierSkill": 0.00011229268265167125,
-            "calibrationIntercept": 0.7180323635315611,
-            "calibrationSlope": 9.472153970486874,
-            "crossSectionProbabilityStd": 0.0011658731744983613,
+            "brier": 0.24882384264237872,
+            "brierSkill": 0.00011225848363227708,
+            "calibrationIntercept": 0.7183228829918424,
+            "calibrationSlope": 9.475289393056435,
+            "crossSectionProbabilityStd": 0.0011654873513549577,
             "dates": 252,
-            "expectedCalibrationError": 0.013590637191025157,
-            "logLoss": 0.6907934759257105,
+            "expectedCalibrationError": 0.013590517100628752,
+            "logLoss": 0.6907934929798459,
             "observations": 3024,
             "rocAuc": 0.5078111945063508
           },
           "topQuartile": {
             "baselineBrier": 0.1875,
-            "brier": 0.18674434713722335,
-            "brierSkill": 0.004030148601475436,
-            "calibrationIntercept": 11.811167196503149,
-            "calibrationSlope": 11.739184771025146,
-            "crossSectionProbabilityStd": 0.005282084447016034,
+            "brier": 0.1867446984146701,
+            "brierSkill": 0.004028275121759517,
+            "calibrationIntercept": 11.817420987123622,
+            "calibrationSlope": 11.74487989540509,
+            "crossSectionProbabilityStd": 0.00527951972547881,
             "dates": 252,
-            "expectedCalibrationError": 0.0006485571850423921,
-            "logLoss": 0.5603267079671047,
+            "expectedCalibrationError": 0.0006482171990568053,
+            "logLoss": 0.5603276387053847,
             "observations": 3024,
             "rocAuc": 0.601079663689893
           }
@@ -1816,7 +1816,7 @@
           "crossSectionSpearman": 0.07900432900432901,
           "maxDrawdownCumulativeSpread": -0.5828814606302235,
           "positiveWindowShare": 0.75,
-          "probabilityDispersion": 0.005282084447016034,
+          "probabilityDispersion": 0.00527951972547881,
           "rankIc": 0.07900432900432901,
           "regimeBreakdown": {
             "risk-off": {
@@ -1877,7 +1877,7 @@
             "missingFeatureValues": 0,
             "nullsImputedAsZero": false
           },
-          "probabilityDispersion": 0.005282084447016034,
+          "probabilityDispersion": 0.00527951972547881,
           "regimeSensitivity": 0.03192064595573367,
           "sectorConcentration": 0.17989417989417988
         }
@@ -2391,40 +2391,40 @@
         "probabilityMetrics": {
           "absoluteUp": {
             "baselineBrier": 0.2575677647602251,
-            "brier": 0.2560474729492602,
-            "brierSkill": 0.005902492543584104,
-            "calibrationIntercept": 1.051238373244221,
-            "calibrationSlope": 3.2907586122130703,
-            "crossSectionProbabilityStd": 0.008852529131985207,
+            "brier": 0.2560477993195727,
+            "brierSkill": 0.0059012254195214275,
+            "calibrationIntercept": 1.0515589667336205,
+            "calibrationSlope": 3.2922827457737034,
+            "crossSectionProbabilityStd": 0.008848474630272562,
             "dates": 126,
-            "expectedCalibrationError": 0.11084146339273204,
-            "logLoss": 0.705393991933592,
+            "expectedCalibrationError": 0.11083594571363557,
+            "logLoss": 0.7053945348572173,
             "observations": 1512,
             "rocAuc": 0.5742081336166428
           },
           "outperformance": {
             "baselineBrier": 0.24900521479739585,
-            "brier": 0.2490028904591938,
-            "brierSkill": 9.334496082535892e-06,
-            "calibrationIntercept": -0.13360596448082637,
-            "calibrationSlope": 0.12431933365191682,
-            "crossSectionProbabilityStd": 0.0013167293088190261,
+            "brier": 0.24900289040364912,
+            "brierSkill": 9.334719148879067e-06,
+            "calibrationIntercept": -0.1336018035428997,
+            "calibrationSlope": 0.12437417469213147,
+            "crossSectionProbabilityStd": 0.001316148776049126,
             "dates": 126,
-            "expectedCalibrationError": 0.01662997445204978,
-            "logLoss": 0.6911520972627226,
+            "expectedCalibrationError": 0.016630029586869932,
+            "logLoss": 0.6911520972179289,
             "observations": 1512,
             "rocAuc": 0.5060075269951814
           },
           "topQuartile": {
             "baselineBrier": 0.1875,
-            "brier": 0.18736010431574518,
-            "brierSkill": 0.0007461103160256721,
-            "calibrationIntercept": 6.762521417645154,
-            "calibrationSlope": 7.159282453117992,
-            "crossSectionProbabilityStd": 0.0030034789443507256,
+            "brier": 0.18736018486586078,
+            "brierSkill": 0.0007456807154091472,
+            "calibrationIntercept": 6.767438295494622,
+            "calibrationSlope": 7.163758866722889,
+            "crossSectionProbabilityStd": 0.0030016010988122904,
             "dates": 126,
-            "expectedCalibrationError": 2.260350966931668e-05,
-            "logLoss": 0.5619609146094486,
+            "expectedCalibrationError": 2.260589434383009e-05,
+            "logLoss": 0.5619611309237681,
             "observations": 1512,
             "rocAuc": 0.5294877896288831
           }
@@ -2449,7 +2449,7 @@
           "crossSectionSpearman": -0.027361527361527364,
           "maxDrawdownCumulativeSpread": -0.9110910583622547,
           "positiveWindowShare": 0.5,
-          "probabilityDispersion": 0.0030034789443507256,
+          "probabilityDispersion": 0.0030016010988122904,
           "rankIc": -0.027361527361527364,
           "regimeBreakdown": {
             "risk-off": {
@@ -2510,7 +2510,7 @@
             "missingFeatureValues": 0,
             "nullsImputedAsZero": false
           },
-          "probabilityDispersion": 0.0030034789443507256,
+          "probabilityDispersion": 0.0030016010988122904,
           "regimeSensitivity": 0.14725274725274726,
           "sectorConcentration": 0.18253968253968253
         }
