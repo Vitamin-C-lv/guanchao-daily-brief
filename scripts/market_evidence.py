@@ -1386,12 +1386,13 @@ def parser() -> argparse.ArgumentParser:
     run.add_argument("--edition", choices=["daily", "weekly"], required=True)
     run.add_argument("--as-of", default="auto")
     run.add_argument("--dry-run", action="store_true")
+    run.add_argument("--packet-output")
     def run_pipeline(args: argparse.Namespace) -> dict[str, Any]:
         from market_evidence_sources import collect_sources
         from market_evidence_packet import persist
         as_of = datetime.now(SHANGHAI).date().isoformat() if args.as_of == "auto" else args.as_of
         sources, treasury = collect_sources(args.edition, as_of)
-        result = persist(args.edition, as_of, treasury, sources, None, args.dry_run)
+        result = persist(args.edition, as_of, treasury, sources, None, args.dry_run, args.packet_output)
         print(json.dumps(result, ensure_ascii=False, sort_keys=True))
         return result
     run.set_defaults(func=run_pipeline)

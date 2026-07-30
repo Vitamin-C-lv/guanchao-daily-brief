@@ -59,3 +59,13 @@ Windows 是主本地环境；Vercel 继续验证真实部署。测试覆盖不�
 4. 重点观察不改变客观评分；AI 不得修改模型输出。
 5. 最小充分实现优于通用大框架；维护成本属于产品成本。
 6. 架构由项目负责人冻结，工程 Agent 忠实实施。
+
+## P1-F writer queue/apply boundary
+
+P1-F supplies immutable quantitative packet snapshots, a request/result queue, result contract
+validation, atomic daily/weekly apply, rollback, and manual request preparation. It is not a
+research bundle, autonomous Luna runner, automatic content publisher, or scheduled writing system.
+`research-bundle-v1` and `writer-context-v1` remain future frozen contracts. A future
+`writer-context-v1` must reference an immutable quantitative writer packet, immutable qualitative
+research bundle, immutable baseline content, and the SHA plus Schema version of each input. Luna
+must never browse autonomously; it may only operate on explicitly frozen context inputs.

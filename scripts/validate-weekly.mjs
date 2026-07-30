@@ -3,6 +3,11 @@ import path from "node:path";
 import process from "node:process";
 
 const root = process.cwd();
+const candidatePath = (flag) => { const index = process.argv.indexOf(flag); return index >= 0 ? path.resolve(process.argv[index + 1] ?? "") : null; };
+const candidateReportPath = candidatePath("--candidate-report");
+const candidateIndexPath = candidatePath("--candidate-index");
+const candidateNoticesPath = candidatePath("--candidate-notices");
+const candidateMode = [candidateReportPath, candidateIndexPath, candidateNoticesPath].some(Boolean);
 const weeklyRoot = path.join(root, "content", "weekly-reports");
 const errors = [];
 const idPattern = /^weekly-\d{4}-W\d{2}$/;
@@ -31,6 +36,17 @@ function requireIso(value, label) {
 function requireArray(value, label, min, max) {
   if (!Array.isArray(value) || value.length < min || value.length > max) { fail(`${label} 必须包含 ${min}–${max} 项`); return false; }
   return true;
+}
+
+if (candidateMode && ![candidateReportPath, candidateIndexPath, candidateNoticesPath].every(Boolean)) fail("candidate mode requires --candidate-report, --candidate-index and --candidate-notices");
+let candidate = null;
+let candidateSize = 0;
+if (candidateMode && [candidateReportPath, candidateIndexPath, candidateNoticesPath].every(Boolean)) {
+  try {
+    const [raw, info] = await Promise.all([readFile(candidateReportPath, "utf8"), stat(candidateReportPath)]);
+    candidate = JSON.parse(raw);
+    candidateSize = info.size;
+  } catch (error) { fail(`candidate weekly report 无法读取或解析：${error.message}`); }
 }
 
 const dailyBrief = JSON.parse(await readFile(path.join(root, "content", "daily-brief.json"), "utf8"));
@@ -82,7 +98,7 @@ function validateNotice(item, kind, label, latestReportId) {
   }
 }
 
-const index = JSON.parse(await readFile(path.join(weeklyRoot, "index.json"), "utf8"));
+const index = JSON.parse(await readFile(candidateMode ? candidateIndexPath : path.join(weeklyRoot, "index.json"), "utf8"));
 if (index.schemaVersion !== 1) fail("weekly index.schemaVersion 必须为 1");
 if (!Array.isArray(index.reports)) fail("weekly index.reports 必须是数组");
 const indexIds = new Set();
@@ -101,11 +117,16 @@ for (const [position, entry] of (index.reports ?? []).entries()) {
 }
 if (index.latestReportId !== null && !indexIds.has(index.latestReportId)) fail("weekly index.latestReportId 不在 reports 中");
 
-const notices = JSON.parse(await readFile(path.join(root, "public", "update-notices.json"), "utf8"));
+const notices = JSON.parse(await readFile(candidateMode ? candidateNoticesPath : path.join(root, "public", "update-notices.json"), "utf8"));
 if (notices.schemaVersion !== 1) fail("update-notices.schemaVersion 必须为 1");
 if (notices.daily !== null) validateNotice(notices.daily, "daily", "update-notices.daily", index.latestReportId);
 if (notices.weekly !== null) validateNotice(notices.weekly, "weekly", "update-notices.weekly", index.latestReportId);
 if (index.reports?.length && notices.weekly === null) fail("已有周报时 update-notices.weekly 不能为 null");
+if (candidateMode && index.latestReportId) {
+  const latest = index.reports.find((entry) => entry.id === index.latestReportId);
+  if (!latest) fail("candidate index latest report is absent");
+  else if (notices.weekly?.href !== `/weekly/${latest.id}/` || notices.weekly?.noticeId !== `${latest.id}-r${latest.revision}` || notices.weekly?.publishedAt !== latest.publishedAt) fail("candidate weekly notice does not match latest report");
+}
 
 function validateReport(data, entry, fileSize) {
   const label = entry.id;
@@ -311,13 +332,21 @@ function validateReport(data, entry, fileSize) {
 }
 
 for (const entry of index.reports ?? []) {
-  const filePath = path.join(weeklyRoot, `${entry.id}.json`);
+  const isCandidate = candidate?.report?.id === entry.id;
+  const filePath = isCandidate ? candidateReportPath : path.join(weeklyRoot, `${entry.id}.json`);
   try {
-    const [raw, info] = await Promise.all([readFile(filePath, "utf8"), stat(filePath)]);
-    validateReport(JSON.parse(raw), entry, info.size);
+    if (isCandidate) validateReport(candidate, entry, candidateSize);
+    else { const [raw, info] = await Promise.all([readFile(filePath, "utf8"), stat(filePath)]); validateReport(JSON.parse(raw), entry, info.size); }
   } catch (error) {
     fail(`${entry.id} 无法读取或解析：${error.message}`);
   }
+}
+
+if (candidateMode && candidate) {
+  const report = candidate.report ?? {};
+  const entry = index.reports?.find((item) => item.id === report.id);
+  if (!entry) fail("candidate report is absent from candidate index");
+  else if (entry.id !== report.id || entry.revision !== report.revision || entry.weekStart !== report.weekStart || entry.weekEnd !== report.weekEnd || entry.publishedAt !== report.generatedAt || entry.title !== report.title) fail("candidate report and candidate index differ");
 }
 
 if (errors.length) {

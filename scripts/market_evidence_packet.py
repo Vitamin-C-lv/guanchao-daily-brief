@@ -54,11 +54,13 @@ def packet(edition:str,requested_as_of:str,treasury:dict,sources:list[dict],brea
  business=identity(out)
  out['writerPacketId']=digest(business);out['integrity']={'sha256':digest(business),'businessSha256':digest(business)}
  return out
-def persist(edition:str,requested_as_of:str,treasury:dict,sources:list[dict],breadth:dict|None,dry_run:bool)->dict:
+def persist(edition:str,requested_as_of:str,treasury:dict,sources:list[dict],breadth:dict|None,dry_run:bool,packet_output:str|None=None)->dict:
  requested_at=now_utc(); p=packet(edition,requested_as_of,treasury,sources,breadth); completed_at=now_utc()
  run={'schemaVersion':1,'runId':'','edition':edition,'requestedAsOf':requested_as_of,'requestedAt':requested_at,'completedAt':completed_at,'marketDates':p['marketDates'],'sources':sources,'facts':p['facts'],'factors':{'treasury':treasury},'dataHealth':p['providerHealth'],'warnings':p['warnings'],'writerPacketSha256':p['integrity']['businessSha256'],'businessIntegrity':'','integrity':{}}
  business=identity(run);run['runId']=digest(business);run['businessIntegrity']=digest(business);run['integrity']={'sha256':digest(business),'businessSha256':run['businessIntegrity']}
  wrote=False
  if not dry_run:
   wrote=write_immutable(RUNS/requested_as_of[:4]/requested_as_of[5:7]/(run['runId']+'.json.gz'),run);PACKETS.mkdir(parents=True,exist_ok=True);(PACKETS/(edition+'-latest.json')).write_bytes(canonical(p)+b'\n')
+ elif packet_output:
+  target=Path(packet_output);target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(canonical(p)+b'\n')
  return {'runId':run['runId'],'writerPacketId':p['writerPacketId'],'edition':edition,'status':p['providerHealth']['status'],'treasuryStatus':treasury.get('status'),'breadthStatus':(breadth or {}).get('status','unavailable'),'sourceCount':len(sources),'wroteRun':wrote,'dryRun':dry_run}

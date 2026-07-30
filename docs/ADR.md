@@ -17,3 +17,5 @@
 | ADR-011 | 区分模型输入完整度、模型特征覆盖、生产信号覆盖、训练就绪覆盖和供应商健康度。 | 冻结模型的实际训练输入与独立生产观察信号必须可分别审计；观察信号不得伪装成模型特征、改变概率或放宽发布门槛。 |
 | ADR-012 | 写作模型只读取经过验证的 writer packet。 | 防止写作模型自行浏览、抓取或把未验证数字写入内容。 |
 | ADR-013 | 美债曲线状态与因果来源分开判断。 | 曲线形态不构成通胀、财政供给或增长原因的充分证据。 |
+| ADR-014 | 工程 Agent 实施与独立验证分离。 | external_review 模式下 Codex 只运行定向测试和一次 typecheck、创建 Draft PR；ChatGPT 负责完整审查、全量验证与合并决定。 |
+| ADR-015 | Luna 写作通过不可变 writer request/result 契约进入生产内容流程。 | packet、request 与 result 均可追踪；Luna 不得自主抓取；结果必须先验证，accepted result 不可覆盖，内容应用与 prediction ledger 分离。 |

@@ -1,23 +1,38 @@
 # Writer packet contract
 
-`content/writer-packets/daily-latest.json` and `weekly-latest.json` are derived latest views;
-the matching immutable run is authoritative. A packet has schemaVersion, stable
-`writerPacketId`, real `generatedAt`, market dates, facts, Treasury factor, breadth status,
-provider health, warnings, sourceIndex and integrity hashes. The identity intentionally excludes
-runtime timestamps so a repeat of identical business input retains the same packet identity.
+`content/writer-packets/daily-latest.json` and `weekly-latest.json` are derived views only. A
+request must reference its immutable gzip packet under `data/writer-jobs/packets/`; that packet,
+not a latest view, is the authoritative writer input. Packet identities use canonical data and
+preserve explicit `partial`, `stale`, and `unavailable` states: null is never zero.
 
-Every numeric fact has a unique `factId`, finite numeric value or `null`, unit, 1/5/20-session
-bp changes, `asOf`, `releasedAt`, status, sourceId and sourceUrl. `null` is never zero.
-`sourceIndex` covers every fact source. Treasury nominal facts cite
-`us-treasury-nominal-xml`; real 10Y cites `us-treasury-real-xml`. Nominal and real dates must
-match before the overall Treasury factor can be ready.
+`writer-request-v1` freezes its execution meaning with `writerPromptSha256` and each target's
+`targetSchemaVersion`, `validatorId`, and `validatorSha256`. A changed prompt, validator, or
+schema version rejects the result. `writer-result-v1` is the sole normal output and contains
+target payloads plus `result.factReferences`, the only permitted fact lineage source.
+`payload.factClaims` is forbidden.
 
-Statuses are `ready`, `partial`, `stale`, `unavailable`, `rate_limited`, or `schema_changed`.
-Partial/stale/unavailable facts cannot be presented as latest or turned into a deterministic
-conclusion. Market breadth may remain unavailable under CSI WAF; this is a visible absence, not
-a zero or a substitute current-membership historical calculation.
+Every fact reference contains `factId`, `usedValue`, `usedUnit`, `usedAsOf`, `targetPath`,
+`targetField`, `claimMode`, `claimText`, and `renderedValue`. A target path/field pair cannot
+repeat and each output needs at least one reference. Status mapping is `ready` → `value`,
+`partial` → `partial`, `stale` → `delayed`, and `unavailable` / `rate_limited` /
+`schema_changed` → `unavailable`.
 
-Validate packets with `pnpm validate:writer-packet`. The validator recomputes packet and
-integrity identities, checks fact/source lineage, finite/null semantics, units, Treasury source
-separation and dates. Structured content validation must require numeric claims to retain the
-packet factId and matching value/unit/asOf.
+For a numeric target, the actual payload value must equal `usedValue`, while `claimText` must
+exactly equal the nonempty `renderedValue`. For a text target, the actual payload string must
+exactly equal `claimText`; partial/delayed/unavailable wording is checked against that actual
+text. `targetField` must resolve to a real primitive payload field.
+
+When generation cannot meet this contract, Luna may return `writer-error-v1` with the request
+job ID and `GENERATION_CONTRACT_FAILURE`. It is not a writer result, cannot be validated or
+applied, must not contain a half article, and never enters accepted storage.
+
+Accepted results are deterministic gzip artifacts and cannot be overwritten by a different stable
+identity. Weekly report, weekly index, and weekly notice are derived and committed in one rollback
+transaction. Writer apply never changes the prediction ledger.
+
+P1-F is queue/apply infrastructure, not a complete research bundle or automatic writer. Manual
+request preparation may freeze a quantitative packet and request, but automatic Luna execution,
+automatic content publication, and scheduled writing remain disabled. The next frozen inputs are
+`research-bundle-v1` and `writer-context-v1`; a future context must reference immutable
+quantitative packet, qualitative bundle, and baseline content artifacts with each SHA and Schema
+version. Luna must still not browse autonomously.

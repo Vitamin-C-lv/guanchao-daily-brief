@@ -1,0 +1,52 @@
+name: Prepare writer request manually
+
+on:
+  # Scheduled preparation remains disabled until immutable writer-context-v1 provides sufficient qualitative and quantitative inputs.
+  workflow_dispatch:
+    inputs:
+      edition: { description: Writer edition, required: true, default: daily, type: choice, options: [daily, weekly] }
+      dry_run: { description: Do not commit, required: true, default: true, type: boolean }
+
+permissions: { contents: write }
+concurrency: { group: writer-request-${{ github.ref }}, cancel-in-progress: false }
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      EDITION: ${{ inputs.edition }}
+      DRY_RUN: ${{ inputs.dry_run }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with: { fetch-depth: 0, ref: main }
+      - uses: pnpm/action-setup@9fd676a19091d4595eefd76e4bd31c97133911f1 # v4.2.0
+        with: { version: 11.9.0 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with: { node-version: 24.14.0, cache: pnpm }
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with: { version: "0.11.12" }
+      - run: pnpm install --frozen-lockfile
+      - name: Prepare request without writes when requested
+        if: env.DRY_RUN == 'true'
+        run: pnpm production:prepare -- --edition "$EDITION" --as-of auto --dry-run
+      - name: Require dry-run to leave the repository unchanged
+        if: env.DRY_RUN == 'true'
+        run: git diff --exit-code
+      - name: Prepare immutable request
+        if: env.DRY_RUN != 'true'
+        run: pnpm production:prepare -- --edition "$EDITION" --as-of auto
+      - run: pnpm validate:writer-packet
+      - name: Validate prepared request index
+        if: env.DRY_RUN != 'true'
+        run: node -e "const i=require('./data/writer-jobs/index.json'); if (!i.jobs.length) process.exit(1)"
+      - name: Commit only validated requests
+        if: env.DRY_RUN != 'true'
+        shell: bash
+        run: |
+          git add data/market-evidence/runs content/writer-packets data/writer-jobs content/writer-jobs
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "guanchao-writer-bot"
+          git config user.email "guanchao-writer-bot@users.noreply.github.com"
+          git commit -m "chore(writer): prepare ${EDITION} request"
+          git push origin HEAD:main
