@@ -6,7 +6,7 @@
 - 当前 main 基线：`746378a23ef9ed622f723b2af4921db3d20168e3`。
 - P1-F PR #23 已 squash merge；P1-F merge SHA：`746378a23ef9ed622f723b2af4921db3d20168e3`。
 - 当前阶段为 P1-GA：只冻结 `research-bundle-v1` 契约，不实现采集。
-- P1-GA 契约已补足 sourceRunId、document→sourceRunId 精确绑定、publisherId 独立性、递归 bundle business view、完整-object integrity、calendar 时间例外和包含关系 coverage 计数；仍无 validator、fixture、adapter 或 production research 数据。
+- P1-GA 最终工程包已补足 sourceRunId、adapter lineage、document→sourceRunId 精确绑定、publisherId/qualified contradiction、contentHashBasis/version、递归 bundle business view、audit-only artifact reuse、calendar 时间例外和包含关系 coverage 计数，并新增唯一 `scripts/research-contract.mjs` 验证器及离线对抗性测试；仍无采集 adapter、fixture production 数据或 research artifact 落盘。
 - 下一阶段 P1-GB：source catalog 和首批确定性 adapter。
 - 原 P1-F 恢复资料保留于 `D:\Codex-Recovery`，不进入仓库。
 - 生产站：`https://guanchao-daily-brief.vercel.app/`

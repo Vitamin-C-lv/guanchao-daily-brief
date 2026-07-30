@@ -16,22 +16,13 @@
     "p1gaArtifacts": "P1-GA creates no index, latest view, production bundle, or gzip data artifact"
   },
   "enums": {
-    "sourceClass": [
-      "official-primary",
-      "company-filing",
-      "exchange-market-data",
-      "primary-research",
-      "major-media",
-      "specialist-media",
-      "vendor-market-data",
-      "vendor-estimate",
-      "community-signal",
-      "social-signal"
-    ],
+    "sourceClass": ["official-primary", "company-filing", "exchange-market-data", "primary-research", "major-media", "specialist-media", "vendor-market-data", "vendor-estimate", "community-signal", "social-signal"],
     "sourceRunStatus": ["ready", "partial", "stale", "unavailable", "rate_limited", "schema_changed"],
     "snapshotPolicy": ["stored", "hash_only", "none"],
     "language": ["zh", "en", "mixed", "other"],
     "contentType": ["html", "rss", "atom", "json", "xml", "pdf-metadata", "press-release", "filing", "research-paper", "social-post", "community-post"],
+    "contentHashBasis": ["response-entity", "feed-item", "structured-record", "metadata-only"],
+    "contentHashVersion": ["v1"],
     "observationKind": ["hard-fact", "official-statement", "company-disclosure", "market-event", "calendar-event", "analysis-context", "counterevidence"],
     "basisRelation": ["supports", "contradicts", "context"],
     "evidenceState": ["confirmed", "corroborated", "single-source", "conflicting", "unverified"],
@@ -44,79 +35,57 @@
   },
   "schemas": {
     "research-source-run-v1": {
-      "requiredKeys": ["sourceRunId", "sourceId", "provider", "sourceClass", "requestedAt", "asOf", "status", "sourceUrl", "marketScopes", "topics", "coverage", "snapshotPolicy", "rawSnapshotId", "warnings", "integrity"],
+      "requiredKeys": ["sourceRunId", "sourceId", "provider", "sourceClass", "adapterId", "adapterVersion", "requestedAt", "asOf", "status", "sourceUrl", "marketScopes", "topics", "coverage", "snapshotPolicy", "rawSnapshotId", "warnings", "integrity"],
+      "allowedKeys": ["sourceRunId", "sourceId", "provider", "sourceClass", "adapterId", "adapterVersion", "requestedAt", "asOf", "status", "sourceUrl", "marketScopes", "topics", "coverage", "snapshotPolicy", "rawSnapshotId", "warnings", "integrity"],
       "coverageRequiredKeys": ["itemCount", "note"],
-      "rules": [
-        "itemCount is an integer greater than or equal to zero",
-        "ready, partial, and stale require a lowercase 64-character SHA-256 rawSnapshotId and stored or hash_only snapshotPolicy",
-        "unavailable, rate_limited, and schema_changed require rawSnapshotId null, snapshotPolicy none, coverage.itemCount 0, and at least one warning",
-        "requestedAt is a timezone-bearing ISO-8601 audit timestamp and is excluded from business identity",
-        "asOf is a timezone-bearing ISO-8601 timestamp or null and must never be fabricated from the current time",
-        "sourceRunId is lowercase 64-character SHA-256 of canonical sourceId, provider, sourceClass, asOf, status, sourceUrl, sorted unique marketScopes, sorted unique topics, fixed-key-order coverage, snapshotPolicy, and rawSnapshotId",
-        "integrity.businessSha256 equals sourceRunId; integrity.sha256 hashes the complete canonical source run excluding integrity.sha256 itself",
-        "same sourceRunId with identical complete content is idempotent; different complete content fails closed"
-      ]
+      "coverageAllowedKeys": ["itemCount", "note"],
+      "integrityRequiredKeys": ["businessSha256", "sha256"],
+      "integrityAllowedKeys": ["businessSha256", "sha256"]
     },
     "research-document-v1": {
-      "requiredKeys": ["documentId", "sourceRunId", "sourceId", "publisherId", "publisher", "title", "canonicalUrl", "publishedAt", "accessedAt", "language", "contentType", "contentSha256", "rawSnapshotId", "marketScopes", "topics", "warnings", "integrity"],
-      "rules": [
-        "sourceRunId references exactly one source run in the bundle and sourceId exactly equals that run's sourceId",
-        "sourceClass is resolved from sourceRunId and is never copied or overridden by a document",
-        "publisherId is a stable lowercase ASCII slug matching ^[a-z0-9][a-z0-9._-]{1,79}$; publisher is display-only",
-        "canonicalUrl uses a URL parser: https scheme and hostname are lowercase, fragment and default port 443 are removed, an empty path becomes /, and business-semantic path/query is preserved",
-        "canonicalUrl is not a Google, Bing, or other search-results URL; source-specific query cleanup is deferred to P1-GB",
-        "contentSha256 and rawSnapshotId are lowercase 64-character SHA-256 values; ordinary HTTP responses hash entity bytes after HTTP content decoding and before character decoding or body parsing",
-        "pdf-metadata hashes normalized public metadata only when PDF body download is prohibited and records metadata-only in warning or locator",
-        "publishedAt may be null but accessedAt must not be substituted for it",
-        "metadata and bounded evidence excerpts only; full text, HTML, base64, and binary content are prohibited",
-        "documentId is SHA-256 of canonical sourceRunId, canonicalUrl, publishedAt, and contentSha256; integrity.businessSha256 equals documentId; integrity.sha256 hashes the complete canonical document excluding integrity.sha256 itself"
-      ]
+      "requiredKeys": ["documentId", "sourceRunId", "sourceId", "publisherId", "publisher", "title", "canonicalUrl", "publishedAt", "accessedAt", "language", "contentType", "contentHashBasis", "contentHashVersion", "contentSha256", "rawSnapshotId", "marketScopes", "topics", "warnings", "integrity"],
+      "allowedKeys": ["documentId", "sourceRunId", "sourceId", "publisherId", "publisher", "title", "canonicalUrl", "publishedAt", "accessedAt", "language", "contentType", "contentHashBasis", "contentHashVersion", "contentSha256", "rawSnapshotId", "marketScopes", "topics", "warnings", "integrity"],
+      "integrityRequiredKeys": ["businessSha256", "sha256"],
+      "integrityAllowedKeys": ["businessSha256", "sha256"]
     },
     "research-bundle-v1": {
       "requiredKeys": ["schemaVersion", "edition", "asOf", "generatedAt", "window", "sourcePolicyVersion", "sourceRuns", "documents", "observations", "events", "duplicateClusters", "coverage", "warnings", "bundleId", "integrity"],
+      "allowedKeys": ["schemaVersion", "edition", "asOf", "generatedAt", "window", "sourcePolicyVersion", "sourceRuns", "documents", "observations", "events", "duplicateClusters", "coverage", "warnings", "bundleId", "integrity"],
+      "windowRequiredKeys": ["start", "end", "timezone"],
+      "windowAllowedKeys": ["start", "end", "timezone"],
+      "integrityRequiredKeys": ["businessSha256", "sha256"],
+      "integrityAllowedKeys": ["businessSha256", "sha256"],
       "observationRequiredKeys": ["observationId", "kind", "subject", "statement", "occurredAt", "asOf", "marketScopes", "topics", "entities", "evidenceState", "basis", "warnings"],
+      "observationAllowedKeys": ["observationId", "kind", "subject", "statement", "occurredAt", "asOf", "marketScopes", "topics", "entities", "evidenceState", "basis", "warnings"],
       "basisRequiredKeys": ["documentId", "relation", "excerpt", "locator"],
+      "basisAllowedKeys": ["documentId", "relation", "excerpt", "locator"],
       "eventRequiredKeys": ["eventId", "eventType", "title", "occurredAt", "marketScopes", "topics", "observationIds"],
+      "eventAllowedKeys": ["eventId", "eventType", "title", "occurredAt", "marketScopes", "topics", "observationIds"],
       "duplicateClusterRequiredKeys": ["clusterId", "method", "canonicalDocumentId", "memberDocumentIds"],
+      "duplicateClusterAllowedKeys": ["clusterId", "method", "canonicalDocumentId", "memberDocumentIds"],
       "coverageRequiredKeys": ["markets", "topics", "totals"],
+      "coverageAllowedKeys": ["markets", "topics", "totals"],
       "coverageMarketRequiredKeys": ["market", "status", "documentCount", "observationCount", "reasons"],
+      "coverageMarketAllowedKeys": ["market", "status", "documentCount", "observationCount", "reasons"],
       "coverageTopicRequiredKeys": ["topic", "status", "documentCount", "observationCount", "reasons"],
+      "coverageTopicAllowedKeys": ["topic", "status", "documentCount", "observationCount", "reasons"],
       "coverageTotalsRequiredKeys": ["sourceRuns", "documents", "observations", "events", "duplicateClusters", "conflictingObservations"],
-      "rules": [
-        "window contains start, end, and Asia/Shanghai timezone; end equals asOf and start is not later than end",
-        "sourceRuns sort by sourceRunId; documents, observations, events, and duplicateClusters sort by their identity field",
-        "observations have at least one supports basis, reference existing documents, have nonempty marketScopes and topics, and do not add probability, ranking, or investment advice",
-        "observation asOf is YYYY-MM-DD and is not later than bundle asOf; observation occurredAt is a timezone-bearing ISO-8601 timestamp or null",
-        "non-calendar observation occurredAt is not later than Asia/Shanghai 23:59:59 of bundle asOf; calendar-event may be later only when an already-published support document announces the future calendar",
-        "events only organize existing observations and add no new facts, probability, forecast, or importance score",
-        "duplicate cluster members exist, number at least two, include canonicalDocumentId, and a document belongs to at most one cluster",
-        "exact-url clusters require equal canonicalUrl; content-hash clusters require equal contentSha256; publisher-reprint and semantic-signature retain every source audit record",
-        "duplicate method precedence is exact-url, content-hash, publisher-reprint, semantic-signature; a document in at most one cluster uses the highest provable method",
-        "canonical duplicate document is earliest publishedAt, then smallest documentId; null publishedAt sorts after valid times",
-        "daily and weekly coverage has exactly one each of A_SHARE, HK, US, FED and zero or one GLOBAL, sorted by market enum; topics are unique, enum-sorted, and include every observed topic",
-        "market and topic counts are unique documents or observations whose corresponding scope array contains that market or topic; overlapping categories must not be summed against top-level array lengths",
-        "coverage totals equal array lengths and conflictingObservations counts observations with evidenceState conflicting; unavailable and partial require reasons, ready requires an empty reasons array; zero is an actual count rather than availability",
-        "bundleId is SHA-256 of recursive business view: schemaVersion, edition, asOf, window, sourcePolicyVersion, sorted sourceRunIds, sorted documentIds, observation/event/duplicate-cluster business views, and coverage",
-        "integrity.businessSha256 equals bundleId; integrity.sha256 hashes the complete canonical bundle excluding integrity.sha256 itself; the same bundleId with different integrity.sha256 fails closed; generatedAt is audit time and is excluded from bundle identity"
-      ]
+      "coverageTotalsAllowedKeys": ["sourceRuns", "documents", "observations", "events", "duplicateClusters", "conflictingObservations"]
     },
     "research-source-policy-v1": {
-      "rules": [
-        "stored is only for permitted official structured or publicly redistributable material",
-        "hash_only is the default for media, community, social, and copyright-unclear pages",
-        "none is required for unavailable, rate_limited, schema_changed, or explicitly prohibited sources"
-      ]
+      "requiredKeys": ["rules"],
+      "allowedKeys": ["rules"]
     }
   },
   "identity": {
-    "hash": "SHA-256 of canonicalized business content using deterministic ordering",
+    "hash": "SHA-256 of UTF-8 canonical JSON using one canonical implementation",
     "sourceRun": {
-      "formula": ["sourceId", "provider", "sourceClass", "asOf", "status", "sourceUrl", "marketScopes", "topics", "coverage", "snapshotPolicy", "rawSnapshotId"],
+      "formula": ["sourceId", "provider", "sourceClass", "adapterId", "adapterVersion", "asOf", "status", "sourceUrl", "marketScopes", "topics", "coverage", "snapshotPolicy", "rawSnapshotId"],
       "sortBeforeHash": ["marketScopes unique lexicographic", "topics unique lexicographic", "coverage fixed key order"],
       "excludes": ["sourceRunId", "requestedAt", "warnings", "integrity", "localPath", "collectionMachine"]
     },
     "document": {
-      "formula": ["sourceRunId", "canonicalUrl", "publishedAt", "contentSha256"],
+      "formula": ["sourceRunId", "canonicalUrl", "publishedAt", "contentHashBasis", "contentHashVersion", "contentSha256"],
       "excludes": ["documentId", "accessedAt", "warnings", "integrity", "localPath", "collectionMachine"]
     },
     "observation": {
@@ -140,30 +109,29 @@
       "businessView": ["schemaVersion", "edition", "asOf", "window", "sourcePolicyVersion", "sourceRunIds", "documentIds", "observationBusinessViews", "eventBusinessViews", "duplicateClusterBusinessViews", "coverage"],
       "excludes": ["generatedAt", "warnings", "integrity", "sourceRun.requestedAt", "document.accessedAt", "auditFields", "localPath", "collectionMachine"]
     },
-    "conflictBehavior": "same identity and same content is idempotent; same identity and different content fails closed"
+    "auditOnlyFields": {
+      "sourceRun": ["requestedAt", "warnings"],
+      "document": ["accessedAt", "warnings"],
+      "bundle": ["generatedAt", "warnings"]
+    },
+    "stableArtifactViews": {
+      "sourceRun": "complete source run minus auditOnlyFields and integrity.sha256",
+      "document": "complete document minus auditOnlyFields and integrity.sha256",
+      "bundle": "complete bundle minus auditOnlyFields and integrity.sha256"
+    },
+    "existingArtifactReuse": ["revalidate existing artifact", "compare businessSha256", "compare stable artifact view", "reuse existing artifact when both match", "fail closed on stable business differences"]
   },
   "evidenceStateRules": {
-    "precedence": [
-      "any contradicts basis produces conflicting",
-      "without contradicts, a supports document whose source run class is official-primary, company-filing, exchange-market-data, or primary-research produces confirmed",
-      "without an authoritative primary source, at least two eligible independent publisherId values produce corroborated",
-      "supports solely from community-signal or social-signal produce unverified",
-      "all other single-publisher support produces single-source"
-    ],
-    "constraints": [
-      "only major-media, specialist-media, vendor-market-data, and vendor-estimate documents are eligible corroborating publishers",
-      "publisherId, not display publisher, defines independence; the same publisherId counts once",
-      "documents in one duplicate cluster collectively contribute at most one publisher; publisher-reprint and semantic-signature do not add independent support",
-      "community-signal and social-signal never participate in corroborated counting or produce confirmed/corroborated",
-      "confirmed means direct support by authoritative primary material, not certainty about a future, causal, or inferential claim",
-      "analysis-context is confirmed only when its statement accurately describes the source analysis or method, never as proof of market causality",
-      "AI must not assign an evidenceState inconsistent with this derivation"
-    ]
+    "precedence": ["qualified contradicts produces conflicting", "authoritative primary supports produces confirmed", "at least two eligible independent publisherId values produces corroborated", "community/social-only supports produces unverified", "otherwise single-source"],
+    "qualifiedContradictSourceClasses": ["official-primary", "company-filing", "exchange-market-data", "primary-research", "major-media", "specialist-media", "vendor-market-data", "vendor-estimate"],
+    "eligibleCorroboratingSourceClasses": ["major-media", "specialist-media", "vendor-market-data", "vendor-estimate"],
+    "constraints": ["qualified contradicts are deduplicated by duplicate cluster and publisherId", "publisherId, not display publisher, defines independence", "documents in one duplicate cluster contribute at most one publisher", "community/signal contradicts are unverified counter-signals only", "community/signal never participates in corroborated counting", "confirmed is direct source support and not proof of causal or future inference", "analysis-context confirmed only labels source analysis or method"]
   },
   "limits": {
     "statementMaxCharacters": 400,
     "excerptMaxCharacters": 500,
     "locatorMaxCharacters": 160,
+    "entityMaxCharacters": 120,
     "minimumSupportsPerObservation": 1,
     "minimumDocumentsPerDuplicateCluster": 2,
     "timezone": "Asia/Shanghai",
