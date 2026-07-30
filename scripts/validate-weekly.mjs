@@ -3,6 +3,8 @@ import path from "node:path";
 import process from "node:process";
 
 const root = process.cwd();
+const candidateIndex = process.argv.indexOf("--candidate-report");
+const candidateReportPath = candidateIndex >= 0 ? path.resolve(process.argv[candidateIndex + 1] ?? "") : null;
 const weeklyRoot = path.join(root, "content", "weekly-reports");
 const errors = [];
 const idPattern = /^weekly-\d{4}-W\d{2}$/;
@@ -318,6 +320,14 @@ for (const entry of index.reports ?? []) {
   } catch (error) {
     fail(`${entry.id} 无法读取或解析：${error.message}`);
   }
+}
+
+if (candidateReportPath) {
+  try {
+    const [raw, info] = await Promise.all([readFile(candidateReportPath, "utf8"), stat(candidateReportPath)]);
+    const candidate = JSON.parse(raw); const report = candidate.report ?? {};
+    validateReport(candidate, { id: report.id, revision: report.revision, weekStart: report.weekStart, weekEnd: report.weekEnd }, info.size);
+  } catch (error) { fail(`candidate weekly report 无法读取或解析：${error.message}`); }
 }
 
 if (errors.length) {

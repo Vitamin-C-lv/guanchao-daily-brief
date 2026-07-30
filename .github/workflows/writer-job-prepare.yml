@@ -47,7 +47,7 @@ jobs:
         if: env.DRY_RUN != 'true'
         shell: bash
         run: |
-          git add data/writer-jobs content/writer-jobs content/writer-packets
+          git add data/market-evidence/runs content/writer-packets data/writer-jobs content/writer-jobs
           if git diff --cached --quiet; then exit 0; fi
           git config user.name "guanchao-writer-bot"
           git config user.email "guanchao-writer-bot@users.noreply.github.com"

@@ -2,7 +2,8 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
-const briefPath = path.resolve(process.cwd(), "content", "daily-brief.json");
+const inputIndex = process.argv.indexOf("--input");
+const briefPath = inputIndex >= 0 ? path.resolve(process.argv[inputIndex + 1] ?? "") : path.resolve(process.cwd(), "content", "daily-brief.json");
 const errors = [];
 const articleIds = new Set();
 const sourceEvidenceClasses = [
