@@ -88,7 +88,7 @@ Windows 是主本地环境；Vercel 继续验证真实部署。测试覆盖不�
 P1-F supplies immutable quantitative packet snapshots, a request/result queue, result contract
 validation, atomic daily/weekly apply, rollback, and manual request preparation. It is not a
 research bundle, autonomous Luna runner, automatic content publisher, or scheduled writing system.
-`research-bundle-v1` and `writer-context-v1` remain future frozen contracts. A future
+`research-bundle-v1` is a frozen immutable input contract; `writer-context-v1` remains a future frozen contract. A future
 `writer-context-v1` must reference an immutable quantitative writer packet, immutable qualitative
 research bundle, immutable baseline content, and the SHA plus Schema version of each input. Luna
 must never browse autonomously; it may only operate on explicitly frozen context inputs.

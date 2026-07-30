@@ -19,6 +19,6 @@
 | ADR-013 | 美债曲线状态与因果来源分开判断。 | 曲线形态不构成通胀、财政供给或增长原因的充分证据。 |
 | ADR-014 | 工程 Agent 实施与独立验证分离。 | external_review 模式下 Codex 只运行定向测试和一次 typecheck、创建 Draft PR；ChatGPT 负责完整审查、全量验证与合并决定。 |
 | ADR-015 | Luna 写作通过不可变 writer request/result 契约进入生产内容流程。 | packet、request 与 result 均可追踪；Luna 不得自主抓取；结果必须先验证，accepted result 不可覆盖，内容应用与 prediction ledger 分离。 |
-| ADR-016 | 研究资料必须经不可变 source run、document 和 research bundle 契约后才可进入 writer context。 | 唯一 canonical identity/validator 为 `scripts/research-contract.mjs`；document 必须精确绑定 sourceRunId，bundle 身份使用递归 business view。仅审计字段变化复用首次 artifact，其余稳定差异 fail closed；Luna 不得直接浏览或读取任意 latest 文件。未来 `writer-context-v1` 将扩展 ADR-012，同时保留“Luna 不得自主浏览”的核心原则。 |
+| ADR-016 | 研究资料必须经不可变 source run、document 和 research bundle 契约后才可进入 writer context。 | 唯一 canonical identity/validator 为 `scripts/research-contract.mjs`；artifact timestamp 统一 canonical UTC，document 必须精确绑定可供给的 sourceRunId/rawSnapshotId，并以 `publishedDate` 保留日期精度，bundle 身份使用递归 business view。仅审计字段变化复用首次 artifact，其余稳定差异 fail closed；Luna 不得直接浏览或读取任意 latest 文件。未来 `writer-context-v1` 将扩展 ADR-012，同时保留“Luna 不得自主浏览”的核心原则。 |
 | ADR-017 | 媒体网页只保留元数据、哈希和最小证据片段。 | 不保存完整新闻正文；不得绕过付费墙或任何访问控制，避免版权与合规风险。 |
 | ADR-018 | evidenceState 由来源类别、独立 publisher 数量和合格反证关系确定性派生。 | 合格 contradict 仅来自可审计的一手、媒体或供应商类别，且按 publisherId/duplicate cluster 去重；community/social 仅保留为 unverified counter-signal、不参与 corroborated。AI 不得自行提升证据等级。 |

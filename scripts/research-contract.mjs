@@ -8,9 +8,10 @@ const moduleRoot = path.resolve(path.dirname(moduleFile), "..");
 const HASH = /^[a-f0-9]{64}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/;
+const CANONICAL_TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const SLUG = /^[a-z0-9][a-z0-9._-]{1,79}$/;
 const ADAPTER_VERSION = /^v[1-9][0-9]*$/;
-const METHOD_PRIORITY = new Map([["exact-url", 0], ["content-hash", 1], ["publisher-reprint", 2], ["semantic-signature", 3]]);
+const METHOD_PRIORITY = new Map([["exact-url", 0], ["content-hash", 1]]);
 const AUTHORITATIVE = new Set(["official-primary", "company-filing", "exchange-market-data", "primary-research"]);
 const ELIGIBLE_PUBLISHERS = new Set(["major-media", "specialist-media", "vendor-market-data", "vendor-estimate"]);
 const QUALIFIED_CONTRADICTIONS = new Set([...AUTHORITATIVE, ...ELIGIBLE_PUBLISHERS]);
@@ -59,7 +60,12 @@ export function canonicalize(value) {
     if (stack.has(current)) fail("INVALID_TYPE", errorPath, "circular value");
     stack.add(current);
     try {
-      if (Array.isArray(current)) return current.map((item, index) => visit(item, `${errorPath}[${index}]`));
+      if (Array.isArray(current)) {
+        for (let index = 0; index < current.length; index += 1) if (!Object.hasOwn(current, index)) fail("INVALID_TYPE", `${errorPath}[${index}]`, "sparse array");
+        if (Object.getOwnPropertySymbols(current).length) fail("INVALID_TYPE", errorPath, "array symbol key");
+        for (const key of Object.getOwnPropertyNames(current)) if (key !== "length" && (!/^(0|[1-9][0-9]*)$/.test(key) || Number(key) >= current.length)) fail("INVALID_TYPE", `${errorPath}.${key}`, "array property");
+        return current.map((item, index) => visit(item, `${errorPath}[${index}]`));
+      }
       if (!plainObject(current)) fail("INVALID_TYPE", errorPath, "plain object required");
       const result = {};
       for (const key of Object.keys(current).sort(codePointCompare)) result[key] = visit(current[key], `${errorPath}.${key}`);
@@ -165,7 +171,12 @@ function assertDate(value, errorPath) {
 
 function assertTimestamp(value, errorPath, nullable = false) {
   if (nullable && value === null) return;
-  if (typeof value !== "string" || !TIMESTAMP.test(value) || Number.isNaN(new Date(value).valueOf())) fail("INVALID_TIMESTAMP", errorPath, "timezone timestamp required");
+  if (typeof value !== "string" || !CANONICAL_TIMESTAMP.test(value) || Number.isNaN(new Date(value).valueOf()) || value !== new Date(value).toISOString()) fail("INVALID_TIMESTAMP", errorPath, "canonical UTC timestamp required");
+}
+
+export function normalizeTimestamp(value) {
+  if (typeof value !== "string" || !TIMESTAMP.test(value) || Number.isNaN(new Date(value).valueOf())) fail("INVALID_TIMESTAMP", "timestamp", "timezone timestamp required");
+  return new Date(value).toISOString();
 }
 
 function shanghaiEnd(date) {
@@ -245,7 +256,7 @@ export function sourceRunBusinessView(sourceRun) {
     sourceClass: sourceRun.sourceClass,
     adapterId: sourceRun.adapterId,
     adapterVersion: sourceRun.adapterVersion,
-    asOf: sourceRun.asOf,
+    asOf: sourceRun.asOf === null ? null : normalizeTimestamp(sourceRun.asOf),
     status: sourceRun.status,
     sourceUrl: normalizeCanonicalUrl(sourceRun.sourceUrl),
     marketScopes: sortedUnique(sourceRun.marketScopes),
@@ -306,7 +317,8 @@ export function documentBusinessView(document) {
   return {
     sourceRunId: document.sourceRunId,
     canonicalUrl: normalizeCanonicalUrl(document.canonicalUrl),
-    publishedAt: document.publishedAt,
+    publishedDate: document.publishedDate,
+    publishedAt: document.publishedAt === null ? null : normalizeTimestamp(document.publishedAt),
     contentHashBasis: document.contentHashBasis,
     contentHashVersion: document.contentHashVersion,
     contentSha256: document.contentSha256
@@ -336,21 +348,29 @@ export function validateDocument(document, sourceRuns, registry) {
   assertHash(document.rawSnapshotId, "document.rawSnapshotId");
   if (!SLUG.test(document.publisherId)) fail("DOCUMENT_PUBLISHER", "document.publisherId", "invalid publisher ID");
   assertCanonicalUrl(document.canonicalUrl, "document.canonicalUrl");
+  if (document.publishedDate !== null) assertDate(document.publishedDate, "document.publishedDate");
   assertTimestamp(document.publishedAt, "document.publishedAt", true);
   assertTimestamp(document.accessedAt, "document.accessedAt");
   assertEnum(document.language, enumValues(registry, "language"), "document.language");
   assertEnum(document.contentType, enumValues(registry, "contentType"), "document.contentType");
   assertEnum(document.contentHashBasis, enumValues(registry, "contentHashBasis"), "document.contentHashBasis");
   assertEnum(document.contentHashVersion, enumValues(registry, "contentHashVersion"), "document.contentHashVersion");
+  if (document.contentHashBasis === "feed-item" && !["rss", "atom"].includes(document.contentType)) fail("DOCUMENT_HASH_BASIS", "document.contentHashBasis", "feed item requires feed type");
+  if (document.contentHashBasis === "structured-record" && !["json", "xml"].includes(document.contentType)) fail("DOCUMENT_HASH_BASIS", "document.contentHashBasis", "structured record requires structured type");
   if (document.contentHashBasis === "metadata-only" && document.contentType !== "pdf-metadata") fail("DOCUMENT_HASH_BASIS", "document.contentHashBasis", "metadata-only requires pdf metadata");
   if (document.contentType === "pdf-metadata" && document.contentHashBasis !== "metadata-only") fail("DOCUMENT_HASH_BASIS", "document.contentHashBasis", "pdf metadata requires metadata-only");
+  if (document.contentHashBasis === "response-entity" && ["rss", "atom", "pdf-metadata"].includes(document.contentType)) fail("DOCUMENT_HASH_BASIS", "document.contentHashBasis", "response entity incompatible with type");
   assertEnumArray(document.marketScopes, enumValues(registry, "marketScope"), "document.marketScopes");
   assertEnumArray(document.topics, enumValues(registry, "topic"), "document.topics");
   assertWarnings(document.warnings, "document.warnings");
   const runs = sourceRuns instanceof Map ? sourceRuns : new Map(sourceRuns.map((run) => [run.sourceRunId, run]));
   const sourceRun = runs.get(document.sourceRunId);
   if (!sourceRun) fail("DOCUMENT_SOURCE_RUN", "document.sourceRunId", "unknown source run");
+  validateSourceRun(sourceRun, registry);
   if (sourceRun.sourceId !== document.sourceId) fail("DOCUMENT_SOURCE_ID", "document.sourceId", "source ID mismatch");
+  if (!["ready", "partial", "stale"].includes(sourceRun.status) || !["stored", "hash_only"].includes(sourceRun.snapshotPolicy)) fail("DOCUMENT_SOURCE_RUN", "document.sourceRunId", "source run cannot supply document");
+  if (document.rawSnapshotId !== sourceRun.rawSnapshotId) fail("DOCUMENT_RAW_SNAPSHOT", "document.rawSnapshotId", "raw snapshot mismatch");
+  if (document.contentHashBasis === "response-entity" && document.contentSha256 !== sourceRun.rawSnapshotId) fail("DOCUMENT_RAW_SNAPSHOT", "document.contentSha256", "response entity hash mismatch");
   const expected = computeDocumentId(document);
   if (document.documentId !== expected) fail("DOCUMENT_ID", "document.documentId", "document ID mismatch");
   validateIntegrity(document, expected, "document", "DOCUMENT_INTEGRITY", schema.integrityRequiredKeys, schema.integrityAllowedKeys);
@@ -362,7 +382,7 @@ export function observationBusinessView(observation) {
     kind: observation.kind,
     subject: observation.subject,
     statement: observation.statement,
-    occurredAt: observation.occurredAt,
+    occurredAt: observation.occurredAt === null ? null : normalizeTimestamp(observation.occurredAt),
     asOf: observation.asOf,
     marketScopes: sortedUnique(observation.marketScopes),
     topics: sortedUnique(observation.topics),
@@ -377,7 +397,7 @@ export function computeObservationId(observation) {
 }
 
 export function eventBusinessView(event) {
-  return { eventType: event.eventType, title: event.title, occurredAt: event.occurredAt, marketScopes: sortedUnique(event.marketScopes), topics: sortedUnique(event.topics), observationIds: sortedUnique(event.observationIds) };
+  return { eventType: event.eventType, title: event.title, occurredAt: event.occurredAt === null ? null : normalizeTimestamp(event.occurredAt), marketScopes: sortedUnique(event.marketScopes), topics: sortedUnique(event.topics), observationIds: sortedUnique(event.observationIds) };
 }
 
 export function computeEventId(event) {
@@ -480,7 +500,7 @@ function validateObservation(observation, context, index) {
   if (observation.evidenceState !== expectedState) fail("OBSERVATION_STATE", `${errorPath}.evidenceState`, "evidence state mismatch");
   if (observation.occurredAt !== null && new Date(observation.occurredAt) > shanghaiEnd(bundleAsOf)) {
     if (observation.kind !== "calendar-event") fail("OBSERVATION_TIME", `${errorPath}.occurredAt`, "future occurrence");
-    const timelySupport = observation.basis.filter((basis) => basis.relation === "supports").map((basis) => documents.get(basis.documentId)).some((document) => document.publishedAt !== null && new Date(document.publishedAt) <= shanghaiEnd(bundleAsOf));
+    const timelySupport = observation.basis.filter((basis) => basis.relation === "supports").map((basis) => documents.get(basis.documentId)).some((document) => (document.publishedAt !== null && new Date(document.publishedAt) <= shanghaiEnd(bundleAsOf)) || (document.publishedAt === null && document.publishedDate !== null && document.publishedDate <= bundleAsOf));
     if (!timelySupport) fail("OBSERVATION_TIME", `${errorPath}.occurredAt`, "calendar support published late");
   }
   const expectedId = computeObservationId(observation);
@@ -516,7 +536,7 @@ function validateCluster(cluster, context, index, occupied) {
   })[0];
   if (canonical.documentId !== expectedCanonical.documentId) fail("CLUSTER_CANONICAL", `${errorPath}.canonicalDocumentId`, "wrong canonical document");
   const sameUrl = members.every((document) => document.canonicalUrl === canonical.canonicalUrl);
-  const sameHash = members.every((document) => document.contentSha256 === canonical.contentSha256);
+  const sameHash = members.every((document) => document.contentHashBasis === canonical.contentHashBasis && document.contentHashVersion === canonical.contentHashVersion && document.contentSha256 === canonical.contentSha256);
   if (cluster.method === "exact-url" && !sameUrl) fail("CLUSTER_METHOD", `${errorPath}.method`, "exact URL mismatch");
   if (cluster.method === "content-hash" && !sameHash) fail("CLUSTER_METHOD", `${errorPath}.method`, "content hash mismatch");
   if (METHOD_PRIORITY.get(cluster.method) > METHOD_PRIORITY.get("exact-url") && sameUrl) fail("CLUSTER_METHOD", `${errorPath}.method`, "higher priority exact URL exists");
@@ -690,7 +710,7 @@ export function validateBundle(bundle, registry) {
   return bundle;
 }
 
-export function compareImmutableCandidate(kind, existing, candidate, registry) {
+export function compareImmutableCandidate(kind, existing, candidate, registry, context = {}) {
   const variants = {
     sourceRun: { validate: validateSourceRun, id: "sourceRunId", stable: sourceRunStableArtifactView },
     document: { validate: (value) => validateDocument(value, [existing], registry), id: "documentId", stable: documentStableArtifactView },
@@ -699,7 +719,7 @@ export function compareImmutableCandidate(kind, existing, candidate, registry) {
   const variant = variants[kind];
   if (!variant) fail("INVALID_TYPE", "kind", "unknown immutable kind");
   if (kind === "document") {
-    const runs = new Map([[existing.sourceRunId, { sourceRunId: existing.sourceRunId, sourceId: existing.sourceId }], [candidate.sourceRunId, { sourceRunId: candidate.sourceRunId, sourceId: candidate.sourceId }]]);
+    const runs = context.sourceRuns instanceof Map ? context.sourceRuns : new Map((context.sourceRuns ?? []).map((sourceRun) => [sourceRun.sourceRunId, sourceRun]));
     validateDocument(existing, runs, registry);
     validateDocument(candidate, runs, registry);
   } else {
@@ -713,20 +733,32 @@ export function compareImmutableCandidate(kind, existing, candidate, registry) {
 
 export function validateResearchContractRegistry(registry) {
   assertObject(registry, "registry");
-  const required = ["schemaVersion", "sourceRunSchemaVersion", "documentSchemaVersion", "bundleSchemaVersion", "sourcePolicyVersion", "storage", "enums", "schemas", "identity", "evidenceStateRules", "limits", "sourcePolicy", "writerContextBoundary", "forbiddenKeys"];
-  for (const key of required) if (!Object.hasOwn(registry, key)) fail("REGISTRY_SCHEMA", `registry.${key}`, "registry key missing");
+  const required = ["allowedKeys", "bundleSchemaVersion", "documentSchemaVersion", "enums", "evidenceStateRules", "forbiddenKeys", "identity", "limits", "schemaVersion", "schemas", "sourcePolicy", "sourcePolicyVersion", "sourceRunSchemaVersion", "storage", "writerContextBoundary"];
+  if (!Array.isArray(registry.allowedKeys)) fail("REGISTRY_SCHEMA", "registry.allowedKeys", "top allowed keys required");
+  assertKeys(registry, required, registry.allowedKeys, "registry");
+  assertSortedUnique(registry.allowedKeys, "registry.allowedKeys");
   if (registry.schemaVersion !== "research-contract-v1" || registry.sourceRunSchemaVersion !== "research-source-run-v1" || registry.documentSchemaVersion !== "research-document-v1" || registry.bundleSchemaVersion !== "research-bundle-v1" || registry.sourcePolicyVersion !== "research-source-policy-v1") fail("REGISTRY_SCHEMA", "registry", "schema version mismatch");
   assertArray(registry.forbiddenKeys, "registry.forbiddenKeys");
   for (const value of registry.forbiddenKeys) assertString(value, "registry.forbiddenKeys");
-  for (const name of ["research-source-run-v1", "research-document-v1", "research-bundle-v1"]) {
+  if (new Set(registry.forbiddenKeys).size !== registry.forbiddenKeys.length) fail("REGISTRY_SCHEMA", "registry.forbiddenKeys", "forbidden keys must be unique");
+  for (const name of ["research-source-run-v1", "research-document-v1", "research-bundle-v1", "research-source-policy-v1"]) {
     const schema = registrySchema(registry, name);
-    for (const key of Object.keys(schema)) if ((key.endsWith("RequiredKeys") || key.endsWith("AllowedKeys")) && !Array.isArray(schema[key])) fail("REGISTRY_SCHEMA", `schemas.${name}.${key}`, "key list required");
+    for (const key of Object.keys(schema)) {
+      if (!(key.endsWith("RequiredKeys") || key.endsWith("AllowedKeys"))) continue;
+      if (!Array.isArray(schema[key]) || schema[key].some((entry) => typeof entry !== "string")) fail("REGISTRY_SCHEMA", `schemas.${name}.${key}`, "key list required");
+      assertSortedUnique(schema[key], `schemas.${name}.${key}`);
+    }
     if (!Array.isArray(schema.requiredKeys) || !Array.isArray(schema.allowedKeys) || schema.requiredKeys.some((key) => !schema.allowedKeys.includes(key))) fail("REGISTRY_SCHEMA", `schemas.${name}`, "invalid key registry");
   }
   for (const name of ["sourceClass", "sourceRunStatus", "snapshotPolicy", "language", "contentType", "contentHashBasis", "contentHashVersion", "observationKind", "basisRelation", "evidenceState", "eventType", "duplicateClusterMethod", "edition", "marketScope", "topic", "coverageStatus"]) {
     const values = enumValues(registry, name);
-    if (!values.length || values.some((value) => typeof value !== "string")) fail("REGISTRY_SCHEMA", `enums.${name}`, "invalid enum");
+    if (!values.length || values.some((value) => typeof value !== "string") || new Set(values).size !== values.length) fail("REGISTRY_SCHEMA", `enums.${name}`, "invalid enum");
   }
+  if (canonicalJson(registry.enums.contentHashVersion) !== canonicalJson(["v1"])) fail("REGISTRY_SCHEMA", "enums.contentHashVersion", "content hash version mismatch");
+  if (canonicalJson(registry.enums.duplicateClusterMethod) !== canonicalJson(["exact-url", "content-hash"])) fail("REGISTRY_SCHEMA", "enums.duplicateClusterMethod", "duplicate methods mismatch");
+  const auditOnly = registry.identity?.auditOnlyFields;
+  if (!plainObject(auditOnly) || canonicalJson(auditOnly.sourceRun) !== canonicalJson(["requestedAt", "warnings"]) || canonicalJson(auditOnly.document) !== canonicalJson(["accessedAt", "warnings"]) || canonicalJson(auditOnly.bundle) !== canonicalJson(["generatedAt", "warnings"])) fail("REGISTRY_SCHEMA", "identity.auditOnlyFields", "audit-only fields mismatch");
+  for (const key of ["rawArtifact", "sourceRunArtifact", "documentArtifact", "bundleArtifact", "index", "dailyLatest", "weeklyLatest"]) assertString(registry.storage?.[key], `storage.${key}`, "REGISTRY_SCHEMA");
   return registry;
 }
 
