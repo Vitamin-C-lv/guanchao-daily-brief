@@ -1,5 +1,7 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const isoDate = (value) => typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
 const isoTime = (value) => typeof value === "string" && Number.isFinite(Date.parse(value));
@@ -59,10 +61,12 @@ function validate(path) {
   return validatePacket(JSON.parse(fs.readFileSync(path, "utf8")), path);
 }
 
-const results = [];
-for (const edition of ["daily", "weekly"]) {
-  const path = `content/writer-packets/${edition}-latest.json`;
-  if (!fs.existsSync(path)) throw new Error(`${path} is missing; run market-data first`);
-  results.push(validate(path));
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const results = [];
+  for (const edition of ["daily", "weekly"]) {
+    const path = `content/writer-packets/${edition}-latest.json`;
+    if (!fs.existsSync(path)) throw new Error(`${path} is missing; run market-data first`);
+    results.push(validate(path));
+  }
+  console.log(JSON.stringify({ writerPackets: results }, null, 2));
 }
-console.log(JSON.stringify({ writerPackets: results }, null, 2));

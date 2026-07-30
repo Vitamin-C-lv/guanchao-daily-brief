@@ -30,8 +30,19 @@ jobs:
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with: { version: "0.11.12" }
       - run: pnpm install --frozen-lockfile
-      - run: pnpm production:prepare -- --edition "$EDITION" --as-of auto
+      - name: Prepare request without writes when requested
+        if: env.DRY_RUN == 'true'
+        run: pnpm production:prepare -- --edition "$EDITION" --as-of auto --dry-run
+      - name: Require dry-run to leave the repository unchanged
+        if: env.DRY_RUN == 'true'
+        run: git diff --exit-code
+      - name: Prepare immutable request
+        if: env.DRY_RUN != 'true'
+        run: pnpm production:prepare -- --edition "$EDITION" --as-of auto
       - run: pnpm validate:writer-packet
+      - name: Validate prepared request index
+        if: env.DRY_RUN != 'true'
+        run: node -e "const i=require('./data/writer-jobs/index.json'); if (!i.jobs.length) process.exit(1)"
       - name: Commit only validated requests
         if: env.DRY_RUN != 'true'
         shell: bash
