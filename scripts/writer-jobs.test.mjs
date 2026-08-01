@@ -202,9 +202,26 @@ function setup({ edition = "daily", status = "ready", evidenceState = "confirmed
   for (const relative of [
     "data/writer-contexts/contract.json", "data/research-bundles/contract.json", "data/writer-jobs/contract.json", "data/writer-jobs/index.json",
     "content/writer-jobs/daily-pending.json", "content/writer-jobs/weekly-pending.json", "content/daily-brief.json",
-    "content/weekly-reports/weekly-2026-W29.json", "content/weekly-reports/index.json", "public/update-notices.json",
+    "content/weekly-reports/weekly-2026-W29.json", "content/weekly-reports/weekly-2026-W31.json", "content/weekly-reports/index.json", "public/update-notices.json",
     "prompts/luna-daily-brief.md", "prompts/luna-weekly-brief.md", "scripts/validate-brief.mjs", "scripts/validate-weekly.mjs"
   ]) copy(repo, relative);
+  if (edition === "weekly") {
+    const indexPath = path.join(repo, "content/weekly-reports/index.json");
+    const index = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+    const baselineEntry = index.reports.find((item) => item.id === "weekly-2026-W29");
+    index.latestReportId = baselineEntry.id;
+    index.reports = [baselineEntry];
+    fs.writeFileSync(indexPath, `${JSON.stringify(index, null, 2)}\n`);
+    const noticesPath = path.join(repo, "public/update-notices.json");
+    const notices = JSON.parse(fs.readFileSync(noticesPath, "utf8"));
+    notices.weekly = {
+      ...notices.weekly,
+      noticeId: `${baselineEntry.id}-r${baselineEntry.revision}`,
+      publishedAt: baselineEntry.publishedAt,
+      href: `/weekly/${baselineEntry.id}/`,
+    };
+    fs.writeFileSync(noticesPath, `${JSON.stringify(notices, null, 2)}\n`);
+  }
   const asOf = AS_OF[edition];
   const packet = makePacket(edition, asOf, status);
   const bundle = makeBundle(edition, asOf, evidenceState, withObservations);
