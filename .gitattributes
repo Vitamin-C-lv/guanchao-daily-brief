@@ -1,4 +1,7 @@
 models/sector-rotation/datasets/**/*.json text eol=lf
+models/sector-rotation/candidates/**/*.json text eol=lf
+models/sector-rotation/shadow-config.json text eol=lf
+data/model-research/**/*.json text eol=lf
 schemas/prediction-dataset.schema.json text eol=lf
 scripts/**/*.py text eol=lf
 scripts/**/*.mjs text eol=lf
@@ -10,4 +13,6 @@ schemas/prediction-*.schema.json text eol=lf
 models/sector-rotation/datasets/**/*.gz binary
 # The frozen production artifact has a recorded worktree byte hash; retain its
 # historical CRLF bytes while all new contract text remains canonical LF.
+models/sector-rotation/a-share-v1.json text eol=lf
+models/sector-rotation/a-share-up-probability-v1.json text eol=lf
 models/sector-rotation/a-share-relative-probability-v2.json text eol=crlf

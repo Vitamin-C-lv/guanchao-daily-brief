@@ -1,0 +1,14 @@
+{
+  "active": false,
+  "candidatePath": "models/sector-rotation/candidates/5456d888a9359805558dd53c8c7251cf3c3057205cc7a11016fa983b29d5d328.json",
+  "candidateSha256": "b6fc1edeb9954a8893cb593d7e5f5da92f89f502ce09acb59aaea76b1be980a8",
+  "productionModelPaths": [
+    "models/sector-rotation/a-share-v1.json",
+    "models/sector-rotation/a-share-up-probability-v1.json",
+    "models/sector-rotation/a-share-relative-probability-v2.json"
+  ],
+  "publicationEnabled": false,
+  "reason": "P1-J shadow evaluation only; promotion requires a separate reviewed PR.",
+  "recommendedCandidateId": "5456d888a9359805558dd53c8c7251cf3c3057205cc7a11016fa983b29d5d328",
+  "schemaVersion": "model-shadow-config-v1"
+}

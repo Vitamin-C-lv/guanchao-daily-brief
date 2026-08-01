@@ -1,0 +1,169 @@
+{
+  "activeCandidateId": null,
+  "candidates": [
+    {
+      "candidateFamily": "calibrator-ridge-challenger",
+      "candidateId": "0bcc0729e1cb75beb0ef9d5a11461472226506ac3ea4defdc78371a71347529b",
+      "path": "models/sector-rotation/candidates/0bcc0729e1cb75beb0ef9d5a11461472226506ac3ea4defdc78371a71347529b.json",
+      "sha256": "38e7714d42608477c09c0f45cf039fc17cab7d4f575b943e698971637bdf5ba7",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "regression-ridge-challenger",
+      "candidateId": "0d4a2e7b11659e4e6890f69ca1a3befd61cd33e59f7ecc4d962e26052a2af4a3",
+      "path": "models/sector-rotation/candidates/0d4a2e7b11659e4e6890f69ca1a3befd61cd33e59f7ecc4d962e26052a2af4a3.json",
+      "sha256": "4618ce2ddcf2cf55bdbe59980dd3834150e79531daaabbdc6fcaeb0abaa8c9d2",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "feature-ablation",
+      "candidateId": "16d8cd0217fb728d6ebde62d0b83fe140452c70cdebfc8137f91bfda0558dd36",
+      "path": "models/sector-rotation/candidates/16d8cd0217fb728d6ebde62d0b83fe140452c70cdebfc8137f91bfda0558dd36.json",
+      "sha256": "ac6b611fb616e195a654a42fdb12607c1e9f57d9e6583fb46122dea5a68dc6a8",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "regression-ridge-challenger",
+      "candidateId": "1b76601f0e8ca6e1e928238d2f5b217888ccc4136cadac1b43bca3c2f2e29b45",
+      "path": "models/sector-rotation/candidates/1b76601f0e8ca6e1e928238d2f5b217888ccc4136cadac1b43bca3c2f2e29b45.json",
+      "sha256": "6bda4e520e4345af4c678536a39b4e1eb8a80a74e5b4a7a06483deb0b3c5350c",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "feature-ablation",
+      "candidateId": "3c1b3c32585904675ac152df07e7715852eef00e189841877470b4603e19f160",
+      "path": "models/sector-rotation/candidates/3c1b3c32585904675ac152df07e7715852eef00e189841877470b4603e19f160.json",
+      "sha256": "05da3dc7adec8bfb6d825a471cc750326a325f587ee9eda514f786dcf791af59",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "feature-ablation",
+      "candidateId": "5456d888a9359805558dd53c8c7251cf3c3057205cc7a11016fa983b29d5d328",
+      "path": "models/sector-rotation/candidates/5456d888a9359805558dd53c8c7251cf3c3057205cc7a11016fa983b29d5d328.json",
+      "sha256": "b6fc1edeb9954a8893cb593d7e5f5da92f89f502ce09acb59aaea76b1be980a8",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "logistic-ridge-challenger",
+      "candidateId": "58626365df13a1857281b7fa898588ac827167cb1cae51df60b21356696890fb",
+      "path": "models/sector-rotation/candidates/58626365df13a1857281b7fa898588ac827167cb1cae51df60b21356696890fb.json",
+      "sha256": "9f6dc13dacdda12451fb682539b5be311467e8c0f1749b9ee984185fba276ff9",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "feature-ablation",
+      "candidateId": "756ef5fa370dd86e19c8689f2a878ee945f2d52dc4821b753ecc112ced703652",
+      "path": "models/sector-rotation/candidates/756ef5fa370dd86e19c8689f2a878ee945f2d52dc4821b753ecc112ced703652.json",
+      "sha256": "97a855a07769eb239780a4b66af71ab7fba99d4704d333bb68ae098a4fe967ed",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "calibrator-ridge-challenger",
+      "candidateId": "7633ad1cfcc54059e391d27a33d764ea63d9d758a22b5efc5dd3a1bf930b735c",
+      "path": "models/sector-rotation/candidates/7633ad1cfcc54059e391d27a33d764ea63d9d758a22b5efc5dd3a1bf930b735c.json",
+      "sha256": "a2539aaac2d1df49cd2cff1fe82cf7405f30e48be54cd58c5cf164e55ed558dc",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "regression-ridge-challenger",
+      "candidateId": "7a0d69c76f4fab4ee535dd19e25b0ce90ba84b7d809671b3fb039271a385c63a",
+      "path": "models/sector-rotation/candidates/7a0d69c76f4fab4ee535dd19e25b0ce90ba84b7d809671b3fb039271a385c63a.json",
+      "sha256": "9471d5b25a81cd8eef9c7d29dbc543347e685b9721276df198cd2e9db7f45a01",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "logistic-ridge-challenger",
+      "candidateId": "7b30013dbca08d4cc85a60aa34b6d31404b92f7998f3187ecb0a0cb9840fa030",
+      "path": "models/sector-rotation/candidates/7b30013dbca08d4cc85a60aa34b6d31404b92f7998f3187ecb0a0cb9840fa030.json",
+      "sha256": "dc4327e6f705f30162c2c71a19d820166d501890f5c27b05dc55f34a7b28ef07",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "calibrator-ridge-challenger",
+      "candidateId": "7d8d4b5f3ea691523413589a97aaa819eaac5609aca2b51b465fc91354ea660e",
+      "path": "models/sector-rotation/candidates/7d8d4b5f3ea691523413589a97aaa819eaac5609aca2b51b465fc91354ea660e.json",
+      "sha256": "3f729cfc7b885a1f00c38f5a9b696767d31e3411a5fe70648a09a4f320f59acd",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "feature-ablation",
+      "candidateId": "8ac49140a47d4b2f3660ee42b15b5376570b888b7f925b551d431b55027ed5b7",
+      "path": "models/sector-rotation/candidates/8ac49140a47d4b2f3660ee42b15b5376570b888b7f925b551d431b55027ed5b7.json",
+      "sha256": "080d92e4e7b092e78c10d12f56d95ea3ce6804c55f1937cf98fc50586b46af57",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "champion-replay",
+      "candidateId": "a2570b86ac20231ae6ad74194959e42245d62415b777515aaaca7532a647f444",
+      "path": "models/sector-rotation/candidates/a2570b86ac20231ae6ad74194959e42245d62415b777515aaaca7532a647f444.json",
+      "sha256": "20166efeb3bcac1afd48a379e0b5e5d48fde457b111b9b954fe2c7dcc5083640",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "regression-ridge-challenger",
+      "candidateId": "a32af0411d75050cb56a2e80033b318f944bf3ea662d30f2aec6ed914d49aa05",
+      "path": "models/sector-rotation/candidates/a32af0411d75050cb56a2e80033b318f944bf3ea662d30f2aec6ed914d49aa05.json",
+      "sha256": "63613eb8b650592fe11059b108e8af00ca719965d53bde1e8f2b686f043ee812",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "feature-ablation",
+      "candidateId": "c0191833338a8d757417958b25e35576418bf9b3adb4a6154ac0013713f9a95c",
+      "path": "models/sector-rotation/candidates/c0191833338a8d757417958b25e35576418bf9b3adb4a6154ac0013713f9a95c.json",
+      "sha256": "4351de20e3f003c36080f1df0e6ad13ca75007413dffa4461d4fc2ca50543117",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "calibrator-ridge-challenger",
+      "candidateId": "c0e682726fb981eb20051997394d11200190075584ba81273d4b01511b71ebd6",
+      "path": "models/sector-rotation/candidates/c0e682726fb981eb20051997394d11200190075584ba81273d4b01511b71ebd6.json",
+      "sha256": "dcd0352f5c9359a492eddb7cf5d368a7991c804b69d0e3da2ae0ee081d17f1f5",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "logistic-ridge-challenger",
+      "candidateId": "c16e1a055dec6ed042f78631f97a3397d0da228ebc12d877e2cd943bfaade7ab",
+      "path": "models/sector-rotation/candidates/c16e1a055dec6ed042f78631f97a3397d0da228ebc12d877e2cd943bfaade7ab.json",
+      "sha256": "952d16dbc19be940de72ac84c2b5dd070ec9fac25a3eca4d53e3c0377de80ddf",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "calibration-ablation",
+      "candidateId": "c51d7ea1d95431525cd47ca0c35c7368dcb5065bcac4f8cea1d738065e435074",
+      "path": "models/sector-rotation/candidates/c51d7ea1d95431525cd47ca0c35c7368dcb5065bcac4f8cea1d738065e435074.json",
+      "sha256": "739a5be581bd3a80a23a76883fc23313e9b7bc09ec59b87e5d706fc08643e73d",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "feature-ablation",
+      "candidateId": "d11557abcbfde13a8af438e30fd26733e4fbddbd1313625b65c2583212409c17",
+      "path": "models/sector-rotation/candidates/d11557abcbfde13a8af438e30fd26733e4fbddbd1313625b65c2583212409c17.json",
+      "sha256": "e805bd27b2beb9ad173bf3e411d4926af5646c5b1736aef857dfeb11225d855d",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "feature-ablation",
+      "candidateId": "dbdd6a6ec7fc8eb539c5afef46e1c8ed2ea8a18c621d69e8f1daf567a9a21339",
+      "path": "models/sector-rotation/candidates/dbdd6a6ec7fc8eb539c5afef46e1c8ed2ea8a18c621d69e8f1daf567a9a21339.json",
+      "sha256": "7060d97be772980ec1b7ce6e1a9caad1b0943faab21dbc4bd5f740422cf7fc16",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "feature-ablation",
+      "candidateId": "ddb3b62952f62a7a6258f12e5a6921272d0fd468761f65b6f51aa96e85a1e27e",
+      "path": "models/sector-rotation/candidates/ddb3b62952f62a7a6258f12e5a6921272d0fd468761f65b6f51aa96e85a1e27e.json",
+      "sha256": "2cb7af0f3dea4a31949b983f0dbcf88c6311cc7bb6f0405441dfde0f4ea3be11",
+      "status": "inactive-research-only"
+    },
+    {
+      "candidateFamily": "logistic-ridge-challenger",
+      "candidateId": "f50fe4226e30c5e29e1be1baf91eef4d9128e5fe6d65ae7978ae6439d2cee1f9",
+      "path": "models/sector-rotation/candidates/f50fe4226e30c5e29e1be1baf91eef4d9128e5fe6d65ae7978ae6439d2cee1f9.json",
+      "sha256": "f9ae25902d5afa26cd40262cc63c1dffcea160387071d91de3d38cda3d084dd0",
+      "status": "inactive-research-only"
+    }
+  ],
+  "promotionDecision": "keep-champion",
+  "recommendedCandidateId": "5456d888a9359805558dd53c8c7251cf3c3057205cc7a11016fa983b29d5d328",
+  "schemaVersion": "model-candidate-index-v1"
+}

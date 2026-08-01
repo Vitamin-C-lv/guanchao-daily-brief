@@ -1,0 +1,109 @@
+{
+  "schemaVersion": "model-research-contract-v1",
+  "artifactSchemas": {
+    "candidate": "model-candidate-v1",
+    "evaluation": "model-evaluation-v1",
+    "promotionDecision": "model-promotion-decision-v1",
+    "shadowInference": "shadow-inference-v1",
+    "trainingRun": "model-training-run-v1"
+  },
+  "market": "A_SHARE",
+  "horizons": [1, 5, 20],
+  "targets": {
+    "binary": ["absoluteUp", "outperformance", "topQuartile"],
+    "continuous": ["expectedExcess"],
+    "schemaVersion": "a-share-labels-v1"
+  },
+  "dataset": {
+    "explicitSnapshotRequired": true,
+    "immutableSnapshotSchemaVersion": 1,
+    "featureSchemaVersion": "a-share-price-volume-v2",
+    "networkAccessDuringTraining": false,
+    "missingValuePolicy": "preserve-null-never-zero",
+    "randomSplitAllowed": false,
+    "latestDiscoveryAllowed": false
+  },
+  "candidateDesign": {
+    "design": "pre-registered-single-factor",
+    "maxCandidates": 120,
+    "randomSeed": 20260731,
+    "logisticRidge": [10, 20, 40, 80, 160],
+    "regressionRidge": [20, 40, 80, 160, 320],
+    "calibratorRidge": [0.5, 1, 2, 4, 8],
+    "calibrationMethods": ["raw", "platt"],
+    "featureSets": ["linear-base", "current-nonlinear", "single-nonlinear-group-ablation"]
+  },
+  "windows": {
+    "trainingSessions": 504,
+    "selectionSessions": 504,
+    "selectionEvaluationSessions": 126,
+    "holdoutSessions": 252,
+    "walkForwardBlockSessions": 63,
+    "purge": "trainingTargetDateMax < evaluationStart"
+  },
+  "holdout": {
+    "registryPath": "models/sector-rotation/holdout-registry.json",
+    "openedHoldoutsAreKnownAuditOnly": true,
+    "selectionMayUseHoldout": false,
+    "futurePlan": {
+      "protocolId": "a-core12-v2-next-unseen252-v1",
+      "status": "future-only",
+      "minimumNewMaturedSessions": 252,
+      "mayNotReusePriorOpenedDates": true
+    }
+  },
+  "bootstrap": {
+    "method": "paired-moving-block",
+    "blockLengthSessions": 63,
+    "repetitions": 1000,
+    "seed": 20260731,
+    "confidence": 0.95
+  },
+  "transactionCosts": {
+    "perLeg": 0.002,
+    "roundTrip": 0.004,
+    "unit": "simple-return"
+  },
+  "promotionGate": {
+    "primaryMetric": "topQuartile Brier / Brier skill",
+    "secondaryMetrics": ["AUC", "rankIC", "afterCostSpread", "positiveWindowShare"],
+    "allowedDecisions": ["promotion-eligible", "keep-champion", "insufficient-data", "invalid-run"],
+    "requiresExactChampionReplay": true,
+    "requiresAllHorizons": true,
+    "requiresLeakageAudit": true,
+    "requiresNonInferiorityBeforeImprovement": true,
+    "nonInferiority": {
+      "topQuartileBrierMaximumIncrease": 0.005,
+      "rankIcMinimumDelta": -0.02,
+      "afterCostSpreadMinimumDelta": -0.005,
+      "positiveWindowShareMinimumDelta": -0.1
+    },
+    "automaticProductionReplacement": false
+  },
+  "identityFields": [
+    "datasetSnapshotPath",
+    "datasetManifestSha256",
+    "datasetIdentitySha256",
+    "taxonomySha256",
+    "featureSchemaVersion",
+    "targetSchemaVersion",
+    "horizons",
+    "candidateFamily",
+    "hyperparameters",
+    "windows",
+    "codeSha256",
+    "randomSeed",
+    "calibrationMethod",
+    "transactionCosts"
+  ],
+  "auditOnlyFields": ["startedAt", "endedAt", "durationMs", "machinePath", "warnings"],
+  "productionBoundary": {
+    "candidateActivation": false,
+    "shadowConfigActive": false,
+    "mayWriteContent": false,
+    "mayWritePredictionLedger": false,
+    "mayReplaceProductionModel": false,
+    "mayModifyProbabilityOrRanking": false,
+    "hkOrUsModelWork": false
+  }
+}
