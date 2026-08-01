@@ -440,13 +440,15 @@ button {
 }
 
 .hero-card {
+  --hero-card-pad-x: clamp(28px, 3vw, 48px);
+  --hero-card-pad-y: clamp(28px, 3vw, 48px);
   position: relative;
   display: grid;
   min-height: 400px;
   grid-template-columns: minmax(0, 1fr) minmax(250px, 0.72fr);
   overflow: hidden;
   border-radius: var(--radius-lg);
-  padding: clamp(28px, 3vw, 48px);
+  padding: var(--hero-card-pad-y) var(--hero-card-pad-x);
 }
 
 .hero-card::before {
@@ -606,15 +608,15 @@ button {
 }
 
 .signal-strip {
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  position: relative;
+  grid-column: 1 / -1;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   border-top: 1px solid var(--line);
   background: rgba(252, 251, 253, 0.92);
   padding: 0 clamp(28px, 3vw, 48px);
+  margin: 0 calc(-1 * var(--hero-card-pad-x)) calc(-1 * var(--hero-card-pad-y));
 }
 
 .signal-strip > div {
@@ -4522,9 +4524,11 @@ footer p {
   }
 
   .hero-card {
+    --hero-card-pad-x: 20px;
+    --hero-card-pad-y: 23px;
     min-height: 510px;
     grid-template-columns: 1fr;
-    padding: 23px 20px;
+    padding: var(--hero-card-pad-y) var(--hero-card-pad-x);
   }
 
   .hero-orbit {
@@ -4554,7 +4558,7 @@ footer p {
     width: 100%;
     align-self: end;
     justify-self: stretch;
-    margin: 22px 0 92px;
+    margin: 22px 0 0;
     border-left: 0;
     border-top: 1px solid var(--line);
     padding: 20px 0 0;
