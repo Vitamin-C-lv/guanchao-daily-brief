@@ -82,6 +82,11 @@ function visibleParagraphs(edition, payload) {
     const pulse = payload.pulse ?? {};
     pushText(paragraphs, pulse.label);
     pushText(paragraphs, pulse.explanation);
+    for (const signal of pulse.signals ?? []) {
+      if (!object(signal)) continue;
+      pushText(paragraphs, signal.label);
+      pushText(paragraphs, signal.value);
+    }
     const fed = payload.federalReserve ?? {};
     pushText(paragraphs, fed.takeaway);
     for (const article of fed.articles ?? []) pushArticle(paragraphs, article);
