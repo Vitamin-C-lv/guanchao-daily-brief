@@ -9,7 +9,7 @@ import { sealCodexResearch } from "./codex-research.mjs";
 import { packetArtifactPlan, prepareCodexWriter } from "./codex-writer-prepare.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const PACKET_AS_OF = "2026-07-29";
+const PACKET_AS_OF = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content/writer-packets/daily-latest.json"), "utf8")).marketDates.aShare;
 const CONTENT_HASH = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
 
 function copy(root, relativePath) {
