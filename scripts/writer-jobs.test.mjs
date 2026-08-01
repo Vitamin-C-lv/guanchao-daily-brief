@@ -1,58 +1,387 @@
 import assert from "node:assert/strict";
-import crypto from "node:crypto";
+import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import test from "node:test";
-import zlib from "node:zlib";
-import { apply, canonical, createWriterJobPaths, hash, makeRequest, prepare, rebuild, root, shanghaiDate, validatePacketBinding, validateResult } from "./writer-jobs.mjs";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { gunzipSync, gzipSync } from "node:zlib";
 
-const basePacket = JSON.parse(fs.readFileSync(path.join(root, "content/writer-packets/daily-latest.json"), "utf8"));
-const baseWeeklyPacket = JSON.parse(fs.readFileSync(path.join(root, "content/writer-packets/weekly-latest.json"), "utf8"));
-const read = (file) => fs.readFileSync(file);
-const codeOf = (fn) => { try { fn(); } catch (error) { return JSON.parse(error.message).errorCode; } return null; };
-function packetIdentity(packet) { const excluded = new Set(["requestedAt", "completedAt", "generatedAt", "rawSha256", "integrity", "businessIntegrity", "writerPacketId", "runId"]); return Array.isArray(packet) ? packet.map(packetIdentity) : packet && typeof packet === "object" ? Object.fromEntries(Object.entries(packet).filter(([key]) => !excluded.has(key)).map(([key, value]) => [key, packetIdentity(value)])) : packet; }
-function sealPacket(packet) { const business = packetIdentity(packet); packet.writerPacketId = hash(business); packet.integrity = { sha256: hash(business), businessSha256: hash(business) }; return packet; }
-function fixturePacket(status) { const packet = structuredClone(basePacket); if (status) { packet.facts[0].status = status; if (status === "unavailable") { packet.facts[0].value = null; packet.facts[0].asOf = null; packet.facts[0].releasedAt = null; } } return sealPacket(packet); }
-function copyTree(source, destination) { fs.mkdirSync(destination, { recursive: true }); for (const entry of fs.readdirSync(source, { withFileTypes: true })) { const from = path.join(source, entry.name); const to = path.join(destination, entry.name); if (entry.isDirectory()) copyTree(from, to); else fs.copyFileSync(from, to); } }
-function setup() { const temp = fs.mkdtempSync(path.join(os.tmpdir(), "writer-jobs-")); copyTree(path.join(root, "content"), path.join(temp, "content")); copyTree(path.join(root, "prompts"), path.join(temp, "prompts")); fs.mkdirSync(path.join(temp, "public"), { recursive: true }); fs.copyFileSync(path.join(root, "public/update-notices.json"), path.join(temp, "public/update-notices.json")); fs.mkdirSync(path.join(temp, "scripts"), { recursive: true }); for (const file of ["validate-brief.mjs", "validate-weekly.mjs"]) fs.copyFileSync(path.join(root, "scripts", file), path.join(temp, "scripts", file)); fs.mkdirSync(path.join(temp, "data", "writer-jobs"), { recursive: true }); return temp; }
-function result(request, { packet = fixturePacket(), payload = JSON.parse(fs.readFileSync(path.join(root, "content/daily-brief.json"), "utf8")), generatedAt = "2026-07-30T01:02:04.000Z" } = {}) { const fact = packet.facts[0]; const mode = fact.status === "partial" ? "partial" : fact.status === "stale" ? "delayed" : fact.status === "unavailable" ? "unavailable" : "value"; const rendered = fact.value === null ? null : `${fact.value}%`; const text = mode === "partial" ? `每日早报：部分数据，${rendered}` : mode === "delayed" ? `每日早报：截至数据更新，${rendered}` : mode === "unavailable" ? "每日早报：数据不可用" : `每日早报：${rendered}`; if (payload.meta) payload.meta.title = text; const value = { schemaVersion: "writer-result-v1", jobId: request.jobId, writerPacketId: request.writerPacketId, generatedAt, writerEngine: "luna", writerVersion: "v1", outputs: [{ targetPath: request.targetOutputs[0].targetPath, contentType: request.targetOutputs[0].contentType, payload }], factReferences: [{ factId: fact.factId, usedValue: fact.value, usedUnit: fact.unit, usedAsOf: fact.asOf, targetPath: request.targetOutputs[0].targetPath, targetField: "meta.title", claimMode: mode, claimText: text, renderedValue: rendered }], warnings: [] }; sealResult(value); return value; }
-function weeklyCase(temp, { revision = 2, reportId = "weekly-2026-W29", asOf = "2026-07-17" } = {}) { const packet = structuredClone(baseWeeklyPacket); packet.marketDates.aShare = asOf; packet.marketDates.us = asOf; for (const fact of packet.facts) { fact.asOf = asOf; fact.releasedAt = asOf; } if (packet.treasuryFactor?.nominalSource) packet.treasuryFactor.nominalSource.asOf = asOf; if (packet.treasuryFactor?.realSource) packet.treasuryFactor.realSource.asOf = asOf; sealPacket(packet); const request = prepare({ rootDir: temp, edition: "weekly", asOf, packet, createdAt: "2026-07-30T01:00:00.000Z" }).request; const payload = JSON.parse(fs.readFileSync(path.join(root, "content/weekly-reports/weekly-2026-W29.json"), "utf8")); payload.report.id = reportId; payload.report.revision = revision; payload.report.generatedAt = `${asOf}T20:03:30+08:00`; if (reportId.endsWith("W28")) { payload.report.weekStart = "2026-07-06"; payload.report.weekEnd = "2026-07-10"; payload.report.coverage.find((item) => item.scope === "us").dataThrough = "2026-07-09"; payload.markets.find((item) => item.id === "us").sessionEnd = "2026-07-09"; } const renderedValue = `${packet.facts[0].value}%`; const claimText = `周报核验：${renderedValue}`; payload.localSynthesis.note = claimText; const value = result(request, { packet, payload, generatedAt: "2026-07-30T01:02:04.000Z" }); value.factReferences[0].targetField = "localSynthesis.note"; value.factReferences[0].claimText = claimText; value.factReferences[0].renderedValue = renderedValue; sealResult(value); return { packet, request, result: value, payload }; }
-function sealResult(value) { const { resultId, generatedAt, integrity, ...identity } = value; value.resultId = hash(identity); value.integrity = { sha256: hash(identity) }; return value; }
-function sealRequest(value) { const { jobId, createdAt, integrity, ...identity } = value; value.jobId = hash(identity); value.integrity = { sha256: hash(identity) }; return value; }
-function cleanup(temp) { fs.rmSync(temp, { recursive: true, force: true }); }
-function snapshotTree(rootDir, base = rootDir) { return fs.readdirSync(rootDir, { withFileTypes: true }).flatMap((entry) => { if ([".git", "node_modules", ".next"].includes(entry.name)) return []; const file = path.join(rootDir, entry.name); return entry.isDirectory() ? snapshotTree(file, base) : [{ relativePath: path.relative(base, file).replaceAll("\\", "/"), sha256: crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex"), byteLength: fs.statSync(file).size }]; }).sort((a, b) => a.relativePath.localeCompare(b.relativePath)); }
-function setupDryRunStub({ invalidPacket = false } = {}) { const temp = setup(); const stub = `import fs from "node:fs";\nimport path from "node:path";\nconst args = process.argv.slice(2);\nconst option = (name) => { const index = args.indexOf(name); return index < 0 ? null : args[index + 1] ?? null; };\nif (args[0] !== "run" || !args.includes("--dry-run")) process.exit(2);\nconst edition = option("--edition"); const asOf = option("--as-of"); const packetOutput = option("--packet-output");\nif (!["daily", "weekly"].includes(edition) || !/^\\d{4}-\\d{2}-\\d{2}$/.test(asOf ?? "") || !packetOutput) process.exit(3);\nconst packet = ${invalidPacket ? "{}" : "JSON.parse(fs.readFileSync(path.join(process.cwd(), \"content\", \"writer-packets\", `${edition}-latest.json`), \"utf8\"))"};\nfs.writeFileSync(packetOutput, JSON.stringify(packet));\n`; fs.writeFileSync(path.join(temp, "scripts/run-market-evidence.mjs"), stub); return temp; }
+import {
+  canonicalJson,
+  computeBundleId,
+  computeDocumentId,
+  computeEventId,
+  computeObservationId,
+  computeSourceRunId,
+  deriveEvidenceState,
+  sha256Canonical,
+  validateBundle
+} from "./research-contract.mjs";
+import { prepareWriterContext, readJsonOrGzip } from "./writer-context.mjs";
+import {
+  apply,
+  createResultTemplate,
+  createWriterJobPaths,
+  exportWriterJob,
+  hash,
+  makeRequest,
+  prepare,
+  rebuild,
+  requestVersion,
+  resultVersion,
+  root,
+  sealWriterResult,
+  shanghaiDate,
+  validateLegacyRequestV1,
+  validateRequest,
+  validateResult,
+  writeResultTemplate
+} from "./writer-jobs.mjs";
 
-test("Windows file URL roots preserve drive, spaces, Chinese and no percent encoding", () => { const source = path.join(root, "中文 space", "writer jobs.mjs"); const recovered = fileURLToPath(pathToFileURL(source)); assert.equal(recovered, source); assert.match(root, /^[A-Za-z]:\\/); assert.ok(!root.includes("%") && !root.startsWith("\\D:") && !root.startsWith("/C:")); });
-test("prepare is idempotent across createdAt and keeps request/index/pending bytes", () => { const temp = setup(); try { const packet = fixturePacket(); const first = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet, createdAt: "2026-07-30T01:00:00Z" }); const paths = createWriterJobPaths(temp); const bytes = [read(paths.request(first.request.jobId, "2026-07-29")), read(paths.index), read(paths.pending("daily"))]; const second = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet, createdAt: "2026-08-30T01:00:00Z" }); assert.equal(second.summary.noOp, true); assert.equal(second.summary.created, false); assert.deepEqual(bytes, [read(paths.request(first.request.jobId, "2026-07-29")), read(paths.index), read(paths.pending("daily"))]); } finally { cleanup(temp); } });
-test("request conflicts fail", () => { const temp = setup(); try { const packet = fixturePacket(); const first = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet, createdAt: "2026-07-30T01:00:00Z" }); const paths = createWriterJobPaths(temp); const requestFile = paths.request(first.request.jobId, "2026-07-29"); const conflictingRequest = JSON.parse(read(requestFile)); conflictingRequest.writerPromptPath = "prompts/other.md"; conflictingRequest.integrity = { sha256: hash(((x) => { const { jobId, createdAt, integrity, ...y } = x; return y; })(conflictingRequest)) }; fs.writeFileSync(requestFile, `${JSON.stringify(conflictingRequest)}\n`); assert.equal(codeOf(() => prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet })), "JOB_CONFLICT"); } finally { cleanup(temp); } });
-test("same business packet with changed audit timestamps is a no-op", () => { const temp = setup(); try { const packet = fixturePacket(); const first = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet, createdAt: "2026-07-30T01:00:00Z" }); const paths = createWriterJobPaths(temp); const files = [paths.packet(packet.writerPacketId, "2026-07-29"), paths.request(first.request.jobId, "2026-07-29"), paths.index, paths.pending("daily")]; const before = files.map((file) => read(file)); const rerun = structuredClone(packet); rerun.generatedAt = "2026-08-01T01:00:00.000Z"; rerun.treasuryFactor.nominalSource.requestedAt = "2026-08-01T01:00:00.000Z"; rerun.treasuryFactor.realSource.requestedAt = "2026-08-01T01:00:00.000Z"; sealPacket(rerun); assert.equal(rerun.writerPacketId, packet.writerPacketId); const second = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet: rerun, createdAt: "2026-08-01T01:00:00Z" }); assert.equal(second.summary.noOp, true); assert.equal(second.summary.created, false); assert.equal(second.request.jobId, first.request.jobId); assert.deepEqual(files.map((file) => read(file)), before); } finally { cleanup(temp); } });
-test("corrupt immutable packet fails closed without overwrite", () => { const temp = setup(); try { const packet = fixturePacket(); const first = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet }); const file = createWriterJobPaths(temp).packet(packet.writerPacketId, "2026-07-29"); const corrupt = JSON.parse(zlib.gunzipSync(read(file)).toString("utf8")); corrupt.facts[0].value += 1; fs.writeFileSync(file, zlibBytes(corrupt)); const before = read(file); assert.equal(codeOf(() => prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet })), "WRITER_PACKET_CONFLICT"); assert.deepEqual(read(file), before); assert.ok(first.request.jobId); } finally { cleanup(temp); } });
-test("immutable packet binding rejects ID, SHA and edition mismatch", () => { const temp = setup(); try { const packet = fixturePacket(); const prepared = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet }); for (const [field, code] of [["writerPacketId", "WRITER_PACKET_ID_MISMATCH"], ["writerPacketSha256", "WRITER_PACKET_SHA_MISMATCH"], ["edition", "WRITER_PACKET_EDITION_MISMATCH"]]) { const request = structuredClone(prepared.request); if (field === "edition") request.edition = "weekly"; else request[field] = "0".repeat(64); assert.equal(codeOf(() => validatePacketBinding(temp, request, packet)), code); } } finally { cleanup(temp); } });
-test("result rejects missing, duplicate, extra outputs and missing references", () => { const temp = setup(); try { const packet = fixturePacket(); const request = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet }).request; const missing = result(request); missing.outputs = []; sealResult(missing); assert.equal(codeOf(() => validateResult(temp, request, missing, packet)), "RESULT_OUTPUTS"); const duplicate = result(request); duplicate.outputs.push(structuredClone(duplicate.outputs[0])); sealResult(duplicate); assert.equal(codeOf(() => validateResult(temp, request, duplicate, packet)), "RESULT_TARGET_DUPLICATE"); const extra = result(request); extra.outputs[0].targetPath = "content/other.json"; sealResult(extra); assert.equal(codeOf(() => validateResult(temp, request, extra, packet)), "RESULT_TARGET"); const references = result(request); references.factReferences = "none"; sealResult(references); assert.equal(codeOf(() => validateResult(temp, request, references, packet)), "FACT_REFERENCES"); } finally { cleanup(temp); } });
-test("result rejects bad fact value/unit/date/target and forbidden fields", () => { const temp = setup(); try { const packet = fixturePacket(); const request = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet }).request; for (const [field, value, code] of [["usedValue", 999, "FACT_VALUE"], ["usedUnit", "bp", "FACT_UNIT"], ["usedAsOf", "2026-07-01", "FACT_DATE"], ["targetPath", "content/missing.json", "FACT_REFERENCE_TARGET"]]) { const invalid = result(request); invalid.factReferences[0][field] = value; sealResult(invalid); assert.equal(codeOf(() => validateResult(temp, request, invalid, packet)), code); } const forbidden = result(request); forbidden.outputs[0].payload.probability = 0.5; sealResult(forbidden); assert.equal(codeOf(() => validateResult(temp, request, forbidden, packet)), "FORBIDDEN_FIELD"); } finally { cleanup(temp); } });
-test("payload factClaims is forbidden", () => { const temp = setup(); try { const packet = fixturePacket(); const request = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet }).request; for (const factClaims of [[], null]) { const invalid = result(request, { packet }); invalid.outputs[0].payload.factClaims = factClaims; sealResult(invalid); assert.equal(codeOf(() => validateResult(temp, request, invalid, packet)), "FACT_CLAIMS_FORBIDDEN"); } } finally { cleanup(temp); } });
-test("numeric target requires matching claim text", () => { const temp = setup(); try { const packet = fixturePacket(); const request = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet }).request; const numeric = result(request, { packet }); const ref = numeric.factReferences[0]; numeric.outputs[0].payload.federalReserve.path[0].lower = packet.facts[0].value; ref.targetField = "federalReserve.path[0].lower"; ref.claimMode = "value"; ref.renderedValue = `${packet.facts[0].value}%`; ref.claimText = ref.renderedValue; sealResult(numeric); assert.doesNotThrow(() => validateResult(temp, request, numeric, packet)); const wrong = structuredClone(numeric); wrong.factReferences[0].claimText = "wrong"; sealResult(wrong); assert.equal(codeOf(() => validateResult(temp, request, wrong, packet)), "FACT_CLAIM_TEXT"); const nullRendered = structuredClone(numeric); nullRendered.factReferences[0].renderedValue = null; sealResult(nullRendered); assert.equal(codeOf(() => validateResult(temp, request, nullRendered, packet)), "FACT_CLAIM_TEXT"); } finally { cleanup(temp); } });
-test("stale and unavailable deterministic claims fail while partial claims are allowed", () => { const temp = setup(); try { const stale = fixturePacket("stale"); const staleRequest = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet: stale }).request; const staleInvalid = result(staleRequest, { packet: stale }); staleInvalid.outputs[0].payload.meta.title = "每日早报：最新4.26%"; staleInvalid.factReferences[0].claimText = "每日早报：最新4.26%"; sealResult(staleInvalid); assert.equal(codeOf(() => validateResult(temp, staleRequest, staleInvalid, stale)), "FACT_STATUS"); const unavailable = fixturePacket("unavailable"); const unavailableRequest = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet: unavailable }).request; const unavailableInvalid = result(unavailableRequest, { packet: unavailable }); unavailableInvalid.outputs[0].payload.meta.title = "每日早报：数据不可用123"; unavailableInvalid.factReferences[0].claimText = "每日早报：数据不可用123"; sealResult(unavailableInvalid); assert.equal(codeOf(() => validateResult(temp, unavailableRequest, unavailableInvalid, unavailable)), "FACT_STATUS"); const partial = fixturePacket("partial"); const request = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet: partial }).request; assert.doesNotThrow(() => validateResult(temp, request, result(request, { packet: partial }), partial)); } finally { cleanup(temp); } });
-test("real daily and weekly validators reject invalid staged payloads", () => { const temp = setup(); try { const packet = fixturePacket(); const request = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet }).request; const invalid = result(request, { packet, payload: { meta: { title: "每日早报：4.26%" } } }); assert.equal(codeOf(() => apply({ rootDir: temp, request, result: invalid, packet })), "TARGET_SCHEMA_INVALID"); } finally { cleanup(temp); } });
-test("apply dry-run writes nothing, successful apply is idempotent and accepted gzip is stable", () => { const temp = setup(); try { const packet = fixturePacket(); const request = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet }).request; const value = result(request, { packet }); const paths = createWriterJobPaths(temp); const before = read(path.join(temp, "content/daily-brief.json")); assert.equal(apply({ rootDir: temp, request, result: value, packet, dryRun: true }).applied, false); assert.deepEqual(read(path.join(temp, "content/daily-brief.json")), before); assert.equal(apply({ rootDir: temp, request, result: value, packet }).applied, true); const accepted = read(paths.accepted(request.jobId, request.requestedAsOf)); const next = structuredClone(value); next.generatedAt = "2026-08-01T01:02:04.000Z"; sealResult(next); assert.equal(apply({ rootDir: temp, request, result: next, packet }).noOp, true); assert.deepEqual(read(paths.accepted(request.jobId, request.requestedAsOf)), accepted); const conflict = structuredClone(value); conflict.outputs[0].payload.pulse.label = "conflict"; sealResult(conflict); assert.equal(codeOf(() => apply({ rootDir: temp, request, result: conflict, packet })), "ACCEPTED_CONFLICT"); } finally { cleanup(temp); } });
-test("apply transaction rolls back target, accepted and derived files after injected failures", () => { const temp = setup(); try { const packet = fixturePacket(); for (const stage of ["accepted", "writer-index"]) { const request = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet, createdAt: `2026-07-30T01:0${stage === "writer-index" ? 1 : 0}:00Z` }).request; const paths = createWriterJobPaths(temp); const tracked = [path.join(temp, "content/daily-brief.json"), paths.index, paths.pending("daily"), paths.accepted(request.jobId, request.requestedAsOf)].map((file) => [file, fs.existsSync(file) ? read(file) : null]); assert.throws(() => apply({ rootDir: temp, request, result: result(request, { packet }), packet, failAt: stage }), new RegExp(`INJECTED_${stage}`)); for (const [file, bytes] of tracked) assert.deepEqual(fs.existsSync(file) ? read(file) : null, bytes); } } finally { cleanup(temp); } });
-test("weekly publication updates report index notice atomically", () => { const temp = setup(); try { const daily = JSON.parse(read(path.join(temp, "public/update-notices.json"))).daily; const value = weeklyCase(temp); const paths = createWriterJobPaths(temp); const dryRun = apply({ rootDir: temp, ...value, dryRun: true }); assert.deepEqual(dryRun.files.sort(), [value.request.targetOutputs[0].targetPath, "content/weekly-reports/index.json", "public/update-notices.json"].sort()); const applied = apply({ rootDir: temp, ...value }); assert.equal(applied.applied, true); const report = JSON.parse(read(path.join(temp, value.request.targetOutputs[0].targetPath))); const index = JSON.parse(read(path.join(temp, "content/weekly-reports/index.json"))); const notices = JSON.parse(read(path.join(temp, "public/update-notices.json"))); assert.equal(report.report.revision, 2); assert.equal(index.latestReportId, report.report.id); assert.equal(index.reports.find((item) => item.id === report.report.id).revision, 2); assert.equal(notices.weekly.noticeId, `${report.report.id}-r2`); assert.equal(notices.weekly.href, `/weekly/${report.report.id}/`); assert.equal(notices.weekly.publishedAt, report.report.generatedAt); assert.deepEqual(notices.daily, daily); assert.ok(fs.existsSync(paths.accepted(value.request.jobId, value.request.requestedAsOf))); assert.equal(JSON.parse(read(paths.pending("weekly"))).job, null); } finally { cleanup(temp); } });
-test("weekly report conflicts and revision regressions fail closed", () => { const temp = setup(); try { const tracked = ["content/weekly-reports/weekly-2026-W29.json", "content/weekly-reports/index.json", "public/update-notices.json"].map((file) => [file, read(path.join(temp, file))]); const conflict = weeklyCase(temp, { revision: 1 }); assert.equal(codeOf(() => apply({ rootDir: temp, ...conflict })), "WEEKLY_REPORT_CONFLICT"); const regression = weeklyCase(temp, { revision: 0 }); assert.equal(codeOf(() => apply({ rootDir: temp, ...regression })), "WEEKLY_REVISION_REGRESSION"); for (const [file, bytes] of tracked) assert.deepEqual(read(path.join(temp, file)), bytes); } finally { cleanup(temp); } });
-test("historical weekly publication preserves the latest weekly notice", () => { const temp = setup(); try { const before = JSON.parse(read(path.join(temp, "public/update-notices.json"))).weekly; const value = weeklyCase(temp, { reportId: "weekly-2026-W28", asOf: "2026-07-10" }); apply({ rootDir: temp, ...value }); const index = JSON.parse(read(path.join(temp, "content/weekly-reports/index.json"))); const notices = JSON.parse(read(path.join(temp, "public/update-notices.json"))); assert.equal(index.latestReportId, "weekly-2026-W29"); assert.deepEqual(notices.weekly, before); } finally { cleanup(temp); } });
-test("validate-weekly rejects invalid candidate publication combinations", () => { const temp = setup(); try { const value = weeklyCase(temp); apply({ rootDir: temp, ...value }); const reportFile = path.join(temp, value.request.targetOutputs[0].targetPath); const indexFile = path.join(temp, "content/weekly-reports/index.json"); const noticesFile = path.join(temp, "public/update-notices.json"); const run = (mutate) => { const dir = fs.mkdtempSync(path.join(os.tmpdir(), "weekly-candidate-")); try { const report = path.join(dir, "report.json"); const index = path.join(dir, "index.json"); const notices = path.join(dir, "notices.json"); fs.copyFileSync(reportFile, report); fs.copyFileSync(indexFile, index); fs.copyFileSync(noticesFile, notices); mutate({ report, index, notices }); return spawnSync(process.execPath, [path.join(root, "scripts/validate-weekly.mjs"), "--candidate-report", report, "--candidate-index", index, "--candidate-notices", notices], { cwd: temp, encoding: "utf8" }).status; } finally { fs.rmSync(dir, { recursive: true, force: true }); } }; assert.equal(run(({ index }) => { const value = JSON.parse(read(index)); value.reports = []; value.latestReportId = null; fs.writeFileSync(index, JSON.stringify(value)); }), 1); assert.equal(run(({ notices }) => { const value = JSON.parse(read(notices)); value.weekly.href = "/weekly/weekly-2026-W28/"; fs.writeFileSync(notices, JSON.stringify(value)); }), 1); assert.equal(run(({ index }) => { const value = JSON.parse(read(index)); value.reports[0].revision = 99; fs.writeFileSync(index, JSON.stringify(value)); }), 1); } finally { cleanup(temp); } });
-test("weekly transaction rolls back every publication stage", () => { for (const stage of ["weekly-report", "weekly-index", "weekly-notice", "accepted", "writer-index", "daily-pending", "weekly-pending"]) { const temp = setup(); try { const value = weeklyCase(temp); const paths = createWriterJobPaths(temp); const files = [path.join(temp, value.request.targetOutputs[0].targetPath), path.join(temp, "content/weekly-reports/index.json"), path.join(temp, "public/update-notices.json"), paths.accepted(value.request.jobId, value.request.requestedAsOf), paths.index, paths.pending("daily"), paths.pending("weekly")]; const before = files.map((file) => [file, fs.existsSync(file) ? read(file) : null]); assert.throws(() => apply({ rootDir: temp, ...value, failAt: stage }), new RegExp(`INJECTED_${stage}`)); for (const [file, bytes] of before) assert.deepEqual(fs.existsSync(file) ? read(file) : null, bytes); } finally { cleanup(temp); } } });
-test("daily apply leaves weekly publication files unchanged", () => { const temp = setup(); try { const packet = fixturePacket(); const request = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet }).request; const weekly = ["content/weekly-reports/weekly-2026-W29.json", "content/weekly-reports/index.json", "public/update-notices.json"].map((file) => [file, read(path.join(temp, file))]); apply({ rootDir: temp, request, result: result(request, { packet }), packet }); for (const [file, bytes] of weekly) assert.deepEqual(read(path.join(temp, file)), bytes); } finally { cleanup(temp); } });
-test("rebuild honors temporary root, chronology, accepted filtering and daily/weekly isolation", () => { const temp = setup(); try { const packet = fixturePacket(); const dailyOld = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-28", packet, createdAt: "2026-07-29T01:00:00Z" }).request; const dailyNew = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet, createdAt: "2026-07-30T01:00:00Z" }).request; const weekly = prepare({ rootDir: temp, edition: "weekly", asOf: "2026-07-29", packet, createdAt: "2026-07-30T02:00:00Z" }).request; const paths = createWriterJobPaths(temp); fs.mkdirSync(path.dirname(paths.accepted(dailyNew.jobId, dailyNew.requestedAsOf)), { recursive: true }); fs.writeFileSync(paths.accepted(dailyNew.jobId, dailyNew.requestedAsOf), zlibBytes(result(dailyNew))); rebuild(temp); const pendingDaily = JSON.parse(read(paths.pending("daily"))); const pendingWeekly = JSON.parse(read(paths.pending("weekly"))); assert.equal(pendingDaily.job.jobId, dailyOld.jobId); assert.equal(pendingWeekly.job.jobId, weekly.jobId); const first = read(paths.index); rebuild(temp); assert.deepEqual(read(paths.index), first); } finally { cleanup(temp); } });
-function zlibBytes(value) { return zlib.gzipSync(Buffer.from(`${JSON.stringify(canonical(value))}\n`), { mtime: 0 }); }
-function assertCollectedDryRun(edition) { const temp = setupDryRunStub(); const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "writer-temporary-root-")); try { const before = snapshotTree(temp); const prepared = prepare({ rootDir: temp, edition, asOf: "2026-07-29", dryRun: true, temporaryRoot }); const paths = createWriterJobPaths(temp); assert.deepEqual(snapshotTree(temp), before); assert.equal(prepared.summary.packetSource, "collected-dry-run"); assert.equal(prepared.summary.created, true); assert.equal(prepared.summary.noOp, false); assert.match(prepared.request.jobId, /^[a-f0-9]{64}$/); assert.match(prepared.request.writerPacketId, /^[a-f0-9]{64}$/); assert.ok(!fs.existsSync(paths.request(prepared.request.jobId, "2026-07-29"))); assert.ok(!fs.existsSync(paths.packet(prepared.request.writerPacketId, "2026-07-29"))); assert.ok(!fs.existsSync(paths.index)); assert.deepEqual(fs.readdirSync(temporaryRoot), []); } finally { cleanup(temp); fs.rmSync(temporaryRoot, { recursive: true, force: true }); } }
-test("daily collected dry-run leaves the repository tree unchanged", () => { assertCollectedDryRun("daily"); });
-test("weekly collected dry-run leaves the repository tree unchanged", () => { assertCollectedDryRun("weekly"); });
-test("dry-run packet cleanup survives invalid collected packet", () => { const temp = setupDryRunStub({ invalidPacket: true }); const temporaryRoot = fs.mkdtempSync(path.join(os.tmpdir(), "writer-temporary-root-")); try { const before = snapshotTree(temp); assert.equal(codeOf(() => prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", dryRun: true, temporaryRoot })), "WRITER_PACKET_SCHEMA"); assert.deepEqual(snapshotTree(temp), before); assert.deepEqual(fs.readdirSync(temporaryRoot), []); } finally { cleanup(temp); fs.rmSync(temporaryRoot, { recursive: true, force: true }); } });
-test("Shanghai auto date crosses the UTC boundary exactly once", () => { assert.equal(shanghaiDate(new Date("2026-07-29T16:30:00.000Z")), "2026-07-30"); assert.equal(shanghaiDate(new Date("2026-07-29T15:59:59.000Z")), "2026-07-29"); });
-test("writer execution inputs are frozen", () => { const temp = setup(); try { const packet = fixturePacket(); const request = prepare({ rootDir: temp, edition: "daily", asOf: "2026-07-29", packet }).request; const prompt = path.join(temp, request.writerPromptPath); const validator = path.join(temp, "scripts/validate-brief.mjs"); const promptBytes = read(prompt); const validatorBytes = read(validator); const value = result(request, { packet }); fs.appendFileSync(prompt, "\nfreeze test\n"); assert.equal(codeOf(() => validateResult(temp, request, value, packet)), "PROMPT_SHA_MISMATCH"); fs.writeFileSync(prompt, promptBytes); fs.appendFileSync(validator, "\n// freeze test\n"); assert.equal(codeOf(() => validateResult(temp, request, value, packet)), "TARGET_VALIDATOR_SHA_MISMATCH"); fs.writeFileSync(validator, validatorBytes); const schemaRequest = sealRequest(structuredClone(request)); schemaRequest.targetOutputs[0].targetSchemaVersion = "daily-brief-v999"; sealRequest(schemaRequest); assert.equal(codeOf(() => validateResult(temp, schemaRequest, result(schemaRequest, { packet }), packet)), "TARGET_SCHEMA_VERSION_MISMATCH"); } finally { cleanup(temp); } });
-test("Luna prompts match writer-result-v1 fact contract", () => { for (const file of ["prompts/luna-daily-brief.md", "prompts/luna-weekly-brief.md"]) { const prompt = fs.readFileSync(path.join(root, file), "utf8"); for (const field of ["writer-result-v1", "factReferences", "usedValue", "usedUnit", "usedAsOf", "targetPath", "targetField", "claimMode", "claimText", "renderedValue", "writer-error-v1"]) assert.ok(prompt.includes(field), `${file} lacks ${field}`); assert.match(prompt, /payload\.factClaims/); assert.doesNotMatch(prompt, /factId,\s*value,\s*unit,\s*asOf/); } });
-test("workflow is manual-only, stages only the audited chain and remains single-runner", () => { const workflow = fs.readFileSync(path.join(root, ".github/workflows/writer-job-prepare.yml"), "utf8"); assert.match(workflow, /name: Prepare writer request manually/); assert.match(workflow, /workflow_dispatch:/); assert.match(workflow, /dry_run: \{ description: Do not commit, required: true, default: true/); assert.match(workflow, /writer-context-v1/); assert.doesNotMatch(workflow, /^\s*schedule:/m); assert.doesNotMatch(workflow, /cron:/); assert.match(workflow, /pnpm production:prepare -- --edition "\$EDITION" --as-of auto --dry-run/); assert.match(workflow, /git diff --exit-code/); assert.match(workflow, /if: env\.DRY_RUN != 'true'/); assert.match(workflow, /git add data\/market-evidence\/runs content\/writer-packets data\/writer-jobs content\/writer-jobs/); assert.match(workflow, /if git diff --cached --quiet; then exit 0; fi/); assert.match(workflow, /permissions: \{ contents: write \}/); for (const forbidden of ["node_modules", ".next", "data/market-evidence/snapshots", "data/market-evidence/constituents"]) assert.ok(!workflow.includes(`git add ${forbidden}`)); assert.doesNotMatch(workflow, /matrix:/); });
+const registry = JSON.parse(fs.readFileSync(path.join(root, "data/research-bundles/contract.json"), "utf8"));
+const AS_OF = { daily: "2026-07-24", weekly: "2026-07-17" };
+const NOW = new Date("2026-07-30T12:00:00.000Z");
+const moduleFile = path.join(root, "scripts", "writer-jobs.mjs");
+const hashBytes = (bytes) => createHash("sha256").update(bytes).digest("hex");
+
+function copy(repo, relativePath) {
+  const destination = path.join(repo, ...relativePath.split("/"));
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.copyFileSync(path.join(root, ...relativePath.split("/")), destination);
+}
+
+function write(repo, relativePath, bytes) {
+  const destination = path.join(repo, ...relativePath.split("/"));
+  fs.mkdirSync(path.dirname(destination), { recursive: true });
+  fs.writeFileSync(destination, bytes);
+  return destination;
+}
+
+function seal(value, idKey, compute) {
+  value[idKey] = compute(value);
+  value.integrity = { businessSha256: value[idKey], sha256: "" };
+  value.integrity.sha256 = sha256Canonical({ ...value, integrity: { businessSha256: value[idKey] } });
+  return value;
+}
+
+function makeSourceRun(asOf, sourceClass = "official-primary") {
+  return seal({
+    sourceRunId: "",
+    sourceId: "writer-e2e-source",
+    provider: "Writer E2E Provider",
+    sourceClass,
+    adapterId: "writer-e2e-adapter",
+    adapterVersion: "v1",
+    requestedAt: `${asOf}T10:00:00.000Z`,
+    asOf: `${asOf}T09:00:00.000Z`,
+    status: "ready",
+    sourceUrl: "https://example.com/writer-e2e",
+    marketScopes: ["US"],
+    topics: ["macro"],
+    coverage: { itemCount: 1, note: "writer e2e fixture" },
+    snapshotPolicy: "stored",
+    rawSnapshotId: "a".repeat(64),
+    warnings: [],
+    integrity: { businessSha256: "", sha256: "" }
+  }, "sourceRunId", computeSourceRunId);
+}
+
+function makeDocument(run, asOf) {
+  return seal({
+    documentId: "",
+    sourceRunId: run.sourceRunId,
+    sourceId: run.sourceId,
+    publisherId: "writer-e2e-publisher",
+    publisher: "Writer E2E Publisher",
+    title: "Writer E2E frozen document title",
+    canonicalUrl: "https://example.com/writer-e2e/report",
+    publishedDate: asOf,
+    publishedAt: `${asOf}T08:00:00.000Z`,
+    accessedAt: `${asOf}T10:00:00.000Z`,
+    language: "en",
+    contentType: "html",
+    contentHashBasis: "response-entity",
+    contentHashVersion: "v1",
+    contentSha256: run.rawSnapshotId,
+    rawSnapshotId: run.rawSnapshotId,
+    marketScopes: ["US"],
+    topics: ["macro"],
+    warnings: [],
+    integrity: { businessSha256: "", sha256: "" }
+  }, "documentId", computeDocumentId);
+}
+
+function makeBundle(edition, asOf, evidenceState = "confirmed", withObservations = true) {
+  const sourceClass = evidenceState === "unverified" ? "community-signal" : "official-primary";
+  const run = makeSourceRun(asOf, sourceClass);
+  const document = makeDocument(run, asOf);
+  const observation = {
+    observationId: "",
+    kind: "hard-fact",
+    subject: "writer e2e subject",
+    statement: "The frozen source reports a writer E2E observation.",
+    occurredAt: `${asOf}T08:00:00.000Z`,
+    asOf,
+    marketScopes: ["US"],
+    topics: ["macro"],
+    entities: ["writer-e2e"],
+    evidenceState: "single-source",
+    basis: [{ documentId: document.documentId, relation: "supports", excerpt: "Frozen source statement.", locator: "paragraph-1" }],
+    warnings: []
+  };
+  if (evidenceState === "conflicting") observation.basis.push({ documentId: document.documentId, relation: "contradicts", excerpt: "Frozen counter statement.", locator: "paragraph-2" });
+  observation.evidenceState = deriveEvidenceState(observation, { documents: [document], sourceRuns: [run] });
+  observation.observationId = computeObservationId(observation);
+  const event = { eventId: "", eventType: "macro-release", title: "Writer E2E event", occurredAt: observation.occurredAt, marketScopes: ["US"], topics: ["macro"], observationIds: [observation.observationId] };
+  event.eventId = computeEventId(event);
+  const documents = withObservations ? [document] : [];
+  const observations = withObservations ? [observation] : [];
+  const events = withObservations ? [event] : [];
+  const markets = ["A_SHARE", "HK", "US", "FED"].map((market) => {
+    const documentCount = documents.filter((item) => item.marketScopes.includes(market)).length;
+    const observationCount = observations.filter((item) => item.marketScopes.includes(market)).length;
+    return { market, status: documentCount || observationCount ? "ready" : "partial", documentCount, observationCount, reasons: documentCount || observationCount ? [] : ["fixture coverage gap"] };
+  });
+  const topics = withObservations ? [{ topic: "macro", status: "ready", documentCount: 1, observationCount: 1, reasons: [] }] : [];
+  const bundle = seal({
+    schemaVersion: "research-bundle-v1",
+    edition,
+    asOf,
+    generatedAt: `${asOf}T12:00:00.000Z`,
+    window: { start: edition === "daily" ? asOf : "2026-07-11", end: asOf, timezone: "Asia/Shanghai" },
+    sourcePolicyVersion: "research-source-policy-v1",
+    sourceRuns: [run],
+    documents,
+    observations,
+    events,
+    duplicateClusters: [],
+    coverage: { markets, topics, totals: { sourceRuns: 1, documents: documents.length, observations: observations.length, events: events.length, duplicateClusters: 0, conflictingObservations: observations.filter((item) => item.evidenceState === "conflicting").length } },
+    warnings: [],
+    bundleId: "",
+    integrity: { businessSha256: "", sha256: "" }
+  }, "bundleId", computeBundleId);
+  validateBundle(bundle, registry);
+  return bundle;
+}
+
+function packetIdentity(value) {
+  if (Array.isArray(value)) return value.map(packetIdentity);
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).filter(([key]) => !new Set(["requestedAt", "completedAt", "generatedAt", "rawSha256", "integrity", "businessIntegrity", "writerPacketId", "runId"]).has(key)).map(([key, item]) => [key, packetIdentity(item)]));
+  return value;
+}
+
+function makePacket(edition, asOf, status = "ready") {
+  const unavailable = ["unavailable", "rate_limited", "schema_changed"].includes(status);
+  const packet = {
+    schemaVersion: 1,
+    edition,
+    generatedAt: `${asOf}T12:00:00.000Z`,
+    marketDates: { aShare: asOf, us: asOf },
+    marketSummary: { status: "partial" },
+    providerHealth: { status: status === "ready" ? "ready" : "partial" },
+    sourceIndex: { "us-treasury-nominal-xml": { sourceId: "us-treasury-nominal-xml", status } },
+    facts: [{ factId: `treasury-nominal2y-${asOf}-${status}`, label: "US Treasury 2Y", market: "US", topic: "treasury", sourceId: "us-treasury-nominal-xml", sourceUrl: "https://home.treasury.gov/fixture", status, unit: "percent", value: unavailable ? null : 4.26, changeUnit: "bp", change1d: unavailable ? null : -1, change5d: unavailable ? null : 2, change20d: unavailable ? null : 3, asOf: unavailable ? null : asOf, releasedAt: unavailable ? null : asOf }],
+    treasuryFactor: { status: "ready", spread2s10sBp: 35, changesBp: {}, nominalSource: { sourceId: "us-treasury-nominal-xml", asOf }, realSource: { sourceId: "us-treasury-real-xml", asOf } },
+    writerPacketId: "",
+    integrity: { businessSha256: "", sha256: "" }
+  };
+  const business = sha256Canonical(packetIdentity(packet));
+  packet.writerPacketId = business;
+  packet.integrity = { businessSha256: business, sha256: business };
+  return packet;
+}
+
+function gz(value) {
+  return gzipSync(Buffer.from(canonicalJson(value), "utf8"), { mtime: 0 });
+}
+
+function setup({ edition = "daily", status = "ready", evidenceState = "confirmed", withObservations = true } = {}) {
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "guanchao-writer-jobs-v2-"));
+  for (const relative of [
+    "data/writer-contexts/contract.json", "data/research-bundles/contract.json", "data/writer-jobs/contract.json", "data/writer-jobs/index.json",
+    "content/writer-jobs/daily-pending.json", "content/writer-jobs/weekly-pending.json", "content/daily-brief.json",
+    "content/weekly-reports/weekly-2026-W29.json", "content/weekly-reports/index.json", "public/update-notices.json",
+    "prompts/luna-daily-brief.md", "prompts/luna-weekly-brief.md", "scripts/validate-brief.mjs", "scripts/validate-weekly.mjs"
+  ]) copy(repo, relative);
+  const asOf = AS_OF[edition];
+  const packet = makePacket(edition, asOf, status);
+  const bundle = makeBundle(edition, asOf, evidenceState, withObservations);
+  const packetPath = `data/writer-jobs/packets/${asOf.slice(0, 4)}/${asOf.slice(5, 7)}/${packet.writerPacketId}.json.gz`;
+  const bundlePath = `data/research-bundles/bundles/${asOf.slice(0, 4)}/${asOf.slice(5, 7)}/${bundle.bundleId}.json.gz`;
+  write(repo, packetPath, gz(packet));
+  write(repo, bundlePath, gz(bundle));
+  const baselineSource = edition === "daily" ? "content/daily-brief.json" : "content/weekly-reports/weekly-2026-W29.json";
+  const contextSummary = prepareWriterContext({ edition, asOf, writerPacketPath: packetPath, researchBundlePath: bundlePath, baselineSource, write: true, root: repo, now: NOW });
+  const prepared = prepare({ edition, contextPath: contextSummary.contextPath, write: true, rootDir: repo, createdAt: NOW.toISOString() });
+  return { repo, edition, asOf, packet, bundle, packetPath, bundlePath, baselineSource, contextSummary, request: prepared.request, prepareSummary: prepared.summary };
+}
+
+function cleanup(fixture) {
+  fs.rmSync(fixture.repo, { recursive: true, force: true });
+}
+
+function baseline(fixture) {
+  return readJsonOrGzip(path.join(fixture.repo, ...fixture.contextSummary.baselinePath.split("/")));
+}
+
+function result(fixture, options = {}) {
+  const payload = structuredClone(baseline(fixture).payload);
+  const fact = fixture.packet.facts[0];
+  const renderedValue = fact.value === null ? null : `${fact.value}%`;
+  let claimText = renderedValue;
+  if (fact.status === "partial") claimText = `部分数据 ${renderedValue}`;
+  if (fact.status === "stale") claimText = `截至数据延迟 ${renderedValue}`;
+  if (["unavailable", "rate_limited", "schema_changed"].includes(fact.status)) claimText = "数据不可用";
+  const claimPath = fixture.edition === "daily" ? "$.payload.meta.subtitle" : "$.payload.report.subtitle";
+  if (fixture.edition === "daily") payload.meta.subtitle = claimText;
+  else {
+    payload.report.subtitle = claimText;
+    payload.report.revision = 2;
+    payload.report.generatedAt = "2026-07-17T21:00:00+08:00";
+  }
+  const value = {
+    schemaVersion: resultVersion,
+    jobId: fixture.request.jobId,
+    requestId: fixture.request.requestId,
+    contextId: fixture.request.context.contextId,
+    generatedAt: "2026-07-30T12:30:00.000Z",
+    writerEngine: "deterministic-test-writer",
+    writerVersion: "v1",
+    payload,
+    claimBindings: { quantitative: [{ claimPath, claimText, factId: fact.factId, renderedValue }], qualitative: [], sourceMetadata: [] },
+    warnings: fixture.bundle.observations.length ? [] : ["no-new-qualitative-observations"],
+    resultId: "",
+    integrity: { businessSha256: "", sha256: "" }
+  };
+  if (options.unchanged) {
+    value.payload = structuredClone(baseline(fixture).payload);
+    value.claimBindings.quantitative = [];
+  }
+  return sealWriterResult(Object.assign(value, options.override ?? {}));
+}
+
+function resealRequest(request) {
+  const { requestId, jobId, createdAt, integrity, ...business } = request;
+  const id = hash(business);
+  request.requestId = id;
+  request.jobId = id;
+  request.integrity = { businessSha256: id, sha256: "" };
+  const { integrity: ignored, ...body } = request;
+  request.integrity.sha256 = hash({ ...body, integrity: { businessSha256: id } });
+  return request;
+}
+
+function codeOf(action) {
+  try { action(); return null; } catch (cause) { return cause.errorCode ?? cause.message; }
+}
+
+function snapshot(repo, prefixes = ["content", "data/prediction-ledger", "data/sector-details", "public/data/prediction-history"]) {
+  const entries = [];
+  const visit = (target) => {
+    if (!fs.existsSync(target)) return;
+    if (fs.statSync(target).isFile()) {
+      entries.push({ path: relative(repo, target), sha256: hashBytes(fs.readFileSync(target)) });
+      return;
+    }
+    for (const entry of fs.readdirSync(target, { withFileTypes: true })) {
+      const file = path.join(target, entry.name);
+      if (entry.isDirectory()) visit(file);
+      else entries.push({ path: relative(repo, file), sha256: hashBytes(fs.readFileSync(file)) });
+    }
+  };
+  for (const prefix of prefixes) visit(path.join(repo, ...prefix.split("/")));
+  return entries.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+function relative(repo, file) {
+  return path.relative(repo, file).split(path.sep).join("/");
+}
+
+function qualitativeResult(fixture, { text, state = fixture.bundle.observations[0].evidenceState, documentIds = [fixture.bundle.documents[0].documentId], observationIds = [fixture.bundle.observations[0].observationId] } = {}) {
+  const value = result(fixture, { unchanged: true });
+  value.payload.meta.curationNote = text ?? fixture.bundle.observations[0].statement;
+  value.claimBindings.qualitative = [{ claimPath: "$.payload.meta.curationNote", claimText: value.payload.meta.curationNote, observationIds: [...observationIds].sort(), documentIds: [...documentIds].sort(), evidenceState: state }];
+  return sealWriterResult(value);
+}
+
+test("01 Windows file URL root preserves drive, spaces and Chinese", () => { const source = path.join(root, "中文 space", "writer jobs.mjs"); assert.equal(fileURLToPath(pathToFileURL(source)), source); assert.match(root, /^[A-Za-z]:\\/); assert.ok(!root.includes("%")); });
+test("02 current request and result versions are v2", () => { assert.equal(requestVersion, "writer-request-v2"); assert.equal(resultVersion, "writer-result-v2"); });
+test("03 prepare creates only a context-bound v2 request", () => { const fixture = setup(); try { assert.equal(fixture.request.schemaVersion, requestVersion); assert.equal(fixture.request.context.contextId, readJsonOrGzip(path.join(fixture.repo, ...fixture.contextSummary.contextPath.split("/"))).contextId); assert.equal(Object.hasOwn(fixture.request, "writerPacketPath"), false); } finally { cleanup(fixture); } });
+test("04 request identity binds context ID and SHA", () => { const fixture = setup(); try { const changedId = structuredClone(fixture.request); changedId.context.contextId = "b".repeat(64); resealRequest(changedId); assert.notEqual(changedId.requestId, fixture.request.requestId); const changedSha = structuredClone(fixture.request); changedSha.context.artifactSha256 = "c".repeat(64); resealRequest(changedSha); assert.notEqual(changedSha.requestId, fixture.request.requestId); } finally { cleanup(fixture); } });
+test("05 request identity binds prompt, validator and target schema", () => { const fixture = setup(); try { for (const field of ["writerPromptSha256", "targetValidatorSha256", "targetSchemaVersion"]) { const changed = structuredClone(fixture.request); changed[field] = field.endsWith("Sha256") ? "d".repeat(64) : "different-schema"; resealRequest(changed); assert.notEqual(changed.requestId, fixture.request.requestId); } } finally { cleanup(fixture); } });
+test("06 createdAt is audit-only and repeated prepare is byte no-op", () => { const fixture = setup(); try { const file = createWriterJobPaths(fixture.repo).request(fixture.request.jobId, fixture.asOf); const before = fs.readFileSync(file); const rerun = prepare({ edition: fixture.edition, contextPath: fixture.contextSummary.contextPath, write: true, rootDir: fixture.repo, createdAt: "2026-07-31T12:00:00.000Z" }); assert.equal(rerun.request.requestId, fixture.request.requestId); assert.equal(rerun.summary.noOp, true); assert.deepEqual(fs.readFileSync(file), before); } finally { cleanup(fixture); } });
+test("07 prepare dry-run leaves the repository unchanged", () => { const fixture = setup(); try { const before = snapshot(fixture.repo, ["data/writer-jobs", "content/writer-jobs"]); const rerun = prepare({ edition: fixture.edition, contextPath: fixture.contextSummary.contextPath, dryRun: true, rootDir: fixture.repo, createdAt: "2026-07-31T12:00:00.000Z" }); assert.equal(rerun.summary.noOp, true); assert.deepEqual(snapshot(fixture.repo, ["data/writer-jobs", "content/writer-jobs"]), before); } finally { cleanup(fixture); } });
+test("08 prepare requires exactly one mode", () => { const fixture = setup(); try { assert.equal(codeOf(() => prepare({ edition: "daily", contextPath: fixture.contextSummary.contextPath, rootDir: fixture.repo })), "PREPARE_MODE"); } finally { cleanup(fixture); } });
+test("09 prepare rejects dual modes", () => { const fixture = setup(); try { assert.equal(codeOf(() => prepare({ edition: "daily", contextPath: fixture.contextSummary.contextPath, dryRun: true, write: true, rootDir: fixture.repo })), "PREPARE_MODE"); } finally { cleanup(fixture); } });
+test("10 prepare rejects missing explicit context", () => assert.equal(codeOf(() => prepare({ edition: "daily", packet: {}, dryRun: true })), "PREPARE_ARGUMENT"));
+test("11 prepare never reads latest context", () => { const fixture = setup(); try { write(fixture.repo, "content/writer-contexts/daily-latest.json", "malicious"); assert.equal(prepare({ edition: "daily", contextPath: fixture.contextSummary.contextPath, dryRun: true, rootDir: fixture.repo }).request.context.contextId, fixture.request.context.contextId); } finally { cleanup(fixture); } });
+test("12 request context byte SHA is verified", () => { const fixture = setup(); try { const changed = structuredClone(fixture.request); changed.context.artifactSha256 = "b".repeat(64); resealRequest(changed); assert.equal(codeOf(() => validateRequest(changed, { rootDir: fixture.repo })), "REQUEST_CONTEXT_SHA"); } finally { cleanup(fixture); } });
+test("13 request context internal ID is verified", () => { const fixture = setup(); try { const changed = structuredClone(fixture.request); changed.context.contextId = "b".repeat(64); resealRequest(changed); assert.equal(codeOf(() => validateRequest(changed, { rootDir: fixture.repo })), "REQUEST_CONTEXT_ID"); } finally { cleanup(fixture); } });
+test("14 request prompt hash must equal context", () => { const fixture = setup(); try { const changed = structuredClone(fixture.request); changed.writerPromptSha256 = "b".repeat(64); resealRequest(changed); assert.equal(codeOf(() => validateRequest(changed, { rootDir: fixture.repo })), "PROMPT_SHA_MISMATCH"); } finally { cleanup(fixture); } });
+test("15 request validator hash must equal context", () => { const fixture = setup(); try { const changed = structuredClone(fixture.request); changed.targetValidatorSha256 = "b".repeat(64); resealRequest(changed); assert.equal(codeOf(() => validateRequest(changed, { rootDir: fixture.repo })), "TARGET_VALIDATOR_SHA_MISMATCH"); } finally { cleanup(fixture); } });
+test("16 request target schema must equal context", () => { const fixture = setup(); try { const changed = structuredClone(fixture.request); changed.targetSchemaVersion = "daily-brief-v999"; resealRequest(changed); assert.equal(codeOf(() => validateRequest(changed, { rootDir: fixture.repo })), "TARGET_SCHEMA_VERSION_MISMATCH"); } finally { cleanup(fixture); } });
+test("17 request evidence indexes are frozen", () => { const fixture = setup(); try { const changed = structuredClone(fixture.request); changed.allowedFactIds = ["unknown-fact"]; resealRequest(changed); assert.equal(codeOf(() => validateRequest(changed, { rootDir: fixture.repo })), "REQUEST_EVIDENCE_INDEX"); } finally { cleanup(fixture); } });
+test("18 v1 validator remains fixture-only", () => { assert.equal(validateLegacyRequestV1({ schemaVersion: "writer-request-v1", jobId: "a".repeat(64), writerPacketPath: "fixture" }).schemaVersion, "writer-request-v1"); assert.equal(codeOf(() => validateRequest({ schemaVersion: "writer-request-v1" })), "REQUEST_SCHEMA"); });
+test("19 prepare request/index/pending is transactional", () => { const fixture = setup(); try { const source = path.join(fixture.repo, ...fixture.baselineSource.split("/")); const payload = JSON.parse(fs.readFileSync(source, "utf8")); payload.meta.subtitle = "second immutable baseline"; fs.writeFileSync(source, `${JSON.stringify(payload)}\n`); const secondContext = prepareWriterContext({ edition: fixture.edition, asOf: fixture.asOf, writerPacketPath: fixture.packetPath, researchBundlePath: fixture.bundlePath, baselineSource: fixture.baselineSource, write: true, root: fixture.repo, now: new Date("2026-07-31T12:00:00.000Z") }); const before = snapshot(fixture.repo, ["data/writer-jobs", "content/writer-jobs"]); assert.throws(() => prepare({ edition: fixture.edition, contextPath: secondContext.contextPath, write: true, rootDir: fixture.repo, createdAt: "2026-07-31T12:30:00.000Z", failAt: "writer-index" }), /INJECTED_writer-index/); assert.deepEqual(snapshot(fixture.repo, ["data/writer-jobs", "content/writer-jobs"]), before); } finally { cleanup(fixture); } });
+test("20 Shanghai date boundary is exact", () => { assert.equal(shanghaiDate(new Date("2026-07-29T16:30:00.000Z")), "2026-07-30"); assert.equal(shanghaiDate(new Date("2026-07-29T15:59:59.000Z")), "2026-07-29"); });
+
+test("21 valid quantitative result passes", () => { const fixture = setup(); try { assert.equal(validateResult(fixture.repo, fixture.request, result(fixture)).schemaVersion, resultVersion); } finally { cleanup(fixture); } });
+test("22 unchanged baseline result is allowed", () => { const fixture = setup(); try { assert.doesNotThrow(() => validateResult(fixture.repo, fixture.request, result(fixture, { unchanged: true }))); } finally { cleanup(fixture); } });
+test("23 result schema is strict", () => { const fixture = setup(); try { const value = result(fixture); value.schemaVersion = "writer-result-v1"; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, value)), "RESULT_SCHEMA"); } finally { cleanup(fixture); } });
+test("24 result request ID is bound", () => { const fixture = setup(); try { const value = result(fixture); value.requestId = "b".repeat(64); const sealed = sealWriterResult(value); assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealed)), "RESULT_METADATA"); } finally { cleanup(fixture); } });
+test("25 result context ID is bound", () => { const fixture = setup(); try { const value = result(fixture); value.contextId = "b".repeat(64); assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "RESULT_METADATA"); } finally { cleanup(fixture); } });
+test("26 result integrity detects mutation", () => { const fixture = setup(); try { const value = result(fixture); value.payload.meta.subtitle = "mutated"; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, value)), "FACT_CLAIM_TEXT"); } finally { cleanup(fixture); } });
+test("27 payload.factClaims is forbidden anywhere", () => { const fixture = setup(); try { const value = result(fixture); value.payload.factClaims = []; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "FACT_CLAIMS_FORBIDDEN"); } finally { cleanup(fixture); } });
+test("28 unbound baseline business change fails", () => { const fixture = setup(); try { const value = result(fixture, { unchanged: true }); value.payload.meta.subtitle = "unbound"; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "UNBOUND_BASELINE_DIFF"); } finally { cleanup(fixture); } });
+test("29 allowed date-only change passes", () => { const fixture = setup(); try { const value = result(fixture, { unchanged: true }); value.payload.meta.generatedAt = "2026-07-30T20:00:00+08:00"; assert.doesNotThrow(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))); } finally { cleanup(fixture); } });
+test("30 frozen probability change fails", () => { const fixture = setup(); try { const value = result(fixture, { unchanged: true }); value.payload.pulse.probability = 0.5; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "FROZEN_FIELD_CHANGED"); } finally { cleanup(fixture); } });
+test("31 unchanged field cannot be rebound as new evidence", () => { const fixture = setup(); try { const value = result(fixture, { unchanged: true }); value.claimBindings.quantitative = result(fixture).claimBindings.quantitative; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "UNCHANGED_REBOUND"); } finally { cleanup(fixture); } });
+test("32 duplicate claim path fails", () => { const fixture = setup(); try { const value = result(fixture); value.claimBindings.quantitative.push(structuredClone(value.claimBindings.quantitative[0])); assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "CLAIM_PATH_DUPLICATE"); } finally { cleanup(fixture); } });
+test("33 unsafe claim path fails", () => { const fixture = setup(); try { const value = result(fixture); value.claimBindings.quantitative[0].claimPath = "$.payload.__proto__.x"; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "CLAIM_PATH"); } finally { cleanup(fixture); } });
+test("34 unknown fact fails", () => { const fixture = setup(); try { const value = result(fixture); value.claimBindings.quantitative[0].factId = "unknown"; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "FACT_NOT_ALLOWED"); } finally { cleanup(fixture); } });
+test("35 rendered quantitative value must match packet", () => { const fixture = setup(); try { const value = result(fixture); value.claimBindings.quantitative[0].renderedValue = "999%"; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "FACT_VALUE"); } finally { cleanup(fixture); } });
+test("36 quantitative text must equal payload", () => { const fixture = setup(); try { const value = result(fixture); value.claimBindings.quantitative[0].claimText = "wrong"; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "FACT_CLAIM_TEXT"); } finally { cleanup(fixture); } });
+test("37 numeric claim binds exact packet value", () => { const fixture = setup(); try { const value = result(fixture, { unchanged: true }); value.payload.federalReserve.countdownDays = 4.26; value.claimBindings.quantitative = [{ claimPath: "$.payload.federalReserve.countdownDays", claimText: "4.26%", factId: fixture.packet.facts[0].factId, renderedValue: "4.26%" }]; assert.doesNotThrow(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))); value.payload.federalReserve.countdownDays = 4.25; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "FACT_VALUE"); } finally { cleanup(fixture); } });
+test("38 partial quantitative claim preserves partial language", () => { const fixture = setup({ status: "partial" }); try { assert.doesNotThrow(() => validateResult(fixture.repo, fixture.request, result(fixture))); const value = result(fixture); value.payload.meta.subtitle = "4.26%"; value.claimBindings.quantitative[0].claimText = "4.26%"; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "FACT_STATUS"); } finally { cleanup(fixture); } });
+test("39 stale quantitative claim preserves delay language", () => { const fixture = setup({ status: "stale" }); try { assert.doesNotThrow(() => validateResult(fixture.repo, fixture.request, result(fixture))); const value = result(fixture); value.payload.meta.subtitle = "最新4.26%"; value.claimBindings.quantitative[0].claimText = "最新4.26%"; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "FACT_STATUS"); } finally { cleanup(fixture); } });
+test("40 unavailable quantitative claim cannot invent a number", () => { const fixture = setup({ status: "unavailable" }); try { assert.doesNotThrow(() => validateResult(fixture.repo, fixture.request, result(fixture))); const value = result(fixture); value.payload.meta.subtitle = "数据不可用123"; value.claimBindings.quantitative[0].claimText = "数据不可用123"; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "FACT_STATUS"); } finally { cleanup(fixture); } });
+
+test("41 qualitative observation and covering document pass", () => { const fixture = setup(); try { assert.doesNotThrow(() => validateResult(fixture.repo, fixture.request, qualitativeResult(fixture))); } finally { cleanup(fixture); } });
+test("42 qualitative binding requires observations", () => { const fixture = setup(); try { const value = qualitativeResult(fixture); value.claimBindings.qualitative[0].observationIds = []; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "INVALID_ARRAY"); } finally { cleanup(fixture); } });
+test("43 unknown observation fails", () => { const fixture = setup(); try { const value = qualitativeResult(fixture, { observationIds: ["b".repeat(64)] }); assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, value)), "OBSERVATION_NOT_ALLOWED"); } finally { cleanup(fixture); } });
+test("44 evidenceState must equal bundle state", () => { const fixture = setup(); try { const value = qualitativeResult(fixture, { state: "unverified" }); assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, value)), "EVIDENCE_STATE"); } finally { cleanup(fixture); } });
+test("45 document IDs must cover observation basis", () => { const fixture = setup(); try { const value = qualitativeResult(fixture, { documentIds: ["b".repeat(64)] }); assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, value)), "DOCUMENT_NOT_ALLOWED"); const none = qualitativeResult(fixture); none.claimBindings.qualitative[0].documentIds = []; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(none))), "INVALID_ARRAY"); } finally { cleanup(fixture); } });
+test("46 conflicting observation must retain uncertainty", () => { const fixture = setup({ evidenceState: "conflicting" }); try { assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, qualitativeResult(fixture, { text: "The source confirms a fact." }))), "EVIDENCE_LANGUAGE"); assert.doesNotThrow(() => validateResult(fixture.repo, fixture.request, qualitativeResult(fixture, { text: "证据存在分歧，结论尚不能确认。" }))); } finally { cleanup(fixture); } });
+test("47 unverified observation must retain uncertainty", () => { const fixture = setup({ evidenceState: "unverified" }); try { assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, qualitativeResult(fixture, { text: "Confirmed fact." }))), "EVIDENCE_LANGUAGE"); assert.doesNotThrow(() => validateResult(fixture.repo, fixture.request, qualitativeResult(fixture, { text: "该观察尚未验证，结论不确定。" }))); } finally { cleanup(fixture); } });
+test("48 empty observations cannot carry qualitative claims", () => { const fixture = setup({ withObservations: false }); try { const value = result(fixture); value.claimBindings.qualitative = [{ claimPath: "$.payload.meta.curationNote", claimText: "invented", observationIds: ["b".repeat(64)], documentIds: ["c".repeat(64)], evidenceState: "confirmed" }]; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "EMPTY_OBSERVATIONS"); } finally { cleanup(fixture); } });
+test("49 empty observations require an explicit warning", () => { const fixture = setup({ withObservations: false }); try { const value = result(fixture); value.warnings = []; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "EMPTY_OBSERVATIONS"); } finally { cleanup(fixture); } });
+test("50 source metadata may repeat an exact title", () => { const fixture = setup(); try { const value = result(fixture, { unchanged: true }); value.payload.meta.subtitle = fixture.bundle.documents[0].title; value.claimBindings.sourceMetadata = [{ claimPath: "$.payload.meta.subtitle", claimText: fixture.bundle.documents[0].title, documentId: fixture.bundle.documents[0].documentId, metadataField: "title" }]; assert.doesNotThrow(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))); } finally { cleanup(fixture); } });
+test("51 source metadata cannot upgrade a title into causal prose", () => { const fixture = setup(); try { const value = result(fixture, { unchanged: true }); value.payload.meta.subtitle = `${fixture.bundle.documents[0].title} caused markets to rise`; value.claimBindings.sourceMetadata = [{ claimPath: "$.payload.meta.subtitle", claimText: value.payload.meta.subtitle, documentId: fixture.bundle.documents[0].documentId, metadataField: "title" }]; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "SOURCE_METADATA_VALUE"); } finally { cleanup(fixture); } });
+test("52 source metadata field allowlist is strict", () => { const fixture = setup(); try { const value = result(fixture, { unchanged: true }); value.payload.meta.subtitle = fixture.bundle.documents[0].sourceId; value.claimBindings.sourceMetadata = [{ claimPath: "$.payload.meta.subtitle", claimText: value.payload.meta.subtitle, documentId: fixture.bundle.documents[0].documentId, metadataField: "sourceId" }]; assert.equal(codeOf(() => validateResult(fixture.repo, fixture.request, sealWriterResult(value))), "SOURCE_METADATA_FIELD"); } finally { cleanup(fixture); } });
+
+test("53 daily apply dry-run writes nothing and reports the full plan", () => { const fixture = setup(); try { const before = snapshot(fixture.repo); const planned = apply({ rootDir: fixture.repo, request: fixture.request, result: result(fixture), dryRun: true }); assert.equal(planned.applied, false); assert(planned.files.includes("data/writer-jobs/accepted/2026/07/" + fixture.request.jobId + ".json.gz")); assert.deepEqual(snapshot(fixture.repo), before); } finally { cleanup(fixture); } });
+test("54 daily apply writes target and immutable accepted result", () => { const fixture = setup(); try { const applied = apply({ rootDir: fixture.repo, request: fixture.request, result: result(fixture), write: true }); assert.equal(applied.applied, true); assert.equal(JSON.parse(fs.readFileSync(path.join(fixture.repo, "content/daily-brief.json"), "utf8")).meta.subtitle, "4.26%"); assert.equal(fs.existsSync(createWriterJobPaths(fixture.repo).accepted(fixture.request.jobId, fixture.asOf)), true); } finally { cleanup(fixture); } });
+test("55 accepted result audit-only rerun is a no-op", () => { const fixture = setup(); try { const first = result(fixture); apply({ rootDir: fixture.repo, request: fixture.request, result: first, write: true }); const accepted = createWriterJobPaths(fixture.repo).accepted(fixture.request.jobId, fixture.asOf); const before = fs.readFileSync(accepted); const second = structuredClone(first); second.generatedAt = "2026-07-31T12:30:00.000Z"; second.warnings = ["later-audit-warning"]; const rerun = apply({ rootDir: fixture.repo, request: fixture.request, result: sealWriterResult(second), write: true }); assert.equal(rerun.noOp, true); assert.deepEqual(fs.readFileSync(accepted), before); } finally { cleanup(fixture); } });
+test("56 conflicting accepted result fails closed", () => { const fixture = setup(); try { apply({ rootDir: fixture.repo, request: fixture.request, result: result(fixture), write: true }); const changed = result(fixture); changed.payload.meta.subtitle = "4.26% changed"; changed.claimBindings.quantitative[0].claimText = "4.26% changed"; assert.equal(codeOf(() => apply({ rootDir: fixture.repo, request: fixture.request, result: sealWriterResult(changed), write: true })), "ACCEPTED_CONFLICT"); } finally { cleanup(fixture); } });
+test("57 daily target validator rejects structurally invalid payload", () => { const fixture = setup(); try { const value = result(fixture); value.payload.meta.generatedAt = ""; assert.equal(codeOf(() => apply({ rootDir: fixture.repo, request: fixture.request, result: sealWriterResult(value), write: true })), "TARGET_SCHEMA_INVALID"); } finally { cleanup(fixture); } });
+test("58 apply transaction rolls back target, accepted, index and pending", () => { for (const stage of ["target", "accepted", "writer-index", "daily-pending", "weekly-pending"]) { const fixture = setup(); try { const before = snapshot(fixture.repo, ["content", "data/writer-jobs"]); assert.throws(() => apply({ rootDir: fixture.repo, request: fixture.request, result: result(fixture), write: true, failAt: stage }), new RegExp(`INJECTED_${stage}`)); assert.deepEqual(snapshot(fixture.repo, ["content", "data/writer-jobs"]), before); } finally { cleanup(fixture); } } });
+test("59 apply leaves prediction/model/ledger bytes unchanged", () => { const fixture = setup(); try { for (const relativePath of ["data/prediction-ledger/sentinel.json", "data/sector-details/model-sentinel.json", "public/data/prediction-history/sentinel.json"]) write(fixture.repo, relativePath, "sentinel"); const before = snapshot(fixture.repo, ["data/prediction-ledger", "data/sector-details", "public/data/prediction-history"]); apply({ rootDir: fixture.repo, request: fixture.request, result: result(fixture), write: true }); assert.deepEqual(snapshot(fixture.repo, ["data/prediction-ledger", "data/sector-details", "public/data/prediction-history"]), before); } finally { cleanup(fixture); } });
+test("60 weekly apply updates report, index and notice atomically", () => { const fixture = setup({ edition: "weekly" }); try { const applied = apply({ rootDir: fixture.repo, request: fixture.request, result: result(fixture), write: true }); assert.equal(applied.applied, true); const report = JSON.parse(fs.readFileSync(path.join(fixture.repo, fixture.request.targetOutputs[0].targetPath), "utf8")); const index = JSON.parse(fs.readFileSync(path.join(fixture.repo, "content/weekly-reports/index.json"), "utf8")); const notice = JSON.parse(fs.readFileSync(path.join(fixture.repo, "public/update-notices.json"), "utf8")); assert.equal(report.report.revision, 2); assert.equal(index.reports.find((item) => item.id === report.report.id).revision, 2); assert.equal(notice.weekly.noticeId, `${report.report.id}-r2`); } finally { cleanup(fixture); } });
+test("61 weekly revision regression fails closed", () => { const fixture = setup({ edition: "weekly" }); try { const value = result(fixture); value.payload.report.revision = 0; assert.equal(codeOf(() => apply({ rootDir: fixture.repo, request: fixture.request, result: sealWriterResult(value), write: true })), "WEEKLY_REVISION_REGRESSION"); } finally { cleanup(fixture); } });
+test("62 daily apply leaves weekly publication unchanged", () => { const fixture = setup(); try { const before = snapshot(fixture.repo, ["content/weekly-reports", "public/update-notices.json"]); apply({ rootDir: fixture.repo, request: fixture.request, result: result(fixture), write: true }); assert.deepEqual(snapshot(fixture.repo, ["content/weekly-reports", "public/update-notices.json"]), before); } finally { cleanup(fixture); } });
+test("63 rebuild is deterministic and filters accepted requests", () => { const fixture = setup(); try { rebuild(fixture.repo); const first = fs.readFileSync(createWriterJobPaths(fixture.repo).index); rebuild(fixture.repo); assert.deepEqual(fs.readFileSync(createWriterJobPaths(fixture.repo).index), first); apply({ rootDir: fixture.repo, request: fixture.request, result: result(fixture), write: true }); assert.equal(JSON.parse(fs.readFileSync(createWriterJobPaths(fixture.repo).pending("daily"), "utf8")).job, null); } finally { cleanup(fixture); } });
+
+test("64 result template contains ID indexes but no generated facts", () => { const fixture = setup(); try { const template = createResultTemplate({ request: fixture.request, rootDir: fixture.repo }); assert.equal(template.availableEvidence.quantitative[0].factId, fixture.packet.facts[0].factId); assert.equal(template.availableEvidence.qualitative[0].observationId, fixture.bundle.observations[0].observationId); assert.equal(template.resultTemplate.payload, null); } finally { cleanup(fixture); } });
+test("65 result template output must stay outside repository", () => { const fixture = setup(); try { assert.equal(codeOf(() => writeResultTemplate({ request: fixture.request, rootDir: fixture.repo, output: path.join(fixture.repo, "template.json") })), "OUTPUT_PATH"); } finally { cleanup(fixture); } });
+test("66 execution package contains exactly the ten allowed files", () => { const fixture = setup(); const output = fs.mkdtempSync(path.join(os.tmpdir(), "writer-export-")); try { exportWriterJob({ request: fixture.request, rootDir: fixture.repo, outputDirectory: output }); assert.deepEqual(fs.readdirSync(output).sort(), ["BASELINE_CONTENT.json", "MANIFEST.json", "PROMPT.md", "QUANTITATIVE_PACKET.json", "REQUEST.json", "RESEARCH_BUNDLE.json", "RESULT_TEMPLATE.json", "SHA256SUMS.txt", "TARGET_SCHEMA.json", "WRITER_CONTEXT.json"]); } finally { cleanup(fixture); fs.rmSync(output, { recursive: true, force: true }); } });
+test("67 execution package SHA256SUMS verifies every listed file", () => { const fixture = setup(); const output = fs.mkdtempSync(path.join(os.tmpdir(), "writer-export-")); try { exportWriterJob({ request: fixture.request, rootDir: fixture.repo, outputDirectory: output }); for (const line of fs.readFileSync(path.join(output, "SHA256SUMS.txt"), "utf8").trim().split("\n")) { const [expected, name] = line.split(/  /); assert.equal(hashBytes(fs.readFileSync(path.join(output, name))), expected); } } finally { cleanup(fixture); fs.rmSync(output, { recursive: true, force: true }); } });
+test("68 repeated execution package export is byte-stable", () => { const fixture = setup(); const output = fs.mkdtempSync(path.join(os.tmpdir(), "writer-export-")); try { exportWriterJob({ request: fixture.request, rootDir: fixture.repo, outputDirectory: output }); const first = snapshot(output, ["."]); exportWriterJob({ request: fixture.request, rootDir: fixture.repo, outputDirectory: output }); assert.deepEqual(snapshot(output, ["."]), first); } finally { cleanup(fixture); fs.rmSync(output, { recursive: true, force: true }); } });
+test("69 execution package refuses unrelated existing files", () => { const fixture = setup(); const output = fs.mkdtempSync(path.join(os.tmpdir(), "writer-export-")); try { fs.writeFileSync(path.join(output, "secret.txt"), "do not touch"); assert.equal(codeOf(() => exportWriterJob({ request: fixture.request, rootDir: fixture.repo, outputDirectory: output })), "EXPORT_DIRECTORY"); } finally { cleanup(fixture); fs.rmSync(output, { recursive: true, force: true }); } });
+test("70 execution package manifest binds all immutable IDs", () => { const fixture = setup(); const output = fs.mkdtempSync(path.join(os.tmpdir(), "writer-export-")); try { exportWriterJob({ request: fixture.request, rootDir: fixture.repo, outputDirectory: output }); const manifest = JSON.parse(fs.readFileSync(path.join(output, "MANIFEST.json"), "utf8")); assert.equal(manifest.contextId, fixture.request.context.contextId); assert.equal(manifest.writerPacketId, fixture.packet.writerPacketId); assert.equal(manifest.bundleId, fixture.bundle.bundleId); } finally { cleanup(fixture); fs.rmSync(output, { recursive: true, force: true }); } });
+
+test("71 CLI prepare rejects missing context", () => { const run = spawnSync(process.execPath, [moduleFile, "prepare", "--edition", "daily", "--dry-run"], { cwd: root, encoding: "utf8" }); assert.equal(run.status, 1); assert.match(run.stderr, /CLI_ARGUMENT/); });
+test("72 CLI rejects implicit real apply", () => { const run = spawnSync(process.execPath, [moduleFile, "apply"], { cwd: root, encoding: "utf8" }); assert.equal(run.status, 1); assert.match(run.stderr, /CLI_ARGUMENT/); });
+test("73 Luna prompts define the v2 closed evidence boundary", () => { for (const file of ["prompts/luna-daily-brief.md", "prompts/luna-weekly-brief.md"]) { const prompt = fs.readFileSync(path.join(root, file), "utf8"); for (const phrase of ["writer-request-v2", "writer-context-v1", "writer-result-v2", "claimBindings", "quantitative", "qualitative", "sourceMetadata", "payload.factClaims", "latest", "no-new-qualitative-observations"]) assert.ok(prompt.includes(phrase), `${file} lacks ${phrase}`); assert.match(prompt, /Do not browse, search, call APIs/); } });
+test("74 workflow is manual, context-explicit, latest-free and single-runner", () => { const workflow = fs.readFileSync(path.join(root, ".github/workflows/writer-job-prepare.yml"), "utf8"); assert.match(workflow, /workflow_dispatch:/); assert.match(workflow, /context_path:/); assert.match(workflow, /--context "\$CONTEXT_PATH" --dry-run/); assert.match(workflow, /--context "\$CONTEXT_PATH" --write/); assert.doesNotMatch(workflow, /^\s*schedule:/m); assert.doesNotMatch(workflow, /cron:|--as-of auto|writer-packets\/.*latest/); assert.doesNotMatch(workflow, /matrix:/); });

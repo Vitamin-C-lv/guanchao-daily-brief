@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "writer-context-contract-v1",
+  "baselineSchemaVersion": "baseline-content-v1",
+  "contextSchemaVersion": "writer-context-v1",
+  "requestSchemaVersion": "writer-request-v2",
+  "resultSchemaVersion": "writer-result-v2",
+  "auditOnlyFields": {
+    "baseline": [
+      "capturedAt",
+      "warnings"
+    ],
+    "context": [
+      "generatedAt",
+      "warnings"
+    ]
+  },
+  "editions": {
+    "daily": {
+      "baselineTarget": "content/daily-brief.json",
+      "promptPath": "prompts/luna-daily-brief.md",
+      "targetSchemaVersion": "daily-brief-v1",
+      "validatorPath": "scripts/validate-brief.mjs"
+    },
+    "weekly": {
+      "baselineTargetPattern": "^content/weekly-reports/weekly-[0-9]{4}-W[0-9]{2}\\.json$",
+      "promptPath": "prompts/luna-weekly-brief.md",
+      "targetSchemaVersion": "weekly-report-v1",
+      "validatorPath": "scripts/validate-weekly.mjs"
+    }
+  },
+  "pathPrefixes": {
+    "baseline": "data/writer-contexts/baselines/",
+    "context": "data/writer-contexts/contexts/",
+    "quantitativeWriterPacket": "data/writer-jobs/packets/",
+    "qualitativeResearchBundle": "data/research-bundles/bundles/"
+  },
+  "storage": {
+    "baselineArtifact": "data/writer-contexts/baselines/YYYY/MM/<contentIdentity>.json.gz",
+    "contextArtifact": "data/writer-contexts/contexts/YYYY/MM/<contextId>.json.gz",
+    "dailyLatest": "content/writer-contexts/daily-latest.json",
+    "index": "data/writer-contexts/index.json",
+    "weeklyLatest": "content/writer-contexts/weekly-latest.json"
+  }
+}

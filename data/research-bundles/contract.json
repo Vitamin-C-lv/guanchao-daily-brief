@@ -157,7 +157,7 @@
       "qualitativeResearchBundle": ["schemaVersion", "artifactPath", "artifactSha256", "bundleId"],
       "quantitativeWriterPacket": ["schemaVersion", "artifactPath", "artifactSha256", "writerPacketId"]
     },
-    "p1fTransition": "writer-request-v1 will be upgraded or replaced in P1-H; P1-GA does not modify P1-F code",
+    "p1fTransition": "writer-request-v2 binds one explicit immutable writer-context-v1; no v1 authoritative request is generated",
     "researchBundleDirectToLuna": false
   }
 }

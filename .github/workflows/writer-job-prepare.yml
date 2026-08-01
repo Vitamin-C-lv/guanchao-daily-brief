@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       edition: { description: Writer edition, required: true, default: daily, type: choice, options: [daily, weekly] }
+      context_path: { description: Exact immutable writer-context-v1 path, required: true, type: string }
       dry_run: { description: Do not commit, required: true, default: true, type: boolean }
 
 permissions: { contents: write }
@@ -16,6 +17,7 @@ jobs:
     timeout-minutes: 30
     env:
       EDITION: ${{ inputs.edition }}
+      CONTEXT_PATH: ${{ inputs.context_path }}
       DRY_RUN: ${{ inputs.dry_run }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
@@ -29,14 +31,14 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Prepare request without writes when requested
         if: env.DRY_RUN == 'true'
-        run: pnpm production:prepare -- --edition "$EDITION" --as-of auto --dry-run
+        run: pnpm production:prepare -- --edition "$EDITION" --context "$CONTEXT_PATH" --dry-run
       - name: Require dry-run to leave the repository unchanged
         if: env.DRY_RUN == 'true'
         run: git diff --exit-code
       - name: Prepare immutable request
         if: env.DRY_RUN != 'true'
-        run: pnpm production:prepare -- --edition "$EDITION" --as-of auto
-      - run: pnpm validate:writer-packet
+        run: pnpm production:prepare -- --edition "$EDITION" --context "$CONTEXT_PATH" --write
+      - run: node scripts/writer-context.mjs validate-context --file "$CONTEXT_PATH"
       - name: Validate prepared request index
         if: env.DRY_RUN != 'true'
         run: node -e "const i=require('./data/writer-jobs/index.json'); if (!i.jobs.length) process.exit(1)"
@@ -44,7 +46,7 @@ jobs:
         if: env.DRY_RUN != 'true'
         shell: bash
         run: |
-          git add data/market-evidence/runs content/writer-packets data/writer-jobs content/writer-jobs
+          git add data/writer-jobs/requests data/writer-jobs/index.json content/writer-jobs
           if git diff --cached --quiet; then exit 0; fi
           git config user.name "guanchao-writer-bot"
           git config user.email "guanchao-writer-bot@users.noreply.github.com"
