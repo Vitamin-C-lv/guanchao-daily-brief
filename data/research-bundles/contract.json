@@ -1,0 +1,163 @@
+{
+  "allowedKeys": ["allowedKeys", "bundleSchemaVersion", "documentSchemaVersion", "enums", "evidenceStateRules", "forbiddenKeys", "identity", "limits", "schemaVersion", "schemas", "sourcePolicy", "sourcePolicyVersion", "sourceRunSchemaVersion", "storage", "writerContextBoundary"],
+  "bundleSchemaVersion": "research-bundle-v1",
+  "documentSchemaVersion": "research-document-v1",
+  "enums": {
+    "basisRelation": ["supports", "contradicts", "context"],
+    "contentHashBasis": ["response-entity", "feed-item", "structured-record", "metadata-only"],
+    "contentHashVersion": ["v1"],
+    "contentType": ["html", "rss", "atom", "json", "xml", "pdf-metadata", "press-release", "filing", "research-paper", "social-post", "community-post"],
+    "coverageStatus": ["ready", "partial", "unavailable"],
+    "duplicateClusterMethod": ["exact-url", "content-hash"],
+    "edition": ["daily", "weekly"],
+    "eventType": ["macro-release", "monetary-policy", "fiscal-policy", "regulation", "company-event", "market-move", "technology", "commodity", "geopolitics", "calendar", "other"],
+    "evidenceState": ["confirmed", "corroborated", "single-source", "conflicting", "unverified"],
+    "language": ["zh", "en", "mixed", "other"],
+    "marketScope": ["A_SHARE", "HK", "US", "FED", "GLOBAL"],
+    "observationKind": ["hard-fact", "official-statement", "company-disclosure", "market-event", "calendar-event", "analysis-context", "counterevidence"],
+    "snapshotPolicy": ["stored", "hash_only", "none"],
+    "sourceClass": ["official-primary", "company-filing", "exchange-market-data", "primary-research", "major-media", "specialist-media", "vendor-market-data", "vendor-estimate", "community-signal", "social-signal"],
+    "sourceRunStatus": ["ready", "partial", "stale", "unavailable", "rate_limited", "schema_changed"],
+    "topic": ["macro", "monetary-policy", "fiscal-policy", "regulation", "market-structure", "company", "technology", "commodities", "geopolitics", "calendar"]
+  },
+  "evidenceStateRules": {
+    "constraints": ["qualified contradicts are deduplicated by duplicate cluster and publisherId", "publisherId, not display publisher, defines independence", "documents in one duplicate cluster contribute at most one publisher", "community/signal contradicts are unverified counter-signals only", "community/signal never participates in corroborated counting", "confirmed is direct source support and not proof of causal or future inference", "analysis-context confirmed only labels source analysis or method"],
+    "eligibleCorroboratingSourceClasses": ["major-media", "specialist-media", "vendor-market-data", "vendor-estimate"],
+    "precedence": ["qualified contradicts produces conflicting", "authoritative primary supports produces confirmed", "at least two eligible independent publisherId values produces corroborated", "community/social-only supports produces unverified", "otherwise single-source"],
+    "qualifiedContradictSourceClasses": ["official-primary", "company-filing", "exchange-market-data", "primary-research", "major-media", "specialist-media", "vendor-market-data", "vendor-estimate"]
+  },
+  "forbiddenKeys": ["EvidenceScore", "accessToken", "articleText", "authToken", "authorization", "base64", "body", "cookie", "cookies", "evidenceScore", "expectedReturn", "fullText", "html", "imageData", "importance", "modelProbability", "modelVersion", "pdfBytes", "prediction", "probability", "publicationStatus", "ranking", "rawHtml", "sentiment", "transcript"],
+  "identity": {
+    "auditOnlyFields": {
+      "bundle": ["generatedAt", "warnings"],
+      "document": ["accessedAt", "warnings"],
+      "sourceRun": ["requestedAt", "warnings"]
+    },
+    "bundle": {
+      "businessView": ["coverage", "documentIds", "duplicateClusterBusinessViews", "edition", "eventBusinessViews", "observationBusinessViews", "schemaVersion", "sourcePolicyVersion", "sourceRunIds", "window", "asOf"],
+      "excludes": ["auditFields", "collectionMachine", "document.accessedAt", "generatedAt", "integrity", "localPath", "sourceRun.requestedAt", "warnings"]
+    },
+    "document": {
+      "excludes": ["accessedAt", "collectionMachine", "documentId", "integrity", "localPath", "warnings"],
+      "formula": ["canonicalUrl", "contentHashBasis", "contentHashVersion", "contentSha256", "publishedAt", "publishedDate", "sourceRunId"]
+    },
+    "duplicateCluster": {
+      "excludes": ["auditTime", "clusterId", "warnings"],
+      "formula": ["canonicalDocumentId", "memberDocumentIds", "method"],
+      "sortBeforeHash": ["memberDocumentIds unique lexicographic"]
+    },
+    "event": {
+      "excludes": ["auditTime", "eventId", "warnings"],
+      "formula": ["eventType", "marketScopes", "observationIds", "occurredAt", "title", "topics"],
+      "sortBeforeHash": ["marketScopes unique lexicographic", "observationIds unique lexicographic", "topics unique lexicographic"]
+    },
+    "existingArtifactReuse": ["revalidate existing artifact", "compare businessSha256", "compare stable artifact view", "reuse existing artifact when both match", "fail closed on stable business differences"],
+    "hash": "SHA-256 of UTF-8 canonical JSON using one canonical implementation",
+    "observation": {
+      "basisUniqueness": ["documentId", "relation", "locator", "excerpt"],
+      "entity": "nonempty string with at most 120 characters",
+      "excludes": ["auditTime", "observationId", "warnings"],
+      "formula": ["asOf", "basis", "entities", "evidenceState", "kind", "marketScopes", "occurredAt", "statement", "subject", "topics"],
+      "sortBeforeHash": ["basis by documentId, relation, locator, excerpt", "entities unique stable-string order", "marketScopes unique lexicographic", "topics unique lexicographic"]
+    },
+    "sourceRun": {
+      "excludes": ["collectionMachine", "integrity", "localPath", "requestedAt", "sourceRunId", "warnings"],
+      "formula": ["adapterId", "adapterVersion", "asOf", "coverage", "marketScopes", "provider", "rawSnapshotId", "snapshotPolicy", "sourceClass", "sourceId", "sourceUrl", "status", "topics"],
+      "sortBeforeHash": ["coverage fixed key order", "marketScopes unique lexicographic", "topics unique lexicographic"]
+    },
+    "stableArtifactViews": {
+      "bundle": "complete bundle minus auditOnlyFields and integrity.sha256",
+      "document": "complete document minus auditOnlyFields and integrity.sha256",
+      "sourceRun": "complete source run minus auditOnlyFields and integrity.sha256"
+    }
+  },
+  "limits": {
+    "bundleAsOfFormat": "YYYY-MM-DD",
+    "entityMaxCharacters": 120,
+    "excerptMaxCharacters": 500,
+    "locatorMaxCharacters": 160,
+    "minimumDocumentsPerDuplicateCluster": 2,
+    "minimumSupportsPerObservation": 1,
+    "statementMaxCharacters": 400,
+    "timestampFormat": "YYYY-MM-DDTHH:mm:ss.sssZ",
+    "timezone": "Asia/Shanghai",
+    "windowDateFormat": "YYYY-MM-DD"
+  },
+  "schemaVersion": "research-contract-v1",
+  "schemas": {
+    "research-bundle-v1": {
+      "allowedKeys": ["asOf", "bundleId", "coverage", "documents", "duplicateClusters", "edition", "events", "generatedAt", "integrity", "observations", "schemaVersion", "sourcePolicyVersion", "sourceRuns", "warnings", "window"],
+      "basisAllowedKeys": ["documentId", "excerpt", "locator", "relation"],
+      "basisRequiredKeys": ["documentId", "excerpt", "locator", "relation"],
+      "coverageAllowedKeys": ["markets", "topics", "totals"],
+      "coverageMarketAllowedKeys": ["documentCount", "market", "observationCount", "reasons", "status"],
+      "coverageMarketRequiredKeys": ["documentCount", "market", "observationCount", "reasons", "status"],
+      "coverageRequiredKeys": ["markets", "topics", "totals"],
+      "coverageTopicAllowedKeys": ["documentCount", "observationCount", "reasons", "status", "topic"],
+      "coverageTopicRequiredKeys": ["documentCount", "observationCount", "reasons", "status", "topic"],
+      "coverageTotalsAllowedKeys": ["conflictingObservations", "documents", "duplicateClusters", "events", "observations", "sourceRuns"],
+      "coverageTotalsRequiredKeys": ["conflictingObservations", "documents", "duplicateClusters", "events", "observations", "sourceRuns"],
+      "duplicateClusterAllowedKeys": ["canonicalDocumentId", "clusterId", "memberDocumentIds", "method"],
+      "duplicateClusterRequiredKeys": ["canonicalDocumentId", "clusterId", "memberDocumentIds", "method"],
+      "eventAllowedKeys": ["eventId", "eventType", "marketScopes", "observationIds", "occurredAt", "title", "topics"],
+      "eventRequiredKeys": ["eventId", "eventType", "marketScopes", "observationIds", "occurredAt", "title", "topics"],
+      "integrityAllowedKeys": ["businessSha256", "sha256"],
+      "integrityRequiredKeys": ["businessSha256", "sha256"],
+      "observationAllowedKeys": ["asOf", "basis", "entities", "evidenceState", "kind", "marketScopes", "observationId", "occurredAt", "statement", "subject", "topics", "warnings"],
+      "observationRequiredKeys": ["asOf", "basis", "entities", "evidenceState", "kind", "marketScopes", "observationId", "occurredAt", "statement", "subject", "topics", "warnings"],
+      "requiredKeys": ["asOf", "bundleId", "coverage", "documents", "duplicateClusters", "edition", "events", "generatedAt", "integrity", "observations", "schemaVersion", "sourcePolicyVersion", "sourceRuns", "warnings", "window"],
+      "windowAllowedKeys": ["end", "start", "timezone"],
+      "windowRequiredKeys": ["end", "start", "timezone"]
+    },
+    "research-document-v1": {
+      "allowedKeys": ["accessedAt", "canonicalUrl", "contentHashBasis", "contentHashVersion", "contentSha256", "contentType", "documentId", "integrity", "language", "marketScopes", "publishedAt", "publishedDate", "publisher", "publisherId", "rawSnapshotId", "sourceId", "sourceRunId", "title", "topics", "warnings"],
+      "integrityAllowedKeys": ["businessSha256", "sha256"],
+      "integrityRequiredKeys": ["businessSha256", "sha256"],
+      "requiredKeys": ["accessedAt", "canonicalUrl", "contentHashBasis", "contentHashVersion", "contentSha256", "contentType", "documentId", "integrity", "language", "marketScopes", "publishedAt", "publishedDate", "publisher", "publisherId", "rawSnapshotId", "sourceId", "sourceRunId", "title", "topics", "warnings"]
+    },
+    "research-source-policy-v1": {
+      "allowedKeys": ["rules"],
+      "requiredKeys": ["rules"]
+    },
+    "research-source-run-v1": {
+      "allowedKeys": ["adapterId", "adapterVersion", "asOf", "coverage", "integrity", "marketScopes", "provider", "rawSnapshotId", "requestedAt", "snapshotPolicy", "sourceClass", "sourceId", "sourceRunId", "sourceUrl", "status", "topics", "warnings"],
+      "coverageAllowedKeys": ["itemCount", "note"],
+      "coverageRequiredKeys": ["itemCount", "note"],
+      "integrityAllowedKeys": ["businessSha256", "sha256"],
+      "integrityRequiredKeys": ["businessSha256", "sha256"],
+      "requiredKeys": ["adapterId", "adapterVersion", "asOf", "coverage", "integrity", "marketScopes", "provider", "rawSnapshotId", "requestedAt", "snapshotPolicy", "sourceClass", "sourceId", "sourceRunId", "sourceUrl", "status", "topics", "warnings"]
+    }
+  },
+  "sourcePolicy": {
+    "hashOnlyDefault": ["major-media pages", "specialist-media pages", "community pages", "social pages", "copyright-unclear pages"],
+    "hashOnlyRetains": ["canonical URL", "response content SHA-256", "title and publishedAt", "minimal necessary evidence excerpt", "response status and collection audit metadata"],
+    "noneRequired": ["unavailable", "rate_limited", "schema_changed", "robots or site terms prohibit collection", "source explicitly prohibited from collection or storage"],
+    "policyBlockedStatus": "unavailable with a warning that collection is policy-prohibited, never schema_changed",
+    "prohibited": ["robots rules bypass", "site-terms-prohibited automated access", "login bypass", "paywall bypass", "CAPTCHA bypass", "WAF evasion", "fabricated cookies or authentication", "hidden automation identity", "bulk retention of news full text", "sensitive personal data retention", "cookies", "tokens", "authentication headers", "personal data", "media image, video, or PDF binary download or embedding"],
+    "storedAllowed": ["official JSON/XML/RSS/Atom", "government public releases", "company formal announcements", "exchange disclosures", "publicly redistributable structured files"]
+  },
+  "sourcePolicyVersion": "research-source-policy-v1",
+  "sourceRunSchemaVersion": "research-source-run-v1",
+  "storage": {
+    "bundleArtifact": "data/research-bundles/bundles/YYYY/MM/<bundleId>.json.gz",
+    "dailyLatest": "content/research-bundles/daily-latest.json",
+    "documentArtifact": "data/research-bundles/documents/YYYY/MM/<documentId>.json.gz",
+    "immutability": "source run, document, raw snapshot, and bundle artifacts are never overwritten; index and latest are rebuildable derived views",
+    "index": "data/research-bundles/index.json",
+    "p1gaArtifacts": "P1-GA creates no index, latest view, production bundle, or gzip data artifact",
+    "rawArtifact": "data/research-bundles/raw/YYYY/MM/<rawSnapshotId>.bin.gz",
+    "sourceRunArtifact": "data/research-bundles/source-runs/YYYY/MM/<sourceRunId>.json.gz",
+    "weeklyLatest": "content/research-bundles/weekly-latest.json",
+    "writerAuthority": "writer-context-v1 must reference an immutable bundle gzip; latest is never authoritative writer input"
+  },
+  "writerContextBoundary": {
+    "futureContextInputs": {
+      "baselineContent": ["schemaVersion", "artifactPath", "artifactSha256", "contentIdentity"],
+      "contextFields": ["writerPromptSha256", "targetSchemaVersion", "validatorSha256"],
+      "qualitativeResearchBundle": ["schemaVersion", "artifactPath", "artifactSha256", "bundleId"],
+      "quantitativeWriterPacket": ["schemaVersion", "artifactPath", "artifactSha256", "writerPacketId"]
+    },
+    "p1fTransition": "writer-request-v1 will be upgraded or replaced in P1-H; P1-GA does not modify P1-F code",
+    "researchBundleDirectToLuna": false
+  }
+}

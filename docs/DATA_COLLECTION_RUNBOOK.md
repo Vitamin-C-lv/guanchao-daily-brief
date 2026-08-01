@@ -54,3 +54,29 @@ sources are never called. Each enabled source appears in the immutable run, incl
 the source result retains URL, status, parser/normalizer versions and raw response hash but not
 raw XML or HTML. No cookies, browser automation, WAF challenge parameters or user credentials
 are used.
+
+## Research bundle collection
+
+The qualitative research path is separate from market-data and writer packets. Validate its
+catalog with `pnpm validate:research-sources`, then preview a bounded official collection with
+`pnpm research:run -- --edition daily|weekly --as-of auto --dry-run --output <absolute-outside-repo-path>`.
+The run command must choose exactly one of `--dry-run` or `--write`; no implicit write mode exists.
+Only a reviewed `--write` in the intended target (or an isolated temp/sandbox rehearsal) may create
+immutable raw/source-run/document/bundle artifacts. Do not use `--output` inside the repository.
+`pnpm research:rebuild` never accesses the network; it first validates raw filenames, gzip bytes,
+content hashes, unique raw paths and every source/document raw reference before rebuilding
+index/latest. A failed rebuild leaves the existing derived views untouched.
+
+A repeat run with identical business inputs must report immutable and byte-identical derived files
+as reused, with an empty `wouldWrite` list and unchanged mtimes. Provider failures appear only as
+controlled warnings and `sourceDiagnostics` fields (status, coverage note, raw presence, document
+count and final hostname); never copy response bodies, full headers, cookies, credentials, stacks or
+sensitive query strings into logs or artifacts.
+
+The sole permitted initial catalog entries are Federal Reserve press RSS, BLS latest RSS and the
+Federal Register documents JSON endpoint. The runner sends only a declared `User-Agent` GET,
+follows at most three explicitly allowed HTTPS redirects, has no cookies/auth/referer/proxy or
+retry loop, rejects XML entity declarations, and never follows an item link, PDF link, raw text
+link or full-text URL. A provider failure stays `unavailable`, `rate_limited` or `schema_changed`;
+it is not replaced with fixture data. A_SHARE and HK are honestly `unavailable` until compliant
+official adapters are separately frozen.

@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Atom</title><entry><id>atom-001</id><title>Atom official release</title><link rel="alternate" href="https://example.gov/atom/release"/><published>2026-07-30T08:00:00+08:00</published><summary>&lt;p&gt;Atom summary&lt;/p&gt;</summary><category term="macro"/></entry></feed>

@@ -1,8 +1,15 @@
-# P1-E 交接
+# P1-GA 交接
 
 ## 当前定位
 
 - 仓库：`Vitamin-C-lv/guanchao-daily-brief`
+- 当前 main 基线：`746378a23ef9ed622f723b2af4921db3d20168e3`。
+- P1-F PR #23 已 squash merge；P1-F merge SHA：`746378a23ef9ed622f723b2af4921db3d20168e3`。
+- 当前阶段完成 P1-GA 最终加固 + P1-GB/P1-GC 首批工程包：冻结 `research-bundle-v1` 的 canonical array、canonical UTC timestamp、发布日期精度和 raw snapshot lineage，并实现受限官方采集、不可变存储、daily/weekly builder、dry-run 和 rebuild。
+- `config/research-sources.json` 只允许 Federal Reserve RSS、BLS RSS 和 Federal Register JSON；`scripts/research-pipeline.mjs` 是唯一 pipeline，限量 GET、显式 bot identity、无 cookie/auth/browser/重试，RSS/Atom 和结构化 JSON 只保存 bounded metadata/hash/raw response。A_SHARE/HK 没有合规 adapter 时必须为 unavailable；不创建或提交 production artifact。
+- P1-G final hardening 要求真正 no-op：raw/source/document/bundle/index/latest 字节相同时 `shouldWrite: false`，不得更新 mtime；rebuild 在派生写入前验证全部 raw gzip/hash/唯一性与 source/document lineage；无日期 document 使用 bundle asOf 仅作分区。
+- `research:run` 必须显式选择 `--dry-run` 或 `--write`，验收只在 temp/sandbox 测试 write。官方 dry-run summary 提供受控 `sourceDiagnostics`，不保存响应正文、headers、cookies、token、堆栈或敏感 query。Federal Register 零结果为 ready，feed offset 日期保留来源日历日。
+- 原 P1-F 恢复资料保留于 `D:\Codex-Recovery`，不进入仓库。
 - 生产站：`https://guanchao-daily-brief.vercel.app/`
 - P1-C 精确 main 基线：`2c4dc081bb591830f78d532b32416a92f6446b40`。
 - P1-C 分支：`feature/p1c-ledger-feature-coverage-audit`；PR #14 已以 squash 合并。
@@ -69,9 +76,13 @@ P1-E PR #18 已合并；merge SHA：`16cde0056432b7d839420f545bbabbc4f49475a0`�
 2. [docs/ARCHITECTURE.md](ARCHITECTURE.md)
 3. [docs/ADR.md](ADR.md)
 4. [docs/EXECUTION_ENVIRONMENT.md](EXECUTION_ENVIRONMENT.md)
-5. [README.md](../README.md)
-6. [package.json](../package.json)
-7. 当前任务相关源码
+5. [docs/WRITER_PACKET_CONTRACT.md](WRITER_PACKET_CONTRACT.md)
+6. [docs/DATA_COLLECTION_RUNBOOK.md](DATA_COLLECTION_RUNBOOK.md)
+7. [docs/RESEARCH_BUNDLE_CONTRACT.md](RESEARCH_BUNDLE_CONTRACT.md)
+8. [`data/research-bundles/contract.json`](../data/research-bundles/contract.json)
+9. [README.md](../README.md)
+10. [package.json](../package.json)
+11. 当前任务相关源码
 
 ## P1-F writer job queue
 
