@@ -62,11 +62,11 @@ export default function PredictionRankingPreview({ data }: { data?: SectorRotati
       <header>
         <div className="prediction-preview-icon"><Target size={18} /></div>
         <div>
-          <span className="eyebrow">FORECAST FIRST</span>
+          <span className="eyebrow">FORECAST / OBSERVATION</span>
           <h2 id="prediction-preview-title">{previewCopy.title}</h2>
           <p>{previewCopy.description}</p>
         </div>
-        <Link href="/predictions/">查看完整预测<ChevronRight size={15} /></Link>
+        <Link href="/predictions/">查看完整榜单<ChevronRight size={15} /></Link>
       </header>
 
       {available.length ? (

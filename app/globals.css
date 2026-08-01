@@ -807,6 +807,35 @@ button {
   color: #746a7a;
 }
 
+.fed-yield-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+  color: #6f6872;
+  font-size: 10px;
+}
+
+.fed-yield-strip > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fbfafc;
+}
+
+.fed-yield-strip b {
+  color: #2a2530;
+  font-size: 12px;
+}
+
+.fed-yield-strip > small {
+  grid-column: 1 / -1;
+  color: #938d97;
+}
+
 .fed-takeaway {
   margin: 15px 0 14px;
   color: #6f6872;
@@ -4377,6 +4406,7 @@ footer p {
 
   .decision-row,
   .countdown-box,
+  .fed-yield-strip,
   .fed-takeaway {
     grid-column: 2;
   }

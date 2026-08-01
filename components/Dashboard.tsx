@@ -83,6 +83,10 @@ function formatCompactDate(date: string) {
   return date.replaceAll("-", ".");
 }
 
+function formatYield(value: number | null) {
+  return value === null ? "—" : `${value.toFixed(2)}%`;
+}
+
 function Sparkline({ values, tone }: { values: number[]; tone: Tone }) {
   const width = 280;
   const height = 92;
@@ -524,13 +528,21 @@ export default function Dashboard({
               </div>
               <div className="decision-row">
                 <div><span>最近决议</span><b>{data.federalReserve.lastDecision}</b></div>
-                <div><span>下次会议</span><b>{data.federalReserve.nextMeeting}</b></div>
+                <div><span>表决</span><b>{data.federalReserve.vote}</b></div>
+                <div><span>异议</span><b>{data.federalReserve.dissents.join("；") || "无"}</b></div>
+                <div><span>下次会议</span><b>{data.federalReserve.nextMeeting}（{formatCompactDate(data.federalReserve.nextMeetingStartDate)}–{formatCompactDate(data.federalReserve.nextMeetingEndDate)}）</b></div>
               </div>
               <div className="countdown-box">
                 <Calendar size={18} />
                 <span>距下次 FOMC 会议</span>
                 <strong>{data.federalReserve.countdownDays}</strong>
                 <small>天</small>
+              </div>
+              <div className="fed-yield-strip">
+                <div><span>美债 2Y</span><b>{formatYield(data.federalReserve.treasury2Y)}</b></div>
+                <div><span>美债 10Y</span><b>{formatYield(data.federalReserve.treasury10Y)}</b></div>
+                <div><span>实际 10Y</span><b>{formatYield(data.federalReserve.real10Y)}</b></div>
+                <small>收益率数据截至 {formatCompactDate(data.federalReserve.yieldDataThrough)}</small>
               </div>
               <p className="fed-takeaway">{data.federalReserve.takeaway}</p>
               <SourceLinks sources={data.federalReserve.articles[0].sources} compact />
@@ -583,7 +595,7 @@ export default function Dashboard({
 
           {showPredictions ? (
           <section id="predictions" className="section-block route-section prediction-route">
-            <SectionHeading eyebrow="FORECAST RANKING" title="板块上涨概率榜" description="默认先看下一交易日；概率、历史基准、校准区间与失效条件均可下钻查看。" action={<div className="prediction-heading-actions"><Link className="prediction-history-link" href="/predictions/history"><History size={14} />查看历史预测</Link><span className="updated-label"><RefreshCw size={13} /> 模型截至 {formatCompactDate(data.meta.dataThrough)}</span></div>} />
+            <SectionHeading eyebrow="FORECAST / OBSERVATION" title="板块预测与观察榜" description="模型通过时显示概率；模型弃权时显示证据观察分，不把观察分当作概率。" action={<div className="prediction-heading-actions"><Link className="prediction-history-link" href="/predictions/history"><History size={14} />查看历史预测</Link><span className="updated-label"><RefreshCw size={13} /> 数据截至 {formatCompactDate(data.meta.dataThrough)}</span></div>} />
             <div className="prediction-market-tabs" role="tablist" aria-label="切换预测市场">
               {data.markets.map((market, index) => (
                 <button key={market.id} type="button" role="tab" aria-selected={activeMarketCard === index} className={activeMarketCard === index ? "active" : ""} onClick={() => setActiveMarketCard(index)}>{market.shortName}</button>

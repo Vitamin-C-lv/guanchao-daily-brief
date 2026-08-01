@@ -1,6 +1,6 @@
 {
   "schemaVersion": "codex-writer-automation-v1",
-  "publicationEnabled": false,
+  "publicationEnabled": true,
   "runtime": {
     "projectPath": "D:/周报个人网站-local-writer-runtime",
     "recoveryRoot": "C:/Codex-Recovery/GuanchaoWriter",

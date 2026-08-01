@@ -21,12 +21,12 @@
   "limits": {
     "daily": {
       "defensivePhraseCount": 2,
-      "directnessScore": 82,
+      "directnessScore": 90,
       "readingMinutes": [3, 5]
     },
     "weekly": {
       "defensivePhraseCount": 4,
-      "directnessScore": 80,
+      "directnessScore": 85,
       "readingMinutes": [8, 12]
     },
     "maxConsecutiveHedgeSentences": 2,
@@ -71,6 +71,41 @@
     "每日早报",
     "周报"
   ],
+  "readerFacingTechnicalTerms": [
+    "provider",
+    "WAF",
+    "unavailable",
+    "lineage",
+    "artifact",
+    "schema"
+  ],
+  "maxReaderFacingTechnicalTerms": 1,
+  "forbiddenTitlePhrases": [
+    "采集状态",
+    "解读边界",
+    "复核条件"
+  ],
+  "dataLimitationPhrases": [
+    "数据缺口",
+    "数据不完整",
+    "完整收盘尚未",
+    "未获得完整",
+    "暂缺完整",
+    "暂未提供",
+    "尚未披露",
+    "无法获得",
+    "无法核验",
+    "未更新",
+    "未提供"
+  ],
+  "maxConsecutiveDataLimitationParagraphs": 1,
+  "maxDataLimitationRatio": 0.1,
+  "marketMissingExplanationLabels": {
+    "a-share": ["A股", "A 股"],
+    "hk": ["港股"],
+    "us": ["美股", "美国股市"]
+  },
+  "maxMissingExplanationsPerMarket": 1,
   "governanceLeakage": [
     "writer-context",
     "writer-result",

@@ -39,6 +39,14 @@ function requireDate(value, label) {
   }
 }
 
+function isValidDate(value) {
+  return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
+}
+
+function dateDifferenceInDays(later, earlier) {
+  return Math.round((Date.parse(`${later}T00:00:00Z`) - Date.parse(`${earlier}T00:00:00Z`)) / 86400000);
+}
+
 function validateSource(source, label) {
   if (!isObject(source)) {
     fail(`${label} 必须是对象`);
@@ -600,7 +608,29 @@ if (!isObject(data.federalReserve)) fail("federalReserve 缺失");
 else {
   requireString(data.federalReserve.targetRange, "federalReserve.targetRange", { max: 30 });
   requireString(data.federalReserve.stance, "federalReserve.stance", { max: 20 });
+  requireString(data.federalReserve.lastDecision, "federalReserve.lastDecision", { max: 120 });
   requireDate(data.federalReserve.lastDecisionDate, "federalReserve.lastDecisionDate");
+  requireString(data.federalReserve.nextMeeting, "federalReserve.nextMeeting", { max: 60 });
+  requireString(data.federalReserve.vote, "federalReserve.vote", { max: 40 });
+  if (!Array.isArray(data.federalReserve.dissents) || data.federalReserve.dissents.some((item) => typeof item !== "string" || !item.trim())) {
+    fail("federalReserve.dissents 必须是非空字符串数组");
+  }
+  requireDate(data.federalReserve.nextMeetingStartDate, "federalReserve.nextMeetingStartDate");
+  requireDate(data.federalReserve.nextMeetingEndDate, "federalReserve.nextMeetingEndDate");
+  if (!Number.isInteger(data.federalReserve.countdownDays) || data.federalReserve.countdownDays < 0) fail("federalReserve.countdownDays 必须是非负整数");
+  if (isValidDate(data.meta?.editionDate) && isValidDate(data.federalReserve.nextMeetingStartDate)) {
+    if (data.federalReserve.nextMeetingStartDate <= data.meta.editionDate) fail("federalReserve.nextMeetingStartDate 必须晚于 editionDate");
+    if (isValidDate(data.federalReserve.nextMeetingEndDate) && data.federalReserve.nextMeetingEndDate < data.federalReserve.nextMeetingStartDate) {
+      fail("federalReserve.nextMeetingEndDate 不能早于 nextMeetingStartDate");
+    }
+    if (Number.isInteger(data.federalReserve.countdownDays) && data.federalReserve.countdownDays !== dateDifferenceInDays(data.federalReserve.nextMeetingStartDate, data.meta.editionDate)) {
+      fail("federalReserve.countdownDays 必须由 editionDate 到 nextMeetingStartDate 推导");
+    }
+  }
+  requireDate(data.federalReserve.yieldDataThrough, "federalReserve.yieldDataThrough");
+  for (const key of ["treasury2Y", "treasury10Y", "real10Y"]) {
+    if (data.federalReserve[key] !== null && !Number.isFinite(data.federalReserve[key])) fail(`federalReserve.${key} 必须是数值或 null`);
+  }
   if (!Array.isArray(data.federalReserve.path) || data.federalReserve.path.length < 3) fail("federalReserve.path 至少需要 3 个数据点");
   if (!Array.isArray(data.federalReserve.articles) || data.federalReserve.articles.length < 1) fail("federalReserve.articles 至少需要 1 条");
   else data.federalReserve.articles.forEach((article, index) => validateArticle(article, `federalReserve.articles[${index}]`));
