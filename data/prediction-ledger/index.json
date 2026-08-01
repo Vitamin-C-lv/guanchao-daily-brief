@@ -40,6 +40,11 @@
       "path": "reviews/2026/2026-W30.json",
       "sha256": "b7f5edebf0d40c7e5114a5b39817a154390ef37f345fe40bd51517f6cb410895",
       "week": "2026-W30"
+    },
+    {
+      "path": "reviews/2026/2026-W31.json",
+      "sha256": "d015f145d471a8577ad13ff06a913f9db02d0c4b817e3397a0a94383c3b85582",
+      "week": "2026-W31"
     }
   ],
   "schemaVersion": 1,
