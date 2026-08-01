@@ -1,0 +1,65 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import { lintEditorial } from "./editorial-lint.mjs";
+
+const style = {
+  limits: { daily: { defensivePhraseCount: 2, directnessScore: 82 }, weekly: { defensivePhraseCount: 4, directnessScore: 80 }, maxConsecutiveHedgeSentences: 2, maxSentenceCharacters: 110 },
+  defensivePhrases: ["仍需观察", "不排除", "不构成投资建议"],
+  emptyWatchPhrases: ["后续仍需持续关注"],
+  hedgeWords: ["可能", "仍需", "不能", "尚未", "有待", "或许"],
+  genericTitles: ["今日市场观察"],
+  governanceLeakage: ["claimBindings"],
+  tradingInstructionPatterns: [],
+  strongClaimPatterns: ["稳赚"]
+};
+
+function daily(title = "风险偏好回来了，但资金没有回到高估值资产") {
+  return {
+    meta: { title, subtitle: "资金先回到防御，科技估值仍在重定价" },
+    pulse: { label: "防御先行", explanation: "风险偏好回来了，但资金没有回到高估值资产。" },
+    federalReserve: { takeaway: "利率路径仍由通胀和收益率决定。", articles: [] },
+    markets: [{ name: "A股", summary: "A股收盘走弱，成交额 1.20 万亿元。", articles: [{ title: "A股先跌估值", summary: "指数下跌 1.2%。", impact: "高估值方向承压。", detail: { lead: "A股先跌估值，指数下跌 1.2%。", keyPoints: ["指数下跌 1.2%", "成交额 1.20 万亿元", "防御相对占优"], sections: [{ heading: "结论", body: "风险集中在高估值方向。", sourceIndexes: [0] }, { heading: "证据", body: "成交额 1.20 万亿元。", sourceIndexes: [0] }, { heading: "条件", body: "若广度修复，压力才会减轻。", sourceIndexes: [0] }] }, sources: [{ publisher: "Source", url: "https://example.com/a", tier: "major-media" }] }] }],
+    hotspots: [],
+    watchlist: [{ title: "观察广度", note: "看成交和广度是否同步修复。" }]
+  };
+}
+
+test("passes direct conclusion and source coverage", () => {
+  const report = lintEditorial({ edition: "daily", value: daily(), style });
+  assert.equal(report.conclusionFirstPass, true);
+  assert.equal(report.evidenceBindingPass, true);
+  assert.equal(report.stylePass, true);
+});
+
+test("counts defensive phrases and rejects repeated disclaimers", () => {
+  const value = daily();
+  value.markets[0].articles[0].detail.sections[0].body = "仍需观察。不排除变化。不构成投资建议。不构成投资建议。";
+  const report = lintEditorial({ edition: "daily", value, style });
+  assert.equal(report.duplicateDisclaimerCount, 1);
+  assert.equal(report.stylePass, false);
+});
+
+test("rejects generic endings, warning leakage, and trading instructions", () => {
+  const value = daily("今日市场观察");
+  value.watchlist[0].note = "后续仍需持续关注，建议买入。";
+  value.markets[0].articles[0].detail.sections[2].body = "claimBindings 交易稳赚。";
+  const report = lintEditorial({ edition: "daily", value, style });
+  assert.equal(report.titlePass, false);
+  assert.ok(report.emptyWatchPhraseCount > 0);
+  assert.ok(report.governanceLeakageCount > 0);
+  assert.equal(report.tradingInstructionPass, false);
+  assert.equal(report.stylePass, false);
+});
+
+test("weekly uses the same deterministic gates with a different threshold", () => {
+  const value = {
+    report: { title: "AI估值从需求交易转向回报验证", subtitle: "本周只看一个命题" },
+    executiveSummary: { weekVerdict: "AI估值从需求交易转向回报验证，强业绩没有自动换来强股价。", keyTakeaways: [{ title: "需求仍强", summary: "订单证据仍在。", sourceIds: ["s1"] }] },
+    sources: [{ id: "s1", publisher: "Source", url: "https://example.com/source" }],
+    majorEvents: [], highValueInsights: [], markets: [], crossMarketThemes: [], nextWeekCalendar: []
+  };
+  const report = lintEditorial({ edition: "weekly", value, style });
+  assert.equal(report.conclusionFirstPass, true);
+  assert.equal(report.evidenceBindingPass, true);
+});

@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "codex-research-contract-v1",
+  "researchRunSchemaVersion": "codex-research-v1",
+  "sourceClass": [
+    "official-primary",
+    "company-filing",
+    "exchange-market-data",
+    "primary-research",
+    "major-media",
+    "specialist-media",
+    "vendor-market-data",
+    "vendor-estimate",
+    "community-signal",
+    "social-signal"
+  ],
+  "observationKind": [
+    "hard-fact",
+    "official-statement",
+    "company-disclosure",
+    "market-event",
+    "calendar-event",
+    "analysis-context",
+    "counterevidence"
+  ],
+  "marketScope": ["A_SHARE", "HK", "US", "FED", "GLOBAL"],
+  "topic": [
+    "macro",
+    "monetary-policy",
+    "fiscal-policy",
+    "regulation",
+    "market-structure",
+    "company",
+    "technology",
+    "commodities",
+    "geopolitics",
+    "calendar"
+  ],
+  "relation": ["supports", "contradicts", "context"],
+  "evidenceState": ["confirmed", "corroborated", "single-source", "conflicting", "unverified"],
+  "contentType": ["json", "xml", "html", "rss", "atom", "filing", "press-release", "research-paper"],
+  "limits": {
+    "titleMaxCharacters": 200,
+    "claimMaxCharacters": 400,
+    "excerptMaxCharacters": 500,
+    "locatorMaxCharacters": 160,
+    "subjectMaxCharacters": 120,
+    "entityMaxCharacters": 120,
+    "documentCountMax": 200,
+    "factCountMax": 500,
+    "observationCountMax": 300,
+    "timezone": "Asia/Shanghai",
+    "timestampFormat": "YYYY-MM-DDTHH:mm:ss.sssZ",
+    "dateFormat": "YYYY-MM-DD"
+  },
+  "forbiddenKeys": [
+    "accessToken",
+    "articleText",
+    "authToken",
+    "authorization",
+    "base64",
+    "body",
+    "cookie",
+    "cookies",
+    "fullText",
+    "html",
+    "imageData",
+    "modelProbability",
+    "password",
+    "pdfBytes",
+    "prediction",
+    "probability",
+    "rawHtml",
+    "token",
+    "transcript"
+  ],
+  "identity": {
+    "auditOnlyFields": ["accessedAt", "generatedAt", "requestedAt", "warnings"],
+    "researchRunBusinessFields": ["asOf", "edition", "facts", "observations", "schemaVersion", "window", "documents"],
+    "factBusinessFields": ["claimText", "contentSha256", "documentId", "evidenceClass", "factId", "publishedAt", "publishedDate", "publisher", "sourceUrl", "subject", "topics", "marketScopes"],
+    "documentBusinessFields": ["canonicalUrl", "contentSha256", "contentType", "evidenceClass", "language", "marketScopes", "publishedAt", "publishedDate", "publisher", "publisherId", "sourceId", "title", "topics"],
+    "observationBusinessFields": ["asOf", "basis", "documentIds", "entities", "kind", "marketScopes", "occurredAt", "statement", "subject", "topics"]
+  },
+  "storage": {
+    "runArtifact": "data/codex-research/runs/YYYY/MM/<researchRunId>.json.gz",
+    "index": "data/codex-research/index.json",
+    "immutability": "research run and adapted research artifacts are immutable; indexes/latest views are rebuildable",
+    "rawEvidencePolicy": "store only bounded canonical evidence records; never store full article/page text"
+  },
+  "sourcePolicy": {
+    "researcherMayBrowse": true,
+    "writerMayBrowse": false,
+    "requiredFactBindings": ["sourceUrl", "publisher", "publishedAtOrPublishedDate", "accessedAt", "documentId", "claimText", "evidenceClass", "contentSha256"],
+    "observationRequiresDocumentIds": true,
+    "noTitleOnlyCausality": true,
+    "noExternalLlmApi": true,
+    "noFabricatedUnavailableValues": true,
+    "noFullArticleStorage": true
+  }
+}

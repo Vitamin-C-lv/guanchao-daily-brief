@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "editorial-style-v2",
+  "persona": {
+    "daily": "观潮日报主笔",
+    "weekly": "观潮周报策略主笔"
+  },
+  "principles": [
+    "direct",
+    "sharp",
+    "restrained",
+    "conclusion-first",
+    "evidence-dense",
+    "plain-language"
+  ],
+  "analysisUnit": [
+    "conclusion",
+    "most-important-evidence",
+    "market-meaning",
+    "one-reversal-condition-or-next-check"
+  ],
+  "limits": {
+    "daily": {
+      "defensivePhraseCount": 2,
+      "directnessScore": 82,
+      "readingMinutes": [3, 5]
+    },
+    "weekly": {
+      "defensivePhraseCount": 4,
+      "directnessScore": 80,
+      "readingMinutes": [8, 12]
+    },
+    "maxConsecutiveHedgeSentences": 2,
+    "maxSentenceCharacters": 110
+  },
+  "defensivePhrases": [
+    "不构成投资信号",
+    "不构成投资建议",
+    "不能说明",
+    "不能证明",
+    "不能提前替代",
+    "不能把",
+    "仍需等待",
+    "仍需观察",
+    "持续核验",
+    "持续关注",
+    "密切关注",
+    "值得关注",
+    "后续观察",
+    "以官方数据为准",
+    "以官方声明为准",
+    "尚不能确认",
+    "有待验证",
+    "不排除",
+    "可能意味着",
+    "未形成新的定性观察"
+  ],
+  "emptyWatchPhrases": [
+    "后续仍需持续关注",
+    "后续持续关注",
+    "值得持续关注",
+    "密切关注后续变化",
+    "后续观察市场变化",
+    "保持关注"
+  ],
+  "hedgeWords": ["可能", "仍需", "不能", "尚未", "有待", "或许"],
+  "genericTitles": [
+    "市场情况更新",
+    "今日市场观察",
+    "多重因素影响市场",
+    "市场综述",
+    "每日早报",
+    "周报"
+  ],
+  "governanceLeakage": [
+    "writer-context",
+    "writer-result",
+    "claimBindings",
+    "GENERATION_CONTRACT_FAILURE",
+    "机器warning",
+    "治理文本",
+    "publicationStatus",
+    "EvidenceScore",
+    "prediction ledger",
+    "生产门禁"
+  ],
+  "tradingInstructionPatterns": [
+    "(?:建议|应该|应当|可以|适合|不妨)\\s*(?:买入|卖出|加仓|减仓|做多|做空|建仓|止损)",
+    "(?:买入|卖出|加仓|减仓|做多|做空|建仓|止损)\\s*(?:股票|个股|板块|仓位|机会)?"
+  ],
+  "strongClaimPatterns": [
+    "必涨",
+    "稳赚",
+    "保证收益",
+    "确定上涨",
+    "确定获利",
+    "无风险收益",
+    "主力已锁定"
+  ]
+}

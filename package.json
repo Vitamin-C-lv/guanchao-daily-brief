@@ -46,6 +46,7 @@
     "market:data:health": "node scripts/run-market-evidence.mjs health",
     "market-data:run": "node scripts/run-market-evidence.mjs run",
     "validate:research-contract": "node scripts/research-contract.mjs validate-registry",
+    "validate:codex-research-contract": "node scripts/codex-research.mjs validate-contract",
     "validate:research-sources": "node scripts/research-pipeline.mjs validate-catalog",
     "writer-context:validate": "node scripts/writer-context.mjs validate-registry",
     "writer-context:prepare": "node scripts/writer-context.mjs prepare",
@@ -56,9 +57,14 @@
     "writer-result:template": "node scripts/writer-jobs.mjs template",
     "writer-job:export": "node scripts/writer-jobs.mjs export",
     "production:apply": "node scripts/writer-jobs.mjs apply",
+    "prepare:codex-writer": "node scripts/codex-writer-prepare.mjs",
+    "finalize:codex-writer": "node scripts/codex-writer-finalize.mjs",
     "test:writer-jobs": "node --test scripts/writer-jobs.test.mjs",
     "test:research-contract": "node --test scripts/research-contract.test.mjs",
     "test:research-pipeline": "node --test scripts/research-pipeline.test.mjs",
+    "test:codex-research": "node --test scripts/codex-research.test.mjs",
+    "test:codex-writer": "node --test scripts/codex-writer.test.mjs",
+    "test:editorial-lint": "node --test scripts/editorial-lint.test.mjs",
     "model-research:validate": "node scripts/model-research.mjs validate",
     "model-research:train": "node scripts/model-research.mjs train",
     "model-research:evaluate": "node scripts/model-research.mjs evaluate",
@@ -77,7 +83,7 @@
     "archive:brief": "node scripts/archive-brief.mjs",
     "archive:weekly": "node scripts/archive-weekly-report.mjs",
     "context:weekly": "node scripts/collect-week-context.mjs",
-    "check": "pnpm validate:rotation && pnpm validate:prediction-history && pnpm validate:prediction-ledger && pnpm validate:prediction-diagnostics && pnpm validate:prediction-dataset && pnpm validate:sector-details && pnpm validate:rotation-events && pnpm validate:market-observer && pnpm validate:market-data && pnpm validate:research-contract && pnpm validate:research-sources && pnpm model-research:validate && pnpm test && pnpm test:writer-context && pnpm test:writer-jobs && pnpm test:research-contract && pnpm test:research-pipeline && pnpm test:model-research && pnpm test:prediction-ledger && pnpm test:prediction-dataset && pnpm test:market-data && pnpm test:prediction-python && pnpm validate:brief && pnpm validate:weekly && pnpm validate:assets && pnpm typecheck && pnpm build"
+    "check": "pnpm validate:rotation && pnpm validate:prediction-history && pnpm validate:prediction-ledger && pnpm validate:prediction-diagnostics && pnpm validate:prediction-dataset && pnpm validate:sector-details && pnpm validate:rotation-events && pnpm validate:market-observer && pnpm validate:market-data && pnpm validate:research-contract && pnpm validate:codex-research-contract && pnpm validate:research-sources && pnpm model-research:validate && pnpm test && pnpm test:writer-context && pnpm test:writer-jobs && pnpm test:research-contract && pnpm test:research-pipeline && pnpm test:codex-research && pnpm test:codex-writer && pnpm test:editorial-lint && pnpm test:model-research && pnpm test:prediction-ledger && pnpm test:prediction-dataset && pnpm test:market-data && pnpm test:prediction-python && pnpm validate:brief && pnpm validate:weekly && pnpm validate:assets && pnpm typecheck && pnpm build"
   },
   "dependencies": {
     "fast-xml-parser": "5.10.1",
