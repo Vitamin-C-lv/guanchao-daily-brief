@@ -3558,104 +3558,88 @@
       "id": "us",
       "label": "美股三大指数",
       "mode": "major-index",
-      "asOf": "2026-07-23",
+      "asOf": "2026-07-31",
       "status": "ready",
       "taxonomy": {
         "owner": "观潮日报引用的指数发布方/市场数据来源",
         "name": "纳斯达克、道琼斯、标普500三大指数（非行业分类）",
         "version": "daily-brief",
-        "effectiveDate": "2026-07-23"
+        "effectiveDate": "2026-07-31"
       },
       "note": "不扩建美股行业模型；只保留三大指数当前状态。",
       "reason": "本次没有经同口径历史回测的美股三大指数条件模型。",
       "sources": [
         {
-          "name": "美国股市7月23日收盘",
+          "name": "美国股市7月31日收盘",
           "publisher": "Associated Press",
-          "url": "https://apnews.com/article/wall-street-dow-nasdaq-stocks-3cb4bc150707e0a4378312fbb825f5e4",
+          "url": "https://apnews.com/article/37d8d182f02f0fcdcf9f7db67e6dfadd",
           "tier": "major-media",
           "evidenceClass": "major-media"
-        },
-        {
-          "name": "Tesla第二季度2026财报发布",
-          "publisher": "Tesla Investor Relations",
-          "url": "https://ir.tesla.com/press-release/tesla-releases-second-quarter-2026-financial-results",
-          "tier": "authoritative",
-          "evidenceClass": "company-filing"
         }
       ],
       "horizons": {
         "current": {
           "kind": "observed",
           "status": "ready",
-          "asOf": "2026-07-23",
+          "asOf": "2026-07-31",
           "note": "仅展示纳斯达克、道琼斯、标普500三大指数当前状态；不称为行业轮动。",
           "items": [
             {
-              "sector": "道琼斯",
+              "sector": "纳斯达克",
               "rank": 1,
               "score": 100,
               "direction": "leading",
-              "signal": "2026-07-23完整交易日指数表现。",
+              "signal": "2026-07-31完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "51,711.65"
+                  "value": "25,373.85"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-1.00%",
-                  "tone": "negative"
+                  "value": "+1.00%",
+                  "tone": "positive"
                 }
               ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
+              "sourceIndexes": [0]
             },
             {
               "sector": "标普500",
               "rank": 2,
               "score": 50,
-              "direction": "neutral",
-              "signal": "2026-07-23完整交易日指数表现。",
+              "direction": "strengthening",
+              "signal": "2026-07-31完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "7,408.30"
+                  "value": "7,489.72"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-1.20%",
-                  "tone": "negative"
+                  "value": "+0.70%",
+                  "tone": "positive"
                 }
               ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
+              "sourceIndexes": [0]
             },
             {
-              "sector": "纳斯达克",
+              "sector": "道琼斯",
               "rank": 3,
               "score": 0,
-              "direction": "lagging",
-              "signal": "2026-07-23完整交易日指数表现。",
+              "direction": "neutral",
+              "signal": "2026-07-31完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "25,137.69"
+                  "value": "52,485.03"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-2.20%",
-                  "tone": "negative"
+                  "value": "+0.50%",
+                  "tone": "positive"
                 }
               ],
-              "sourceIndexes": [
-                0,
-                1
-              ]
+              "sourceIndexes": [0]
             }
           ],
           "modelAvailability": "not_implemented",
@@ -3678,7 +3662,7 @@
         "tomorrow": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-23",
+          "asOf": "2026-07-31",
           "sessions": 1,
           "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
           "modelAvailability": "not_implemented",
@@ -3703,7 +3687,7 @@
         "oneWeek": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-23",
+          "asOf": "2026-07-31",
           "sessions": 5,
           "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
           "modelAvailability": "not_implemented",
@@ -3728,7 +3712,7 @@
         "oneMonth": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-23",
+          "asOf": "2026-07-31",
           "sessions": 20,
           "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
           "modelAvailability": "not_implemented",

@@ -25,6 +25,22 @@ function countOccurrences(text, phrase) {
   return count;
 }
 
+function countOccurrencesInsensitive(text, phrase) {
+  return countOccurrences(text.toLocaleLowerCase("en-US"), phrase.toLocaleLowerCase("en-US"));
+}
+
+function maxConsecutiveTrue(values) {
+  let current = 0;
+  let maximum = 0;
+  for (const value of values) {
+    if (value) {
+      current += 1;
+      maximum = Math.max(maximum, current);
+    } else current = 0;
+  }
+  return maximum;
+}
+
 function pushText(target, value) {
   if (typeof value === "string" && value.trim()) target.push(value.trim());
 }
@@ -66,6 +82,11 @@ function visibleParagraphs(edition, payload) {
     const pulse = payload.pulse ?? {};
     pushText(paragraphs, pulse.label);
     pushText(paragraphs, pulse.explanation);
+    for (const signal of pulse.signals ?? []) {
+      if (!object(signal)) continue;
+      pushText(paragraphs, signal.label);
+      pushText(paragraphs, signal.value);
+    }
     const fed = payload.federalReserve ?? {};
     pushText(paragraphs, fed.takeaway);
     for (const article of fed.articles ?? []) pushArticle(paragraphs, article);
@@ -161,6 +182,16 @@ function sourceCoverage(payload, edition) {
   return articles.length > 0 && articles.every((article) => Array.isArray(article.sources) && article.sources.length > 0);
 }
 
+function latestWeeklyReportInput(root) {
+  const indexPath = path.join(root, "content", "weekly-reports", "index.json");
+  if (!fs.existsSync(indexPath)) return path.join(root, "content", "weekly-reports", "weekly-2026-W29.json");
+  const index = readJson(indexPath);
+  const reportId = index.latestReportId ?? index.reports?.[0]?.id;
+  return typeof reportId === "string"
+    ? path.join(root, "content", "weekly-reports", `${reportId}.json`)
+    : path.join(root, "content", "weekly-reports", "weekly-2026-W29.json");
+}
+
 export function loadEditorialStyle(root = repositoryRoot) {
   return readJson(path.join(root, "config", "editorial-style.json"));
 }
@@ -178,6 +209,34 @@ export function lintEditorial({ edition, value, style = loadEditorialStyle(), re
   const defensivePhraseCount = Object.values(defensivePhraseCounts).reduce((sum, count) => sum + count, 0);
   const duplicateDisclaimerCount = Object.values(defensivePhraseCounts).reduce((sum, count) => sum + Math.max(0, count - 1), 0);
   const emptyWatchPhraseCount = style.emptyWatchPhrases.reduce((sum, phrase) => sum + countOccurrences(body, phrase), 0);
+  const readerFacingTechnicalTerms = style.readerFacingTechnicalTerms ?? [];
+  const readerFacingTechnicalTermCounts = Object.fromEntries(readerFacingTechnicalTerms.map((term) => [term, countOccurrencesInsensitive(body, term)]));
+  const readerFacingTechnicalTermCount = Object.values(readerFacingTechnicalTermCounts).reduce((sum, count) => sum + count, 0);
+  const forbiddenTitlePhrases = style.forbiddenTitlePhrases ?? [];
+  const forbiddenTitlePhraseCounts = Object.fromEntries(forbiddenTitlePhrases.map((phrase) => [phrase, countOccurrences(title, phrase)]));
+  const forbiddenTitlePhraseCount = Object.values(forbiddenTitlePhraseCounts).reduce((sum, count) => sum + count, 0);
+  const dataLimitationPhrases = style.dataLimitationPhrases ?? [];
+  const dataLimitationFlags = paragraphs.map((paragraph) => dataLimitationPhrases.some((phrase) => countOccurrences(paragraph, phrase) > 0));
+  const dataLimitationParagraphCount = dataLimitationFlags.filter(Boolean).length;
+  const dataLimitationCharacterCount = paragraphs.reduce((sum, paragraph, index) => sum + (dataLimitationFlags[index] ? [...paragraph].length : 0), 0);
+  const bodyCharacterCount = [...body].length;
+  const dataLimitationRatio = Number((dataLimitationCharacterCount / Math.max(bodyCharacterCount, 1)).toFixed(4));
+  const maxConsecutiveDataLimitationParagraphs = maxConsecutiveTrue(dataLimitationFlags);
+  const missingExplanationLabels = style.marketMissingExplanationLabels ?? {};
+  const missingExplanationCounts = Object.fromEntries(Object.entries(missingExplanationLabels).map(([market, labels]) => [
+    market,
+    dataLimitationFlags.reduce((sum, isLimitation, index) => {
+      if (!isLimitation) return sum;
+      const paragraph = paragraphs[index];
+      return sum + (labels.some((label) => paragraph.includes(label)) ? 1 : 0);
+    }, 0)
+  ]));
+  const maxMissingExplanationsPerMarket = style.maxMissingExplanationsPerMarket ?? Infinity;
+  const missingExplanationPass = Object.values(missingExplanationCounts).every((count) => count <= maxMissingExplanationsPerMarket);
+  const consecutiveDataLimitationPass = maxConsecutiveDataLimitationParagraphs <= (style.maxConsecutiveDataLimitationParagraphs ?? Infinity);
+  const dataLimitationRatioPass = dataLimitationRatio <= (style.maxDataLimitationRatio ?? Infinity);
+  const readerFacingTechnicalTermPass = readerFacingTechnicalTermCount <= (style.maxReaderFacingTechnicalTerms ?? Infinity);
+  const titleForbiddenPhrasePass = forbiddenTitlePhraseCount === 0;
   const hedgeRegex = new RegExp(style.hedgeWords.join("|"), "u");
   let consecutiveHedgeSentences = 0;
   let maxConsecutiveHedgeSentences = 0;
@@ -220,6 +279,11 @@ export function lintEditorial({ edition, value, style = loadEditorialStyle(), re
   directnessScore -= strongClaimCount * 15;
   directnessScore -= tradingInstructionCount * 20;
   directnessScore -= governanceLeakageCount * 12;
+  if (!readerFacingTechnicalTermPass) directnessScore -= 10;
+  if (!titleForbiddenPhrasePass) directnessScore -= 10;
+  if (!consecutiveDataLimitationPass) directnessScore -= 8;
+  if (!dataLimitationRatioPass) directnessScore -= 10;
+  if (!missingExplanationPass) directnessScore -= 8;
   if (!conclusionFirstPass) directnessScore -= 12;
   if (!evidenceBindingPass) directnessScore -= 15;
   if (!tradingInstructionPass) directnessScore -= 25;
@@ -233,6 +297,11 @@ export function lintEditorial({ edition, value, style = loadEditorialStyle(), re
     && strongClaimCount === 0
     && tradingInstructionPass
     && governanceLeakageCount === 0
+    && readerFacingTechnicalTermPass
+    && titleForbiddenPhrasePass
+    && consecutiveDataLimitationPass
+    && dataLimitationRatioPass
+    && missingExplanationPass
     && directnessScore >= limit.directnessScore;
   return {
     schemaVersion: "editorial-lint-result-v1",
@@ -242,6 +311,20 @@ export function lintEditorial({ edition, value, style = loadEditorialStyle(), re
     defensivePhraseCounts,
     duplicateDisclaimerCount,
     emptyWatchPhraseCount,
+    readerFacingTechnicalTermCount,
+    readerFacingTechnicalTermCounts,
+    readerFacingTechnicalTermPass,
+    forbiddenTitlePhraseCount,
+    forbiddenTitlePhraseCounts,
+    titleForbiddenPhrasePass,
+    dataLimitationParagraphCount,
+    dataLimitationCharacterCount,
+    dataLimitationRatio,
+    maxConsecutiveDataLimitationParagraphs,
+    consecutiveDataLimitationPass,
+    missingExplanationCounts,
+    missingExplanationPass,
+    dataLimitationRatioPass,
     conclusionFirstPass,
     titlePass: !genericTitle && title.trim().length >= 8,
     duplicateFactCount,
@@ -281,7 +364,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
   try {
     const args = parseArgs(process.argv.slice(2));
     const edition = args.edition === "weekly" ? "weekly" : "daily";
-    const input = typeof args.input === "string" ? path.resolve(args.input) : path.join(repositoryRoot, edition === "daily" ? "content/daily-brief.json" : "content/weekly-reports/weekly-2026-W29.json");
+    const input = typeof args.input === "string" ? path.resolve(args.input) : edition === "daily"
+      ? path.join(repositoryRoot, "content/daily-brief.json")
+      : latestWeeklyReportInput(repositoryRoot);
     const value = readJson(input);
     const result = value?.schemaVersion === "writer-result-v2" ? value : null;
     const report = lintEditorial({ edition, value: result ? null : value, result });

@@ -4,11 +4,19 @@ import test from "node:test";
 import { lintEditorial } from "./editorial-lint.mjs";
 
 const style = {
-  limits: { daily: { defensivePhraseCount: 2, directnessScore: 82 }, weekly: { defensivePhraseCount: 4, directnessScore: 80 }, maxConsecutiveHedgeSentences: 2, maxSentenceCharacters: 110 },
+  limits: { daily: { defensivePhraseCount: 2, directnessScore: 90 }, weekly: { defensivePhraseCount: 4, directnessScore: 85 }, maxConsecutiveHedgeSentences: 2, maxSentenceCharacters: 110 },
   defensivePhrases: ["仍需观察", "不排除", "不构成投资建议"],
   emptyWatchPhrases: ["后续仍需持续关注"],
   hedgeWords: ["可能", "仍需", "不能", "尚未", "有待", "或许"],
   genericTitles: ["今日市场观察"],
+  readerFacingTechnicalTerms: ["provider", "WAF", "unavailable", "lineage", "artifact", "schema"],
+  maxReaderFacingTechnicalTerms: 1,
+  forbiddenTitlePhrases: ["采集状态", "解读边界", "复核条件"],
+  dataLimitationPhrases: ["数据缺口", "数据不完整", "未提供"],
+  maxConsecutiveDataLimitationParagraphs: 1,
+  maxDataLimitationRatio: 0.1,
+  marketMissingExplanationLabels: { "a-share": ["A股"], hk: ["港股"], us: ["美股"] },
+  maxMissingExplanationsPerMarket: 1,
   governanceLeakage: ["claimBindings"],
   tradingInstructionPatterns: [],
   strongClaimPatterns: ["稳赚"]
@@ -62,4 +70,42 @@ test("weekly uses the same deterministic gates with a different threshold", () =
   const report = lintEditorial({ edition: "weekly", value, style });
   assert.equal(report.conclusionFirstPass, true);
   assert.equal(report.evidenceBindingPass, true);
+});
+
+test("rejects reader-facing technical terms above the cap", () => {
+  const value = daily();
+  value.pulse.explanation = "provider WAF unavailable";
+  const report = lintEditorial({ edition: "daily", value, style });
+  assert.equal(report.readerFacingTechnicalTermCount, 3);
+  assert.equal(report.readerFacingTechnicalTermPass, false);
+  assert.equal(report.stylePass, false);
+});
+
+test("rejects forbidden title phrases", () => {
+  const value = daily("采集状态决定风险偏好");
+  const report = lintEditorial({ edition: "daily", value, style });
+  assert.equal(report.forbiddenTitlePhraseCount, 1);
+  assert.equal(report.titleForbiddenPhrasePass, false);
+  assert.equal(report.stylePass, false);
+});
+
+test("rejects consecutive data-limit paragraphs and repeated market explanations", () => {
+  const value = daily();
+  value.markets[0].articles[0].detail.lead = "A股数据不完整。";
+  value.markets[0].articles[0].detail.keyPoints[0] = "A股数据缺口仍在。";
+  const report = lintEditorial({ edition: "daily", value, style });
+  assert.equal(report.maxConsecutiveDataLimitationParagraphs, 2);
+  assert.equal(report.consecutiveDataLimitationPass, false);
+  assert.equal(report.missingExplanationCounts["a-share"], 2);
+  assert.equal(report.missingExplanationPass, false);
+  assert.equal(report.stylePass, false);
+});
+
+test("rejects a data-limit explanation that occupies too much of the body", () => {
+  const value = daily();
+  value.markets[0].summary = "A股数据缺口。".repeat(80);
+  const report = lintEditorial({ edition: "daily", value, style });
+  assert.ok(report.dataLimitationRatio > 0.1);
+  assert.equal(report.dataLimitationRatioPass, false);
+  assert.equal(report.stylePass, false);
 });

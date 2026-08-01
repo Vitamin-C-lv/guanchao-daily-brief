@@ -835,8 +835,16 @@ export interface FederalReserveSection {
   stanceTone: Tone;
   lastDecision: string;
   lastDecisionDate: string;
+  vote: string;
+  dissents: string[];
   nextMeeting: string;
+  nextMeetingStartDate: string;
+  nextMeetingEndDate: string;
   countdownDays: number;
+  yieldDataThrough: string;
+  treasury2Y: number | null;
+  treasury10Y: number | null;
+  real10Y: number | null;
   takeaway: string;
   path: Array<{ label: string; lower: number; upper: number }>;
   articles: BriefArticle[];
