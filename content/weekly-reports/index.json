@@ -1,7 +1,16 @@
 {
   "schemaVersion": 1,
-  "latestReportId": "weekly-2026-W29",
+  "latestReportId": "weekly-2026-W31",
   "reports": [
+    {
+      "id": "weekly-2026-W31",
+      "weekStart": "2026-07-27",
+      "weekEnd": "2026-08-02",
+      "publishedAt": "2026-08-01T23:59:00+08:00",
+      "title": "观潮市场｜风险偏好回暖，利率约束仍在",
+      "summary": "FOMC按兵不动但三票偏紧，收益率高位约束估值；美股收高，A/H等待成交与广度的下一次完整验证。",
+      "revision": 1
+    },
     {
       "id": "weekly-2026-W29",
       "weekStart": "2026-07-13",

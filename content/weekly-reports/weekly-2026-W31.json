@@ -1,0 +1,633 @@
+{
+  "schemaVersion": 1,
+  "report": {
+    "id": "weekly-2026-W31",
+    "revision": 1,
+    "weekStart": "2026-07-27",
+    "weekEnd": "2026-08-02",
+    "generatedAt": "2026-08-01T23:59:00+08:00",
+    "timezone": "Asia/Shanghai",
+    "model": "gpt-5.6-terra",
+    "title": "观潮市场｜风险偏好回暖，利率约束仍在",
+    "subtitle": "2026年7月27日至31日交易周：FOMC按兵不动，美股收高但折现率未松",
+    "status": "complete",
+    "coverage": [
+      {
+        "scope": "fed",
+        "dataThrough": "2026-07-31",
+        "status": "complete",
+        "note": "7月29日FOMC决议、9月会议日程及7月31日收益率均已核对。"
+      },
+      {
+        "scope": "a-share",
+        "dataThrough": "2026-07-24",
+        "status": "insufficient",
+        "note": "最新完整A股行业观察截至7月24日；本周没有足够同口径记录计算周度扩散。"
+      },
+      {
+        "scope": "hk",
+        "dataThrough": "2026-07-24",
+        "status": "insufficient",
+        "note": "最新完整港股行业观察截至7月24日；本周不把缺口写成放量或资金趋势。"
+      },
+      {
+        "scope": "us",
+        "dataThrough": "2026-07-31",
+        "status": "complete",
+        "note": "三大指数已覆盖7月31日完整收盘；没有封存周初序列，因此不编造周度涨跌幅。"
+      }
+    ]
+  },
+  "executiveSummary": {
+    "editorialScore": 92,
+    "weekVerdict": "本周风险偏好回暖，但利率没有同步松动：美联储按兵不动却出现三名加息异议，10年期美债与实际收益率继续处在高位。美股收高给了市场弹性，A股和港股的下一步仍要靠行业广度与成交证据确认。",
+    "keyTakeaways": [
+      {
+        "id": "takeaway-fed-dissent",
+        "title": "FOMC按兵不动，内部意见更偏紧",
+        "summary": "7月29日目标区间维持3.50%—3.75%，表决9—3，三名委员倾向加息25个基点；政策没有转向宽松，分歧反而把利率风险留在定价里。",
+        "importance": 98,
+        "sourceIds": [
+          "fed-statement",
+          "ap-fed"
+        ]
+      },
+      {
+        "id": "takeaway-yield-constraint",
+        "title": "折现率仍是上涨的硬约束",
+        "summary": "7月31日2年期、10年期和实际10年期收益率分别为4.28%、4.75%和2.47%；股指上涨尚未得到长端利率回落的配合。",
+        "importance": 94,
+        "sourceIds": [
+          "treasury-nominal",
+          "treasury-real"
+        ]
+      },
+      {
+        "id": "takeaway-us-close",
+        "title": "美股收高，强势集中在指数层",
+        "summary": "7月31日标普500、纳指和道指分别上涨0.7%、1.0%和0.5%；这改善短线情绪，但还不能替代盈利兑现与估值消化。",
+        "importance": 90,
+        "sourceIds": [
+          "ap-us-close",
+          "treasury-nominal"
+        ]
+      },
+      {
+        "id": "takeaway-ah-observation",
+        "title": "A/H先看结构扩散，再谈方向升级",
+        "summary": "A股和港股最新完整行业观察仍截至7月24日，本周没有足够同口径序列支持周度轮动结论；当前榜单是规则观察分，不是概率。",
+        "importance": 86,
+        "sourceIds": [
+          "csindex",
+          "hkex"
+        ]
+      }
+    ]
+  },
+  "majorEvents": [
+    {
+      "id": "fomc-july-2026",
+      "date": "2026-07-29",
+      "title": "美联储维持利率不变，三名委员主张加息",
+      "categories": [
+        "美联储",
+        "利率",
+        "风险偏好"
+      ],
+      "affectedMarkets": [
+        "us",
+        "hk",
+        "a-share"
+      ],
+      "importance": 100,
+      "facts": [
+        {
+          "text": "联邦基金目标区间维持在3.50%—3.75%，委员会以9—3通过决议。",
+          "sourceIds": [
+            "fed-statement"
+          ]
+        },
+        {
+          "text": "Beth M. Hammack、Neel Kashkari和Lorie K. Logan倾向加息25个基点。",
+          "sourceIds": [
+            "fed-statement",
+            "ap-fed"
+          ]
+        }
+      ],
+      "whyItMatters": "市场不能只看“没有加息”这一结果；三张反对票说明通胀与金融条件仍可能把政策推向更紧的一侧。",
+      "confidence": "high",
+      "basisSourceIds": [
+        "fed-statement",
+        "ap-fed"
+      ]
+    },
+    {
+      "id": "treasury-yields-0731",
+      "date": "2026-07-31",
+      "title": "名义与实际收益率一起上行，估值缓冲没有扩大",
+      "categories": [
+        "美国利率",
+        "估值",
+        "跨市场"
+      ],
+      "affectedMarkets": [
+        "us",
+        "hk",
+        "a-share"
+      ],
+      "importance": 96,
+      "facts": [
+        {
+          "text": "美国财政部7月31日曲线显示2年期收益率4.28%、10年期收益率4.75%，2s10s利差为47个基点。",
+          "sourceIds": [
+            "treasury-nominal"
+          ]
+        },
+        {
+          "text": "实际10年期收益率为2.47%，名义与实际长端定价同时偏高。",
+          "sourceIds": [
+            "treasury-real"
+          ]
+        }
+      ],
+      "whyItMatters": "风险资产可以在收益率高位上涨，但成长股需要更强的现金流与利润兑现来承接估值。",
+      "confidence": "high",
+      "basisSourceIds": [
+        "treasury-nominal",
+        "treasury-real"
+      ]
+    },
+    {
+      "id": "us-close-0731",
+      "date": "2026-07-31",
+      "title": "美股三大指数收高，纳指相对领先",
+      "categories": [
+        "美股",
+        "市场结构",
+        "风险偏好"
+      ],
+      "affectedMarkets": [
+        "us",
+        "hk",
+        "a-share"
+      ],
+      "importance": 92,
+      "facts": [
+        {
+          "text": "标普500收于7,489.72点，上涨0.7%；纳斯达克收于25,373.85点，上涨1.0%。",
+          "sourceIds": [
+            "ap-us-close"
+          ]
+        },
+        {
+          "text": "道琼斯收于52,485.03点，上涨0.5%；三大指数同日上涨。",
+          "sourceIds": [
+            "ap-us-close"
+          ]
+        }
+      ],
+      "whyItMatters": "收盘反弹改善风险偏好，但指数强势与收益率高位并存，下一步要看上涨能否扩散到更多资产。",
+      "confidence": "high",
+      "basisSourceIds": [
+        "ap-us-close",
+        "treasury-nominal"
+      ]
+    },
+    {
+      "id": "ah-observation-0724",
+      "date": "2026-07-24",
+      "title": "A/H行业观察停留在最新完整截面",
+      "categories": [
+        "A股",
+        "港股",
+        "行业结构"
+      ],
+      "affectedMarkets": [
+        "a-share",
+        "hk"
+      ],
+      "importance": 88,
+      "facts": [
+        {
+          "text": "中证行业资料与港交所市场资料的最新完整观察截至7月24日，未形成可供本周计算的完整行业序列。",
+          "sourceIds": [
+            "csindex",
+            "hkex"
+          ]
+        },
+        {
+          "text": "因此本周只保留当日结构观察，不把缺失记录改写成行业资金流或周度轮动。",
+          "sourceIds": [
+            "csindex",
+            "hkex"
+          ]
+        }
+      ],
+      "whyItMatters": "没有同口径成交和广度序列时，先保留可复核的观察分，等下一组完整数据再判断结构是否扩散。",
+      "confidence": "low",
+      "basisSourceIds": [
+        "csindex",
+        "hkex"
+      ]
+    },
+    {
+      "id": "next-fomc-calendar",
+      "date": "2026-07-31",
+      "title": "下一次FOMC会议排定在9月15日至16日",
+      "categories": [
+        "美联储",
+        "日历",
+        "政策预期"
+      ],
+      "affectedMarkets": [
+        "fed",
+        "us",
+        "hk",
+        "a-share"
+      ],
+      "importance": 84,
+      "facts": [
+        {
+          "text": "美联储官方日历显示，7月会议之后的下一次例会为2026年9月15日至16日。",
+          "sourceIds": [
+            "fed-calendar"
+          ]
+        },
+        {
+          "text": "在下一次会议前，市场将通过通胀、就业和收益率变化重新定价政策分歧。",
+          "sourceIds": [
+            "fed-calendar",
+            "fed-statement"
+          ]
+        }
+      ],
+      "whyItMatters": "政策窗口已经从“本次是否调整”转向“未来数据能否消化三张加息异议票”，利率和盈利线索会继续交叉定价。",
+      "confidence": "high",
+      "basisSourceIds": [
+        "fed-calendar",
+        "fed-statement"
+      ]
+    }
+  ],
+  "highValueInsights": [
+    {
+      "id": "insight-index-up-rates-high",
+      "title": "指数上涨不等于折现率放松",
+      "insight": "7月31日美股三大指数同日上涨，但2年期、10年期和实际10年期收益率仍处高位。当前更像风险偏好短线修复，而不是估值约束已经消失。",
+      "evidence": [
+        {
+          "text": "AP记录三大指数收高；财政部同时记录10年期4.75%和实际10年期2.47%。",
+          "sourceIds": [
+            "ap-us-close",
+            "treasury-nominal",
+            "treasury-real"
+          ]
+        }
+      ],
+      "whyHighValue": "它把价格反弹和利率条件拆开，避免用单日指数上涨替代对久期风险的判断。",
+      "counterEvidence": [
+        {
+          "text": "若10年期与实际收益率随后回落，且企业指引继续改善，当前上涨可能从情绪修复变成更持久的风险偏好扩散。",
+          "sourceIds": [
+            "treasury-nominal",
+            "treasury-real"
+          ]
+        }
+      ],
+      "watchNext": "看股指、10年期收益率和实际10年期是否同时改善，并核对大型科技公司的利润与现金流指引。",
+      "confidence": "high",
+      "basisSourceIds": [
+        "ap-us-close",
+        "treasury-nominal",
+        "treasury-real"
+      ]
+    },
+    {
+      "id": "insight-fomc-dissent",
+      "title": "FOMC的关键变化是分歧显性化",
+      "insight": "政策利率没有变化，但三名委员主张加息25个基点。市场得到的不是单向宽松信号，而是一条更清晰的条件路径：通胀和金融条件若不降温，政策仍可能偏紧。",
+      "evidence": [
+        {
+          "text": "7月29日官方声明给出9—3表决与三名加息异议，AP同步报道了异议构成。",
+          "sourceIds": [
+            "fed-statement",
+            "ap-fed"
+          ]
+        }
+      ],
+      "whyHighValue": "它解释了为什么“按兵不动”没有自动带来收益率下行，也给下周数据验证留下明确条件。",
+      "counterEvidence": [
+        {
+          "text": "若后续通胀和就业同时降温，异议票可能被市场视为阶段性风险，而不是下一次会议的基准路径。",
+          "sourceIds": [
+            "fed-statement",
+            "fed-calendar"
+          ]
+        }
+      ],
+      "watchNext": "观察就业、通胀和10年期收益率是否共同回落，再判断加息异议对资产定价的持续时间。",
+      "confidence": "high",
+      "basisSourceIds": [
+        "fed-statement",
+        "ap-fed"
+      ]
+    },
+    {
+      "id": "insight-ah-wait-for-breadth",
+      "title": "A/H先等行业扩散证据",
+      "insight": "A股和港股最新完整行业观察截至7月24日，当前只能保留结构榜单，不能把缺失的周度成交和广度补成方向判断。美股指数收高会改善情绪，但不会自动替代A/H本地证据。",
+      "evidence": [
+        {
+          "text": "中证指数与港交所资料支撑最新完整观察日期；本周不形成同口径周度轮动结论。",
+          "sourceIds": [
+            "csindex",
+            "hkex"
+          ]
+        }
+      ],
+      "whyHighValue": "它把跨市场传导写成待验证关系，避免把美股单日上涨直接外推为A/H行业轮动。",
+      "counterEvidence": [
+        {
+          "text": "若A/H下一组完整交易日同时出现成交、上涨广度和重点行业相对强度改善，当前观察可以升级为更有把握的结构判断。",
+          "sourceIds": [
+            "csindex",
+            "hkex"
+          ]
+        }
+      ],
+      "watchNext": "先看A/H下一组完整收盘的成交、广度和行业相对表现，再复核规则观察分是否持续。",
+      "confidence": "low",
+      "basisSourceIds": [
+        "csindex",
+        "hkex"
+      ]
+    }
+  ],
+  "markets": [
+    {
+      "id": "a-share",
+      "label": "A股",
+      "sessionStart": "2026-07-27",
+      "sessionEnd": "2026-07-31",
+      "coverageStatus": "insufficient",
+      "summary": "本周没有足够同口径的A股行业收盘序列，最新完整行业观察截至7月24日；本报告不把缺口写成周度轮动。",
+      "weeklyPerformance": "不编造本周指数或行业周涨跌幅。可复核的最新状态来自7月24日观察截面，下一步需要连续完整交易日确认成交和上涨广度是否扩散。",
+      "rotation": "当前只列规则观察分，不是概率。重点行业的相对位置先作为观察线索，等下一组完整数据再判断是否形成持续轮动。",
+      "capitalFlow": "没有同口径、可交叉核验的本周行业资金流序列，不把单一代理写成机构资金方向。",
+      "nextWeekScenario": "若成交和上涨广度同时改善，观察榜靠前板块可能获得进一步验证；若指数反弹而广度不动，仍按结构性修复处理。",
+      "trigger": "至少两个非同源行业的成交、上涨广度和相对强度连续改善。",
+      "invalidation": "指数上涨但成交与广度没有改善，或外部利率再上行并压制高估值板块。",
+      "confidence": "low",
+      "sourceIds": [
+        "csindex",
+        "treasury-nominal"
+      ]
+    },
+    {
+      "id": "hk",
+      "label": "港股",
+      "sessionStart": "2026-07-27",
+      "sessionEnd": "2026-07-31",
+      "coverageStatus": "insufficient",
+      "summary": "港股最新完整行业观察截至7月24日，本周缺少足够的行业成交与广度序列；美股和美元利率只提供外部背景，不能替代本地收盘证据。",
+      "weeklyPerformance": "不写未经完整序列确认的周度涨跌幅。当前先看行业观察分和下一组收盘能否出现科技以外的扩散。",
+      "rotation": "规则观察分，不是概率。科技权重对利率最敏感，低估值或防御板块能否接力，需要成交和行业广度共同确认。",
+      "capitalFlow": "没有可复核的本周南向、ETF和卖空同口径序列，不推断机构资金持续流入或流出。",
+      "nextWeekScenario": "若收益率回落且港股行业广度改善，互联网与低估值板块可能修复；若收益率继续上行，权重科技仍是先受压位置。",
+      "trigger": "至少两类本地成交或资金代理与行业广度同向改善，并持续两个完整交易日。",
+      "invalidation": "反弹仍集中于少数权重，或美元利率与科技权重同时走弱。",
+      "confidence": "low",
+      "sourceIds": [
+        "hkex",
+        "treasury-nominal"
+      ]
+    },
+    {
+      "id": "us",
+      "label": "美股",
+      "sessionStart": "2026-07-27",
+      "sessionEnd": "2026-07-31",
+      "coverageStatus": "complete",
+      "summary": "7月31日美股三大指数收高，纳指涨幅领先；但收益率仍高，反弹的持续性要由盈利兑现和折现率变化共同确认。",
+      "weeklyPerformance": "AP记录7月31日标普500上涨0.7%至7,489.72点，纳斯达克上涨1.0%至25,373.85点，道指上涨0.5%至52,485.03点。本地封存序列未覆盖周初收盘，不编造完整周涨跌幅。",
+      "rotation": "三大指数观察顺序为纳斯达克、标普500、道琼斯；这是规则观察分，不是概率，也不等同于行业轮动。",
+      "capitalFlow": "只使用指数收盘和收益率作为公开代理，不从单日上涨推断机构资金方向。",
+      "nextWeekScenario": "若收益率回落且大型科技指引继续支持现金流，纳指强势可能扩散；若收益率和实际收益率继续走高，估值高的成长资产先承压。",
+      "trigger": "10年期与实际10年期收益率不再上行，同时大型科技盈利和市场广度保持稳定。",
+      "invalidation": "收益率再上行、企业指引转弱，或指数上涨收窄为少数权重独撑。",
+      "confidence": "medium",
+      "sourceIds": [
+        "ap-us-close",
+        "treasury-nominal",
+        "treasury-real"
+      ]
+    }
+  ],
+  "crossMarketThemes": [
+    {
+      "id": "theme-risk-on-rate-constraint",
+      "title": "风险偏好回暖与利率约束并存",
+      "thesis": "美股收高说明风险偏好仍有弹性，但FOMC三张加息异议与高位实际收益率没有消失。资产价格可以先反弹，估值能否继续扩张仍取决于折现率和现金流。",
+      "causalChain": [
+        "FOMC按兵不动但出现加息异议",
+        "名义与实际长端收益率维持高位",
+        "美股指数在利率压力下反弹",
+        "A/H需要本地成交和广度确认传导"
+      ],
+      "counterEvidence": "若收益率回落、企业指引改善且市场广度扩张，反弹可能从指数层走向更广的风险偏好修复。",
+      "nextSignal": "同时看10年期、实际10年期、科技盈利指引和A/H行业广度。",
+      "confidence": "high",
+      "sourceIds": [
+        "fed-statement",
+        "treasury-nominal",
+        "treasury-real",
+        "ap-us-close"
+      ]
+    },
+    {
+      "id": "theme-observation-before-probability",
+      "title": "先有可复核的观察，再谈方向升级",
+      "thesis": "A/H最新完整行业截面仍停在7月24日，当前榜单应被读作结构线索而非概率结论。美股上涨可以改变情绪，却不能替代本地市场的连续成交和广度证据。",
+      "causalChain": [
+        "A/H完整行业序列不足",
+        "榜单保留规则观察分",
+        "美股收高改善跨市场情绪",
+        "下一组本地数据决定是否升级判断"
+      ],
+      "counterEvidence": "若A/H连续完整交易日出现成交、广度和相对强度共振，观察榜的方向线索才有机会得到更强验证。",
+      "nextSignal": "看A/H下一组完整收盘是否出现科技以外板块的广度和成交接力。",
+      "confidence": "medium",
+      "sourceIds": [
+        "csindex",
+        "hkex",
+        "ap-us-close"
+      ]
+    }
+  ],
+  "nextWeekCalendar": [
+    {
+      "id": "ism-manufacturing-aug",
+      "startsAt": "2026-08-03T22:00:00+08:00",
+      "title": "美国7月ISM制造业PMI",
+      "markets": [
+        "us",
+        "hk",
+        "a-share"
+      ],
+      "importance": "high",
+      "whyWatch": "制造业景气将帮助判断增长韧性是否足以承受高利率，也会影响收益率与周期板块的相对定价。",
+      "sourceIds": [
+        "ism-pmi"
+      ]
+    },
+    {
+      "id": "ism-services-aug",
+      "startsAt": "2026-08-05T22:00:00+08:00",
+      "title": "美国7月ISM服务业PMI",
+      "markets": [
+        "us",
+        "hk",
+        "a-share"
+      ],
+      "importance": "high",
+      "whyWatch": "服务业与就业、核心通胀和消费更接近，若景气与价格分项同向上行，实际收益率压力可能延续。",
+      "sourceIds": [
+        "ism-pmi"
+      ]
+    },
+    {
+      "id": "employment-situation-aug",
+      "startsAt": "2026-08-07T20:30:00+08:00",
+      "title": "美国7月就业报告",
+      "markets": [
+        "us",
+        "hk",
+        "a-share",
+        "fed"
+      ],
+      "importance": "high",
+      "whyWatch": "就业、工资与失业率将检验三张加息异议票能否持续影响政策路径，也是判断收益率上行是否有增长支撑的关键验证。",
+      "sourceIds": [
+        "bls-emp-schedule",
+        "fed-statement"
+      ]
+    }
+  ],
+  "localSynthesis": {
+    "editionDates": [
+      "2026-08-01"
+    ],
+    "archiveSnapshots": 0,
+    "continuities": [
+      "本周日报把FOMC、收益率和跨市场风险偏好放在同一条定价线上；本周报延续这一主线，并把A/H观察榜与概率结论分开。"
+    ],
+    "coverageGaps": [
+      "A股和港股最新完整行业观察截至7月24日，未补写本周缺失的行业成交和广度。",
+      "本地封存序列未覆盖美股周初收盘，因此只使用7月31日完整收盘，不计算未经验证的周度涨跌幅。"
+    ],
+    "note": "本地沉淀用于发现主线和核对表述；宏观、市场、收益率与会议日历均回查顶层来源。"
+  },
+  "sources": [
+    {
+      "id": "fed-statement",
+      "name": "Federal Reserve issues FOMC statement, July 29, 2026",
+      "publisher": "Federal Reserve",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm",
+      "tier": "official",
+      "publishedAt": "2026-07-29T14:00:00-04:00",
+      "accessedAt": "2026-08-01T23:59:00+08:00"
+    },
+    {
+      "id": "fed-calendar",
+      "name": "FOMC Meeting Calendars and Information",
+      "publisher": "Federal Reserve",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "tier": "official",
+      "publishedAt": "2026-07-31T00:00:00+08:00",
+      "accessedAt": "2026-08-01T23:59:00+08:00"
+    },
+    {
+      "id": "treasury-nominal",
+      "name": "Daily Treasury Par Yield Curve Rates, 2026",
+      "publisher": "U.S. Department of the Treasury",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "tier": "official",
+      "publishedAt": "2026-07-31T17:00:00+08:00",
+      "accessedAt": "2026-08-01T23:59:00+08:00"
+    },
+    {
+      "id": "treasury-real",
+      "name": "Daily Treasury Real Long-Term Rates, 2026",
+      "publisher": "U.S. Department of the Treasury",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_real_yield_curve&field_tdr_date_value=2026",
+      "tier": "official",
+      "publishedAt": "2026-07-31T17:00:00+08:00",
+      "accessedAt": "2026-08-01T23:59:00+08:00"
+    },
+    {
+      "id": "ap-us-close",
+      "name": "How major US stock indexes fared Friday 7/31/2026",
+      "publisher": "Associated Press",
+      "url": "https://apnews.com/article/37d8d182f02f0fcdcf9f7db67e6dfadd",
+      "tier": "major-media",
+      "publishedAt": "2026-07-31T16:30:00-04:00",
+      "accessedAt": "2026-08-01T23:59:00+08:00"
+    },
+    {
+      "id": "ap-fed",
+      "name": "Federal Reserve keeps rates steady as officials split over next move",
+      "publisher": "Associated Press",
+      "url": "https://apnews.com/article/37660e6a4a555c739376cf9e2e96e94f",
+      "tier": "major-media",
+      "publishedAt": "2026-07-29T18:00:00-04:00",
+      "accessedAt": "2026-08-01T23:59:00+08:00"
+    },
+    {
+      "id": "csindex",
+      "name": "中证指数行业资料与市场数据",
+      "publisher": "中证指数有限公司",
+      "url": "https://www.csindex.com.cn/csindex-home/indexInfo/index-details-data",
+      "tier": "official",
+      "publishedAt": "2026-07-24T15:00:00+08:00",
+      "accessedAt": "2026-08-01T23:59:00+08:00"
+    },
+    {
+      "id": "hkex",
+      "name": "香港交易所市场数据",
+      "publisher": "香港交易及结算所有限公司",
+      "url": "https://www.hkex.com.hk/Market-Data?sc_lang=zh-HK",
+      "tier": "official",
+      "publishedAt": "2026-07-24T16:10:00+08:00",
+      "accessedAt": "2026-08-01T23:59:00+08:00"
+    },
+    {
+      "id": "ism-pmi",
+      "name": "ISM Report On Business release schedule",
+      "publisher": "Institute for Supply Management",
+      "url": "https://www.ismworld.org/supply-management-news/news-releases/pmi/",
+      "tier": "authoritative",
+      "publishedAt": "2026-07-31T00:00:00-04:00",
+      "accessedAt": "2026-08-01T23:59:00+08:00"
+    },
+    {
+      "id": "bls-emp-schedule",
+      "name": "Employment Situation release schedule",
+      "publisher": "U.S. Bureau of Labor Statistics",
+      "url": "https://www.bls.gov/schedule/news_release/empsit.htm",
+      "tier": "official",
+      "publishedAt": "2026-07-31T08:30:00-04:00",
+      "accessedAt": "2026-08-01T23:59:00+08:00"
+    }
+  ],
+  "methodology": {
+    "selection": "优先收录会改变政策预期、风险偏好、盈利判断或行业定价的事件；相同事实按原始发布方和事实主体去重。",
+    "deduplication": "本地日报用于发现主线和核对表述；外部事实按原始发布方、发布时间和事实主体复核，避免同一事实重复计数。",
+    "sourcePolicy": "宏观与日历优先官方来源；市场方向使用AP等主流媒体与官方收益率数据；行业观察引用交易所或指数公司资料。",
+    "limitations": [
+      "A股和港股最新完整行业观察截至7月24日，无法替代完整的本周行业成交数据库。",
+      "美股使用7月31日完整收盘，但本地封存序列没有周初收盘，本文不计算未经验证的完整周涨跌幅。",
+      "行业观察分用于整理可核对的相对结构，不代表上涨概率；本报告为信息整理与条件情景分析，不构成投资建议。"
+    ]
+  }
+}
