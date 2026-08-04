@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "hk-model-research-contract-v1",
+  "market": "HK",
+  "timezone": "Asia/Shanghai",
+  "horizons": [1, 5, 20],
+  "featureContractVersion": "hk-panel-features-v1",
+  "labelContractVersion": "hk-targets-v1",
+  "predictionCutoff": "feature-date close; future returns exclude the feature-date session",
+  "publicUniversePath": "models/sector-rotation/hk-public-universe-v1.json",
+  "trainingUniversePath": "models/sector-rotation/hk-training-universe-v1.json",
+  "sourceRegistryPath": "data/model-research/hk-source-registry-v1.json",
+  "publicTrainingSeparation": {
+    "publicObjectCount": 4,
+    "trainingIncludesOfficialIndustryCount": 12,
+    "publicMustNotRequireAllOfficialIndustries": true,
+    "officialIndustryHistoryCannotUseThemeProxy": true
+  },
+  "targets": {
+    "index": {
+      "binary": ["absolute_up"],
+      "continuous": ["expected_return"]
+    },
+    "theme": {
+      "binary": ["relative_outperformance_vs_hsi"],
+      "continuous": ["expected_excess_vs_hsi"]
+    },
+    "topQuartile": {
+      "enabled": true,
+      "role": "research-only",
+      "minimumCrossSection": 4,
+      "publicThemePrimaryTarget": false
+    }
+  },
+  "candidateFeatures": [
+    { "id": "return_1d", "group": "price", "status": "contract_ready_history_pending", "requiredSources": ["hsi-index-history"], "missingPolicy": "preserve-null" },
+    { "id": "return_5d", "group": "price", "status": "contract_ready_history_pending", "requiredSources": ["hsi-index-history"], "missingPolicy": "preserve-null" },
+    { "id": "return_20d", "group": "price", "status": "contract_ready_history_pending", "requiredSources": ["hsi-index-history"], "missingPolicy": "preserve-null" },
+    { "id": "relative_hsi_return_1_5_20d", "group": "price", "status": "contract_ready_history_pending", "requiredSources": ["hsi-index-history"], "missingPolicy": "preserve-null" },
+    { "id": "volatility_20d", "group": "price", "status": "contract_ready_history_pending", "requiredSources": ["hsi-index-history"], "missingPolicy": "preserve-null" },
+    { "id": "distance_ma20", "group": "price", "status": "contract_ready_history_pending", "requiredSources": ["hsi-index-history"], "missingPolicy": "preserve-null" },
+    { "id": "distance_ma60", "group": "price", "status": "contract_ready_history_pending", "requiredSources": ["hsi-index-history"], "missingPolicy": "preserve-null" },
+    { "id": "hstech_relative_hsi_strength", "group": "price", "status": "contract_ready_history_pending", "requiredSources": ["hsi-index-history"], "missingPolicy": "preserve-null" },
+    { "id": "southbound_flow_1_5_20d", "group": "funding", "status": "history_restricted", "requiredSources": ["hkex-southbound"], "missingPolicy": "preserve-null" },
+    { "id": "southbound_turnover_share", "group": "funding", "status": "history_restricted", "requiredSources": ["hkex-southbound"], "missingPolicy": "preserve-null" },
+    { "id": "etf_shares_change_1_5_20d", "group": "funding", "status": "backfill_required", "requiredSources": ["etf-published-shares-nav"], "missingPolicy": "preserve-null" },
+    { "id": "etf_net_subscription_aum", "group": "funding", "status": "backfill_required", "requiredSources": ["etf-published-shares-nav"], "missingPolicy": "preserve-null" },
+    { "id": "etf_premium_discount", "group": "funding", "status": "backfill_required", "requiredSources": ["etf-published-shares-nav"], "missingPolicy": "preserve-null" },
+    { "id": "breadth_up_share", "group": "structure", "status": "point_in_time_constituents_required", "requiredSources": ["hsi-point-in-time-constituents"], "missingPolicy": "preserve-null" },
+    { "id": "breadth_above_ma20", "group": "structure", "status": "point_in_time_constituents_required", "requiredSources": ["hsi-point-in-time-constituents"], "missingPolicy": "preserve-null" },
+    { "id": "top5_weight_contribution", "group": "structure", "status": "point_in_time_weights_required", "requiredSources": ["hsi-point-in-time-constituents"], "missingPolicy": "preserve-null" },
+    { "id": "equal_vs_cap_weight_gap", "group": "structure", "status": "point_in_time_weights_required", "requiredSources": ["hsi-point-in-time-constituents"], "missingPolicy": "preserve-null" },
+    { "id": "turnover_concentration", "group": "structure", "status": "point_in_time_constituents_required", "requiredSources": ["hsi-point-in-time-constituents"], "missingPolicy": "preserve-null" },
+    { "id": "us2y", "group": "liquidity", "status": "collector_ready_snapshot_pending", "requiredSources": ["us-treasury-2y"], "missingPolicy": "preserve-null" },
+    { "id": "hibor_1m", "group": "liquidity", "status": "collector_ready_snapshot_pending", "requiredSources": ["hkma-interbank-and-usdhkd"], "missingPolicy": "preserve-null" },
+    { "id": "hibor_overnight", "group": "liquidity", "status": "collector_ready_snapshot_pending", "requiredSources": ["hkma-interbank-and-usdhkd"], "missingPolicy": "preserve-null" },
+    { "id": "usd_cnh", "group": "liquidity", "status": "source_required", "requiredSources": ["usd-cnh"], "missingPolicy": "preserve-null" },
+    { "id": "usd_hkd", "group": "liquidity", "status": "collector_ready_snapshot_pending", "requiredSources": ["hkma-interbank-and-usdhkd"], "missingPolicy": "preserve-null" }
+  ],
+  "deferredFeatures": [
+    { "id": "hk_short_selling", "reason": "第一版不强行加入来源不稳定的卖空历史。" },
+    { "id": "hk_buybacks", "reason": "第一版不强行加入回购历史，需先完成逐项身份与事件窗口审计。" },
+    { "id": "hk_earnings_expectations", "reason": "第一版不强行加入盈利预期历史，需稳定且可追溯的历史版本快照。" }
+  ],
+  "modelCandidates": [
+    { "id": "regularized-logistic-baseline", "family": "regularized-logistic-regression", "status": "candidate" },
+    { "id": "lightgbm-or-xgboost", "family": "gradient-boosted-trees", "status": "candidate" }
+  ],
+  "modelExclusions": ["neural-network", "per-object-small-sample-model"],
+  "panelDesign": {
+    "modelType": "unified-panel-with-object-fixed-effect-or-categorical-object-feature",
+    "independentHorizonTraining": true,
+    "themeLabelsUseHsiBenchmark": true,
+    "standardization": "fit-on-training-window-only",
+    "noRandomSplit": true
+  },
+  "validation": {
+    "protocol": "walk-forward-purged-time-series-with-embargo",
+    "purgeTargetDatesBeforeEvaluationStart": true,
+    "embargoSessionsByHorizon": { "1": 1, "5": 5, "20": 20 },
+    "calibration": "only-after-out-of-sample-discrimination",
+    "trainingSessions": 504,
+    "selectionSessions": 504,
+    "holdoutSessions": 252,
+    "walkForwardBlockSessions": 63
+  },
+  "requiredMetrics": [
+    "trainSampleCount", "oosWindowCount", "auc", "brier", "brierSkill", "rankIC",
+    "topBottomSpread", "afterCostSpread", "predictionDispersion", "dataCompleteness",
+    "regimePerformance", "rawProbabilityDistribution", "calibratedProbabilityDistribution",
+    "featureMissingRates", "zeroVarianceFeatures", "providerFailures"
+  ],
+  "qualityGate": {
+    "candidateMayRemainShadow": true,
+    "automaticProductionPromotion": false,
+    "requiresOutOfSampleMetricsForEveryHorizon": true,
+    "requiresProviderFailureDisclosure": true,
+    "requiresNonNullProbabilityOnlyAfterModelPass": true
+  },
+  "productionBoundary": {
+    "candidateActivation": false,
+    "mayWriteContent": false,
+    "mayWritePredictionLedger": false,
+    "mayReplaceProductionModel": false,
+    "mayModifyAshareProbabilityOrRanking": false,
+    "mayModifyAshareHistoryLedger": false,
+    "mayPublishHongKongProbability": false
+  }
+}

@@ -74,7 +74,7 @@
     "model-research:train": "node scripts/model-research.mjs train",
     "model-research:evaluate": "node scripts/model-research.mjs evaluate",
     "model-research:shadow": "node scripts/model-research.mjs shadow",
-    "test:model-research": "uv run --offline --no-project --python 3.12 --with requests --with numpy python -m unittest scripts/test_model_research.py && node --test scripts/model-research.test.mjs",
+    "test:model-research": "uv run --offline --no-project --python 3.12 --with requests --with numpy python -m unittest scripts/test_model_research.py scripts/test_hk_model_research.py && node --test scripts/model-research.test.mjs",
     "test:writer-context": "node --test scripts/writer-context.test.mjs",
     "research:run": "node scripts/research-pipeline.mjs run",
     "research:rebuild": "node scripts/research-pipeline.mjs rebuild",

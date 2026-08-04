@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "hk-source-registry-v1",
+  "market": "HK",
+  "timezone": "Asia/Shanghai",
+  "policy": {
+    "sourceLineageRequired": true,
+    "historyMustBeExplicitSnapshot": true,
+    "missingValues": "preserve-null-never-zero",
+    "currentConstituentsCannotBackfillHistory": true,
+    "thirdPartyTaxonomyCannotBeRenamedAsOfficial": true
+  },
+  "sources": [
+    {
+      "id": "hsi-industry-current",
+      "provider": "Hang Seng Indexes Company Limited",
+      "class": "official-current-snapshot",
+      "url": "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do",
+      "historyStatus": "current-only-in-repository",
+      "allowedUse": ["same-day-observation"],
+      "notAllowedUse": ["historical-training-panel", "backfilling-missing-history"]
+    },
+    {
+      "id": "hsi-index-history",
+      "provider": "Hang Seng Indexes Company Limited",
+      "class": "official-index-history",
+      "url": "https://www.hsi.com.hk/static/uploads/contents/en/products/data_subscription/pdf_eng.pdf",
+      "historyStatus": "official-download-or-licensed-boundary",
+      "allowedUse": ["historical-OHLC-after-explicit-snapshot-and-license-review"],
+      "notAllowedUse": ["assume-history-is-present-in-repository"]
+    },
+    {
+      "id": "hsi-thematic-index-catalogue",
+      "provider": "Hang Seng Indexes Company Limited",
+      "class": "official-index-catalogue",
+      "url": "https://www.hsi.com.hk/eng/indexes/all-indexes/",
+      "historyStatus": "catalogue-only-until-index-panel-is-snapshotted",
+      "allowedUse": ["proxy-identity-and-methodology"],
+      "notAllowedUse": ["official-HSICS-industry-history"]
+    },
+    {
+      "id": "hkma-interbank-and-usdhkd",
+      "provider": "Hong Kong Monetary Authority",
+      "class": "official-macro-api",
+      "url": "https://api.hkma.gov.hk/public/market-data-and-statistics/daily-monetary-statistics/daily-figures-interbank-liquidity",
+      "historyStatus": "collector-ready-snapshot-pending",
+      "allowedUse": ["hibor-overnight", "hibor-1m", "usd-hkd", "aggregate-balance"],
+      "notAllowedUse": ["fill-missing-with-zero"]
+    },
+    {
+      "id": "us-treasury-2y",
+      "provider": "U.S. Department of the Treasury",
+      "class": "official-macro-api",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates",
+      "historyStatus": "collector-ready-snapshot-pending",
+      "allowedUse": ["us-2y-yield"],
+      "notAllowedUse": ["fill-missing-with-zero"]
+    },
+    {
+      "id": "hkex-southbound",
+      "provider": "Hong Kong Exchanges and Clearing Limited",
+      "class": "exchange-market-data",
+      "url": "https://www.hkex.com.hk/Mutual-Market/Stock-Connect/Statistics/Historical-Daily?sc_lang=en",
+      "historyStatus": "free-history-restricted",
+      "allowedUse": ["southbound-flow-after-two-year-snapshot-and-alignment"],
+      "notAllowedUse": ["use-current-total-as-history", "fill-missing-with-zero"]
+    },
+    {
+      "id": "etf-published-shares-nav",
+      "provider": "fund-manager-or-exchange-published data",
+      "class": "fund-market-data",
+      "url": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Exchange-Traded-Products",
+      "historyStatus": "identity-and-two-year-backfill-pending",
+      "allowedUse": ["shares-times-nav", "etf-premium-discount-after-identity-audit"],
+      "notAllowedUse": ["use-unverified-symbol", "fill-missing-with-zero"]
+    }
+  ],
+  "providerFailures": [
+    { "id": "hsi-history-snapshot", "sourceId": "hsi-index-history", "status": "not_collected_in_repo", "reason": "官方历史日OHLC存在下载/授权边界，本分支没有可验证的港股历史面板。" },
+    { "id": "hsi-point-in-time-constituents", "sourceId": "hsi-index-history", "status": "not_available", "reason": "没有逐日point-in-time成分与权重快照，不能用当前名单回填历史。" },
+    { "id": "southbound-history", "sourceId": "hkex-southbound", "status": "history_restricted", "reason": "当前仓库没有连续两年、可对齐日报交易日的南向历史快照。" },
+    { "id": "etf-history", "sourceId": "etf-published-shares-nav", "status": "not_backfilled", "reason": "ETF身份、份额、NAV和折溢价尚未完成逐日回溯与交叉核验。" },
+    { "id": "usd-cnh", "sourceId": null, "status": "source_required", "reason": "没有已登记且稳定的USD/CNH历史主源，不允许静默替换为USD/CNY。" }
+  ]
+}

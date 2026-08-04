@@ -68,7 +68,7 @@ class FeatureTests(unittest.TestCase):
         ]
 
     def test_price_features_use_only_prior_observations(self):
-        values = research.derive_price_features(self._history(), self._history())
+        values = research.derive_price_features(self._history(), self._history(scale=0.5))
         self.assertIsNone(values[0]["return_1"])
         self.assertIsNone(values[19]["return_20"])
         self.assertIsNotNone(values[20]["return_20"])
@@ -78,7 +78,7 @@ class FeatureTests(unittest.TestCase):
     def test_missing_history_is_preserved_as_null(self):
         history = self._history()
         history[10]["close"] = None
-        values = research.derive_price_features(history, self._history())
+        values = research.derive_price_features(history, self._history(scale=0.5))
         self.assertIsNone(values[10]["return_1"])
         self.assertIsNone(values[11]["return_1"])
         self.assertFalse(any(value == 0 for row in values for value in row.values() if value is not None and isinstance(value, float) and math.isfinite(value)))
@@ -128,6 +128,7 @@ class PublicContractTests(unittest.TestCase):
             rotation.daily_brief_session = original_session
             rotation.fetch_hk_current = original_fetch
         self.assertEqual(result["sourceAsOf"], "2026-08-04")
+        self.assertEqual([item["id"] for item in result["publicUniverse"]], ["hsi", "hstech", "hk_innovative_drug", "hk_tech_internet"])
         self.assertEqual(result["horizons"]["current"]["sourceAsOf"], "2026-08-04")
         self.assertEqual(result["horizons"]["tomorrow"]["outputMode"], "none")
         self.assertEqual(result["horizons"]["oneWeek"]["outputMode"], "none")
