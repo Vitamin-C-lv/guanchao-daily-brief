@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-04T15:36:13+08:00",
+  "generatedAt": "2026-08-04T16:19:00+08:00",
   "model": {
     "id": "guanchao-a-share-sector-relative-probability",
     "version": "2026-07-21-relative-v2",
@@ -3145,16 +3145,16 @@
       "id": "hk",
       "label": "港股",
       "mode": "industry",
-      "asOf": "2026-07-24",
+      "asOf": "2026-08-03",
       "status": "insufficient",
       "taxonomy": {
         "owner": "恒生指数有限公司",
         "name": "恒生综合指数行业指数（一级行业）",
         "version": "HSICS current",
-        "effectiveDate": "2026-07-24"
+        "effectiveDate": "2026-08-03"
       },
       "note": "以12个恒生综合行业指数为固定当前层；不使用第三方板块冒充官方历史。",
-      "reason": "恒生官方当前行业快照不可用：official snapshot date 2026-08-04 does not match daily brief sessionDate 2026-07-24",
+      "reason": "恒生官方当前行业快照不可用：official snapshot date 2026-08-04 does not match daily brief sessionDate 2026-08-03",
       "sources": [
         {
           "name": "Hang Seng Composite Industry Indexes",
@@ -3175,8 +3175,8 @@
         "current": {
           "kind": "observed",
           "status": "insufficient",
-          "asOf": "2026-07-24",
-          "reason": "恒生官方当前行业快照不可用：official snapshot date 2026-08-04 does not match daily brief sessionDate 2026-07-24",
+          "asOf": "2026-08-03",
+          "reason": "恒生官方当前行业快照不可用：official snapshot date 2026-08-04 does not match daily brief sessionDate 2026-08-03",
           "modelAvailability": "not_trained",
           "publicationStatus": "not_applicable",
           "outputMode": "current_observation",
@@ -3197,7 +3197,7 @@
         "tomorrow": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-24",
+          "asOf": "2026-08-03",
           "sessions": 1,
           "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
           "modelAvailability": "not_trained",
@@ -3222,7 +3222,7 @@
         "oneWeek": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-24",
+          "asOf": "2026-08-03",
           "sessions": 5,
           "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
           "modelAvailability": "not_trained",
@@ -3247,7 +3247,7 @@
         "oneMonth": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-24",
+          "asOf": "2026-08-03",
           "sessions": 20,
           "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
           "modelAvailability": "not_trained",
@@ -3275,13 +3275,13 @@
       "id": "us",
       "label": "美股三大指数",
       "mode": "major-index",
-      "asOf": "2026-07-31",
+      "asOf": "2026-08-03",
       "status": "ready",
       "taxonomy": {
         "owner": "观潮日报引用的指数发布方/市场数据来源",
         "name": "纳斯达克、道琼斯、标普500三大指数（非行业分类）",
         "version": "daily-brief",
-        "effectiveDate": "2026-07-31"
+        "effectiveDate": "2026-08-03"
       },
       "note": "不扩建美股行业模型；只保留三大指数当前状态。",
       "reason": "本次没有经同口径历史回测的美股三大指数条件模型。",
@@ -3305,7 +3305,7 @@
         "current": {
           "kind": "observed",
           "status": "ready",
-          "asOf": "2026-07-31",
+          "asOf": "2026-08-03",
           "note": "仅展示纳斯达克、道琼斯、标普500三大指数当前状态；不称为行业轮动。",
           "items": [
             {
@@ -3313,15 +3313,15 @@
               "rank": 1,
               "score": 100,
               "direction": "leading",
-              "signal": "2026-07-31完整交易日指数表现。",
+              "signal": "2026-08-03完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "25,373.85"
+                  "value": "25,913.90"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+1.00%",
+                  "value": "+2.10%",
                   "tone": "positive"
                 }
               ],
@@ -3335,15 +3335,15 @@
               "rank": 2,
               "score": 50,
               "direction": "neutral",
-              "signal": "2026-07-31完整交易日指数表现。",
+              "signal": "2026-08-03完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "7,489.72"
+                  "value": "7,600.50"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+0.70%",
+                  "value": "+1.50%",
                   "tone": "positive"
                 }
               ],
@@ -3357,15 +3357,15 @@
               "rank": 3,
               "score": 0,
               "direction": "lagging",
-              "signal": "2026-07-31完整交易日指数表现。",
+              "signal": "2026-08-03完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "52,485.03"
+                  "value": "53,178.41"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+0.50%",
+                  "value": "+1.30%",
                   "tone": "positive"
                 }
               ],
@@ -3395,7 +3395,7 @@
         "tomorrow": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-31",
+          "asOf": "2026-08-03",
           "sessions": 1,
           "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
           "modelAvailability": "not_implemented",
@@ -3420,7 +3420,7 @@
         "oneWeek": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-31",
+          "asOf": "2026-08-03",
           "sessions": 5,
           "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
           "modelAvailability": "not_implemented",
@@ -3445,7 +3445,7 @@
         "oneMonth": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-07-31",
+          "asOf": "2026-08-03",
           "sessions": 20,
           "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
           "modelAvailability": "not_implemented",
