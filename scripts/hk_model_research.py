@@ -13,9 +13,12 @@ import argparse
 import csv
 import gzip
 import hashlib
+import io
 import json
 import math
 import re
+import sys
+from datetime import date
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -39,6 +42,8 @@ PRODUCTION_LEDGER = ROOT / "data" / "prediction-ledger"
 HORIZONS = (1, 5, 20)
 DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
+PANEL_REQUIRED_COLUMNS = ("date", "objectId")
+PANEL_HASH_BASIS = "raw-gzip-bytes-v1"
 PUBLIC_IDS = ("hsi", "hstech", "hk_innovative_drug", "hk_tech_internet")
 OFFICIAL_INDUSTRY_CODES = (
     "00011.01", "00011.02", "00011.03", "00011.06", "00011.07", "00011.08",
@@ -96,6 +101,11 @@ def _require(condition: bool, message: str) -> None:
 
 def _date(value: Any, label: str) -> str:
     _require(isinstance(value, str) and DATE_PATTERN.fullmatch(value) is not None, f"{label} must be YYYY-MM-DD")
+    try:
+        parsed = date.fromisoformat(value)
+    except ValueError as exc:
+        raise HKModelResearchError(f"{label} must be a real calendar date") from exc
+    _require(parsed.isoformat() == value, f"{label} must be a canonical calendar date")
     return value
 
 
@@ -270,22 +280,105 @@ def production_boundary() -> dict[str, Any]:
     }
 
 
-def dataset_identity() -> dict[str, Any]:
-    validate_contract()
-    identity_components = {
+def _read_panel_bytes(panel_path: Path) -> bytes | None:
+    if not panel_path.exists():
+        return None
+    try:
+        return panel_path.read_bytes()
+    except OSError as exc:
+        raise HKModelResearchError(f"cannot read HK panel: {panel_path}") from exc
+
+
+def panel_descriptor(panel_bytes: bytes | None) -> dict[str, Any]:
+    """Validate immutable panel bytes and return a deterministic descriptor."""
+    if panel_bytes is None:
+        return {
+            "status": "unavailable",
+            "panelSha256": None,
+            "panelHashBasis": PANEL_HASH_BASIS,
+            "requiredColumns": list(PANEL_REQUIRED_COLUMNS),
+            "history": {"sessions": 0, "rows": 0, "objects": 0, "firstDate": None, "lastDate": None},
+        }
+
+    panel_sha256 = sha256_bytes(panel_bytes)
+    try:
+        csv_bytes = gzip.decompress(panel_bytes)
+    except (EOFError, gzip.BadGzipFile, OSError) as exc:
+        raise HKModelResearchError("HK panel is not a readable gzip stream") from exc
+    try:
+        csv_text = csv_bytes.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise HKModelResearchError("HK panel CSV must be UTF-8") from exc
+
+    reader = csv.DictReader(io.StringIO(csv_text, newline=""))
+    fieldnames = reader.fieldnames or []
+    _require(all(column in fieldnames for column in PANEL_REQUIRED_COLUMNS), "HK panel required columns are missing")
+    rows = 0
+    dates: set[str] = set()
+    objects: set[str] = set()
+    seen: set[tuple[str, str]] = set()
+    try:
+        for row in reader:
+            rows += 1
+            row_date = _date(row.get("date"), f"HK panel row {rows} date")
+            object_id = row.get("objectId")
+            _require(isinstance(object_id, str) and bool(object_id.strip()), f"HK panel row {rows} objectId is required")
+            object_id = object_id.strip()
+            key = (row_date, object_id)
+            _require(key not in seen, f"duplicate HK panel row: {row_date}/{object_id}")
+            seen.add(key)
+            dates.add(row_date)
+            objects.add(object_id)
+    except csv.Error as exc:
+        raise HKModelResearchError(f"invalid HK panel CSV: {exc}") from exc
+    _require(rows > 0 and dates and objects, "HK panel exists but contains no usable rows")
+    ordered_dates = sorted(dates)
+    return {
+        "status": "snapshot-present",
+        "panelSha256": panel_sha256,
+        "panelHashBasis": PANEL_HASH_BASIS,
+        "requiredColumns": list(PANEL_REQUIRED_COLUMNS),
+        "history": {
+            "sessions": len(dates),
+            "rows": rows,
+            "objects": len(objects),
+            "firstDate": ordered_dates[0],
+            "lastDate": ordered_dates[-1],
+        },
+    }
+
+
+def _research_contract_identity() -> tuple[str, dict[str, Any]]:
+    contract = read_json(CONTRACT_PATH)
+    components = {
         "market": "HK",
         "contractSha256": sha256_canonical_json_path(CONTRACT_PATH),
         "publicUniverseSha256": sha256_canonical_json_path(PUBLIC_UNIVERSE_PATH),
         "trainingUniverseSha256": sha256_canonical_json_path(TRAINING_UNIVERSE_PATH),
         "sourceRegistrySha256": sha256_canonical_json_path(SOURCE_REGISTRY_PATH),
-        "featureContractVersion": read_json(CONTRACT_PATH)["featureContractVersion"],
-        "labelContractVersion": read_json(CONTRACT_PATH)["labelContractVersion"],
-        "panelSha256": None,
-        "snapshotStatus": "unavailable",
+        "featureContractVersion": contract["featureContractVersion"],
+        "labelContractVersion": contract["labelContractVersion"],
+    }
+    contract_sha256 = sha256_bytes(canonical_json(components))
+    return f"hk-research-contract-{contract_sha256[:12]}", components
+
+
+def dataset_identity(panel_path: Path | None = None) -> dict[str, Any]:
+    validate_contract()
+    panel_path = panel_path or HK_PANEL_PATH
+    research_contract_id, contract_components = _research_contract_identity()
+    descriptor = panel_descriptor(_read_panel_bytes(panel_path))
+    identity_components = {
+        **contract_components,
+        "researchContractId": research_contract_id,
+        "panelSha256": descriptor["panelSha256"],
+        "panelHashBasis": descriptor["panelHashBasis"],
+        "snapshotStatus": descriptor["status"],
     }
     identity_sha = sha256_bytes(canonical_json(identity_components))
     return {
-        "datasetId": f"hk-research-{identity_sha[:12]}",
+        "datasetId": f"hk-research-{identity_sha[:12]}" if descriptor["status"] == "snapshot-present" else None,
+        "researchContractId": research_contract_id,
         "identitySha256": identity_sha,
         "identityComponents": identity_components,
     }
@@ -295,41 +388,21 @@ def _provider_failures() -> list[dict[str, Any]]:
     return read_json(SOURCE_REGISTRY_PATH).get("providerFailures", [])
 
 
-def dataset_status() -> dict[str, Any]:
-    identity = dataset_identity()
-    if not HK_PANEL_PATH.exists():
-        return {
-            "status": "unavailable",
-            "history": {"sessions": 0, "rows": 0, "objects": 0, "firstDate": None, "lastDate": None},
-            "panelPath": str(HK_PANEL_PATH.relative_to(ROOT)).replace("\\", "/"),
-            "panelSha256": None,
-            "providerFailures": _provider_failures(),
-            "datasetId": identity["datasetId"],
-        }
-    try:
-        rows = 0
-        dates: set[str] = set()
-        objects: set[str] = set()
-        with gzip.open(HK_PANEL_PATH, "rt", encoding="utf-8", newline="") as handle:
-            reader = csv.DictReader(handle)
-            for row in reader:
-                rows += 1
-                if row.get("date"):
-                    dates.add(row["date"])
-                if row.get("objectId"):
-                    objects.add(row["objectId"])
-        _require(rows > 0 and dates and objects, "HK panel exists but contains no usable rows")
-        ordered = sorted(dates)
-        return {
-            "status": "snapshot-present",
-            "history": {"sessions": len(dates), "rows": rows, "objects": len(objects), "firstDate": ordered[0], "lastDate": ordered[-1]},
-            "panelPath": str(HK_PANEL_PATH.relative_to(ROOT)).replace("\\", "/"),
-            "panelSha256": sha256_path(HK_PANEL_PATH),
-            "providerFailures": _provider_failures(),
-            "datasetId": identity["datasetId"],
-        }
-    except (OSError, UnicodeError, csv.Error) as exc:
-        raise HKModelResearchError(f"invalid HK panel: {exc}") from exc
+def dataset_status(panel_path: Path | None = None) -> dict[str, Any]:
+    panel_path = panel_path or HK_PANEL_PATH
+    identity = dataset_identity(panel_path)
+    descriptor = panel_descriptor(_read_panel_bytes(panel_path))
+    return {
+        "status": descriptor["status"],
+        "history": descriptor["history"],
+        "panelPath": str(panel_path.relative_to(ROOT)).replace("\\", "/") if panel_path.is_relative_to(ROOT) else "external-panel",
+        "panelSha256": descriptor["panelSha256"],
+        "panelHashBasis": descriptor["panelHashBasis"],
+        "providerFailures": _provider_failures(),
+        "datasetId": identity["datasetId"],
+        "researchContractId": identity["researchContractId"],
+        "identitySha256": identity["identitySha256"],
+    }
 
 
 def _empty_metrics(provider_failures: list[dict[str, Any]]) -> dict[str, Any]:
@@ -396,7 +469,16 @@ def parser() -> argparse.ArgumentParser:
     return root
 
 
+def configure_cli_stdio_utf8() -> None:
+    """Use one explicit UTF-8 CLI path on Windows, Linux and CI."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            reconfigure(encoding="utf-8", errors="strict")
+
+
 def main() -> None:
+    configure_cli_stdio_utf8()
     args = parser().parse_args()
     before = production_boundary()
     contract = validate_contract()

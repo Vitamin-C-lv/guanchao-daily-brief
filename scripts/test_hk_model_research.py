@@ -1,10 +1,15 @@
 from __future__ import annotations
 
 import json
+import gzip
 import math
+import os
+import subprocess
 import sys
 import unittest
+from datetime import date, timedelta
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
@@ -63,8 +68,9 @@ class ContractTests(unittest.TestCase):
 
 class FeatureTests(unittest.TestCase):
     def _history(self, count: int = 70, scale: float = 1.0) -> list[dict[str, object]]:
+        start = date(2024, 1, 1)
         return [
-            {"date": f"2024-01-{index + 1:02d}", "close": 100.0 + index * scale}
+            {"date": (start + timedelta(days=index)).isoformat(), "close": 100.0 + index * scale}
             for index in range(count)
         ]
 
@@ -83,6 +89,15 @@ class FeatureTests(unittest.TestCase):
         self.assertIsNone(values[10]["return_1"])
         self.assertIsNone(values[11]["return_1"])
         self.assertFalse(any(value == 0 for row in values for value in row.values() if value is not None and isinstance(value, float) and math.isfinite(value)))
+
+    def test_invalid_calendar_dates_fail_closed(self):
+        for invalid_date in ("2024-01-32", "2026-02-29", "2026-13-01"):
+            with self.subTest(invalid_date=invalid_date):
+                with self.assertRaises(research.HKModelResearchError):
+                    research.derive_price_features(
+                        [{"date": invalid_date, "close": 100.0}],
+                        [{"date": invalid_date, "close": 100.0}],
+                    )
 
 
 class ResearchStatusTests(unittest.TestCase):
@@ -104,14 +119,35 @@ class ResearchStatusTests(unittest.TestCase):
 
     def test_dataset_identity_is_content_addressed(self):
         identity = research.dataset_identity()
-        self.assertRegex(identity["datasetId"], r"^hk-research-[0-9a-f]{12}$")
+        self.assertIsNone(identity["datasetId"])
+        self.assertRegex(identity["researchContractId"], r"^hk-research-contract-[0-9a-f]{12}$")
         self.assertRegex(identity["identitySha256"], r"^[0-9a-f]{64}$")
+        self.assertEqual(identity["identityComponents"]["panelSha256"], None)
+        self.assertEqual(identity["identityComponents"]["snapshotStatus"], "unavailable")
 
     def test_production_boundary_is_read_only(self):
         self.assertEqual(research.production_boundary(), research.production_boundary())
 
 
 class PublicContractTests(unittest.TestCase):
+    def test_cli_forces_utf8_json_under_cp1252_stdio(self):
+        environment = os.environ.copy()
+        environment["PYTHONIOENCODING"] = "cp1252"
+        environment["PYTHONUTF8"] = "0"
+        script = Path(__file__).resolve().parent / "hk_model_research.py"
+        completed = subprocess.run(
+            [sys.executable, str(script), "report"],
+            check=True,
+            env=environment,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        output = completed.stdout.decode("utf-8")
+        payload = json.loads(output)
+        self.assertEqual(payload["market"], "HK")
+        self.assertIn("没有显式", output)
+        self.assertNotIn("UnicodeEncodeError", completed.stderr.decode("utf-8"))
+
     def test_committed_hk_dto_keeps_source_date_and_withholds_observations(self):
         content_path = Path(__file__).resolve().parents[1] / "content" / "sector-rotation.json"
         payload = json.loads(content_path.read_text(encoding="utf-8"))
@@ -146,6 +182,62 @@ class PublicContractTests(unittest.TestCase):
         self.assertEqual(result["horizons"]["tomorrow"]["outputMode"], "none")
         self.assertEqual(result["horizons"]["oneWeek"]["outputMode"], "none")
         self.assertEqual(result["horizons"]["oneMonth"]["outputMode"], "none")
+
+
+class PanelDescriptorTests(unittest.TestCase):
+    @staticmethod
+    def _panel_bytes(*, newline: str = "\n", close: str = "100.0") -> bytes:
+        body = newline.join(
+            [
+                "date,objectId,close",
+                f"2024-01-01,hsi,{close}",
+                "2024-01-02,hsi,101.0",
+            ]
+        ) + newline
+        return gzip.compress(body.encode("utf-8"), mtime=0)
+
+    def test_missing_panel_has_contract_identity_but_no_dataset_id(self):
+        with TemporaryDirectory() as directory:
+            identity = research.dataset_identity(Path(directory) / "panel.csv.gz")
+        self.assertIsNone(identity["datasetId"])
+        self.assertRegex(identity["researchContractId"], r"^hk-research-contract-[0-9a-f]{12}$")
+        self.assertEqual(identity["identityComponents"]["snapshotStatus"], "unavailable")
+
+    def test_same_panel_is_stable_and_business_bytes_change_dataset_id(self):
+        with TemporaryDirectory() as directory:
+            panel_path = Path(directory) / "panel.csv.gz"
+            panel_path.write_bytes(self._panel_bytes())
+            first = research.dataset_identity(panel_path)
+            second = research.dataset_identity(panel_path)
+            panel_path.write_bytes(self._panel_bytes(close="100.1"))
+            changed = research.dataset_identity(panel_path)
+        self.assertEqual(first["datasetId"], second["datasetId"])
+        self.assertIsNotNone(first["datasetId"])
+        self.assertNotEqual(first["datasetId"], changed["datasetId"])
+        self.assertEqual(first["identityComponents"]["panelHashBasis"], "raw-gzip-bytes-v1")
+
+    def test_newline_policy_is_explicit_and_changes_raw_panel_identity(self):
+        with TemporaryDirectory() as directory:
+            panel_path = Path(directory) / "panel.csv.gz"
+            panel_path.write_bytes(self._panel_bytes(newline="\n"))
+            lf_identity = research.dataset_identity(panel_path)
+            panel_path.write_bytes(self._panel_bytes(newline="\r\n"))
+            crlf_identity = research.dataset_identity(panel_path)
+        self.assertNotEqual(lf_identity["datasetId"], crlf_identity["datasetId"])
+        self.assertEqual(crlf_identity["identityComponents"]["panelHashBasis"], "raw-gzip-bytes-v1")
+
+    def test_panel_descriptor_rejects_corrupt_gzip_missing_columns_and_duplicates(self):
+        with self.assertRaises(research.HKModelResearchError):
+            research.panel_descriptor(b"not a gzip")
+        missing_column = gzip.compress(b"date,close\n2024-01-01,100\n", mtime=0)
+        with self.assertRaises(research.HKModelResearchError):
+            research.panel_descriptor(missing_column)
+        duplicate = gzip.compress(
+            b"date,objectId,close\n2024-01-01,hsi,100\n2024-01-01,hsi,101\n",
+            mtime=0,
+        )
+        with self.assertRaises(research.HKModelResearchError):
+            research.panel_descriptor(duplicate)
 
 
 if __name__ == "__main__":
