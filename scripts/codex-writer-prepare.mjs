@@ -4,7 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { gzipSync, gunzipSync } from "node:zlib";
 
-import { canonicalJson } from "./research-contract.mjs";
+import { canonicalJson, sha256Canonical } from "./research-contract.mjs";
 import { validatePacket } from "./validate-writer-packet.mjs";
 import {
   prepareWriterContext,
@@ -20,12 +20,15 @@ import {
   storeCodexResearchRun,
   validateCodexResearch
 } from "./codex-research.mjs";
+import { generateArticleVisuals } from "./article-visuals.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
 const HASH = /^[a-f0-9]{64}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const PACKAGE_FILES = [
+  "ARTICLE_DEPTH_RULES.json",
+  "ARTICLE_VISUAL_BUNDLE.json",
   "BASELINE_CONTENT.json",
   "CODEX_RESEARCH.json",
   "EDITORIAL_STYLE.json",
@@ -206,9 +209,11 @@ function packageDirectoryIsValid(directory, requestId) {
   }
 }
 
-function writeExecutionPackage({ directory, request, context, packet, bundle, baseline, promptBytes, targetSchema, resultTemplate, run, styleBytes }) {
+function writeExecutionPackage({ directory, request, context, packet, bundle, baseline, promptBytes, targetSchema, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes }) {
   fs.mkdirSync(directory, { recursive: true });
   const values = new Map([
+    ["ARTICLE_DEPTH_RULES.json", depthRulesBytes],
+    ["ARTICLE_VISUAL_BUNDLE.json", visualBundleBytes],
     ["REQUEST.json", jsonBytes(request)],
     ["WRITER_CONTEXT.json", jsonBytes(context)],
     ["QUANTITATIVE_PACKET.json", jsonBytes(packet)],
@@ -352,13 +357,25 @@ export async function prepareCodexWriter({
   const context = readJsonOrGzip(path.join(root, ...contextSummary.contextPath.split("/")));
   const packetValue = loadPacket(packetPlan.file);
   const bundle = readJsonOrGzip(bundleFile);
+  let visualBundle;
+  try {
+    visualBundle = generateArticleVisuals({ edition, packet: packetValue, research: run, root, generatedAt: now });
+  } catch {
+    // Frozen inputs may be too sparse for a visual bundle in odd fixtures; an empty
+    // bundle keeps the package well-formed and the finalize visual gate fails closed.
+    visualBundle = { schemaVersion: "article-visual-bundle-v1", edition, generatedAt: now.toISOString(), visuals: [], integrity: { businessSha256: "", sha256: "" } };
+    visualBundle.integrity.businessSha256 = sha256Canonical({ ...visualBundle, integrity: {} });
+  }
+  const visualBundleBytes = Buffer.from(`${canonicalJson(visualBundle)}\n`, "utf8");
+  const depthRules = readJson(path.join(root, "config", "editorial-style.json")).depth;
+  const depthRulesBytes = Buffer.from(`${canonicalJson(depthRules)}\n`, "utf8");
   const baselineValue = readJsonOrGzip(path.join(root, ...contextSummary.baselinePath.split("/")));
   const promptBytes = fs.readFileSync(path.join(root, ...request.writerPromptPath.split("/")));
   const styleBytes = fs.readFileSync(path.join(root, "config", "editorial-style.json"));
   const targetSchemaBytes = fs.readFileSync(path.join(root, ...request.targetValidatorPath.split("/")));
   const targetSchemaReference = { schemaVersion: "writer-target-schema-reference-v1", targetSchemaVersion: request.targetSchemaVersion, targetPath: request.targetOutputs[0].targetPath, validator: { path: request.targetValidatorPath, sha256: request.targetValidatorSha256 }, validatorSourceBytes: targetSchemaBytes.length };
   const resultTemplate = readJson(path.join(output, "RESULT_TEMPLATE.json"));
-  writeExecutionPackage({ directory: output, request, context, packet: packetValue, bundle, baseline: baselineValue, promptBytes, targetSchema: targetSchemaReference, resultTemplate, run, styleBytes });
+  writeExecutionPackage({ directory: output, request, context, packet: packetValue, bundle, baseline: baselineValue, promptBytes, targetSchema: targetSchemaReference, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes });
   return {
     schemaVersion: "codex-writer-prepare-summary-v1",
     edition,

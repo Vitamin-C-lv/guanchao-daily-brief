@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "editorial-style-v2",
+  "schemaVersion": "editorial-style-v3",
   "persona": {
     "daily": "观潮日报主笔",
     "weekly": "观潮周报策略主笔"
@@ -22,12 +22,18 @@
     "daily": {
       "defensivePhraseCount": 2,
       "directnessScore": 90,
-      "readingMinutes": [3, 5]
+      "readingMinutes": [
+        6,
+        9
+      ]
     },
     "weekly": {
       "defensivePhraseCount": 4,
       "directnessScore": 85,
-      "readingMinutes": [8, 12]
+      "readingMinutes": [
+        12,
+        18
+      ]
     },
     "maxConsecutiveHedgeSentences": 2,
     "maxSentenceCharacters": 110
@@ -62,7 +68,14 @@
     "后续观察市场变化",
     "保持关注"
   ],
-  "hedgeWords": ["可能", "仍需", "不能", "尚未", "有待", "或许"],
+  "hedgeWords": [
+    "可能",
+    "仍需",
+    "不能",
+    "尚未",
+    "有待",
+    "或许"
+  ],
   "genericTitles": [
     "市场情况更新",
     "今日市场观察",
@@ -101,9 +114,17 @@
   "maxConsecutiveDataLimitationParagraphs": 1,
   "maxDataLimitationRatio": 0.1,
   "marketMissingExplanationLabels": {
-    "a-share": ["A股", "A 股"],
-    "hk": ["港股"],
-    "us": ["美股", "美国股市"]
+    "a-share": [
+      "A股",
+      "A 股"
+    ],
+    "hk": [
+      "港股"
+    ],
+    "us": [
+      "美股",
+      "美国股市"
+    ]
   },
   "maxMissingExplanationsPerMarket": 1,
   "governanceLeakage": [
@@ -130,5 +151,29 @@
     "确定获利",
     "无风险收益",
     "主力已锁定"
-  ]
+  ],
+  "depth": {
+    "daily": {
+      "chineseCharacterCountMin": 1200,
+      "chineseCharacterCountMax": 1800,
+      "readingMinutesMin": 6,
+      "readingMinutesMax": 9,
+      "visualCountMin": 2,
+      "scenarioCountMin": 2,
+      "termExplanationCountMin": 1,
+      "counterEvidenceCountMin": 1,
+      "repetitionRatioMax": 0.12
+    },
+    "weekly": {
+      "chineseCharacterCountMin": 2500,
+      "chineseCharacterCountMax": 4000,
+      "readingMinutesMin": 12,
+      "readingMinutesMax": 18,
+      "visualCountMin": 4,
+      "scenarioCountMin": 3,
+      "termExplanationCountMin": 2,
+      "counterEvidenceCountMin": 2,
+      "repetitionRatioMax": 0.12
+    }
+  }
 }

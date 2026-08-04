@@ -10,6 +10,7 @@
  */
 import { createHash } from "node:crypto";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -33,7 +34,8 @@ const FORBIDDEN_PROMPT_FRAGMENTS = [
   "仅 dry-run",
   "不得 commit、push、merge 或部署",
   "不得 commit、push、merge 和部署",
-  "不得 commit、push、merge、deploy"
+  "不得 commit、push、merge、deploy",
+  "guanchao-financial-editor-skill"
 ];
 const REQUIRED_PROMPT_FRAGMENTS = {
   prediction: [
@@ -45,6 +47,8 @@ const REQUIRED_PROMPT_FRAGMENTS = {
   ],
   daily: [
     "publicationEnabled=true",
+    "guanchao-financial-writer",
+    "WRITER_SKILL_MISSING",
     "finalize",
     "--write",
     "STALE_WRITER_PACKET",
@@ -52,6 +56,8 @@ const REQUIRED_PROMPT_FRAGMENTS = {
   ],
   weekly: [
     "publicationEnabled=true",
+    "guanchao-financial-writer",
+    "WRITER_SKILL_MISSING",
     "finalize",
     "--write",
     "chore(content): publish weekly brief"
@@ -137,7 +143,8 @@ export function checkAutomationConsistency({
   configPath = path.join(repositoryRoot, "config", "codex-writer-automation.json"),
   docsPath = path.join(repositoryRoot, "docs", "CODEX_WRITER_AUTOMATION.md"),
   automationsRoot = DEFAULT_AUTOMATIONS_ROOT,
-  statePath = DEFAULT_STATE
+  statePath = DEFAULT_STATE,
+  skillDirectory = path.join(os.homedir(), ".codex", "skills", "guanchao-financial-writer")
 } = {}) {
   const checks = [];
   const add = (name, passed, detail = "") => checks.push({ name, passed: Boolean(passed), detail });
@@ -202,6 +209,16 @@ export function checkAutomationConsistency({
     add("automation state exists", false, statePath);
   }
 
+  const skillFile = path.join(skillDirectory, "SKILL.md");
+  const skillInstalled = fs.existsSync(skillFile) && fs.existsSync(path.join(skillDirectory, "references")) && fs.existsSync(path.join(skillDirectory, "scripts"));
+  add("writer.skill guanchao-financial-writer installed", skillInstalled, skillDirectory);
+  let skillFrontmatterName = null;
+  if (skillInstalled) {
+    const head = fs.readFileSync(skillFile, "utf8").slice(0, 400);
+    skillFrontmatterName = /^name:\s*(.+)$/m.exec(head)?.[1]?.trim() ?? null;
+    add("writer.skill frontmatter name", skillFrontmatterName === "guanchao-financial-writer", String(skillFrontmatterName));
+  }
+
   const passed = checks.every((check) => check.passed);
   return { schemaVersion: "automation-consistency-check-v1", consistent: passed, checkedAt: new Date().toISOString(), checks };
 }
@@ -227,6 +244,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
     });
     console.log(JSON.stringify(report, null, 2));
     if (!report.consistent) {
+      if (report.checks.some((check) => check.name.startsWith("writer.skill") && !check.passed)) {
+        console.error("WRITER_SKILL_MISSING");
+      }
       console.error("AUTOMATION_DRIFT");
       process.exitCode = 1;
     }

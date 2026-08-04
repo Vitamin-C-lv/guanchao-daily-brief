@@ -16,8 +16,9 @@ import { EvidenceForecastPanel, GeneratedEditorialVisualFigure } from "@/compone
 import MobileBottomNav, { type MobileNavView } from "@/components/MobileBottomNav";
 import { SourceMeta, sourceMetaLabel } from "@/components/SourceLink";
 import StructuredChartFigure from "@/components/StructuredChart";
+import ArticleChart from "@/components/article/ArticleChart";
 import { countArticleCharacters, type ArticleRecord } from "@/lib/articles";
-import type { BriefArticle, SourceLink, StructuredChart } from "@/lib/types";
+import type { ArticleVisual, BriefArticle, SourceLink, StructuredChart } from "@/lib/types";
 
 function formatArticleDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", {
@@ -181,7 +182,7 @@ function RotationRadar({ article }: { article: BriefArticle }) {
   );
 }
 
-export default function ArticleReport({ record }: { record: ArticleRecord }) {
+export default function ArticleReport({ record, visuals = [] }: { record: ArticleRecord; visuals?: ArticleVisual[] }) {
   const { article } = record;
   const charts = getStructuredCharts(article);
   const forecasts = article.detail.evidenceForecast
@@ -189,6 +190,7 @@ export default function ArticleReport({ record }: { record: ArticleRecord }) {
     : [];
   const characterCount = countArticleCharacters(article);
   const readingMinutes = Math.max(2, Math.ceil(characterCount / 350));
+  const articleVisuals = visuals.filter((visual) => visual.placement === article.id || visual.placement === record.sectionId);
   const activeNav: MobileNavView = record.sectionId === "fed" ? "overview" : record.sectionId === "hotspot" ? "hotspots" : "markets";
 
   return (
@@ -245,6 +247,12 @@ export default function ArticleReport({ record }: { record: ArticleRecord }) {
               </section>
             ))}
           </div>
+
+          {articleVisuals.length ? (
+            <div className="article-evidence-charts" aria-label="数据图表">
+              {articleVisuals.map((visual) => <ArticleChart key={visual.visualId} visual={visual} />)}
+            </div>
+          ) : null}
 
           <aside className="article-impact-box">
             <span>市场观察</span>

@@ -7,6 +7,11 @@ productionApplyRequiresExplicitWrite=true
 Luna API、外部 LLM API、API key 或外部写手服务。运行前先执行本机自动化一致性检查；任一检查
 不一致时在写入前安全失败并输出 `AUTOMATION_DRIFT`，不得继续写生产文件。
 
+正式写手 Skill：`$guanchao-financial-writer`
+（`C:\Users\18442\.codex\skills\guanchao-financial-writer`）。旧写手
+目录已删除，不允许作为 fallback；缺少新版 Skill 时输出
+`WRITER_SKILL_MISSING` 并停止发布。
+
 稳定 runtime 为 `D:\周报个人网站-local-writer-runtime`（规范路径
 `D:\Guanchao-Workspace\runtime\local-writer-runtime`）。每次运行只使用该稳定 runtime，
 不再创建 `C:\Codex-Recovery\GuanchaoWriter\runtime-clone-YYYY-MM-DD`。运行前：
@@ -42,8 +47,21 @@ Luna API、外部 LLM API、API key 或外部写手服务。运行前先执行�
    TARGET_SCHEMA.json、RESULT_TEMPLATE.json、PROMPT.md），返回一个 `writer-result-v2`。
    Writer 禁止浏览、搜索、调用 API、访问外部 LLM、读取 API key；保持
    null/unavailable/partial/conflicting 原样。
+6a. Writer 必须按 `docs/ARTICLE_DEPTH_AND_VISUALS.md` 深度规范撰写：
+   - 日报正文 1200–1800 个中文字符（不含标题、来源目录、图表数据与机器 metadata）；
+   - 预计阅读时间 6–9 分钟（约 200 字/分钟）；
+   - 1 个中心命题、3–5 条关键证据、至少 1 段通俗机制解释、至少 1 条反向证据、
+     至少 2 种未来情景、结尾 3 个具体可观察变量；
+   - 从 `ARTICLE_VISUAL_BUNDLE.json` 选择至少 2 张冻结图表（visualSelections：
+     visualId、placement、title、takeaway、explanation），不得修改图表数字、日期、
+     单位或来源；
+   - result 必须包含 `articleDepth`（chineseCharacterCount、estimatedReadingMinutes、
+     mainThesis、explanationCount、counterEvidenceCount、scenarioCount）与
+     `visualSelections`。
 7. `node scripts/codex-writer-finalize.mjs --package <package> --result <result> --output
-   <report> --dry-run`。
+   <report> --dry-run`。finalize 校验深度与图表门禁：ARTICLE_TOO_SHALLOW、
+   ARTICLE_TOO_VERBOSE、VISUAL_COUNT、VISUAL_UNKNOWN、VISUAL_DUPLICATE、
+   VISUAL_NOT_EXPLAINED、VISUAL_DATE_CONFLICT。
 8. 全部门禁通过后（editorial lint、evidence binding、protected boundary）：
 9. `node scripts/codex-writer-finalize.mjs --package <package> --result <result> --output
    <report> --write`。

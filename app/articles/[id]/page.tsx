@@ -27,5 +27,5 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
   const { id } = await params;
   const record = findArticleRecord(data, id);
   if (!record) notFound();
-  return <ArticleReport record={record} />;
+  return <ArticleReport record={record} visuals={data.visuals ?? []} />;
 }
