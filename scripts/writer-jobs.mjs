@@ -296,7 +296,7 @@ export function validateLegacyRequestV1(request) {
   return request;
 }
 
-export function validateRequest(request, { rootDir = root } = {}) {
+export function validateRequest(request, { rootDir = root, requireCurrentFrozen = true } = {}) {
   const keys = ["allowedDocumentIds", "allowedFactIds", "allowedObservationIds", "context", "createdAt", "edition", "inputStatus", "integrity", "jobId", "requestId", "requestedAsOf", "requiredSections", "schemaVersion", "targetOutputs", "targetSchemaVersion", "targetValidatorPath", "targetValidatorSha256", "writerPromptPath", "writerPromptSha256"];
   if (!object(request) || request.schemaVersion !== requestVersion) error("REQUEST_SCHEMA", "schemaVersion", "invalid writer request schema", requestVersion, request?.schemaVersion);
   exactKeys(request, keys, keys, "request");
@@ -334,7 +334,7 @@ export function validateRequest(request, { rootDir = root } = {}) {
   if (loaded.reference.artifactSha256 !== request.context.artifactSha256) error("REQUEST_CONTEXT_SHA", "request.context.artifactSha256", "context bytes changed");
   if (loaded.context.contextId !== request.context.contextId) error("REQUEST_CONTEXT_ID", "request.context.contextId", "context ID mismatch");
   if (loaded.context.edition !== request.edition || loaded.context.asOf !== request.requestedAsOf) error("REQUEST_CONTEXT_COMPATIBILITY", "request.context", "context edition/asOf mismatch");
-  const inputs = validateWriterContextArtifacts(loaded.context, { root: rootDir, registry: loaded.registry });
+  const inputs = validateWriterContextArtifacts(loaded.context, { root: rootDir, registry: loaded.registry, requireCurrentFrozen });
   if (request.writerPromptPath !== loaded.context.writerPrompt.path || request.writerPromptSha256 !== loaded.context.writerPrompt.sha256) error("PROMPT_SHA_MISMATCH", "writerPrompt", "request prompt binding differs from context");
   if (request.targetValidatorPath !== loaded.context.targetValidator.path || request.targetValidatorSha256 !== loaded.context.targetValidator.sha256) error("TARGET_VALIDATOR_SHA_MISMATCH", "targetValidator", "request validator binding differs from context");
   if (request.targetSchemaVersion !== loaded.context.targetSchemaVersion || target.targetSchemaVersion !== loaded.context.targetSchemaVersion) error("TARGET_SCHEMA_VERSION_MISMATCH", "targetSchemaVersion", "target schema differs from context");
@@ -349,7 +349,7 @@ function derived(rootDir, requestOverrides = [], acceptedOverrides = new Set()) 
   const files = walk(path.join(paths.base, "requests")).filter((file) => file.endsWith(".json"));
   const byId = new Map();
   for (const file of files) {
-    const request = validateRequest(readJson(file), { rootDir });
+    const request = validateRequest(readJson(file), { rootDir, requireCurrentFrozen: false });
     if (path.basename(file) !== `${request.jobId}.json`) error("REQUEST_PATH", relative(rootDir, file), "request path and job ID differ");
     byId.set(request.jobId, { request, file });
   }
