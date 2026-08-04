@@ -7,3 +7,11 @@
 - Validate a result with `pnpm writer-job:validate -- --request <request-path> --result <result-path>`; apply with `pnpm production:apply -- --request <request-path> --result <result-path>`.
 - Prediction ledger commands remain separate; writer apply never changes it. The workflow needs only `contents: write`; Vercel deploys only after a reviewed merge to main.
 - CSI constituents are currently WAF-unavailable: retain explicit partial/unavailable state and do not bypass, substitute, backfill, or fill zero. On packet validation or immutable identity conflict, stop without committing.
+
+## P1-L restored publication automation (2026-08)
+
+- Native automation state lives in `C:\Codex-Recovery\GuanchaoWriter\automation-state.json`; repository config is `config/codex-writer-automation.json`. Run `pnpm automation:consistency` before any production write; any mismatch prints `AUTOMATION_DRIFT` and must fail closed.
+- Stable runtime: `D:\周报个人网站-local-writer-runtime` (canonical `D:\Guanchao-Workspace\runtime\local-writer-runtime`). No per-day clones; per-run isolation is `C:\Codex-Recovery\GuanchaoWriter\runs\YYYY-MM-DD\<edition-or-prediction>\`.
+- Daily freshness: `pnpm refresh:writer-packet -- --edition daily` (or `node scripts/refresh-writer-packet.mjs --edition daily --edition-date YYYY-MM-DD`); a packet not generated on the edition date blocks prepare with `STALE_WRITER_PACKET`.
+- Predictions: `pnpm prediction:publish -- --edition-date YYYY-MM-DD --write` runs only frozen-model infer, applies gates, appends immutable ledger snapshots, exports public shards, verifies model SHA, commits, pushes and checks Vercel; identical business bytes produce `status=no-op` without an empty commit.
+- Historical `writer-context-v1` artifacts validate their frozen prompt/validator references without re-imposing current file SHAs (`writer-context.mjs validate-context --legacy`, rebuild/scan); new prepare and current apply still require the currently approved validator.
