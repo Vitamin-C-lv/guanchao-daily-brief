@@ -32,7 +32,7 @@ import sys
 import tempfile
 import time
 from collections import defaultdict
-from datetime import date, datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, time, timezone
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 from urllib.parse import urlencode, urlparse
@@ -247,6 +247,35 @@ def daily_brief_session(market_id: str) -> str | None:
     )
     value = str(market.get("sessionDate", "")) if market else ""
     return value if re.fullmatch(r"\d{4}-\d{2}-\d{2}", value) else None
+
+
+def latest_complete_a_share_session(now: datetime | None = None) -> str | None:
+    """Latest complete A-share trading session from the frozen CN calendar.
+
+    A session is complete only after the 15:00 Asia/Shanghai close; before the
+    close the latest complete session is the previous trading day.  This decouples
+    freshness from the daily-brief display session so the prediction publisher can
+    run before the daily writer without producing an empty observation board.
+    Non-trading days are never treated as trading days.
+    """
+    try:
+        calendar = read_json(CALENDAR_PATH)
+        closed = set(calendar.get("closedWeekdays", []))
+    except (OSError, ValueError, TypeError):
+        return None
+
+    def is_trading(day: date) -> bool:
+        return day.weekday() < 5 and day.isoformat() not in closed
+
+    current = (now or datetime.now(SHANGHAI)).date()
+    latest = current
+    while not is_trading(latest):
+        latest -= timedelta(days=1)
+    if latest == current and (now or datetime.now(SHANGHAI)).time() < time(15, 0):
+        latest -= timedelta(days=1)
+        while not is_trading(latest):
+            latest -= timedelta(days=1)
+    return latest.isoformat()
 
 
 def write_json_atomic(path: Path, payload: Any) -> None:
@@ -1773,9 +1802,9 @@ def a_share_market(
                 f"startDate={as_of_compact(as_of)}&endDate={as_of_compact(as_of)}"
             )
     universe_count = artifact["data"]["universeCount"]
-    expected_as_of = daily_brief_session("a-share")
+    expected_as_of = latest_complete_a_share_session()
     fresh = expected_as_of is not None and as_of == expected_as_of
-    expected_label = expected_as_of or "日报缺少可验证sessionDate"
+    expected_label = expected_as_of or "缺少可验证的最新完整交易日"
     # A fresh comparable subset can support current observation. Forecasts still
     # require the full fixed universe and never reuse a partial cross-section.
     current_ready = len(latest) >= 3 and fresh
@@ -3065,7 +3094,7 @@ def parser() -> argparse.ArgumentParser:
     refresh.add_argument("--start", default="2016-01-01")
     refresh.add_argument(
         "--end",
-        default=daily_brief_session("a-share") or datetime.now(SHANGHAI).date().isoformat(),
+        default=latest_complete_a_share_session() or datetime.now(SHANGHAI).date().isoformat(),
     )
     refresh.add_argument("--interval", type=float, default=0.65)
     refresh.add_argument("--min-rows", type=int, default=250)

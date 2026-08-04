@@ -104,7 +104,7 @@ class PredictionContractPythonTest(unittest.TestCase):
             }
             for index, item in enumerate(taxonomy["indices"], start=1)
         }
-        with patch.object(rotation, "load_manifest", return_value=manifest), patch.object(rotation, "latest_rows", return_value=rows), patch.object(rotation, "daily_brief_session", return_value="2026-07-24"), patch.object(rotation, "visualization_artifact", return_value={"normalizedPerformance60d": {"series": []}}):
+        with patch.object(rotation, "load_manifest", return_value=manifest), patch.object(rotation, "latest_rows", return_value=rows), patch.object(rotation, "latest_complete_a_share_session", return_value="2026-07-24"), patch.object(rotation, "visualization_artifact", return_value={"normalizedPerformance60d": {"series": []}}):
             market = rotation.a_share_market(frozen, probability)
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory) / "sector-rotation-contract.json"
