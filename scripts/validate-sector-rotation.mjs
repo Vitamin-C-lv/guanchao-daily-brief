@@ -509,9 +509,10 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
   if (horizon.status === "insufficient") {
     const allowed = kind === "forecast"
       ? ["kind", "status", "asOf", "dueDate", "sessions", "reason", ...stateKeys]
-      : ["kind", "status", "asOf", "reason", ...stateKeys];
+      : ["kind", "status", "asOf", "sourceAsOf", "reason", ...stateKeys];
     exactKeys(horizon, allowed, label);
     requireString(horizon.reason, `${label}.reason`, { max: 300 });
+    if (horizon.sourceAsOf !== undefined) requireDate(horizon.sourceAsOf, `${label}.sourceAsOf`);
     if (horizon.items !== undefined) fail(`${label} 证据不足时不得伪造 items`);
     if (kind === "forecast") {
       if (horizon.sessions !== sessions) fail(`${label}.sessions 必须是 ${sessions}`);
@@ -551,8 +552,9 @@ function validateHorizon(horizon, market, sources, label, { kind, sessions }) {
   }
 
   if (kind === "observed") {
-    exactKeys(horizon, ["kind", "status", "asOf", "note", "items", "charts", ...stateKeys], label);
+    exactKeys(horizon, ["kind", "status", "asOf", "sourceAsOf", "note", "items", "charts", ...stateKeys], label);
     requireString(horizon.note, `${label}.note`, { max: 300 });
+    if (horizon.sourceAsOf !== undefined) requireDate(horizon.sourceAsOf, `${label}.sourceAsOf`);
   } else {
     exactKeys(horizon, ["kind", "status", "asOf", "dueDate", "sessions", "note", "items", "charts", ...stateKeys], label);
     requireDate(horizon.dueDate, `${label}.dueDate`);
@@ -638,9 +640,10 @@ function validateAshareDailySourceWindows(market, sources, label) {
 }
 
 function validateMarket(market, label) {
-  if (!exactKeys(market, ["id", "label", "mode", "asOf", "status", "taxonomy", "note", "reason", "sources", "horizons", "featureCoverage", "marketBreadthSummary", "sourceStatus", "warnings", "modelLineage"], label)) return;
+  if (!exactKeys(market, ["id", "label", "mode", "asOf", "sourceAsOf", "publicUniverse", "status", "taxonomy", "note", "reason", "sources", "horizons", "featureCoverage", "marketBreadthSummary", "sourceStatus", "warnings", "modelLineage"], label)) return;
   requireString(market.label, `${label}.label`, { max: 30 });
   requireDate(market.asOf, `${label}.asOf`);
+  if (market.sourceAsOf !== undefined) requireDate(market.sourceAsOf, `${label}.sourceAsOf`);
   if (!["ready", "insufficient"].includes(market.status)) fail(`${label}.status 非法`);
   requireString(market.note, `${label}.note`, { max: 400 });
   if (market.status === "insufficient") requireString(market.reason, `${label}.reason`, { max: 400 });
@@ -717,6 +720,11 @@ function validateMarket(market, label) {
     if (market.mode !== "industry") fail(`${label}.mode 必须是 industry`);
     if (!/恒生|Hang Seng/i.test(`${market.taxonomy.owner}${market.taxonomy.name}`) || !/一级|level.?1/i.test(market.taxonomy.name)) {
       fail(`${label}.taxonomy 必须明确使用恒生行业分类一级行业`);
+    }
+    if (market.publicUniverse !== undefined) {
+      const publicIds = ["hsi", "hstech", "hk_innovative_drug", "hk_tech_internet"];
+      if (!Array.isArray(market.publicUniverse) || market.publicUniverse.length !== publicIds.length) fail(`${label}.publicUniverse 必须固定为4个公开对象`);
+      else if (market.publicUniverse.map((item) => item?.id).join("|") !== publicIds.join("|")) fail(`${label}.publicUniverse 顺序或映射不符合HK公开视图契约`);
     }
     if (market.horizons.current?.status === "ready" && market.horizons.current.items.length !== 12) fail(`${label}.horizons.current 必须完整覆盖12个恒生一级行业`);
   } else if (market.id === "us") {
