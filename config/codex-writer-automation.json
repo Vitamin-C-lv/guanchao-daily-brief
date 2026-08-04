@@ -37,6 +37,9 @@
     "noOpWhenNoNewTradingDay": true,
     "allowedWritePaths": [
       "content/sector-rotation.json",
+      "content/prediction-diagnostics.json",
+      "content/prediction-review-latest.json",
+      "content/prediction-review/**",
       "data/prediction-ledger/**",
       "public/data/prediction-history/**",
       "content/prediction-history.json",

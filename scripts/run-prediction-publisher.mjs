@@ -33,6 +33,9 @@ const MODEL_FILES = [
 
 const ALLOWED_WRITE_PREFIXES = [
   "content/sector-rotation.json",
+  "content/prediction-diagnostics.json",
+  "content/prediction-review-latest.json",
+  "content/prediction-review/",
   "data/prediction-ledger/",
   "public/data/prediction-history/",
   "content/prediction-history.json",
