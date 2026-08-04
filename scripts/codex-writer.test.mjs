@@ -6,7 +6,8 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { sealCodexResearch } from "./codex-research.mjs";
-import { packetArtifactPlan, prepareCodexWriter } from "./codex-writer-prepare.mjs";
+import { CodexWriterPrepareError, packetArtifactPlan, prepareCodexWriter } from "./codex-writer-prepare.mjs";
+import { refreshWriterPacket } from "./refresh-writer-packet.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PACKET_AS_OF = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content/writer-packets/daily-latest.json"), "utf8")).marketDates.aShare;
@@ -19,13 +20,13 @@ function copy(root, relativePath) {
   fs.copyFileSync(source, target);
 }
 
-function candidate() {
+function candidate(asOf = PACKET_AS_OF) {
   const accessedAt = "2026-07-29T04:00:00+08:00";
   return {
     schemaVersion: "codex-research-v1",
     edition: "daily",
-    asOf: PACKET_AS_OF,
-    window: { start: PACKET_AS_OF, end: PACKET_AS_OF, timezone: "Asia/Shanghai" },
+    asOf,
+    window: { start: asOf, end: asOf, timezone: "Asia/Shanghai" },
     documents: [{
       sourceId: "codex-writer-source",
       sourceUrl: "https://example.com/codex-writer-source",
@@ -56,7 +57,7 @@ function candidate() {
     observations: [{
       subject: "market change",
       statement: "The source records an observed market change for the dated session.",
-      asOf: PACKET_AS_OF,
+      asOf,
       occurredAt: "2026-07-29T03:00:00Z",
       kind: "market-event",
       marketScopes: ["US"],
@@ -102,14 +103,20 @@ test("packet artifact plan is deterministic and immutable", () => {
   fs.rmSync(root, { recursive: true, force: true });
 });
 
+function withEditionDate(options) {
+  return { editionDate: PACKET_AS_OF, ...options };
+}
+
 test("prepare writes a complete package and re-running is a no-op", async () => {
   const value = fixture();
   const output = path.join(value.root, "..", `${path.basename(value.root)}-package`);
   try {
-    const first = await prepareCodexWriter({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: value.researchFile, outputDirectory: output, write: true, dryRun: false, root: value.root, now: new Date("2026-08-01T02:00:00Z") });
+    const first = await prepareCodexWriter(withEditionDate({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: value.researchFile, outputDirectory: output, write: true, dryRun: false, root: value.root, now: new Date("2026-08-01T02:00:00Z") }));
     assert.equal(first.wrote, true);
+    assert.equal(first.freshness.passed, true);
+    assert.equal(first.freshness.relations.requestedAsOf, PACKET_AS_OF);
     for (const name of ["REQUEST.json", "WRITER_CONTEXT.json", "QUANTITATIVE_PACKET.json", "RESEARCH_BUNDLE.json", "BASELINE_CONTENT.json", "PROMPT.md", "TARGET_SCHEMA.json", "RESULT_TEMPLATE.json", "CODEX_RESEARCH.json", "EDITORIAL_STYLE.json", "MANIFEST.json", "SHA256SUMS.txt"]) assert.ok(fs.existsSync(path.join(output, name)), name);
-    const second = await prepareCodexWriter({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: value.researchFile, outputDirectory: output, write: true, dryRun: false, root: value.root, now: new Date("2026-08-02T02:00:00Z") });
+    const second = await prepareCodexWriter(withEditionDate({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: value.researchFile, outputDirectory: output, write: true, dryRun: false, root: value.root, now: new Date("2026-08-02T02:00:00Z") }));
     assert.equal(second.noOp, true);
     assert.equal(second.requestId, first.requestId);
   } finally {
@@ -122,9 +129,92 @@ test("dry-run does not create the package directory", async () => {
   const value = fixture();
   const output = path.join(value.root, "..", `${path.basename(value.root)}-dry-package`);
   try {
-    const summary = await prepareCodexWriter({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: value.researchFile, outputDirectory: output, write: false, dryRun: true, root: value.root, now: new Date("2026-08-01T02:00:00Z") });
+    const summary = await prepareCodexWriter(withEditionDate({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: value.researchFile, outputDirectory: output, write: false, dryRun: true, root: value.root, now: new Date("2026-08-01T02:00:00Z") }));
     assert.equal(summary.wrote, false);
     assert.equal(fs.existsSync(output), false);
+  } finally {
+    fs.rmSync(output, { recursive: true, force: true });
+    cleanup(value);
+  }
+});
+
+test("stale writer packet blocks writing with STALE_WRITER_PACKET", async () => {
+  const value = fixture();
+  const output = path.join(value.root, "..", `${path.basename(value.root)}-stale-package`);
+  try {
+    await assert.rejects(
+      prepareCodexWriter({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: value.researchFile, outputDirectory: output, write: true, dryRun: false, root: value.root, editionDate: "2026-08-04", now: new Date("2026-08-04T02:00:00Z") }),
+      (error) => error instanceof CodexWriterPrepareError && error.code === "STALE_WRITER_PACKET"
+    );
+    assert.equal(fs.existsSync(output), false);
+  } finally {
+    fs.rmSync(output, { recursive: true, force: true });
+    cleanup(value);
+  }
+});
+
+test("research asOf differing from packet blocks writing", async () => {
+  const value = fixture();
+  const output = path.join(value.root, "..", `${path.basename(value.root)}-research-mismatch`);
+  try {
+    const run = sealCodexResearch(candidate("2026-07-30"), { now: new Date("2026-07-30T01:00:00Z") });
+    const researchFile = path.join(value.root, "mismatch.json");
+    fs.writeFileSync(researchFile, `${JSON.stringify(run)}\n`, "utf8");
+    await assert.rejects(
+      prepareCodexWriter(withEditionDate({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: researchFile, outputDirectory: output, write: true, dryRun: false, root: value.root, now: new Date("2026-08-01T02:00:00Z") })),
+      (error) => error instanceof CodexWriterPrepareError && error.code === "RESEARCH_COMPATIBILITY"
+    );
+  } finally {
+    fs.rmSync(output, { recursive: true, force: true });
+    cleanup(value);
+  }
+});
+
+test("refreshed packet is accepted by prepare after market data refresh", async () => {
+  const value = fixture();
+  const output = path.join(value.root, "..", `${path.basename(value.root)}-fresh-package`);
+  try {
+    // Stub runner writes a same-day packet into the fixture packet path.
+    const runner = path.join(value.root, "stub-market-runner.mjs");
+    const stub = `import { createHash } from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+const root = process.cwd();
+const args = process.argv.slice(2);
+const edition = args[args.indexOf("--edition") + 1];
+const asOf = args[args.indexOf("--as-of") + 1];
+const packet = {
+  schemaVersion: 1,
+  edition,
+  generatedAt: "2026-08-01T02:00:00.000Z",
+  marketDates: { aShare: asOf, us: asOf },
+  marketSummary: { status: "partial" },
+  providerHealth: { status: "ready", readySources: 2, sourceCount: 2, requiredSourceCount: 2, requiredSourcesReady: true },
+  sourceIndex: { "us-treasury-nominal-xml": { sourceId: "us-treasury-nominal-xml", status: "ready" } },
+  facts: [{ factId: "treasury-nominal2y-" + asOf, label: "US Treasury 2Y", market: "US", topic: "treasury", sourceId: "us-treasury-nominal-xml", sourceUrl: "https://home.treasury.gov/x", status: "ready", unit: "percent", value: 4.26, changeUnit: "bp", change1d: -1, change5d: 2, change20d: 3, asOf, releasedAt: asOf }],
+  treasuryFactor: { status: "ready", spread2s10sBp: 35, changesBp: {}, nominalSource: { sourceId: "us-treasury-nominal-xml", asOf }, realSource: { sourceId: "us-treasury-real-xml", asOf } },
+  writerPacketId: "",
+  integrity: { businessSha256: "", sha256: "" }
+};
+const strip = (v) => Array.isArray(v) ? v.map(strip) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).filter(([k]) => !["requestedAt","completedAt","generatedAt","rawSha256","integrity","businessIntegrity","writerPacketId","runId"].includes(k)).map(([k,i]) => [k, strip(i)])) : v;
+const normalize = (v) => Array.isArray(v) ? v.map(normalize) : v && typeof v === "object" ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, normalize(v[k])])) : v;
+const h = (v) => createHash("sha256").update(JSON.stringify(normalize(strip(v)))).digest("hex");
+packet.writerPacketId = h(packet);
+packet.integrity = { businessSha256: packet.writerPacketId, sha256: packet.writerPacketId };
+fs.mkdirSync(path.join(root, "content", "writer-packets"), { recursive: true });
+fs.writeFileSync(path.join(root, "content", "writer-packets", edition + "-latest.json"), JSON.stringify(packet) + "\\n");
+console.log(JSON.stringify({ ok: true, asOf }));
+`;
+    fs.writeFileSync(runner, stub, "utf8");
+    const summary = refreshWriterPacket({ edition: "daily", editionDate: PACKET_AS_OF, runner: "stub-market-runner.mjs", root: value.root });
+    assert.equal(summary.writerPacketId.length, 64);
+    // 2026-08-01 is a Saturday: the latest complete A-share trading day is 2026-07-31.
+    assert.equal(summary.marketDates.aShare, "2026-07-31");
+    const research = sealCodexResearch(candidate("2026-07-31"), { now: new Date("2026-07-31T01:00:00Z") });
+    const alignedResearch = path.join(value.root, "aligned.json");
+    fs.writeFileSync(alignedResearch, `${JSON.stringify(research)}\n`, "utf8");
+    const prepared = await prepareCodexWriter({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: alignedResearch, outputDirectory: output, write: true, dryRun: false, root: value.root, editionDate: PACKET_AS_OF, now: new Date("2026-08-01T02:00:00Z") });
+    assert.equal(prepared.wrote, true);
   } finally {
     fs.rmSync(output, { recursive: true, force: true });
     cleanup(value);

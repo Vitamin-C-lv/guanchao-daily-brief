@@ -293,3 +293,44 @@ test("63 CLI validates the registry", () => { const result = spawnSync(process.e
 test("64 CLI prepare requires explicit immutable arguments", () => { const result = spawnSync(process.execPath, [moduleFile, "prepare", "--edition", "daily", "--as-of", AS_OF, "--dry-run"], { cwd: repositoryRoot, encoding: "utf8" }); assert.equal(result.status, 1); assert.match(result.stderr, /CLI_ARGUMENT/); });
 test("65 CLI rejects unknown options", () => { const result = spawnSync(process.execPath, [moduleFile, "validate-registry", "--unknown"], { cwd: repositoryRoot, encoding: "utf8" }); assert.equal(result.status, 1); assert.match(result.stderr, /CLI_ARGUMENT/); });
 test("66 deterministic gzip references exact bytes", () => { const fixture = makeRoot(); try { const summary = prepare(fixture); const context = loadPrepared(fixture, summary).context; assert.equal(context.quantitativeWriterPacket.artifactSha256, hashBytes(fs.readFileSync(path.join(fixture.root, ...fixture.packetPath.split("/"))))); } finally { clean(fixture); } });
+
+test("67 historical context stays readable after validator upgrade", () => {
+  const fixture = makeRoot();
+  try {
+    const summary = prepare(fixture);
+    const context = loadPrepared(fixture, summary).context;
+    const validator = path.join(fixture.root, "scripts", "validate-brief.mjs");
+    const prompt = path.join(fixture.root, "prompts", "luna-daily-brief.md");
+    fs.appendFileSync(validator, "\n// upgraded validator\n");
+    fs.appendFileSync(prompt, "\n# upgraded prompt\n");
+    // Current-file mode still fails closed (new apply must use the approved current validator).
+    expectCode(() => validateWriterContext(context, loadWriterContextRegistry(fixture.root), { root: fixture.root }), "ARTIFACT_SHA");
+    // Historical read validates frozen references only.
+    const legacy = validateWriterContext(context, loadWriterContextRegistry(fixture.root), { root: fixture.root, requireCurrentFrozen: false });
+    assert.equal(legacy.contextId, context.contextId);
+    // rebuild/scan also succeeds after the upgrade and reproduces identical derived views.
+    const rebuild = rebuildWriterContextDerivedViews({ root: fixture.root });
+    assert(rebuild.reused.includes("data/writer-contexts/index.json"));
+    assert(rebuild.reused.includes("content/writer-contexts/daily-latest.json"));
+  } finally {
+    clean(fixture);
+  }
+});
+
+test("68 new validator produces a new contextId", () => {
+  const fixture = makeRoot();
+  try {
+    const first = prepare(fixture);
+    const validator = path.join(fixture.root, "scripts", "validate-brief.mjs");
+    fs.appendFileSync(validator, "\n// next validator revision\n");
+    const second = prepareWriterContext({ edition: fixture.edition, asOf: fixture.asOf, writerPacketPath: fixture.packetPath, researchBundlePath: fixture.bundlePath, baselineSource: fixture.baselineSource, write: true, root: fixture.root, now: new Date("2026-07-31T12:00:00.000Z") });
+    assert.notEqual(second.contextId, first.contextId);
+    assert.notEqual(second.contextPath, first.contextPath);
+    // The historical context remains untouched and readable.
+    const historical = readJsonOrGzip(path.join(fixture.root, ...first.contextPath.split("/")));
+    assert.equal(historical.contextId, first.contextId);
+    assert.equal(validateWriterContext(historical, loadWriterContextRegistry(fixture.root), { root: fixture.root, requireCurrentFrozen: false }).contextId, first.contextId);
+  } finally {
+    clean(fixture);
+  }
+});
