@@ -81,6 +81,7 @@
     "validate:market-data": "node scripts/validate-market-evidence.mjs",
     "test:market-data": "uv run --no-project --python 3.12 --with requests --with xlrd python -m unittest scripts/test_market_evidence.py scripts/test_market_evidence_pipeline.py",
     "validate:brief": "node scripts/validate-brief.mjs",
+    "validate:brief-lineage": "node scripts/validate-brief-lineage.mjs",
     "validate:weekly": "node scripts/validate-weekly.mjs",
     "validate:assets": "node scripts/validate-generated-assets.mjs",
     "visual:publish": "node scripts/publish-generated-image.mjs",
