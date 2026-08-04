@@ -42,7 +42,7 @@ const args = process.argv.slice(2);
 const cmd = args[0];
 fs.appendFileSync(process.env.CALL_LOG || "call-log.jsonl", JSON.stringify({ cmd, args }) + "\\n");
 if (cmd === "fetch" || cmd === "features") { console.log(cmd + " ok"); process.exit(0); }
-if (cmd === "infer") {
+if (cmd === "refresh" || cmd === "infer") {
   const asOf = process.env.ROTATION_AS_OF || "2026-08-03";
   const status = process.env.ROTATION_STATUS || "published";
   const mode = process.env.ROTATION_MODE || "probability";

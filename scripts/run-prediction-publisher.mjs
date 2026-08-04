@@ -219,18 +219,12 @@ export async function runPredictionPublisher({
     const refresh = run("node", [marketFile, "run", "--edition", "daily", "--as-of", marketAsOf], { cwd: root, allowFailure: true, env });
     step("market-data-refresh", { ok: refresh.ok, detail: refresh.detail.slice(0, 800) });
     const rotationFile = path.resolve(root, ...String(rotationRunner).split("/"));
-    const fetchResult = run("node", [rotationFile, "fetch"], { cwd: root, allowFailure: true, env });
-    step("rotation-fetch", { ok: fetchResult.ok, detail: fetchResult.detail.slice(0, 800) });
-
-    // 4. features
-    const featuresResult = run("node", [rotationFile, "features"], { cwd: root, allowFailure: true, env });
-    step("rotation-features", { ok: featuresResult.ok, detail: featuresResult.detail.slice(0, 800) });
-
-    // 5. frozen production model infer only (never train)
+    // 4-5. structured rotation refresh (fetch official history through the latest complete
+    // trading day, breadth, features) then frozen production model infer only (never train).
     const modelsBefore = modelSnapshot(root);
-    const inferResult = run("node", [rotationFile, "infer"], { cwd: root, allowFailure: true, env });
-    if (!inferResult.ok) fail("INFER_FAILED", `frozen model infer failed: ${inferResult.detail.slice(0, 1200)}`);
-    step("model-infer", { ok: true });
+    const refreshResult = run("node", [rotationFile, "refresh", "--end", marketAsOf], { cwd: root, allowFailure: true, env });
+    if (!refreshResult.ok) fail("INFER_FAILED", `rotation refresh/infer failed through ${marketAsOf}: ${refreshResult.detail.slice(0, 1500)}`);
+    step("model-infer", { ok: true, asOf: marketAsOf });
 
     // 16. model files must remain byte-identical after infer
     assertModelsUnchanged(modelsBefore, modelSnapshot(root));
