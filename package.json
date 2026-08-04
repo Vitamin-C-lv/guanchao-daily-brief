@@ -89,7 +89,12 @@
     "archive:brief": "node scripts/archive-brief.mjs",
     "archive:weekly": "node scripts/archive-weekly-report.mjs",
     "context:weekly": "node scripts/collect-week-context.mjs",
-    "check": "pnpm validate:rotation && pnpm validate:prediction-history && pnpm validate:prediction-ledger && pnpm validate:prediction-diagnostics && pnpm validate:prediction-dataset && pnpm validate:sector-details && pnpm validate:rotation-events && pnpm validate:market-observer && pnpm validate:market-data && pnpm validate:research-contract && pnpm validate:codex-research-contract && pnpm validate:research-sources && pnpm model-research:validate && pnpm test && pnpm test:writer-context && pnpm test:writer-jobs && pnpm test:research-contract && pnpm test:research-pipeline && pnpm test:codex-research && pnpm test:codex-writer && pnpm test:editorial-lint && pnpm test:model-research && pnpm test:prediction-ledger && pnpm test:prediction-dataset && pnpm test:market-data && pnpm test:prediction-python && pnpm test:automation-consistency && pnpm test:prediction-publisher && pnpm validate:brief && pnpm validate:weekly && pnpm validate:assets && pnpm typecheck && pnpm build"
+    "check": "pnpm validate:rotation && pnpm validate:prediction-history && pnpm validate:prediction-ledger && pnpm validate:prediction-diagnostics && pnpm validate:prediction-dataset && pnpm validate:sector-details && pnpm validate:rotation-events && pnpm validate:market-observer && pnpm validate:market-data && pnpm validate:research-contract && pnpm validate:codex-research-contract && pnpm validate:research-sources && pnpm model-research:validate && pnpm test && pnpm test:writer-context && pnpm test:writer-jobs && pnpm test:research-contract && pnpm test:research-pipeline && pnpm test:codex-research && pnpm test:codex-writer && pnpm test:editorial-lint && pnpm test:model-research && pnpm test:prediction-ledger && pnpm test:prediction-dataset && pnpm test:market-data && pnpm test:prediction-python && pnpm test:automation-consistency && pnpm test:prediction-publisher && pnpm validate:brief && pnpm validate:weekly && pnpm validate:assets && pnpm typecheck && pnpm build",
+    "test:article-visuals": "node --test scripts/article-visuals.test.mjs",
+    "test:article-depth": "node --test scripts/article-depth.test.mjs",
+    "test:skill-cleanup": "node --test scripts/skill-cleanup.test.mjs",
+    "validate:article-visuals": "node scripts/article-visuals.mjs validate",
+    "refresh:article-visuals": "node scripts/article-visuals.mjs generate --output content/article-visual-bundle.json"
   },
   "dependencies": {
     "fast-xml-parser": "5.10.1",
