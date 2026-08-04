@@ -74,7 +74,7 @@ P1-G storage 将不可变计划与物理写入分离：只有 `shouldWrite: true
 
 Windows 是主本地环境；Vercel 继续验证真实部署。测试覆盖不可变性、身份、迁移、evaluation 语义、legacy 隔离、目标隔离、公开字段、路由和静态构建。每次变更先保持冻结契约，再执行定向测试、完整 `pnpm check` 和构建；有失败时读取真实日志修复，不通过删除门禁“修绿”。
 
-普通工程使用 GPT-5.6 Terra（高推理）；模型训练与统计研究使用 GPT-5.6 Sol（高或中高推理），不默认使用 Sol Max。
+模型路由默认使用 GPT-5.6 Luna Max（高推理）。同一根因连续两轮失败，或问题涉及复杂统计、数据泄漏、概率校准或 walk-forward 设计时，才升级 GPT-5.6 Sol；升级前必须先形成脱敏 failure bundle，至少包含 manifest、真实错误日志、失败分析、环境摘要、可复现 diff 和测试摘要。该规则由 ADR-026 明确 supersede ADR-007，且不通过换模型掩盖代码或契约缺陷。
 
 ## 长期原则
 

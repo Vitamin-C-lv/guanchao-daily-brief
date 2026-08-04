@@ -40,8 +40,10 @@ P1-B 以 GitHub 跟踪的不可变 snapshot/evaluation gzip 事件为权威，�
 - 当前仓库可追溯的港股历史长度：`0` sessions、`0` rows；只有恒生官方当前行业快照和静态月末/研究资料，没有可验证连续历史面板。港股研究报告因此为 `insufficient-data`、候选 `shadow`，不写生产模型或预测账本，不返回默认 50% 概率；静态轮动 DTO 只同步 `sourceAsOf`、四对象 `publicUniverse` 和 fail-closed 状态，不承载预测结果。
 - 官方来源边界：恒生官方历史 OHLC 资料存在下载/授权边界；HKMA 的 HIBOR、USD/HKD 接口和美国财政部 2Y 资料只登记为 collector-ready，未在本分支假设历史已存在。南向、ETF、point-in-time 成分/权重、USD/CNH 失败状态全部显式记录。
 - 日期错位根因是实时恒生快照的 `sourceAsOf` 与日报 `sessionDate/asOf` 被旧实现硬合并。现在保留两者，错位时 fail closed；未训练未来窗口为 `outputMode=none`，不再复用 `current_observation`。
+- 研究数据身份已区分：无 `data/model-research/hk/panel.csv.gz` 时 `datasetId=null`，只生成独立的 `researchContractId`；面板存在时才验证 gzip、必需列、真实日历日期、`objectId` 和重复行，并将 raw gzip SHA-256 纳入 dataset identity。身份不使用文件 mtime、绝对路径或运行时间。
 - P2-A 研究入口：`scripts/hk_model_research.py`；契约：`data/model-research/hk-contract.json`；来源登记：`data/model-research/hk-source-registry-v1.json`。`pnpm model-research:validate` 同时验证既有 A 股研究契约和 HK candidate-only 契约。
 - P2-A 没有修改 A 股生产模型、概率阈值、历史账本、公开页面 UI 或原始工作区；仅同步港股 `content/sector-rotation.json` 的日期血缘、公开四对象映射和弃权状态。接入真实历史前，必须先提交显式 panel、交易日历、来源/成分/权重 lineage 与 SHA-256，再按三周期补齐指标和质量闸门。
+- 模型路由按 ADR-026 执行：默认 GPT-5.6 Luna Max；同一根因连续两轮失败，或涉及复杂统计、数据泄漏、概率校准、walk-forward 设计时才升级 GPT-5.6 Sol；升级前必须有脱敏 failure bundle。ADR-026 已明确 supersede ADR-007，不重写历史决策。
 
 状态契约及展示规则见 [ARCHITECTURE.md](ARCHITECTURE.md)；账本的 snapshot/evaluation 分离、幂等、legacy 隔离和目标隔离均为冻结边界。
 
