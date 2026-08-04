@@ -83,6 +83,10 @@ function fixture() {
     "content/writer-packets/daily-latest.json"
   ]) copy(root, relative);
   const packet = JSON.parse(fs.readFileSync(path.join(root, "content/writer-packets/daily-latest.json"), "utf8"));
+  // generatedAt is excluded from the packet identity, so a fixture packet can be
+  // aligned to the edition date without breaking writerPacketId/integrity hashes.
+  packet.generatedAt = `${PACKET_AS_OF}T12:00:00.000Z`;
+  fs.writeFileSync(path.join(root, "content/writer-packets/daily-latest.json"), `${JSON.stringify(packet, null, 2)}\n`);
   const researchFile = path.join(root, "candidate.json");
   const run = sealCodexResearch(candidate(), { now: new Date("2026-08-01T01:00:00Z") });
   fs.writeFileSync(researchFile, `${JSON.stringify(run)}\n`, "utf8");
@@ -186,7 +190,7 @@ const asOf = args[args.indexOf("--as-of") + 1];
 const packet = {
   schemaVersion: 1,
   edition,
-  generatedAt: "2026-08-01T02:00:00.000Z",
+  generatedAt: asOf + "T02:00:00.000Z",
   marketDates: { aShare: asOf, us: asOf },
   marketSummary: { status: "partial" },
   providerHealth: { status: "ready", readySources: 2, sourceCount: 2, requiredSourceCount: 2, requiredSourcesReady: true },
@@ -206,11 +210,11 @@ fs.writeFileSync(path.join(root, "content", "writer-packets", edition + "-latest
 console.log(JSON.stringify({ ok: true, asOf }));
 `;
     fs.writeFileSync(runner, stub, "utf8");
-    const summary = refreshWriterPacket({ edition: "daily", editionDate: PACKET_AS_OF, runner: "stub-market-runner.mjs", root: value.root });
+    const summary = refreshWriterPacket({ edition: "daily", editionDate: PACKET_AS_OF, runner: "stub-market-runner.mjs", root: value.root, now: new Date("2026-08-03T12:00:00.000Z") });
     assert.equal(summary.writerPacketId.length, 64);
-    // 2026-08-01 is a Saturday: the latest complete A-share trading day is 2026-07-31.
-    assert.equal(summary.marketDates.aShare, "2026-07-31");
-    const research = sealCodexResearch(candidate("2026-07-31"), { now: new Date("2026-07-31T01:00:00Z") });
+    // At the fixed refresh time the latest complete A-share trading day equals the packet edition date.
+    assert.equal(summary.marketDates.aShare, PACKET_AS_OF);
+    const research = sealCodexResearch(candidate(PACKET_AS_OF), { now: new Date("2026-08-03T01:00:00Z") });
     const alignedResearch = path.join(value.root, "aligned.json");
     fs.writeFileSync(alignedResearch, `${JSON.stringify(research)}\n`, "utf8");
     const prepared = await prepareCodexWriter({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: alignedResearch, outputDirectory: output, write: true, dryRun: false, root: value.root, editionDate: PACKET_AS_OF, now: new Date("2026-08-01T02:00:00Z") });
