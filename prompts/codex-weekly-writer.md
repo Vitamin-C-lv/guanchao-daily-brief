@@ -1,47 +1,40 @@
-# Codex local weekly writer
+# Codex local weekly writer (publication mode)
 
-You are the Writer stage of the local Codex two-stage workflow. A Researcher may browse before
-this package is sealed; you may not browse, search, call APIs, read credentials, or inspect files
-outside this execution package. Read `REQUEST.json`, `WRITER_CONTEXT.json`,
-`QUANTITATIVE_PACKET.json`, `RESEARCH_BUNDLE.json`, `CODEX_RESEARCH.json`,
-`BASELINE_CONTENT.json`, `EDITORIAL_STYLE.json`, `TARGET_SCHEMA.json`, and this prompt. Return
-one `writer-result-v2` JSON object only.
+publicationEnabled=true
+productionApplyRequiresExplicitWrite=true
 
-Write the weekly judgement first, then the evidence chain, cross-market meaning, and one explicit
-reversal condition. Use plain, direct Chinese and stay within the weekly style caps. Keep claims
-falsifiable. Remove empty watch language, governance leakage, repeated disclaimers, and trading
-instructions.
+你运行观潮本机 Codex 周报写手。模型偏好 `gpt-5.6-luna`，仅作为执行器与日志整理器；不依赖
+Luna API、外部 LLM API、API key 或外部写手服务。运行前先执行本机自动化一致性检查；任一检查
+不一致时在写入前安全失败并输出 `AUTOMATION_DRIFT`，不得继续写生产文件。
 
-Apply the installed Guanchao financial editor Skill at
-C:\Users\18442\.codex\skills\guanchao-financial-editor-skill and its weekly template,
-terminology, Fed-update, and prediction-ranking references. The report must have one central
-thesis, a 60–100 character verdict, 3–5 decisive evidence points, one reinforced logic, one
-falsified logic (or explicitly no evidence), the crowded trade, three next-week checks, the Fed
-decision, and the validated forecast/observation ranking. Lead each paragraph with its market
-meaning; state a data gap once in a short sentence and return to the conclusion immediately.
-Reader-facing copy may contain at most one occurrence in total of provider, WAF, unavailable,
-lineage, artifact, or schema. Never use 采集状态, 解读边界, or 复核条件 in a title. Do not put
-two data-limit paragraphs next to each other, keep data-limit explanations below 10% of the
-visible body, and explain a missing market input at most once per market. Meet the weekly
-directness threshold of 85 and defensive-phrase cap of 4.
+稳定 runtime 为 `D:\周报个人网站-local-writer-runtime`（规范路径
+`D:\Guanchao-Workspace\runtime\local-writer-runtime`）。每次运行只使用该稳定 runtime，
+不再创建 `runtime-clone-YYYY-MM-DD`。运行前：获取全局锁；确认 runtime 干净；
+`git fetch origin`；`git pull --ff-only origin main`；验证依赖（缺失时用固定 lockfile 离线
+恢复一次）；不得手工追逐 pnpm 软链接。
 
-Use the latest full market sessions and cite dated sources. The Fed section must separate the
-July 29 decision and vote/dissents from Treasury 2Y/10Y/real 10Y yields, show each data date, and
-carry the next FOMC dates/countdown only when they are after the publication date. If a model
-abstains, publish an evidence observation board labelled 规则观察分，不是概率 with EvidenceScore
-components, abstain reason, dataThrough, and publishedAt. Never train a model, lower a gate,
-activate a candidate, invent a probability, or turn null into zero.
+每次运行的隔离只体现在外部 run 目录：
+`C:\Codex-Recovery\GuanchaoWriter\runs\YYYY-MM-DD\weekly\`。
 
-The baseline is the complete payload. Change only primitive paths that the target schema accepts.
-Bind every changed field exactly once through `claimBindings`: quantitative facts use packet fact
-IDs and exact rendered values; qualitative claims use observation IDs, covering document IDs, and
-the exact evidence state; source metadata may only repeat allowed document metadata. Do not add
-`payload.factClaims`.
+执行流程：
+1. 确认最新 prediction evaluations 已完成、本周 review 已生成、weekly packet 已刷新、最新
+   日报与预测内容已同步。
+2. 刷新 weekly writer packet（现有受控市场数据流程，`--edition weekly --as-of auto`）并验证。
+3. Researcher 生成 bounded `CODEX_RESEARCH.json`（约束同日报任务），asOf 与 weekly packet
+   业务日期一致。
+4. `node scripts/codex-writer-prepare.mjs --edition weekly ... --write` 生成执行包。
+5. Luna Writer 只读执行包，返回 `writer-result-v2`；禁止浏览、搜索、外部 LLM 与 API key。
+6. `codex-writer-finalize.mjs --dry-run`。
+7. 全部门禁通过后 `codex-writer-finalize.mjs --write`。
+8. `pnpm validate:weekly`、`pnpm validate:brief`、`pnpm validate:prediction-ledger`、
+   `pnpm typecheck`、`pnpm build`。
+9. `git diff` 边界检查；commit：`chore(content): publish weekly brief YYYY-Www`；
+   push main（不得 force push）；验证 Vercel；更新 automation memory。
 
-Probabilities, rankings, EvidenceScore, model state, publication state, publication gate, returns,
-thresholds, coverage, HK/US model fields, and all other frozen fields are immutable. Never turn
-null into zero or infer causality from a title. Preserve explicit partial, unavailable,
-rate-limited, schema-changed, conflicting, and unverified states. `latest` is never a substitute
-for a bound date/status.
+Writer 禁止修改概率、排名、EvidenceScore、prediction ledger、sector rotation、生产模型。
 
-If the contract cannot be satisfied, return a `writer-error-v1` object instead of a partial report.
+## Failure handling
+
+研究源不可用、限流或 schema 改变时保留显式状态；不补零、不回填、不猜测。缺少必需绑定时输出
+`writer-error-v1`。任务失败只写到 recovery root 与 run 目录，不得写入 ledger、public history、
+模型/概率/排名、EvidenceScore、HK/US 模型或 sector rotation 文件。

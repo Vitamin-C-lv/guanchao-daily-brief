@@ -47,6 +47,48 @@ export class CodexWriterPrepareError extends Error {
   }
 }
 
+function shanghaiCalendarDate(value) {
+  const date = value === undefined ? new Date() : new Date(value);
+  if (!Number.isFinite(date.valueOf())) fail("FRESHNESS", "editionDate", "edition date is not a valid time");
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
+}
+
+function assertPacketFreshness(packet, { editionDate, baselineFile, now }) {
+  const effectiveEditionDate = editionDate ?? shanghaiCalendarDate(now);
+  if (!DATE.test(effectiveEditionDate)) fail("FRESHNESS", "editionDate", "edition date must be YYYY-MM-DD");
+  const generatedShanghai = shanghaiCalendarDate(packet.generatedAt);
+  const marketDates = packet.marketDates ?? {};
+  const relations = {
+    requestedAsOf: effectiveEditionDate,
+    packetGeneratedAtShanghai: generatedShanghai,
+    marketDatesAShare: marketDates.aShare ?? null,
+    marketDatesUs: marketDates.us ?? null
+  };
+  if (generatedShanghai !== effectiveEditionDate) {
+    fail("STALE_WRITER_PACKET", "packet.generatedAt", `packet generatedAt (${generatedShanghai} Asia/Shanghai) is not the edition date ${effectiveEditionDate}; refresh market data before writing`);
+  }
+  for (const market of ["aShare", "us"]) {
+    const value = marketDates[market];
+    if (typeof value === "string" && value > effectiveEditionDate) {
+      fail("STALE_WRITER_PACKET", `packet.marketDates.${market}`, `market date ${value} must not be later than edition date ${effectiveEditionDate}; never write a non-trading day as a trading day`);
+    }
+  }
+  if (typeof marketDates.aShare !== "string" || !DATE.test(marketDates.aShare)) {
+    fail("STALE_WRITER_PACKET", "packet.marketDates.aShare", "packet is missing a valid A-share market date");
+  }
+  if (baselineFile && fs.existsSync(baselineFile)) {
+    const baseline = readJson(baselineFile);
+    const baselineEdition = baseline.meta?.editionDate;
+    if (typeof baselineEdition === "string") {
+      relations.baselineEditionDate = baselineEdition;
+      if (baselineEdition > effectiveEditionDate) {
+        fail("FRESHNESS", "baseline.meta.editionDate", `baseline editionDate ${baselineEdition} is later than requested edition date ${effectiveEditionDate}`);
+      }
+    }
+  }
+  return { passed: true, editionDate: effectiveEditionDate, relations };
+}
+
 function fail(code, errorPath, message) {
   throw new CodexWriterPrepareError(code, errorPath, message);
 }
@@ -213,6 +255,7 @@ export async function prepareCodexWriter({
   codexResearch = null,
   researchBundle = null,
   baselineSource = null,
+  editionDate = null,
   outputDirectory,
   dryRun = false,
   write = false,
@@ -230,6 +273,7 @@ export async function prepareCodexWriter({
   const baseline = baselineSource ?? defaultBaselineSource(root, edition);
   const baselineFile = resolveRootFile(root, baseline, "baselineSource");
   if (!fs.existsSync(baselineFile)) fail("BASELINE", baseline, "baseline source is missing");
+  const freshness = assertPacketFreshness(packet, { editionDate, baselineFile, now });
   if (typeof outputDirectory !== "string") fail("OUTPUT", "outputDirectory", "absolute execution package directory is required");
   const output = path.resolve(outputDirectory);
   ensureOutsideRoot(output, root, "outputDirectory");
@@ -263,6 +307,7 @@ export async function prepareCodexWriter({
       schemaVersion: "codex-writer-prepare-summary-v1",
       edition,
       asOf,
+      freshness,
       packetPath: relative(root, packetPlan.file),
       packetPlan: { created: packetPlan.created, reused: packetPlan.reused, wouldWrite: packetPlan.shouldWrite ? [relative(root, packetPlan.file)] : [] },
       researchStore,
@@ -284,6 +329,7 @@ export async function prepareCodexWriter({
       schemaVersion: "codex-writer-prepare-summary-v1",
       edition,
       asOf,
+      freshness,
       requestId: request.requestId,
       jobId: request.jobId,
       contextId: request.context.contextId,
@@ -317,6 +363,7 @@ export async function prepareCodexWriter({
     schemaVersion: "codex-writer-prepare-summary-v1",
     edition,
     asOf,
+    freshness,
     requestId: request.requestId,
     jobId: request.jobId,
     contextId: request.context.contextId,
@@ -350,7 +397,7 @@ async function runCli() {
   const root = args.root ? path.resolve(args.root) : repositoryRoot;
   if (args["dry-run"] !== true && args.write !== true || args["dry-run"] === true && args.write === true) fail("CLI_ARGUMENT", "mode", "exactly one of --dry-run or --write is required");
   if (typeof args.edition !== "string" || typeof args.output !== "string") fail("CLI_ARGUMENT", "arguments", "--edition and --output are required");
-  const summary = await prepareCodexWriter({ edition: args.edition, marketPacket: args["market-packet"], codexResearch: args["codex-research"], researchBundle: args["research-bundle"], baselineSource: args["baseline-source"], outputDirectory: path.resolve(args.output), dryRun: args["dry-run"] === true, write: args.write === true, root });
+  const summary = await prepareCodexWriter({ edition: args.edition, marketPacket: args["market-packet"], codexResearch: args["codex-research"], researchBundle: args["research-bundle"], baselineSource: args["baseline-source"], editionDate: args["edition-date"], outputDirectory: path.resolve(args.output), dryRun: args["dry-run"] === true, write: args.write === true, root });
   console.log(canonicalJson(summary));
 }
 

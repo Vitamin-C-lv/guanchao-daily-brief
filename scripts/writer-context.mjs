@@ -333,7 +333,7 @@ function packetAsOf(packet) {
   return packet.marketDates?.aShare ?? null;
 }
 
-export function validateWriterContextArtifacts(context, { root = repositoryRoot, registry = loadWriterContextRegistry(root), virtualArtifacts = new Map() } = {}) {
+export function validateWriterContextArtifacts(context, { root = repositoryRoot, registry = loadWriterContextRegistry(root), virtualArtifacts = new Map(), requireCurrentFrozen = true } = {}) {
   const packetArtifact = readBoundArtifact(root, context.quantitativeWriterPacket, "context.quantitativeWriterPacket", virtualArtifacts);
   try {
     validatePacket(packetArtifact.value, context.quantitativeWriterPacket.artifactPath);
@@ -360,6 +360,11 @@ export function validateWriterContextArtifacts(context, { root = repositoryRoot,
   const policy = editionPolicy(registry, context.edition);
   for (const [label, reference, expectedPath] of [["context.writerPrompt", context.writerPrompt, policy.promptPath], ["context.targetValidator", context.targetValidator, policy.validatorPath]]) {
     if (reference.path !== expectedPath) fail("REFERENCE_PATH", `${label}.path`, "frozen file path mismatch");
+    // Historical contexts keep representing the prompt/validator frozen at generation
+    // time. Only new prepare and current apply phases require the current working-tree
+    // bytes to equal the frozen SHA; audits and rebuilds of historical artifacts must
+    // validate the frozen reference itself without re-imposing current file SHAs.
+    if (!requireCurrentFrozen) continue;
     const bytes = fs.readFileSync(resolveRepoPath(root, reference.path, `${label}.path`));
     if (sha256Bytes(bytes) !== reference.sha256) fail("ARTIFACT_SHA", `${label}.sha256`, "frozen file bytes do not match SHA");
   }
@@ -389,7 +394,7 @@ export function validateWriterContext(context, registry = loadWriterContextRegis
   assertHash(context.integrity.sha256, "context.integrity.sha256");
   if (context.integrity.businessSha256 !== expectedId) fail("CONTEXT_INTEGRITY", "context.integrity.businessSha256", "business hash mismatch");
   if (context.integrity.sha256 !== computeFullIntegrity(context)) fail("CONTEXT_INTEGRITY", "context.integrity.sha256", "full logical hash mismatch");
-  validateWriterContextArtifacts(context, { root: options.root ?? repositoryRoot, registry, virtualArtifacts: options.virtualArtifacts ?? new Map() });
+  validateWriterContextArtifacts(context, { root: options.root ?? repositoryRoot, registry, virtualArtifacts: options.virtualArtifacts ?? new Map(), requireCurrentFrozen: options.requireCurrentFrozen ?? true });
   return context;
 }
 
@@ -454,9 +459,9 @@ function artifactRelativePath(kind, value) {
   return `data/writer-contexts/${segment}/${value.asOf.slice(0, 4)}/${value.asOf.slice(5, 7)}/${id}.json.gz`;
 }
 
-function validateImmutableValue(kind, value, registry, root, virtualArtifacts) {
+function validateImmutableValue(kind, value, registry, root, virtualArtifacts, requireCurrentFrozen) {
   if (kind === "baseline") return validateBaseline(value, registry);
-  return validateWriterContext(value, registry, { root, virtualArtifacts });
+  return validateWriterContext(value, registry, { root, virtualArtifacts, requireCurrentFrozen });
 }
 
 function stableView(kind, value) {
@@ -475,7 +480,7 @@ function planImmutable(kind, candidate, { root, registry, virtualArtifacts }) {
   } catch {
     fail("ARTIFACT_CORRUPT", relativePath, "stored immutable gzip is invalid");
   }
-  validateImmutableValue(kind, existing, registry, root, virtualArtifacts);
+  validateImmutableValue(kind, existing, registry, root, virtualArtifacts, true);
   const expectedId = kind === "baseline" ? candidate.contentIdentity : candidate.contextId;
   const actualId = kind === "baseline" ? existing.contentIdentity : existing.contextId;
   if (expectedId !== actualId || canonicalJson(stableView(kind, existing)) !== canonicalJson(stableView(kind, candidate))) fail("IMMUTABLE_CONFLICT", relativePath, "stored immutable artifact conflicts with candidate");
@@ -490,7 +495,7 @@ function readTreeFiles(directory) {
   });
 }
 
-function scanWriterContexts(root, registry, virtualArtifacts = new Map()) {
+function scanWriterContexts(root, registry, virtualArtifacts = new Map(), requireCurrentFrozen = false) {
   const result = { baselines: [], contexts: [] };
   const rootDirectory = path.join(root, "data", "writer-contexts");
   for (const [kind, directory, idKey, collection] of [["baseline", "baselines", "contentIdentity", "baselines"], ["context", "contexts", "contextId", "contexts"]]) {
@@ -503,7 +508,7 @@ function scanWriterContexts(root, registry, virtualArtifacts = new Map()) {
       } catch {
         fail("ARTIFACT_CORRUPT", relativePath, "stored gzip JSON invalid");
       }
-      validateImmutableValue(kind, value, registry, root, virtualArtifacts);
+      validateImmutableValue(kind, value, registry, root, virtualArtifacts, requireCurrentFrozen);
       if (path.basename(file) !== `${value[idKey]}.json.gz` || relativePath !== artifactRelativePath(kind, value)) fail("ARTIFACT_PATH", relativePath, "stored path does not match identity/date");
       result[collection].push({ kind, relativePath, file, bytes, value, created: false, reused: true, shouldWrite: false });
     }
@@ -702,11 +707,11 @@ function runCli() {
     return;
   }
   if (command === "validate-context") {
-    onlyKeys(args, ["file", "root"], command);
+    onlyKeys(args, ["file", "root", "legacy"], command);
     if (typeof args.file !== "string" || (args.root !== undefined && typeof args.root !== "string")) fail("CLI_ARGUMENT", command, "--file is required");
     const root = args.root ? path.resolve(args.root) : repositoryRoot;
     const registry = loadWriterContextRegistry(root);
-    const context = validateWriterContext(readJsonOrGzip(path.resolve(process.cwd(), args.file)), registry, { root });
+    const context = validateWriterContext(readJsonOrGzip(path.resolve(process.cwd(), args.file)), registry, { root, requireCurrentFrozen: args.legacy !== true });
     console.log(JSON.stringify({ valid: true, schemaVersion: context.schemaVersion, contextId: context.contextId }));
     return;
   }

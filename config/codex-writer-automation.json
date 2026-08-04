@@ -1,12 +1,18 @@
 {
   "schemaVersion": "codex-writer-automation-v1",
   "publicationEnabled": true,
+  "productionApplyRequiresExplicitWrite": true,
   "runtime": {
     "projectPath": "D:/周报个人网站-local-writer-runtime",
-    "recoveryRoot": "C:/Codex-Recovery/GuanchaoWriter",
     "repositoryPath": "D:/周报个人网站",
+    "recoveryRoot": "C:/Codex-Recovery/GuanchaoWriter",
+    "runsRoot": "C:/Codex-Recovery/GuanchaoWriter/runs",
+    "automationStatePath": "C:/Codex-Recovery/GuanchaoWriter/automation-state.json",
+    "nativeAutomationsRoot": "C:/Users/18442/.codex/automations",
     "writerPrepare": "scripts/codex-writer-prepare.mjs",
-    "writerFinalize": "scripts/codex-writer-finalize.mjs"
+    "writerFinalize": "scripts/codex-writer-finalize.mjs",
+    "predictionPublisher": "scripts/run-prediction-publisher.mjs",
+    "consistencyCheck": "scripts/check-automation-consistency.mjs"
   },
   "writer": {
     "model": "gpt-5.6-luna",
@@ -16,7 +22,42 @@
     "apiKeyRequired": false,
     "productionApplyRequiresExplicitWrite": true
   },
+  "freshness": {
+    "timezone": "Asia/Shanghai",
+    "requireSameDayPacket": true,
+    "staleErrorCode": "STALE_WRITER_PACKET",
+    "explanation": "日报写作前必须刷新官方市场数据并生成当天 writer packet；packet.generatedAt 的 Asia/Shanghai 日期必须等于 editionDate，marketDates 必须是最新完整交易日且不晚于 editionDate。"
+  },
+  "prediction": {
+    "model": "gpt-5.6-luna",
+    "executorOnly": true,
+    "deterministicScript": "scripts/run-prediction-publisher.mjs",
+    "trainingForbidden": true,
+    "shadowActivationForbidden": true,
+    "noOpWhenNoNewTradingDay": true,
+    "allowedWritePaths": [
+      "content/sector-rotation.json",
+      "data/prediction-ledger/**",
+      "public/data/prediction-history/**",
+      "content/prediction-history.json",
+      "data/sector-rotation/**",
+      "data/rotation-model/**",
+      "data/market-evidence/**",
+      "content/writer-packets/daily-latest.json",
+      "content/writer-packets/weekly-latest.json"
+    ]
+  },
   "schedules": [
+    {
+      "key": "prediction",
+      "label": "Guanchao Prediction Publisher",
+      "automationId": null,
+      "enabled": true,
+      "rrule": "FREQ=DAILY;BYHOUR=6;BYMINUTE=45",
+      "timezone": "Asia/Shanghai",
+      "promptFile": "prompts/codex-prediction-publisher.md",
+      "edition": "prediction"
+    },
     {
       "key": "daily",
       "label": "观潮本机 Codex 日报写手",
