@@ -35,13 +35,15 @@ publicationEnabled=true，productionApplyRequiresExplicitWrite=true。
 const DAILY_PROMPT = `publicationEnabled=true
 productionApplyRequiresExplicitWrite=true
 运行观潮本机 Codex 日报写手。先 refresh writer packet；STALE_WRITER_PACKET 时停止。
+正式写手 guanchao-financial-writer；缺少 Skill 时 WRITER_SKILL_MISSING 并停止。
 prepare --edition daily --write；finalize --dry-run 后 finalize --write；
 pnpm validate:brief；pnpm validate:weekly；pnpm validate:prediction-ledger；pnpm typecheck；pnpm build。
 commit chore(content): publish daily brief YYYY-MM-DD；push main；验证 Vercel。`;
 
 const WEEKLY_PROMPT = `publicationEnabled=true
 productionApplyRequiresExplicitWrite=true
-运行观潮本机 Codex 周报写手。prepare --edition weekly --write；finalize --dry-run 后 finalize --write；
+运行观潮本机 Codex 周报写手。正式写手 guanchao-financial-writer；缺少 Skill 时 WRITER_SKILL_MISSING 并停止。
+prepare --edition weekly --write；finalize --dry-run 后 finalize --write；
 commit chore(content): publish weekly brief YYYY-Www；push main；验证 Vercel。`;
 
 const PREDICTION_PROMPT = `publicationEnabled=true
