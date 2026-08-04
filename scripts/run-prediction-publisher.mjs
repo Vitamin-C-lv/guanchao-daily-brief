@@ -246,7 +246,8 @@ export async function runPredictionPublisher({
       ledgerReport = ledgerReportFromJson(ledgerResult.stdout);
       step("ledger-automation", { ok: ledgerResult.ok, detail: ledgerResult.detail.slice(0, 1200), report: ledgerReport });
     } else {
-      const uvLedger = run("uv", ["run", "--no-project", "--python", "3.12", "--with", "requests", "python", "scripts/prediction_ledger_automation.py", "--mode", "daily"], { cwd: root, allowFailure: true, env });
+      // Windows zoneinfo needs the tzdata package for Asia/Shanghai.
+      const uvLedger = run("uv", ["run", "--no-project", "--python", "3.12", "--with", "requests", "--with", "tzdata", "python", "scripts/prediction_ledger_automation.py", "--mode", "daily"], { cwd: root, allowFailure: true, env });
       ledgerReport = ledgerReportFromJson(uvLedger.stdout);
       step("ledger-automation", { ok: uvLedger.ok, detail: uvLedger.detail.slice(0, 1200), report: ledgerReport });
     }
