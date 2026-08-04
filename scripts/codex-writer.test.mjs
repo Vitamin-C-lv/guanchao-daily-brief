@@ -87,6 +87,12 @@ function fixture() {
   // aligned to the edition date without breaking writerPacketId/integrity hashes.
   packet.generatedAt = `${PACKET_AS_OF}T12:00:00.000Z`;
   fs.writeFileSync(path.join(root, "content/writer-packets/daily-latest.json"), `${JSON.stringify(packet, null, 2)}\n`);
+  // The checked-in brief may already be published after PACKET_AS_OF; a fixture
+  // baseline must never be later than the edition date under test.
+  const baselineFile = path.join(root, "content/daily-brief.json");
+  const brief = JSON.parse(fs.readFileSync(baselineFile, "utf8"));
+  brief.meta.editionDate = PACKET_AS_OF;
+  fs.writeFileSync(baselineFile, `${JSON.stringify(brief, null, 2)}\n`);
   const researchFile = path.join(root, "candidate.json");
   const run = sealCodexResearch(candidate(), { now: new Date("2026-08-01T01:00:00Z") });
   fs.writeFileSync(researchFile, `${JSON.stringify(run)}\n`, "utf8");
