@@ -647,7 +647,19 @@ export function validateResult(rootDir, request, result) {
   validateQuantitativeBindings(result.claimBindings.quantitative, inputs, request, result.payload, changed, bound);
   validateQualitativeBindings(result.claimBindings.qualitative, inputs, request, result.payload, changed, bound);
   validateSourceMetadataBindings(result.claimBindings.sourceMetadata, inputs, request, result.payload, changed, bound);
-  for (const claimPath of changed) if (!bound.has(claimPath) && !allowedFormattingOrDatePath(request.edition, claimPath)) error("UNBOUND_BASELINE_DIFF", claimPath, "every business change must bind immutable evidence");
+  for (const claimPath of changed) {
+    if (bound.has(claimPath) || allowedFormattingOrDatePath(request.edition, claimPath)) continue;
+    // Array elements removed by the writer (e.g. a shorter sourceIndexes list or a
+    // restructured section) no longer exist in the payload; they cannot carry a
+    // binding and are not a business change to publish.
+    let exists = true;
+    try {
+      claimValue(result.payload, claimPath);
+    } catch {
+      exists = false;
+    }
+    if (exists) error("UNBOUND_BASELINE_DIFF", claimPath, "every business change must bind immutable evidence");
+  }
   validHash(result.resultId, "resultId");
   const expectedId = hash(resultBusinessView(result));
   if (result.resultId !== expectedId) error("RESULT_INTEGRITY", "resultId", "result ID mismatch");
