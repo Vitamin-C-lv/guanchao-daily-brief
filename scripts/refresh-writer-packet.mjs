@@ -59,12 +59,13 @@ export function latestATradingDay(editionDate, root = repositoryRoot, now = new 
     candidate.setUTCDate(candidate.getUTCDate() - 1);
   }
   if (!trading) throw new RefreshWriterPacketError("FRESHNESS", `no trading day found at or before ${editionDate}`);
-  // A session is only complete after the Asia/Shanghai close (15:00). Before the close the
-  // latest complete trading day is the previous trading day.
+  // A session is only complete after the Asia/Shanghai close plus a conservative data
+  // publication buffer (17:00). Before that the latest complete trading day is the
+  // previous trading day.
   if (trading === editionDate) {
     const shanghai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", hour12: false }).format(now);
     const [hour, minute] = shanghai.split(":").map(Number);
-    if (hour * 60 + minute < 15 * 60) {
+    if (hour * 60 + minute < 17 * 60) {
       const previous = new Date(`${editionDate}T00:00:00.000Z`);
       previous.setUTCDate(previous.getUTCDate() - 1);
       while (previous.getUTCFullYear() >= 2020) {
