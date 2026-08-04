@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import { canonicalJson } from "./research-contract.mjs";
 import { loadEditorialStyle, lintEditorial } from "./editorial-lint.mjs";
 import { validateCodexResearch } from "./codex-research.mjs";
+import { validateVisualBundle } from "./article-visuals.mjs";
 import {
   apply as applyWriterResult,
   validateRequest,
@@ -16,6 +17,8 @@ import {
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
 const PACKAGE_FILES = [
+  "ARTICLE_DEPTH_RULES.json",
+  "ARTICLE_VISUAL_BUNDLE.json",
   "BASELINE_CONTENT.json",
   "CODEX_RESEARCH.json",
   "EDITORIAL_STYLE.json",
@@ -155,6 +158,112 @@ function validateTargetAfterApply(root, request) {
   return { validatorPath: target.validatorPath, status: run.status, stdout: (run.stdout || "").trim().slice(0, 500) };
 }
 
+export function countChinese(text) {
+  return [...String(text)].filter((char) => /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/.test(char)).length;
+}
+
+export function collectBodyText(payload) {
+  const parts = [];
+  const push = (value) => {
+    if (typeof value === "string" && value.trim()) parts.push(value);
+  };
+  const walkArticle = (article) => {
+    push(article?.detail?.lead);
+    for (const keyPoint of article?.detail?.keyPoints ?? []) push(keyPoint);
+    for (const section of article?.detail?.sections ?? []) {
+      push(section?.heading);
+      push(section?.body);
+    }
+  };
+  for (const article of payload?.federalReserve?.articles ?? []) walkArticle(article);
+  for (const market of payload?.markets ?? []) {
+    for (const article of market.articles ?? []) walkArticle(article);
+  }
+  for (const article of payload?.hotspots ?? []) walkArticle(article);
+  push(payload?.pulse?.explanation);
+  for (const item of payload?.watchlist ?? []) push(item?.note);
+  return parts.join("\n");
+}
+
+export function validateDepthAndVisuals({ edition, payload, result, visualBundle, depthRules }) {
+  const bodyText = collectBodyText(payload);
+  const chineseCharacterCount = countChinese(bodyText);
+  const depth = depthRules?.[edition];
+  if (!depth) fail("ARTICLE_DEPTH_RULES", "ARTICLE_DEPTH_RULES.json", `depth rules missing for ${edition}`);
+  if (chineseCharacterCount < depth.chineseCharacterCountMin) {
+    fail("ARTICLE_TOO_SHALLOW", "articleDepth.chineseCharacterCount", `正文仅 ${chineseCharacterCount} 字，低于 ${depth.chineseCharacterCountMin} 字`);
+  }
+  if (chineseCharacterCount > depth.chineseCharacterCountMax) {
+    fail("ARTICLE_TOO_VERBOSE", "articleDepth.chineseCharacterCount", `正文 ${chineseCharacterCount} 字，超过 ${depth.chineseCharacterCountMax} 字`);
+  }
+  const articleDepth = result.articleDepth;
+  if (!articleDepth || typeof articleDepth !== "object") fail("ARTICLE_DEPTH", "articleDepth", "articleDepth object required in writer result");
+  if (typeof articleDepth.estimatedReadingMinutes !== "number" || articleDepth.estimatedReadingMinutes < depth.readingMinutesMin || articleDepth.estimatedReadingMinutes > depth.readingMinutesMax) {
+    fail("ARTICLE_DEPTH", "articleDepth.estimatedReadingMinutes", `阅读时间需在 ${depth.readingMinutesMin}–${depth.readingMinutesMax} 分钟`);
+  }
+  if (Math.abs(articleDepth.estimatedReadingMinutes - chineseCharacterCount / 200) > 1) {
+    fail("ARTICLE_DEPTH", "articleDepth.estimatedReadingMinutes", "阅读时间与正文字数不一致");
+  }
+  if (typeof articleDepth.mainThesis !== "string" || !articleDepth.mainThesis.trim()) fail("ARTICLE_DEPTH", "articleDepth.mainThesis", "mainThesis required");
+  if (typeof articleDepth.scenarioCount !== "number" || articleDepth.scenarioCount < depth.scenarioCountMin) fail("ARTICLE_DEPTH", "articleDepth.scenarioCount", `情景数量需至少 ${depth.scenarioCountMin}`);
+  if (typeof articleDepth.termExplanationCount !== "number" || articleDepth.termExplanationCount < depth.termExplanationCountMin) fail("ARTICLE_DEPTH", "articleDepth.termExplanationCount", `机制解释需至少 ${depth.termExplanationCountMin} 段`);
+  if (typeof articleDepth.counterEvidenceCount !== "number" || articleDepth.counterEvidenceCount < depth.counterEvidenceCountMin) fail("ARTICLE_DEPTH", "articleDepth.counterEvidenceCount", `反证需至少 ${depth.counterEvidenceCountMin} 条`);
+
+  validateVisualBundle(visualBundle);
+  const selections = Array.isArray(result.visualSelections) ? result.visualSelections : [];
+  if (selections.length < depth.visualCountMin) fail("VISUAL_COUNT", "visualSelections", `日报需至少 ${depth.visualCountMin} 张图（实际 ${selections.length}）`);
+  const visuals = new Map(visualBundle.visuals.map((visual) => [visual.id, visual]));
+  const seen = new Set();
+  for (let index = 0; index < selections.length; index += 1) {
+    const selection = selections[index];
+    const label = `visualSelections[${index}]`;
+    if (!selection || typeof selection !== "object") fail("VISUAL_SELECTION", label, "selection object required");
+    const visual = visuals.get(selection.visualId);
+    if (!visual) fail("VISUAL_UNKNOWN", `${label}.visualId`, `visualId ${selection.visualId} 不在冻结 bundle 中`);
+    if (seen.has(selection.visualId)) fail("VISUAL_DUPLICATE", `${label}.visualId`, `visualId ${selection.visualId} 重复使用`);
+    seen.add(selection.visualId);
+    if (typeof selection.title !== "string" || !selection.title.trim()) fail("VISUAL_TITLE", `${label}.title`, "图表标题不能为空");
+    if (typeof selection.takeaway !== "string" || !selection.takeaway.trim()) fail("VISUAL_TAKEAWAY", `${label}.takeaway`, "图表要点不能为空");
+    if (typeof selection.explanation !== "string" || !selection.explanation.trim()) fail("VISUAL_EXPLANATION", `${label}.explanation`, "图表解释不能为空");
+    if (!bodyText.includes(selection.explanation)) fail("VISUAL_NOT_EXPLAINED", `${label}.explanation`, "图表解释必须出现在正文中");
+    if (visual.dataThrough !== payload?.meta?.dataThrough) fail("VISUAL_DATE_CONFLICT", `${label}.visualId`, `图表 dataThrough ${visual.dataThrough} 与文章 ${payload?.meta?.dataThrough} 不一致`);
+  }
+  return { chineseCharacterCount, bodyCharacters: countChinese(bodyText), visualsSelected: selections.map((item) => item.visualId) };
+}
+
+function resolveVisuals(result, visualBundle) {
+  const byId = new Map(visualBundle.visuals.map((visual) => [visual.id, visual]));
+  return (result.visualSelections ?? []).map((selection) => {
+    const visual = byId.get(selection.visualId);
+    return {
+      visualId: selection.visualId,
+      kind: visual.kind,
+      title: selection.title,
+      takeaway: selection.takeaway,
+      explanation: selection.explanation,
+      placement: selection.placement,
+      unit: visual.unit,
+      dataThrough: visual.dataThrough,
+      sourceIndexes: visual.sourceIndexes,
+      series: visual.series,
+      points: visual.points,
+      notes: visual.notes
+    };
+  });
+}
+
+function injectVisuals(targetFile, visuals, root) {
+  if (!path.isAbsolute(targetFile)) fail("TARGET", "target", "absolute target path required");
+  const relative = path.relative(path.resolve(root), path.resolve(targetFile));
+  if (relative.startsWith("..") || path.isAbsolute(relative)) fail("APPLY_BOUNDARY", targetFile, "visual injection target outside repository");
+  const payload = readJson(targetFile);
+  payload.visuals = visuals;
+  const temporary = `${targetFile}.visuals.tmp`;
+  fs.writeFileSync(temporary, `${canonicalJson(payload)}\n`, "utf8");
+  fs.renameSync(temporary, targetFile);
+  return targetFile;
+}
+
 export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = false, write = false, root = repositoryRoot, output = null } = {}) {
   if (dryRun === write) fail("MODE", "mode", "exactly one of dryRun or write is required");
   if (typeof packageDirectory !== "string" || typeof resultFile !== "string") fail("ARGUMENT", "arguments", "packageDirectory and resultFile are required");
@@ -174,6 +283,9 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
   validateResult(root, request, result);
   const lint = lintEditorial({ edition: request.edition, value: result.payload, style, result });
   if (!lint.passed) fail("EDITORIAL_LINT", "result.payload", lint.errors.join("; "));
+  const visualBundle = JSON.parse(packageValue.files.get("ARTICLE_VISUAL_BUNDLE.json").toString("utf8"));
+  const depthRules = JSON.parse(packageValue.files.get("ARTICLE_DEPTH_RULES.json").toString("utf8"));
+  const depthAndVisuals = validateDepthAndVisuals({ edition: request.edition, payload: result.payload, result, visualBundle, depthRules });
   const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root });
   for (const file of simulation.files) if (!allowedApplyFile(file, request, root)) fail("APPLY_BOUNDARY", file, "production apply proposed an unapproved file");
   let applied = simulation;
@@ -181,6 +293,7 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
   if (write) {
     applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root });
     for (const file of applied.files) if (!allowedApplyFile(file, request, root)) fail("APPLY_BOUNDARY", file, "production apply wrote an unapproved file");
+    injectVisuals(path.join(root, ...request.targetOutputs[0].targetPath.split("/")), resolveVisuals(result, visualBundle), root);
     targetValidation = validateTargetAfterApply(root, request);
     const afterProtected = protectedFiles(root);
     assertProtectedEqual(beforeProtected, afterProtected);
@@ -196,6 +309,7 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
     codexResearchRunId: codexResearch.researchRunId,
     bundleId: codexResearch.bundleId,
     editorialLint: lint,
+    articleDepth: depthAndVisuals,
     productionApply: applied,
     protectedBoundary: { checked: Object.keys(beforeProtected).length, unchanged: true },
     targetValidation,

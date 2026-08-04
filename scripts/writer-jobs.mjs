@@ -600,14 +600,37 @@ export function validateResult(rootDir, request, result) {
   validateRequest(request, { rootDir });
   const loaded = contextReference(rootDir, request.context.artifactPath);
   const inputs = validateWriterContextArtifacts(loaded.context, { root: rootDir, registry: loaded.registry });
-  const keys = ["claimBindings", "contextId", "generatedAt", "integrity", "jobId", "payload", "requestId", "resultId", "schemaVersion", "warnings", "writerEngine", "writerVersion"];
-  exactKeys(result, keys, keys, "result");
+  const requiredKeys = ["claimBindings", "contextId", "generatedAt", "integrity", "jobId", "payload", "requestId", "resultId", "schemaVersion", "warnings", "writerEngine", "writerVersion"];
+  const allowedKeys = [...requiredKeys, "articleDepth", "visualSelections"];
+  exactKeys(result, requiredKeys, allowedKeys, "result");
   if (result.schemaVersion !== resultVersion) error("RESULT_SCHEMA", "schemaVersion", "writer-result-v2 required");
   if (result.jobId !== request.jobId || result.requestId !== request.requestId || result.contextId !== request.context.contextId) error("RESULT_METADATA", "jobId/requestId/contextId", "result does not bind request/context");
   isoTimestamp(result.generatedAt, "generatedAt");
   nonempty(result.writerEngine, "writerEngine");
   nonempty(result.writerVersion, "writerVersion");
   warnings(result.warnings, "warnings");
+  if (result.articleDepth !== undefined) {
+    if (!object(result.articleDepth)) error("RESULT_DEPTH", "articleDepth", "articleDepth object required");
+    const depthKeys = ["chineseCharacterCount", "counterEvidenceCount", "estimatedReadingMinutes", "explanationCount", "mainThesis", "scenarioCount", "termExplanationCount"];
+    exactKeys(result.articleDepth, depthKeys, depthKeys, "articleDepth");
+    for (const key of ["chineseCharacterCount", "counterEvidenceCount", "estimatedReadingMinutes", "explanationCount", "scenarioCount", "termExplanationCount"]) {
+      if (!Number.isInteger(result.articleDepth[key]) || result.articleDepth[key] < 0) error("RESULT_DEPTH", `articleDepth.${key}`, "nonnegative integer required");
+    }
+    nonempty(result.articleDepth.mainThesis, "articleDepth.mainThesis");
+  }
+  if (result.visualSelections !== undefined) {
+    if (!Array.isArray(result.visualSelections)) error("RESULT_VISUALS", "visualSelections", "array required");
+    for (let index = 0; index < result.visualSelections.length; index += 1) {
+      const selection = result.visualSelections[index];
+      const label = `visualSelections[${index}]`;
+      exactKeys(selection, ["explanation", "placement", "takeaway", "title", "visualId"], ["explanation", "placement", "takeaway", "title", "visualId"], label);
+      nonempty(selection.visualId, `${label}.visualId`);
+      nonempty(selection.placement, `${label}.placement`);
+      nonempty(selection.title, `${label}.title`);
+      nonempty(selection.takeaway, `${label}.takeaway`);
+      nonempty(selection.explanation, `${label}.explanation`);
+    }
+  }
   if (!object(result.payload)) error("RESULT_PAYLOAD", "payload", "complete payload object required");
   assertNoAbsolute(result, "result");
   assertNoFactClaims(result.payload);

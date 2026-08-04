@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "article-visual-contract-v1",
+  "visualSchemaVersion": "article-visual-v1",
+  "bundleSchemaVersion": "article-visual-bundle-v1",
+  "kinds": [
+    "line",
+    "multi_line",
+    "bar",
+    "grouped_bar",
+    "area",
+    "yield_curve",
+    "spread",
+    "indexed_performance",
+    "comparison_table",
+    "timeline"
+  ],
+  "visualRequiredKeys": [
+    "id",
+    "kind",
+    "title",
+    "takeaway",
+    "unit",
+    "dataThrough",
+    "sourceIndexes",
+    "series",
+    "points",
+    "notes",
+    "contentSha256"
+  ],
+  "bundleRequiredKeys": [
+    "schemaVersion",
+    "edition",
+    "generatedAt",
+    "visuals",
+    "integrity"
+  ],
+  "limits": {
+    "titleMaxCharacters": 80,
+    "takeawayMaxCharacters": 120,
+    "notesMaxCharacters": 160,
+    "visualCountMax": 12,
+    "pointsPerVisualMax": 400
+  },
+  "sourceIndexPolicy": "sourceIndexes must be resolvable against the frozen writer packet source index or the article source list"
+}
