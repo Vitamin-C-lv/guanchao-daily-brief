@@ -4,7 +4,7 @@
 
 观潮是一个以公开证据为基础的全网信息采集、市场解释、预测和历史复盘网站。目标是广泛收集分散信息，将其组织为事实、证据、反证和观察项，并为 A 股、港股、美股保留可追溯的预测、实际结果和每周复盘。每个结论必须能回到数据、来源、时间和模型版本。
 
-项目架构负责人拥有产品目标、信息架构、数据流、模块边界、数据契约、模型目标、发布门槛、历史账本规则、路线、技术债优先级、验收标准和模型选择的设计权。工程 Agent 忠实实施冻结设计、测试、验证、提交和交接；不得自主扩展功能、改变模型或发布门槛、引入数据库或并行实现、重设计账本、修改历史预测、训练 HK/US，或开始 P1-C。
+项目架构负责人拥有产品目标、信息架构、数据流、模块边界、数据契约、模型目标、发布门槛、历史账本规则、路线、技术债优先级、验收标准和模型选择的设计权。工程 Agent 忠实实施冻结设计、测试、验证、提交和交接；不得自主扩展功能、改变模型或发布门槛、引入数据库或并行实现、重设计账本、修改历史预测，或把 HK/US 研究候选写入生产。HK P2-A 允许在独立研究边界内登记契约和候选 shadow，但不得自动训练、发布或替换生产模型。
 
 ## 单向数据流
 
@@ -50,7 +50,7 @@ P1-G storage 将不可变计划与物理写入分离：只有 `shouldWrite: true
 
 ## 模型与状态契约
 
-模型周期为 1、5、20 个交易日；目标为 `absolute_up`、`relative_outperformance`、`top_quartile`、`expected_excess`，主榜按 top-quartile、expected-excess、relative-outperformance、absolute-up 优先。训练必须采用 walk-forward、purged time-series split 和 embargo；没有样本外优势时必须 `publicationStatus=abstained`，不得给默认 50%。
+模型周期为 1、5、20 个交易日；A 股冻结目标保持原有契约。HK 指数对象使用 `absolute_up`、`expected_return`，主题对象使用 `relative_outperformance_vs_hsi`、`expected_excess_vs_hsi`；`top_quartile` 仅在横截面规模足够时作为研究指标。训练必须采用 walk-forward、purged time-series split 和 embargo；没有样本外优势时必须保持 candidate/shadow 或 `publicationStatus=abstained`，不得给默认 50%。
 
 `modelAvailability`：`trained | not_trained | not_implemented`；`publicationStatus`：`published | abstained | insufficient_data | not_applicable`；`outputMode`：`probability | evidence_observation | current_observation | none`；`calibrationStatus`：`enabled | disabled | collapsed | not_applicable | legacy_unknown`；`probabilitySource`：`raw_model | calibrated_model | historical_base_rate | legacy_unknown | none`；`probabilityTarget`：`absolute_up | relative_outperformance | top_quartile | none`。
 

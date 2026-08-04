@@ -14,6 +14,7 @@
 - 预测必须通过 walk-forward/purged 时间序列验证、embargo、Brier Skill、RankIC、Top-Bottom 扣费收益、横截面离散度与数据完整度门禁；差异不足或样本外无优势时主动弃权，页面改为明确标注的“证据观察榜”，绝不把观察分写成概率。
 - 网站始终保持全球新闻、宏观与三地市场覆盖。恒生科技、港股互联网/AI/云计算、南向与相关 ETF，以及 A 股军工、医疗、半导体、AI/互联网只提高采集频率、深度、解释和历史留存，不获得任何人工加分或先验偏置。
 - 经验模型只能由独立的强模型流程训练、样本外验证并版本化。每日早报和 20:00 收盘任务固定使用 GPT-5.6 Luna，只运行冻结模型推理；周五 GPT-5.6 Terra 内容周报只复盘表现和漂移，不能改模型；周六 08:00 的 GPT-5.6 Sol 极高推理审计才可训练候选，且仅在预登记、严格样本外和跨年度/市场状态门禁全部通过后替换冻结基线。
+- 港股 P2-A 将公开视图与后台训练宇宙分离：公开只保留恒生指数、恒生科技指数、港股创新药、头部科技互联网四个对象；后台训练契约另保留恒生综合 12 个一级行业和可追溯主题代理。当前没有可验证港股历史面板，候选保持 `shadow`，不输出默认 50% 概率，也不修改 A 股生产模型或账本。
 - 轮动模块严格区分已核验事实、数据商估算、概率预测与证据观察分；概率模型失效时显示具体弃权原因和仍可用证据，不编造南向/北向行业流或将大单算法直接描述成机构资金。
 - 同花顺原始成交额与成交量标为 `vendor-market-data`；“主力资金”等算法字段标为 `vendor-estimate`，不能混为真实机构持仓。
 - 需要实际获取 A 股行情、K 线、成交额/成交量、行业/题材和公告时，自动化可调用本机已安装的 `$a-stock-data`。行情优先 mootdx/腾讯，东财接口严格串行限流；社区技能说明仅是取数工具文档，不作为网站事实引用。
@@ -42,7 +43,7 @@ pnpm archive:brief
 
 轮动事件记忆位于 `data/rotation-model/events/events.jsonl.gz`，按行流式压缩，只保存直达 URL、100–200 字事实摘要、行业/事件标签、已知时间、到期后验与哈希。非空后验还必须携带逐项交易日、版本化官方交易日历 URL 与 SHA-256；A 股会按本地日历 artifact 重算，港股在对应 artifact 缺失时保持空值。压缩文件 32 MB 硬上限、28 MB 开始清理；不保存新闻全文、PDF、上游图片或视频。历史行情和派生特征同样只保存在本机压缩目录并逐文件读取。
 
-预测权威账本位于 Git 跟踪的 `data/prediction-ledger/`：每次发布快照与每次到期评价分别保存为不可覆盖、确定性 gzip JSON 事件，按年月组织并由月清单和根索引校验。`public/data/prediction-history/` 是完整、无内部字段、无条数上限的按月公开分片；`content/prediction-history.json` 仅是旧页面兼容视图。原 `data/rotation-model/predictions/` 只保留作一次性迁移来源，不再是权威数据。港股宏观结构化信号位于 `data/rotation-model/signals/hk-macro-daily.csv.gz`，两年数据仅几十 KB；HKMA/Federal Treasury 的接口失败、字段完整度和回退状态写入本地 manifest。
+预测权威账本位于 Git 跟踪的 `data/prediction-ledger/`：每次发布快照与每次到期评价分别保存为不可覆盖、确定性 gzip JSON 事件，按年月组织并由月清单和根索引校验。`public/data/prediction-history/` 是完整、无内部字段、无条数上限的按月公开分片；`content/prediction-history.json` 仅是旧页面兼容视图。原 `data/rotation-model/predictions/` 只保留作一次性迁移来源，不再是权威数据。港股宏观结构化信号若在本机快照中存在，必须绑定 HKMA/Federal Treasury 的来源、日期、字段完整度和回退状态；本分支不把不存在的两年历史写成已可用数据。
 
 ## 本地运行
 
@@ -125,7 +126,16 @@ uv run --no-project --python 3.12 --with requests --with numpy python scripts/pr
 pnpm rotation:probability-train --dataset-snapshot models/sector-rotation/datasets/a-share/<dataset-id> --output models/sector-rotation/candidates/<shadow>.json
 ```
 
-训练器只接受已验证 snapshot，拒绝把可变 `FEATURE_PATH` 当作隐式训练输入；输出也只能写入 audit candidate 目录。HK 尚未训练，US 尚未实现；本阶段不采集 ETF、南向、HIBOR、VIX 或任何付费数据源。
+训练器只接受已验证 snapshot，拒绝把可变 `FEATURE_PATH` 当作隐式训练输入；输出也只能写入 audit candidate 目录。A 股生产训练边界不变；HK P2-A 只验证独立研究契约，当前历史面板为 0 sessions/0 rows，候选保持 `shadow`；US 尚未实现。HK 来源、特征状态和 provider 失败登记见 `data/model-research/hk-source-registry-v1.json`。
+
+## 港股 P2-A 研究契约
+
+```powershell
+pnpm model-research:validate
+uv run --offline --no-project --python 3.12 --with requests --with numpy python scripts/hk_model_research.py report
+```
+
+港股训练宇宙、公开四对象映射、指数/主题目标、特征状态、walk-forward/purge/embargo 和生产边界分别由 `data/model-research/hk-contract.json`、`models/sector-rotation/hk-training-universe-v1.json` 与 `models/sector-rotation/hk-public-universe-v1.json` 固定。没有显式 `data/model-research/hk/panel.csv.gz` 前，校验器只输出 `insufficient-data`、空指标和 provider 失败记录，不开始训练。
 
 ## 重要说明
 
