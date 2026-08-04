@@ -37,11 +37,11 @@ P1-B 以 GitHub 跟踪的不可变 snapshot/evaluation gzip 事件为权威，�
 - 12 个一级行业保留恒生官方代码和官方分类身份；主题代理明确 `officialClassification=false`，不得被改写成恒生官方行业历史。当前成分股名单不得回填历史，缺失值保留 `null`。
 - 港股目标独立于 A 股：指数对象使用 `absolute_up` / `expected_return`；主题对象使用 `relative_outperformance_vs_hsi` / `expected_excess_vs_hsi`；`topQuartile` 只在横截面至少 4 个对象时作为研究指标，不是两个公开主题的主目标。
 - 1/5/20 交易日分别训练和验证；契约固定 walk-forward、purged time-series split、按周期 embargo、训练窗口内标准化，以及只有在样本外区分度成立后才可校准。
-- 当前仓库可追溯的港股历史长度：`0` sessions、`0` rows；只有恒生官方当前行业快照和静态月末/研究资料，没有可验证连续历史面板。港股研究报告因此为 `insufficient-data`、候选 `shadow`，不写生产模型、内容或预测账本，不返回默认 50% 概率。
+- 当前仓库可追溯的港股历史长度：`0` sessions、`0` rows；只有恒生官方当前行业快照和静态月末/研究资料，没有可验证连续历史面板。港股研究报告因此为 `insufficient-data`、候选 `shadow`，不写生产模型或预测账本，不返回默认 50% 概率；静态轮动 DTO 只同步 `sourceAsOf`、四对象 `publicUniverse` 和 fail-closed 状态，不承载预测结果。
 - 官方来源边界：恒生官方历史 OHLC 资料存在下载/授权边界；HKMA 的 HIBOR、USD/HKD 接口和美国财政部 2Y 资料只登记为 collector-ready，未在本分支假设历史已存在。南向、ETF、point-in-time 成分/权重、USD/CNH 失败状态全部显式记录。
 - 日期错位根因是实时恒生快照的 `sourceAsOf` 与日报 `sessionDate/asOf` 被旧实现硬合并。现在保留两者，错位时 fail closed；未训练未来窗口为 `outputMode=none`，不再复用 `current_observation`。
 - P2-A 研究入口：`scripts/hk_model_research.py`；契约：`data/model-research/hk-contract.json`；来源登记：`data/model-research/hk-source-registry-v1.json`。`pnpm model-research:validate` 同时验证既有 A 股研究契约和 HK candidate-only 契约。
-- P2-A 没有修改 A 股生产模型、概率阈值、历史账本、公开页面 UI 或原始工作区。接入真实历史前，必须先提交显式 panel、交易日历、来源/成分/权重 lineage 与 SHA-256，再按三周期补齐指标和质量闸门。
+- P2-A 没有修改 A 股生产模型、概率阈值、历史账本、公开页面 UI 或原始工作区；仅同步港股 `content/sector-rotation.json` 的日期血缘、公开四对象映射和弃权状态。接入真实历史前，必须先提交显式 panel、交易日历、来源/成分/权重 lineage 与 SHA-256，再按三周期补齐指标和质量闸门。
 
 状态契约及展示规则见 [ARCHITECTURE.md](ARCHITECTURE.md)；账本的 snapshot/evaluation 分离、幂等、legacy 隔离和目标隔离均为冻结边界。
 

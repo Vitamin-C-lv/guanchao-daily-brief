@@ -3146,6 +3146,43 @@
       "label": "港股",
       "mode": "industry",
       "asOf": "2026-08-03",
+      "sourceAsOf": "2026-08-04",
+      "publicUniverse": [
+        {
+          "id": "hsi",
+          "label": "恒生指数",
+          "kind": "index",
+          "targetFamily": "index",
+          "trainingObjectId": "hsi",
+          "sourceClass": "official-index"
+        },
+        {
+          "id": "hstech",
+          "label": "恒生科技指数",
+          "kind": "index",
+          "targetFamily": "index",
+          "trainingObjectId": "hstech",
+          "sourceClass": "official-index"
+        },
+        {
+          "id": "hk_innovative_drug",
+          "label": "港股创新药",
+          "kind": "theme",
+          "targetFamily": "theme",
+          "trainingObjectId": "hk_innovative_drug_proxy",
+          "sourceClass": "traceable-proxy",
+          "publicProxyDisclosureRequired": true
+        },
+        {
+          "id": "hk_tech_internet",
+          "label": "头部科技互联网",
+          "kind": "theme",
+          "targetFamily": "theme",
+          "trainingObjectId": "hk_tech_internet_proxy",
+          "sourceClass": "traceable-proxy",
+          "publicProxyDisclosureRequired": true
+        }
+      ],
       "status": "insufficient",
       "taxonomy": {
         "owner": "恒生指数有限公司",
@@ -3179,30 +3216,7 @@
           "reason": "恒生官方当前行业快照不可用：official snapshot date 2026-08-04 does not match daily brief sessionDate 2026-08-03",
           "modelAvailability": "not_trained",
           "publicationStatus": "not_applicable",
-          "outputMode": "current_observation",
-          "calibrationStatus": "not_applicable",
-          "probabilitySource": "none",
-          "probabilityTarget": "none",
-          "modelVersion": null,
-          "featureVersion": null,
-          "modelInputCompleteness": null,
-          "productionFeatureCoverage": null,
-          "coverageContractVersion": null,
-          "modelFeatureCoverage": null,
-          "productionSignalCoverage": null,
-          "trainingReadyCoverage": null,
-          "providerHealthCoverage": null,
-          "gateFailures": []
-        },
-        "tomorrow": {
-          "kind": "forecast",
-          "status": "insufficient",
-          "asOf": "2026-08-03",
-          "sessions": 1,
-          "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
-          "modelAvailability": "not_trained",
-          "publicationStatus": "not_applicable",
-          "outputMode": "current_observation",
+          "outputMode": "none",
           "calibrationStatus": "not_applicable",
           "probabilitySource": "none",
           "probabilityTarget": "none",
@@ -3216,7 +3230,34 @@
           "trainingReadyCoverage": null,
           "providerHealthCoverage": null,
           "gateFailures": [
-            "model_not_trained"
+            "current_observation_unavailable",
+            "source_session_date_mismatch"
+          ]
+        },
+        "tomorrow": {
+          "kind": "forecast",
+          "status": "insufficient",
+          "asOf": "2026-08-03",
+          "sessions": 1,
+          "reason": "恒生官方当前行业快照不可用，无法生成可复核观察榜。",
+          "modelAvailability": "not_trained",
+          "publicationStatus": "not_applicable",
+          "outputMode": "none",
+          "calibrationStatus": "not_applicable",
+          "probabilitySource": "none",
+          "probabilityTarget": "none",
+          "modelVersion": null,
+          "featureVersion": null,
+          "modelInputCompleteness": null,
+          "productionFeatureCoverage": null,
+          "coverageContractVersion": null,
+          "modelFeatureCoverage": null,
+          "productionSignalCoverage": null,
+          "trainingReadyCoverage": null,
+          "providerHealthCoverage": null,
+          "gateFailures": [
+            "model_not_trained",
+            "current_observation_unavailable"
           ]
         },
         "oneWeek": {
@@ -3224,10 +3265,10 @@
           "status": "insufficient",
           "asOf": "2026-08-03",
           "sessions": 5,
-          "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
+          "reason": "恒生官方当前行业快照不可用，无法生成可复核观察榜。",
           "modelAvailability": "not_trained",
           "publicationStatus": "not_applicable",
-          "outputMode": "current_observation",
+          "outputMode": "none",
           "calibrationStatus": "not_applicable",
           "probabilitySource": "none",
           "probabilityTarget": "none",
@@ -3241,7 +3282,8 @@
           "trainingReadyCoverage": null,
           "providerHealthCoverage": null,
           "gateFailures": [
-            "model_not_trained"
+            "model_not_trained",
+            "current_observation_unavailable"
           ]
         },
         "oneMonth": {
@@ -3249,10 +3291,10 @@
           "status": "insufficient",
           "asOf": "2026-08-03",
           "sessions": 20,
-          "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
+          "reason": "恒生官方当前行业快照不可用，无法生成可复核观察榜。",
           "modelAvailability": "not_trained",
           "publicationStatus": "not_applicable",
-          "outputMode": "current_observation",
+          "outputMode": "none",
           "calibrationStatus": "not_applicable",
           "probabilitySource": "none",
           "probabilityTarget": "none",
@@ -3266,7 +3308,8 @@
           "trainingReadyCoverage": null,
           "providerHealthCoverage": null,
           "gateFailures": [
-            "model_not_trained"
+            "model_not_trained",
+            "current_observation_unavailable"
           ]
         }
       }

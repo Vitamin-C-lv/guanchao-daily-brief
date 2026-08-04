@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import math
 import sys
 import unittest
@@ -111,6 +112,18 @@ class ResearchStatusTests(unittest.TestCase):
 
 
 class PublicContractTests(unittest.TestCase):
+    def test_committed_hk_dto_keeps_source_date_and_withholds_observations(self):
+        content_path = Path(__file__).resolve().parents[1] / "content" / "sector-rotation.json"
+        payload = json.loads(content_path.read_text(encoding="utf-8"))
+        hk = next(market for market in payload["markets"] if market["id"] == "hk")
+        self.assertEqual(hk["sourceAsOf"], "2026-08-04")
+        self.assertEqual(
+            [item["id"] for item in hk["publicUniverse"]],
+            ["hsi", "hstech", "hk_innovative_drug", "hk_tech_internet"],
+        )
+        for horizon in ("current", "tomorrow", "oneWeek", "oneMonth"):
+            self.assertEqual(hk["horizons"][horizon]["outputMode"], "none")
+
     def test_date_mismatch_is_retained_and_untrained_forecasts_are_not_current_observations(self):
         original_session = rotation.daily_brief_session
         original_fetch = rotation.fetch_hk_current
