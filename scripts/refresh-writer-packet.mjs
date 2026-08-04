@@ -83,11 +83,12 @@ export function refreshWriterPacket({
   editionDate = null,
   runner = "scripts/run-market-evidence.mjs",
   root = repositoryRoot,
-  asOf = null
+  asOf = null,
+  now = new Date()
 } = {}) {
   if (!["daily", "weekly"].includes(edition)) throw new RefreshWriterPacketError("EDITION", `edition must be daily or weekly: ${edition}`);
   const effectiveEditionDate = editionDate ?? shanghaiCalendarDate();
-  const effectiveAsOf = asOf ?? latestATradingDay(effectiveEditionDate, root);
+  const effectiveAsOf = asOf ?? latestATradingDay(effectiveEditionDate, root, now);
   const runnerFile = path.resolve(root, ...runner.split("/"));
   if (!fs.existsSync(runnerFile)) throw new RefreshWriterPacketError("RUNNER", `market evidence runner is missing: ${runnerFile}`);
   const result = spawnSync(process.execPath, [runnerFile, "run", "--edition", edition, "--as-of", effectiveAsOf], {

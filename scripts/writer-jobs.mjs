@@ -215,7 +215,7 @@ export function createWriterJobPaths(rootDir = root) {
   };
 }
 
-function contextReference(rootDir, contextPath) {
+function contextReference(rootDir, contextPath, requireCurrentFrozen = true) {
   if (typeof contextPath !== "string" || !CONTEXT_PATH.test(contextPath)) error("REQUEST_CONTEXT_PATH", "context", "explicit immutable writer-context path required");
   const file = resolveRelative(rootDir, contextPath, "context");
   if (!fs.existsSync(file)) error("REQUEST_CONTEXT_MISSING", "context", "writer context artifact is missing");
@@ -223,7 +223,7 @@ function contextReference(rootDir, contextPath) {
   const context = gunzipJsonBytes(bytes, contextPath);
   const registry = loadWriterContextRegistry(rootDir);
   try {
-    validateWriterContext(context, registry, { root: rootDir });
+    validateWriterContext(context, registry, { root: rootDir, requireCurrentFrozen });
   } catch (cause) {
     error("REQUEST_CONTEXT_INVALID", "context", cause instanceof Error ? cause.message : "writer context invalid");
   }
@@ -330,7 +330,7 @@ export function validateRequest(request, { rootDir = root, requireCurrentFrozen 
   if (request.integrity.businessSha256 !== expectedId || request.integrity.sha256 !== fullLogicalHash(request)) error("REQUEST_INTEGRITY", "integrity", "request integrity mismatch");
   assertNoAbsolute(request, "request");
 
-  const loaded = contextReference(rootDir, request.context.artifactPath);
+  const loaded = contextReference(rootDir, request.context.artifactPath, requireCurrentFrozen);
   if (loaded.reference.artifactSha256 !== request.context.artifactSha256) error("REQUEST_CONTEXT_SHA", "request.context.artifactSha256", "context bytes changed");
   if (loaded.context.contextId !== request.context.contextId) error("REQUEST_CONTEXT_ID", "request.context.contextId", "context ID mismatch");
   if (loaded.context.edition !== request.edition || loaded.context.asOf !== request.requestedAsOf) error("REQUEST_CONTEXT_COMPATIBILITY", "request.context", "context edition/asOf mismatch");
@@ -556,9 +556,13 @@ function validateQualitativeBindings(bindings, context, request, payload, change
     for (const id of binding.documentIds) if (!documents.has(id) || !request.allowedDocumentIds.includes(id)) error("DOCUMENT_NOT_ALLOWED", `${field}.documentIds`, "document is not in immutable bundle/request");
     for (const id of requiredDocuments) if (!binding.documentIds.includes(id)) error("DOCUMENT_COVERAGE", `${field}.documentIds`, "document IDs do not cover observation basis");
     const actual = claimValue(payload, binding.claimPath);
-    if (typeof actual !== "string" || actual !== binding.claimText) error("QUALITATIVE_CLAIM_TEXT", binding.claimPath, "qualitative claim target differs from claim text");
-    const uncertainty = QUALITATIVE_UNCERTAINTY[binding.evidenceState];
-    if (uncertainty && !uncertainty.test(actual)) error("EVIDENCE_LANGUAGE", binding.claimPath, `${binding.evidenceState} claim must preserve uncertainty`);
+    if (typeof actual === "string") {
+      if (actual !== binding.claimText) error("QUALITATIVE_CLAIM_TEXT", binding.claimPath, "qualitative claim target differs from claim text");
+      const uncertainty = QUALITATIVE_UNCERTAINTY[binding.evidenceState];
+      if (uncertainty && !uncertainty.test(actual)) error("EVIDENCE_LANGUAGE", binding.claimPath, `${binding.evidenceState} claim must preserve uncertainty`);
+    } else if (typeof actual === "number") {
+      if (binding.claimText !== String(actual)) error("QUALITATIVE_CLAIM_TEXT", binding.claimPath, "numeric qualitative claim target differs from claim text");
+    } else error("QUALITATIVE_CLAIM_TEXT", binding.claimPath, "qualitative claim target must be a string or number");
     bound.add(binding.claimPath);
   }
 }
