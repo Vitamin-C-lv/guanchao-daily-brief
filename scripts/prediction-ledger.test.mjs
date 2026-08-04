@@ -16,12 +16,12 @@ const dashboardSource = readFileSync(join(repoRoot, "components", "Dashboard.tsx
 test("authoritative ledger, manifests, schemas, review and public shards agree", () => {
   const report = validateLedger();
   assert.equal(report.ok, true);
-  assert.equal(report.predictionRecordCount, 324);
+  assert.equal(report.predictionRecordCount, 366);
   assert.equal(report.evaluationEventCount, 300);
 });
 
 test("public index exposes selectable months and complete-history policy", () => {
-  assert.deepEqual(index.availableMonths, ["2026-07"]);
+  assert.deepEqual(index.availableMonths, ["2026-07", "2026-08"]);
   assert.equal(index.policy.completeAuthorityExport, true);
   assert.equal(index.policy.recordLimit, null);
 });
