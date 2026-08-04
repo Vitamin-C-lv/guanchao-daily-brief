@@ -42,9 +42,10 @@ function canonicalJson(value) {
 
 function latestCompleteASession(now = new Date()) {
   // Latest complete A-share trading session from the frozen CN calendar. A session is
-  // complete only after the 15:00 Asia/Shanghai close; before the close the latest
-  // complete session is the previous trading day. Non-trading days are never treated as
-  // trading days. Returns null when the calendar is unavailable.
+  // complete only after the 15:00 Asia/Shanghai close plus a conservative data
+  // publication buffer (17:00); before that the latest complete session is the previous
+  // trading day. Non-trading days are never treated as trading days.
+  // Returns null when the calendar is unavailable.
   let closed;
   try {
     const calendar = JSON.parse(readFileSync(aShareCalendarPath, "utf8"));
@@ -66,7 +67,7 @@ function latestCompleteASession(now = new Date()) {
     trading = isTrading(candidate.toISOString().slice(0, 10)) ? candidate.toISOString().slice(0, 10) : null;
     if (!trading) candidate.setUTCDate(candidate.getUTCDate() - 1);
   }
-  if (trading === datePart && currentMinutes < 15 * 60) {
+  if (trading === datePart && currentMinutes < 17 * 60) {
     candidate = new Date(`${datePart}T00:00:00.000Z`);
     candidate.setUTCDate(candidate.getUTCDate() - 1);
     trading = null;

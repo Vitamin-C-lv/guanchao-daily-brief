@@ -252,8 +252,9 @@ def daily_brief_session(market_id: str) -> str | None:
 def latest_complete_a_share_session(now: datetime | None = None) -> str | None:
     """Latest complete A-share trading session from the frozen CN calendar.
 
-    A session is complete only after the 15:00 Asia/Shanghai close; before the
-    close the latest complete session is the previous trading day.  This decouples
+    A session is complete only after the 15:00 Asia/Shanghai close plus a conservative
+    data-publication buffer (17:00); before that the latest complete session is the
+    previous trading day.  This decouples
     freshness from the daily-brief display session so the prediction publisher can
     run before the daily writer without producing an empty observation board.
     Non-trading days are never treated as trading days.
@@ -271,7 +272,7 @@ def latest_complete_a_share_session(now: datetime | None = None) -> str | None:
     latest = current
     while not is_trading(latest):
         latest -= timedelta(days=1)
-    if latest == current and (now or datetime.now(SHANGHAI)).time() < time(15, 0):
+    if latest == current and (now or datetime.now(SHANGHAI)).time() < time(17, 0):
         latest -= timedelta(days=1)
         while not is_trading(latest):
             latest -= timedelta(days=1)
