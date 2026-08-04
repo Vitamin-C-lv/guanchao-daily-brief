@@ -884,6 +884,34 @@ export interface DailyBrief {
     evidenceClass?: SourceEvidenceClass;
   }>;
   methodology: string[];
+  visuals?: ArticleVisual[];
+}
+
+export interface ArticleVisualSeries {
+  id: string;
+  label: string;
+  unit: string;
+}
+
+export interface ArticleVisualPoint {
+  x: string;
+  y: number | null;
+  seriesId: string;
+}
+
+export interface ArticleVisual {
+  visualId: string;
+  kind: "line" | "multi_line" | "bar" | "grouped_bar" | "area" | "yield_curve" | "spread" | "indexed_performance" | "comparison_table" | "timeline";
+  title: string;
+  takeaway: string;
+  explanation: string;
+  placement: string;
+  unit: string;
+  dataThrough: string;
+  sourceIndexes: number[];
+  series: ArticleVisualSeries[];
+  points: ArticleVisualPoint[];
+  notes: string[];
 }
 
 export type MarketDataStatus = "official" | "revised" | "estimated" | "delayed";
