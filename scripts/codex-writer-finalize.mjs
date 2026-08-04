@@ -179,7 +179,6 @@ export function collectBodyText(payload) {
   for (const market of payload?.markets ?? []) {
     for (const article of market.articles ?? []) walkArticle(article);
   }
-  for (const article of payload?.hotspots ?? []) walkArticle(article);
   push(payload?.pulse?.explanation);
   for (const item of payload?.watchlist ?? []) push(item?.note);
   return parts.join("\n");

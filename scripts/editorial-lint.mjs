@@ -267,6 +267,25 @@ export function lintEditorial({ edition, value, style = loadEditorialStyle(), re
   const governanceLeakageCount = style.governanceLeakage.reduce((sum, phrase) => sum + countOccurrences(body, phrase), 0);
   const conclusionFirstPass = !genericTitle && title.trim().length >= 8 && firstJudgement(edition, payload).length >= 18 && firstJudgement(edition, payload).slice(0, 120).includes(title.trim().slice(0, Math.min(8, title.trim().length)));
   const evidenceBindingPass = result ? bindingPass(result, body) : sourceCoverage(payload, edition);
+  // ---- article depth and visual gates (new writer result fields) ----
+  const depth = style.depth?.[edition] ?? null;
+  const articleDepth = result?.articleDepth ?? null;
+  const visualSelections = Array.isArray(result?.visualSelections) ? result.visualSelections : [];
+  const bodyChinese = [...body].filter((char) => /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/.test(char)).length;
+  const chineseCharacterCount = articleDepth?.chineseCharacterCount ?? bodyChinese;
+  const scenarioCount = articleDepth?.scenarioCount ?? 0;
+  const termExplanationCount = articleDepth?.termExplanationCount ?? 0;
+  const counterEvidenceCount = articleDepth?.counterEvidenceCount ?? 0;
+  const duplicateCharacters = [...new Set([...sentenceCounts.entries()].filter(([, count]) => count > 1).map(([sentence]) => sentence))].reduce((sum, sentence) => sum + [...sentence].length, 0);
+  const repetitionRatio = bodyChinese ? Number((duplicateCharacters / bodyChinese).toFixed(4)) : 0;
+  const paragraphInformationDensity = paragraphs.length ? Math.round(bodyChinese / paragraphs.length) : 0;
+  const hasArticleDepth = articleDepth !== null;
+  const articleDepthPass = !hasArticleDepth || (chineseCharacterCount >= (depth?.chineseCharacterCountMin ?? 0) && chineseCharacterCount <= (depth?.chineseCharacterCountMax ?? Infinity) && scenarioCount >= (depth?.scenarioCountMin ?? 0) && termExplanationCount >= (depth?.termExplanationCountMin ?? 0) && counterEvidenceCount >= (depth?.counterEvidenceCountMin ?? 0));
+  const visualCountPass = !hasArticleDepth || visualSelections.length >= (depth?.visualCountMin ?? 0);
+  const visualExplanationPass = visualSelections.every((selection) => object(selection) && typeof selection.explanation === "string" && selection.explanation.length > 0 && body.includes(selection.explanation));
+  const termExplanationPass = !hasArticleDepth || termExplanationCount >= (depth?.termExplanationCountMin ?? 0);
+  const scenarioPass = !hasArticleDepth || scenarioCount >= (depth?.scenarioCountMin ?? 0);
+  const repetitionRatioPass = repetitionRatio <= (depth?.repetitionRatioMax ?? 0.12);
   let directnessScore = 100;
   directnessScore -= Math.min(20, Math.max(0, defensivePhraseCount - limit.defensivePhraseCount) * 8);
   directnessScore -= duplicateDisclaimerCount * 10;
@@ -307,6 +326,15 @@ export function lintEditorial({ edition, value, style = loadEditorialStyle(), re
     schemaVersion: "editorial-lint-result-v1",
     edition,
     directnessScore,
+    articleDepthPass,
+    visualCountPass,
+    visualBindingPass: hasArticleDepth,
+    visualExplanationPass,
+    termExplanationPass,
+    scenarioPass,
+    repetitionRatio,
+    paragraphInformationDensity,
+    chineseCharacterCount,
     defensivePhraseCount,
     defensivePhraseCounts,
     duplicateDisclaimerCount,
@@ -339,11 +367,17 @@ export function lintEditorial({ edition, value, style = loadEditorialStyle(), re
     evidenceBindingPass,
     sourceCoveragePass: sourceCoverage(payload, edition),
     stylePass,
-    passed: conclusionFirstPass && evidenceBindingPass && stylePass,
+    passed: conclusionFirstPass && evidenceBindingPass && stylePass && articleDepthPass && visualCountPass && visualExplanationPass && termExplanationPass && scenarioPass && repetitionRatioPass,
     errors: [
       ...(conclusionFirstPass ? [] : ["conclusion-first failed"]),
       ...(evidenceBindingPass ? [] : ["evidence binding/source coverage failed"]),
-      ...(stylePass ? [] : ["editorial style gate failed"])
+      ...(stylePass ? [] : ["editorial style gate failed"]),
+      ...(articleDepthPass ? [] : ["article depth gate failed"]),
+      ...(visualCountPass ? [] : ["visual count gate failed"]),
+      ...(visualExplanationPass ? [] : ["visual explanation gate failed"]),
+      ...(termExplanationPass ? [] : ["term explanation gate failed"]),
+      ...(scenarioPass ? [] : ["scenario gate failed"]),
+      ...(repetitionRatioPass ? [] : ["repetition ratio gate failed"])
     ]
   };
 }

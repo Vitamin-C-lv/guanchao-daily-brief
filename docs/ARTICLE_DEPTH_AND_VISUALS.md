@@ -37,6 +37,7 @@ schemaVersion: `article-depth-and-visuals-v1`
 - 标题；
 - 来源目录；
 - 图表数据（series/points/坐标文字）；
+- 热点卡片（hotspots，作为补充观察）；
 - warning；
 - claim bindings；
 - 机器 metadata（resultId、contextId、integrity 等）。
