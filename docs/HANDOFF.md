@@ -129,9 +129,9 @@ or touches the prediction ledger.
 ## P2-B0 全球整合主文章契约冻结（2026-08-05）
 
 - P2-A 已完成：港股仍为 `0 rows / 0 sessions`，候选保持 `shadow`，未训练港股模型，未发布港股概率。
-- 任务基线：从中立目录 fetch 后实际 `origin/main` 为 `e82f48a6f9b7c8e3a801b089c199187958f4ae16`；本任务分支为 `feature/p2-b0-global-brief-contract`，worktree 为 `D:\Guanchao-Workspace\worktrees\active\p2-b0-global-brief-contract`。最终 HEAD 以该分支交接时的 `git rev-parse HEAD` 和本任务报告为准；PR 为 Draft，未合并。
-- 当前状态：已冻结 `global-market-brief-v1`、`global-market-brief-public-dto-v1` 和 `global-market-event-v1` 的最小契约、正负 fixture、契约测试和 P2-B 并行边界；无生产文章切换、无真实 Writer 输出、无 UI 变化、无模型变化。
+- PR #47 已以 squash merge 合并；merge commit 为 `a1c2956149f92d628c81968380e1bd15ed4d8375`；合并后、docs-only 收尾提交前的最新 `main` SHA 为 `a1c2956149f92d628c81968380e1bd15ed4d8375`。
+- P2-B0 已完成并冻结：`global-market-brief-v1`、`global-market-brief-public-dto-v1` 和 `global-market-event-v1`，包括最小契约、正负 fixture、契约测试和 P2-B 并行边界；当前生产文章仍未切换，无真实 Writer 输出、无 UI 变化、无模型变化。
 - 旧写作链仍为 `writer-context-v1 → writer-request-v2/result-v2 → scripts/writer-jobs.mjs → content/daily-brief.json`；当前三市场分稿产生/落盘位置为 `content/daily-brief.json` 的 `markets[]`，并由 `scripts/validate-brief.mjs` 强制三市场结构。旧 `daily-brief-v1` 在 P2-B4 集成完成前保留，禁止长期双写。
-- 自动化仍暂停；本任务没有恢复、创建或修改日报/周报 automation。后续 B1/B2/B3 必须从 B0 合并后的 `main` 开始；最终由 P2-B4 集成。
+- 自动化仍暂停；本任务没有恢复、创建或修改日报/周报 automation。下一阶段允许从同一个最新 `main` 并行启动 P2-B1、P2-B2、P2-B3；三个 lane 的兼容性由 P2-B4 集成。
 - B1 负责研究包、Writer context、生成链、Validator、editorial lint；B2 负责本机 `guanchao-financial-writer` Skill 与质量规则且不提交私人 Skill 正文；B3 负责首页、简报列表、全球主文章卡和专项区。三 lane 不得互相修改热点文件。
-- 本阶段没有港股历史数据、港股训练、美股模型、新数据源、知识图谱、向量数据库或自动化恢复；不得发布港股概率。
+- 港股仍没有历史数据和训练；未训练港股模型、未发布港股概率。本阶段也没有美股模型、新数据源、知识图谱、向量数据库或自动化恢复。
