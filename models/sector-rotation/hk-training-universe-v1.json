@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "hk-training-universe-v1",
+  "market": "HK",
+  "owner": "Hang Seng Indexes Company Limited",
+  "officialIndustryCount": 12,
+  "officialIndustryClassification": "HSICS/Hang Seng Composite Industry Index level-1",
+  "noThirdPartyTaxonomyAsOfficialHistory": true,
+  "doNotBackfillFromCurrentConstituents": true,
+  "objects": [
+    { "id": "hk_industry_energy", "code": "00011.01", "label": "能源", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_materials", "code": "00011.02", "label": "原材料", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_industrials", "code": "00011.03", "label": "工业", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_telecommunications", "code": "00011.06", "label": "电讯业", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_utilities", "code": "00011.07", "label": "公用事业", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_financials", "code": "00011.08", "label": "金融业", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_properties_construction", "code": "00011.09", "label": "地产建筑业", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_information_technology", "code": "00011.10", "label": "资讯科技业", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_conglomerates", "code": "00011.11", "label": "综合企业", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_consumer_discretionary", "code": "00011.12", "label": "非必需性消费", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_consumer_staples", "code": "00011.13", "label": "必需性消费", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_industry_healthcare", "code": "00011.14", "label": "医疗保健业", "kind": "official_industry", "officialClassification": true, "sourceClass": "hsi-official-industry-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hsi", "code": "HSI", "label": "恒生指数", "kind": "benchmark", "officialClassification": true, "sourceClass": "official-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hstech", "code": "HSTECH", "label": "恒生科技指数", "kind": "index", "officialClassification": true, "sourceClass": "official-index", "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_innovative_drug_proxy", "code": "HSSSHID", "label": "恒生上海深港创新药精选50指数代理", "kind": "theme_proxy", "officialClassification": false, "sourceClass": "official-thematic-index-proxy", "launchDate": "2020-03-30", "backdatedHistoryExcluded": true, "doNotBackfillFromCurrentConstituents": true },
+    { "id": "hk_tech_internet_proxy", "code": "HSIII", "label": "恒生互联网与资讯科技指数代理", "kind": "theme_proxy", "officialClassification": false, "sourceClass": "official-thematic-index-proxy", "doNotBackfillFromCurrentConstituents": true }
+  ]
+}

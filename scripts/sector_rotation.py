@@ -95,6 +95,7 @@ BAIDU_FALLBACK_CODES = frozenset({"399967", "399970"})
 CSI_OHLC_TOLERANCE_POINTS = 0.11
 HSI_CURRENT_API = "https://www.hsi.com.hk/data/eng/rt/index-series/industry/performance.do"
 HSI_INDUSTRY_PAGE = "https://www.hsi.com.hk/eng/indexes/all-indexes/industry"
+HK_PUBLIC_UNIVERSE_PATH = ROOT / "models" / "sector-rotation" / "hk-public-universe-v1.json"
 # China Standard Time has no daylight-saving transition; a fixed offset keeps
 # the unattended Windows fallback independent of an optional tzdata package.
 SHANGHAI = timezone(timedelta(hours=8), name="Asia/Shanghai")
@@ -2226,11 +2227,15 @@ def fetch_hk_current() -> tuple[str, list[dict[str, Any]]]:
 
 def hk_market() -> dict[str, Any]:
     expected_as_of = daily_brief_session("hk")
+    source_as_of: str | None = None
+    alignment_mismatch = False
     try:
         as_of, items = fetch_hk_current()
+        source_as_of = as_of
         if expected_as_of is None:
             raise RuntimeError("daily brief is missing the verified HK sessionDate")
         if as_of != expected_as_of:
+            alignment_mismatch = True
             raise RuntimeError(f"official snapshot date {as_of} does not match daily brief sessionDate {expected_as_of}")
         scores = percentile_scores([(item["code"], item["change"]) for item in items])
         items.sort(key=lambda item: scores[item["code"]], reverse=True)
@@ -2254,6 +2259,7 @@ def hk_market() -> dict[str, Any]:
             "kind": "observed",
             "status": "ready",
             "asOf": as_of,
+            "sourceAsOf": source_as_of,
             "note": "当前score按12个恒生综合行业指数当日涨跌做横截面排序，不预测未来。",
             "items": current,
             **prediction_state_contract(
@@ -2278,6 +2284,7 @@ def hk_market() -> dict[str, Any]:
             "kind": "observed",
             "status": "insufficient",
             "asOf": as_of,
+            "sourceAsOf": source_as_of,
             "reason": f"恒生官方当前行业快照不可用：{exc}",
             **prediction_state_contract(
                 model_availability="not_trained",
@@ -2290,7 +2297,10 @@ def hk_market() -> dict[str, Any]:
                 feature_version=None,
                 model_input_completeness=None,
                 production_feature_coverage=None,
-                gate_failures=["current_observation_unavailable"],
+                gate_failures=[
+                    "current_observation_unavailable",
+                    *(["source_session_date_mismatch"] if alignment_mismatch else []),
+                ],
             ),
         }
         market_status = "insufficient"
@@ -2302,11 +2312,11 @@ def hk_market() -> dict[str, Any]:
                 "status": "insufficient",
                 "asOf": as_of,
                 "sessions": sessions,
-                "reason": "港股概率模型尚未建设，当前仅展示当日市场结构观察。",
+                "reason": "港股候选模型尚未通过质量闸门，未来窗口不返回当前观察或默认概率。",
                 **prediction_state_contract(
                     model_availability="not_trained",
                     publication_status="not_applicable",
-                    output_mode="current_observation",
+                    output_mode="none",
                     calibration_status="not_applicable",
                     probability_source="none",
                     probability_target="none",
@@ -2348,6 +2358,8 @@ def hk_market() -> dict[str, Any]:
         "label": "港股",
         "mode": "industry",
         "asOf": as_of,
+        "sourceAsOf": source_as_of,
+        "publicUniverse": read_json(HK_PUBLIC_UNIVERSE_PATH).get("objects", []),
         "status": market_status,
         "taxonomy": {
             "owner": "恒生指数有限公司",

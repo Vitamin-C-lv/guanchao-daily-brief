@@ -1,9 +1,10 @@
-# P1-GA 交接
+# P2-A 港股预测模型研究与数据契约交接
 
 ## 当前定位
 
 - 仓库：`Vitamin-C-lv/guanchao-daily-brief`
-- 当前 main 基线：`746378a23ef9ed622f723b2af4921db3d20168e3`。
+- 当前真实 `origin/main` 基线（2026-08-04 从中立 worktree fetch 后确认）：`b3f0ef0beb9ad3907d3d70fb0aa939e45b27e247`。
+- 本次独立功能分支：`codex/p2a-hk-prediction-model-research`；原工作区 `D:\周报个人网站` 未操作。
 - P1-F PR #23 已 squash merge；P1-F merge SHA：`746378a23ef9ed622f723b2af4921db3d20168e3`。
 - 当前阶段完成 P1-GA 最终加固 + P1-GB/P1-GC 首批工程包：冻结 `research-bundle-v1` 的 canonical array、canonical UTC timestamp、发布日期精度和 raw snapshot lineage，并实现受限官方采集、不可变存储、daily/weekly builder、dry-run 和 rebuild。
 - `config/research-sources.json` 只允许 Federal Reserve RSS、BLS RSS 和 Federal Register JSON；`scripts/research-pipeline.mjs` 是唯一 pipeline，限量 GET、显式 bot identity、无 cookie/auth/browser/重试，RSS/Atom 和结构化 JSON 只保存 bounded metadata/hash/raw response。A_SHARE/HK 没有合规 adapter 时必须为 unavailable；不创建或提交 production artifact。
@@ -28,7 +29,21 @@ P1-B 以 GitHub 跟踪的不可变 snapshot/evaluation gzip 事件为权威，�
 - legacy/current：36 / 288；最早/最晚预测：2026-07-21 / 2026-07-24。
 - dataset ID：`a-share-2026-07-21-3448b55c8ae4`。
 - 生产模型 SHA-256（未变）：`358e19ae3dacbfdba71db195c0171c627646f33aaadf39250fb0f7b7cbb994d8`。
-- A 股：`trained + abstained`；HK：`not_trained`；US：`not_implemented`。不得伪造 HK/US 概率，也不得放宽发布门槛或改动生产模型数值。
+- A 股：`trained + abstained`；HK 生产模型仍为 `not_trained`，但 P2-A 已登记独立 `candidateStatus=shadow` 研究契约；US：`not_implemented`。不得伪造 HK/US 概率，也不得放宽发布门槛或改动生产模型数值。
+
+## P2-A：港股预测模型研究与数据契约（2026-08-04）
+
+- 后台训练宇宙与公开视图分离：训练宇宙为恒生综合 12 个一级行业、恒生指数、恒生科技指数、恒生上海深港创新药精选 50 指数代理和恒生互联网与资讯科技指数代理；公开视图固定为恒生指数、恒生科技指数、港股创新药、头部科技互联网四个对象。映射见 `models/sector-rotation/hk-training-universe-v1.json` 与 `hk-public-universe-v1.json`。
+- 12 个一级行业保留恒生官方代码和官方分类身份；主题代理明确 `officialClassification=false`，不得被改写成恒生官方行业历史。当前成分股名单不得回填历史，缺失值保留 `null`。
+- 港股目标独立于 A 股：指数对象使用 `absolute_up` / `expected_return`；主题对象使用 `relative_outperformance_vs_hsi` / `expected_excess_vs_hsi`；`topQuartile` 只在横截面至少 4 个对象时作为研究指标，不是两个公开主题的主目标。
+- 1/5/20 交易日分别训练和验证；契约固定 walk-forward、purged time-series split、按周期 embargo、训练窗口内标准化，以及只有在样本外区分度成立后才可校准。
+- 当前仓库可追溯的港股历史长度：`0` sessions、`0` rows；只有恒生官方当前行业快照和静态月末/研究资料，没有可验证连续历史面板。港股研究报告因此为 `insufficient-data`、候选 `shadow`，不写生产模型或预测账本，不返回默认 50% 概率；静态轮动 DTO 只同步 `sourceAsOf`、四对象 `publicUniverse` 和 fail-closed 状态，不承载预测结果。
+- 官方来源边界：恒生官方历史 OHLC 资料存在下载/授权边界；HKMA 的 HIBOR、USD/HKD 接口和美国财政部 2Y 资料只登记为 collector-ready，未在本分支假设历史已存在。南向、ETF、point-in-time 成分/权重、USD/CNH 失败状态全部显式记录。
+- 日期错位根因是实时恒生快照的 `sourceAsOf` 与日报 `sessionDate/asOf` 被旧实现硬合并。现在保留两者，错位时 fail closed；未训练未来窗口为 `outputMode=none`，不再复用 `current_observation`。
+- 研究数据身份已区分：无 `data/model-research/hk/panel.csv.gz` 时 `datasetId=null`，只生成独立的 `researchContractId`；面板存在时才验证 gzip、必需列、真实日历日期、`objectId` 和重复行，并将 raw gzip SHA-256 纳入 dataset identity。身份不使用文件 mtime、绝对路径或运行时间。
+- P2-A 研究入口：`scripts/hk_model_research.py`；契约：`data/model-research/hk-contract.json`；来源登记：`data/model-research/hk-source-registry-v1.json`。`pnpm model-research:validate` 同时验证既有 A 股研究契约和 HK candidate-only 契约。
+- P2-A 没有修改 A 股生产模型、概率阈值、历史账本、公开页面 UI 或原始工作区；仅同步港股 `content/sector-rotation.json` 的日期血缘、公开四对象映射和弃权状态。接入真实历史前，必须先提交显式 panel、交易日历、来源/成分/权重 lineage 与 SHA-256，再按三周期补齐指标和质量闸门。
+- 模型路由按 ADR-026 执行：默认 GPT-5.6 Luna Max；同一根因连续两轮失败，或涉及复杂统计、数据泄漏、概率校准、walk-forward 设计时才升级 GPT-5.6 Sol；升级前必须有脱敏 failure bundle。ADR-026 已明确 supersede ADR-007，不重写历史决策。
 
 状态契约及展示规则见 [ARCHITECTURE.md](ARCHITECTURE.md)；账本的 snapshot/evaluation 分离、幂等、legacy 隔离和目标隔离均为冻结边界。
 

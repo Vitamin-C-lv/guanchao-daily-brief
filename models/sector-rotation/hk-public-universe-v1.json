@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "hk-public-universe-v1",
+  "market": "HK",
+  "displayedObjectCount": 4,
+  "policy": "public-view-is-independent-from-the-training-universe",
+  "objects": [
+    {
+      "id": "hsi",
+      "label": "恒生指数",
+      "kind": "index",
+      "targetFamily": "index",
+      "trainingObjectId": "hsi",
+      "sourceClass": "official-index"
+    },
+    {
+      "id": "hstech",
+      "label": "恒生科技指数",
+      "kind": "index",
+      "targetFamily": "index",
+      "trainingObjectId": "hstech",
+      "sourceClass": "official-index"
+    },
+    {
+      "id": "hk_innovative_drug",
+      "label": "港股创新药",
+      "kind": "theme",
+      "targetFamily": "theme",
+      "trainingObjectId": "hk_innovative_drug_proxy",
+      "sourceClass": "traceable-proxy",
+      "publicProxyDisclosureRequired": true
+    },
+    {
+      "id": "hk_tech_internet",
+      "label": "头部科技互联网",
+      "kind": "theme",
+      "targetFamily": "theme",
+      "trainingObjectId": "hk_tech_internet_proxy",
+      "sourceClass": "traceable-proxy",
+      "publicProxyDisclosureRequired": true
+    }
+  ]
+}

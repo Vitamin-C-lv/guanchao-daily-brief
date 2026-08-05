@@ -5,6 +5,9 @@ import { createHash } from "node:crypto";
 import test from "node:test";
 
 const contract = JSON.parse(readFileSync(new URL("../data/model-research/contract.json", import.meta.url), "utf8"));
+const hkContract = JSON.parse(readFileSync(new URL("../data/model-research/hk-contract.json", import.meta.url), "utf8"));
+const hkPublicUniverse = JSON.parse(readFileSync(new URL("../models/sector-rotation/hk-public-universe-v1.json", import.meta.url), "utf8"));
+const hkTrainingUniverse = JSON.parse(readFileSync(new URL("../models/sector-rotation/hk-training-universe-v1.json", import.meta.url), "utf8"));
 const packageJson = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
 const source = readFileSync(new URL("./model_research.py", import.meta.url), "utf8");
 const attributes = readFileSync(new URL("../.gitattributes", import.meta.url), "utf8");
@@ -23,6 +26,16 @@ test("contract freezes all artifact schemas", () => {
     "model-training-run-v1",
     "shadow-inference-v1",
   ].sort());
+});
+
+test("HK research contract keeps public and training universes separate", () => {
+  assert.equal(hkContract.market, "HK");
+  assert.deepEqual(hkContract.horizons, [1, 5, 20]);
+  assert.deepEqual(hkPublicUniverse.objects.map((item) => item.id), ["hsi", "hstech", "hk_innovative_drug", "hk_tech_internet"]);
+  assert.equal(hkTrainingUniverse.officialIndustryCount, 12);
+  assert.equal(hkContract.targets.theme.binary[0], "relative_outperformance_vs_hsi");
+  assert.equal(hkContract.targets.theme.continuous[0], "expected_excess_vs_hsi");
+  assert.equal(hkContract.targets.topQuartile.role, "research-only");
 });
 
 test("production capabilities remain disabled", () => {
@@ -50,6 +63,14 @@ test("validate CLI succeeds without automatic dataset discovery", () => {
   const result = spawnSync(process.execPath, ["scripts/model-research.mjs", "validate"], { encoding: "utf8", windowsHide: true });
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
   assert.match(result.stdout, /"status": "valid"/);
+});
+
+test("validate CLI reports the HK candidate as shadow without applying it", () => {
+  const result = spawnSync(process.execPath, ["scripts/model-research.mjs", "validate"], { encoding: "utf8", windowsHide: true });
+  assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
+  assert.match(result.stdout, /"candidateStatus": "shadow"/);
+  assert.match(result.stdout, /"productionApply": \{/);
+  assert.match(result.stdout, /"applied": false/);
 });
 
 test("check gate includes model research validation and tests", () => {
