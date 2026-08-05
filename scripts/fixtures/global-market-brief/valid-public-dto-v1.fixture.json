@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "global-market-brief-public-dto-v1",
+  "dataAsOf": "2026-08-04",
+  "mainArticle": {
+    "title": "全球风险偏好重新定价，跨市场传导仍需验证",
+    "dek": "政策、利率与市场表现形成一条可追踪但尚未闭合的全球逻辑链。",
+    "conclusion": "今日重点是判断政策与风险偏好能否通过美股、港股和 A 股之间的传导得到交叉确认。",
+    "logicChain": [
+      {
+        "from": "政策观察窗口",
+        "relation": "影响",
+        "to": "利率与风险偏好定价",
+        "evidenceStatus": "partially_confirmed"
+      },
+      {
+        "from": "美股风险偏好",
+        "relation": "可能传导至",
+        "to": "港股科技与 A 股成长风格",
+        "evidenceStatus": "pending"
+      }
+    ],
+    "marketTags": ["GLOBAL", "US", "HK", "A_SHARE"],
+    "dataAsOf": "2026-08-04",
+    "sourceCount": 5,
+    "articleUrl": "/articles/global-main-2026-08-05/"
+  },
+  "specialReports": [
+    {
+      "title": "美股异动是否会成为全球传导起点",
+      "triggerType": "abnormal_market_move",
+      "conclusion": "该异动值得单独观察，但只有在其他市场出现同方向确认后才可升级为跨市场事件。",
+      "marketTags": ["US", "HK"],
+      "articleUrl": "/articles/special-us-move-2026-08-05/"
+    }
+  ]
+}

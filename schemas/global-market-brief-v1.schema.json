@@ -1,0 +1,253 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/global-market-brief-v1.schema.json",
+  "title": "观潮全球整合主文章执行包",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "buildStatus",
+    "dataAsOf",
+    "editionDate",
+    "generatedAt",
+    "mainArticle",
+    "schemaVersion",
+    "sourceIndex",
+    "specialReports",
+    "specialTriggerCandidates"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "global-market-brief-v1" },
+    "editionDate": { "type": "string", "format": "date" },
+    "generatedAt": { "type": "string", "format": "date-time", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z$" },
+    "dataAsOf": { "type": "string", "format": "date" },
+    "mainArticle": { "$ref": "#/$defs/mainArticle" },
+    "specialReports": {
+      "type": "array",
+      "maxItems": 2,
+      "items": { "$ref": "#/$defs/specialReport" }
+    },
+    "sourceIndex": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/source" }
+    },
+    "specialTriggerCandidates": {
+      "type": "array",
+      "maxItems": 20,
+      "items": { "$ref": "#/$defs/triggerCandidate" }
+    },
+    "buildStatus": { "enum": ["ready", "partial"] }
+  },
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._:-]{1,119}$" },
+    "slug": { "type": "string", "pattern": "^[a-z0-9][a-z0-9._-]{1,79}$" },
+    "sourceIds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "optionalSourceIds": {
+      "type": "array",
+      "maxItems": 50,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/id" }
+    },
+    "marketTags": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 4,
+      "uniqueItems": true,
+      "items": { "enum": ["US", "HK", "A_SHARE", "GLOBAL"] }
+    },
+    "topicTags": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 80 }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asOf", "id", "publisher", "title", "url"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "publisher": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "url": { "type": "string", "format": "uri", "pattern": "^https://" },
+        "asOf": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+    "keyFact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["asOf", "factStatus", "id", "sourceIds", "statement"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "statement": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "asOf": { "type": "string", "format": "date" },
+        "sourceIds": { "$ref": "#/$defs/sourceIds" },
+        "factStatus": { "enum": ["confirmed", "revised", "delayed", "estimated", "unavailable"] },
+        "value": { "type": ["number", "null"] },
+        "unit": { "type": "string", "minLength": 1, "maxLength": 80 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "factStatus": { "const": "unavailable" } }, "required": ["factStatus"] },
+          "then": { "required": ["value"], "properties": { "value": { "type": "null" } } }
+        }
+      ]
+    },
+    "logicEdge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contradictorySourceIds", "evidenceStatus", "from", "relation", "supportingSourceIds", "to"],
+      "properties": {
+        "from": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "relation": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "to": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "evidenceStatus": { "enum": ["confirmed", "partially_confirmed", "pending", "reversed"] },
+        "supportingSourceIds": { "$ref": "#/$defs/optionalSourceIds" },
+        "contradictorySourceIds": { "$ref": "#/$defs/optionalSourceIds" }
+      }
+    },
+    "invalidationCondition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["affectedClaims", "condition", "id"],
+      "properties": {
+        "id": { "$ref": "#/$defs/id" },
+        "condition": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "affectedClaims": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1, "maxLength": 160 }
+        }
+      }
+    },
+    "outlookItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["invalidationConditionIds", "statement", "supportingSourceIds"],
+      "properties": {
+        "statement": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "supportingSourceIds": { "$ref": "#/$defs/sourceIds" },
+        "invalidationConditionIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "outlook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["nextSession", "oneWeek"],
+      "properties": {
+        "nextSession": { "$ref": "#/$defs/outlookItem" },
+        "oneWeek": { "$ref": "#/$defs/outlookItem" }
+      }
+    },
+    "transmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["direction", "evidenceStatus", "explanation", "fromMarket", "horizon", "invalidationConditionIds", "supportingSourceIds", "toMarket"],
+      "properties": {
+        "fromMarket": { "enum": ["US", "HK", "A_SHARE", "GLOBAL"] },
+        "toMarket": { "enum": ["US", "HK", "A_SHARE", "GLOBAL"] },
+        "direction": { "enum": ["positive", "negative", "mixed", "neutral"] },
+        "horizon": { "enum": ["next_session", "one_week"] },
+        "explanation": { "type": "string", "minLength": 1, "maxLength": 600 },
+        "evidenceStatus": { "enum": ["confirmed", "partially_confirmed", "pending", "reversed"] },
+        "supportingSourceIds": { "$ref": "#/$defs/sourceIds" },
+        "invalidationConditionIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/id" }
+        }
+      }
+    },
+    "watchItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expectedAt", "item", "sourceIds", "whyItMatters"],
+      "properties": {
+        "item": { "type": "string", "minLength": 1, "maxLength": 240 },
+        "whyItMatters": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "expectedAt": { "type": ["string", "null"], "format": "date" },
+        "sourceIds": { "$ref": "#/$defs/sourceIds" }
+      }
+    },
+    "mainArticle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["articleUrl", "conclusion", "contentKind", "dek", "id", "invalidationConditions", "keyFacts", "logicChain", "marketTags", "outlook", "slug", "sourceIds", "title", "topicTags", "watchItems"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "slug": { "$ref": "#/$defs/slug" },
+        "articleUrl": { "type": "string", "pattern": "^/articles/[a-z0-9][a-z0-9._-]{1,79}/$" },
+        "contentKind": { "const": "global_main" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "dek": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "conclusion": { "type": "string", "minLength": 1, "maxLength": 1200 },
+        "keyFacts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/keyFact" } },
+        "logicChain": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/logicEdge" } },
+        "crossMarketTransmission": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/transmission" } },
+        "outlook": { "$ref": "#/$defs/outlook" },
+        "invalidationConditions": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/invalidationCondition" } },
+        "watchItems": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/watchItem" } },
+        "sourceIds": { "$ref": "#/$defs/sourceIds" },
+        "marketTags": { "$ref": "#/$defs/marketTags" },
+        "topicTags": { "$ref": "#/$defs/topicTags" }
+      }
+    },
+    "specialReport": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["analysis", "articleUrl", "conclusion", "contentKind", "dek", "id", "invalidationConditions", "keyFacts", "logicChain", "marketTags", "outlook", "slug", "sourceIds", "title", "topicTags", "triggerCandidateId", "triggerEvidenceIds", "triggerReason", "triggerType", "watchItems"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "slug": { "$ref": "#/$defs/slug" },
+        "articleUrl": { "type": "string", "pattern": "^/articles/[a-z0-9][a-z0-9._-]{1,79}/$" },
+        "contentKind": { "const": "special_report" },
+        "triggerCandidateId": { "$ref": "#/$defs/slug" },
+        "triggerType": { "enum": ["abnormal_market_move", "central_bank_policy", "macro_data_surprise", "geopolitical_risk", "major_earnings", "china_policy", "theme_reversal", "systemic_risk"] },
+        "triggerReason": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "triggerEvidenceIds": { "$ref": "#/$defs/sourceIds" },
+        "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "dek": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "conclusion": { "type": "string", "minLength": 1, "maxLength": 1200 },
+        "keyFacts": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/keyFact" } },
+        "analysis": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1, "maxLength": 1000 } },
+        "logicChain": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/logicEdge" } },
+        "crossMarketTransmission": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/transmission" } },
+        "outlook": { "$ref": "#/$defs/outlook" },
+        "invalidationConditions": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/invalidationCondition" } },
+        "watchItems": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/watchItem" } },
+        "sourceIds": { "$ref": "#/$defs/sourceIds" },
+        "marketTags": { "$ref": "#/$defs/marketTags" },
+        "topicTags": { "$ref": "#/$defs/topicTags" }
+      }
+    },
+    "triggerCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligible", "id", "reason", "triggerEvidenceIds", "triggerType"],
+      "properties": {
+        "id": { "$ref": "#/$defs/slug" },
+        "eligible": { "type": "boolean" },
+        "triggerType": { "enum": ["abnormal_market_move", "central_bank_policy", "macro_data_surprise", "geopolitical_risk", "major_earnings", "china_policy", "theme_reversal", "systemic_risk"] },
+        "reason": { "type": "string", "minLength": 1, "maxLength": 500 },
+        "triggerEvidenceIds": { "$ref": "#/$defs/sourceIds" }
+      }
+    }
+  }
+}

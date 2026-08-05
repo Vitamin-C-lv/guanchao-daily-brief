@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/global-market-event-v1.schema.json",
+  "title": "观潮全球市场结构化事件最小形状",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "affectedAssets",
+    "affectedThemes",
+    "contradictorySourceIds",
+    "direction",
+    "eventType",
+    "horizon",
+    "marketConfirmation",
+    "occurredAt",
+    "region",
+    "sourceConfidence",
+    "status",
+    "supportingSourceIds"
+  ],
+  "properties": {
+    "eventType": {
+      "enum": ["macro-release", "monetary-policy", "fiscal-policy", "regulation", "company-event", "market-move", "technology", "commodity", "geopolitics", "calendar", "other"]
+    },
+    "occurredAt": { "type": "string", "format": "date-time" },
+    "region": { "enum": ["US", "HK", "A_SHARE", "FED", "GLOBAL"] },
+    "affectedAssets": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 30,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+    },
+    "affectedThemes": {
+      "type": "array",
+      "maxItems": 30,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+    },
+    "direction": { "enum": ["positive", "negative", "mixed", "neutral"] },
+    "horizon": { "enum": ["next_session", "one_week"] },
+    "sourceConfidence": { "enum": ["confirmed", "corroborated", "single-source", "conflicting", "unverified"] },
+    "marketConfirmation": { "enum": ["confirmed", "partially_confirmed", "pending", "reversed"] },
+    "supportingSourceIds": {
+      "type": "array",
+      "maxItems": 50,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+    },
+    "contradictorySourceIds": {
+      "type": "array",
+      "maxItems": 50,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1, "maxLength": 120 }
+    },
+    "status": { "enum": ["new", "developing", "confirmed", "fading", "reversed"] }
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "global-market-brief-negative-fixtures-v1",
+  "baseFixture": "valid-global-market-brief-v1.fixture.json",
+  "cases": [
+    {
+      "id": "missing-main-article",
+      "target": "global",
+      "operation": { "type": "delete", "path": "mainArticle" },
+      "expectedCode": "MISSING_KEY",
+      "expectedPath": "$.mainArticle"
+    },
+    {
+      "id": "multiple-main-articles",
+      "target": "global",
+      "operation": { "type": "duplicateMainArticle" },
+      "expectedCode": "MAIN_ARTICLE_COUNT",
+      "expectedPath": "mainArticle"
+    },
+    {
+      "id": "special-reports-over-two",
+      "target": "global",
+      "operation": { "type": "repeatSpecialReports", "count": 3 },
+      "expectedCode": "SPECIAL_REPORT_LIMIT",
+      "expectedPath": "specialReports"
+    },
+    {
+      "id": "key-fact-without-source-ids",
+      "target": "global",
+      "operation": { "type": "delete", "path": "mainArticle.keyFacts[0].sourceIds" },
+      "expectedCode": "MISSING_KEY",
+      "expectedPath": "global-main-2026-08-05.keyFacts[0].sourceIds"
+    },
+    {
+      "id": "logic-edge-without-evidence-status",
+      "target": "global",
+      "operation": { "type": "delete", "path": "mainArticle.logicChain[0].evidenceStatus" },
+      "expectedCode": "MISSING_KEY",
+      "expectedPath": "global-main-2026-08-05.logicChain[0].evidenceStatus"
+    },
+    {
+      "id": "transmission-without-invalidation-condition",
+      "target": "global",
+      "operation": { "type": "delete", "path": "mainArticle.crossMarketTransmission[0].invalidationConditionIds" },
+      "expectedCode": "MISSING_KEY",
+      "expectedPath": "global-main-2026-08-05.crossMarketTransmission[0].invalidationConditionIds"
+    },
+    {
+      "id": "outlook-without-next-session",
+      "target": "global",
+      "operation": { "type": "delete", "path": "mainArticle.outlook.nextSession" },
+      "expectedCode": "MISSING_KEY",
+      "expectedPath": "global-main-2026-08-05.outlook.nextSession"
+    },
+    {
+      "id": "legacy-three-market-drafts",
+      "target": "global",
+      "operation": { "type": "set", "path": "markets", "value": [{ "id": "a-share" }, { "id": "hk" }, { "id": "us" }] },
+      "expectedCode": "UNKNOWN_KEY",
+      "expectedPath": "$.markets"
+    },
+    {
+      "id": "non-eligible-special-trigger",
+      "target": "global",
+      "operation": { "type": "set", "path": "specialTriggerCandidates[0].eligible", "value": false },
+      "expectedCode": "TRIGGER_NOT_ELIGIBLE",
+      "expectedPath": "specialReports[0].triggerCandidateId"
+    },
+    {
+      "id": "numeric-probability-in-market-outlook",
+      "target": "global",
+      "operation": { "type": "set", "path": "mainArticle.outlook.nextSession.probability", "value": 0.65 },
+      "expectedCode": "FORBIDDEN_FIELD",
+      "expectedPath": "$.mainArticle.outlook.nextSession.probability"
+    },
+    {
+      "id": "evidence-score-named-probability",
+      "target": "global",
+      "operation": { "type": "set", "path": "mainArticle.EvidenceScore", "value": 0.65 },
+      "expectedCode": "FORBIDDEN_FIELD",
+      "expectedPath": "$.mainArticle.EvidenceScore"
+    },
+    {
+      "id": "public-provider-error",
+      "target": "public",
+      "operation": { "type": "set", "path": "mainArticle.providerError", "value": "timeout" },
+      "expectedCode": "PUBLIC_FIELD_FORBIDDEN",
+      "expectedPath": "$.mainArticle.providerError"
+    },
+    {
+      "id": "zero-special-reports-is-valid",
+      "target": "global",
+      "operation": { "type": "set", "path": "specialReports", "value": [] },
+      "expectValid": true
+    },
+    {
+      "id": "two-special-reports-is-valid",
+      "target": "global",
+      "operation": { "type": "repeatSpecialReports", "count": 2 },
+      "expectValid": true
+    },
+    {
+      "id": "unknown-source-id",
+      "target": "global",
+      "operation": { "type": "set", "path": "mainArticle.keyFacts[0].sourceIds", "value": ["missing-source"] },
+      "expectedCode": "UNKNOWN_SOURCE_ID",
+      "expectedPath": "global-main-2026-08-05.keyFacts[0].sourceIds[0]"
+    },
+    {
+      "id": "unavailable-value-must-stay-null",
+      "target": "global",
+      "operation": { "type": "set", "path": "mainArticle.keyFacts[2].value", "value": 0 },
+      "expectedCode": "UNAVAILABLE_VALUE",
+      "expectedPath": "global-main-2026-08-05.keyFacts[2].value"
+    }
+  ]
+}
