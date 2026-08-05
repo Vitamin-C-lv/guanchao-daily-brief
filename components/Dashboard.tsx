@@ -30,11 +30,14 @@ import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, TouchEvent } from "react";
 import MobileBottomNav from "./MobileBottomNav";
+import GlobalMainBriefCard from "./GlobalMainBriefCard";
 import MarketObserver from "./MarketObserver";
 import MarketObserverTeaser from "./MarketObserverTeaser";
 import PredictionRankingPreview from "./PredictionRankingPreview";
 import SectorRotationIndex from "./SectorRotationIndex";
+import SpecialReportSection from "./SpecialReportSection";
 import WeeklyTeaser from "./WeeklyTeaser";
+import type { GlobalMarketBriefPublic } from "@/lib/global-market-brief-public";
 import { sourceEvidenceClassLabel, sourceMetaLabel, sourceTierLabel } from "./SourceLink";
 import type {
   BriefArticle,
@@ -297,6 +300,7 @@ export default function Dashboard({
   sectorRotation,
   sectorDetailKeys,
   marketObserver,
+  globalBrief,
 }: {
   data: DailyBrief;
   view: DashboardView;
@@ -304,6 +308,7 @@ export default function Dashboard({
   sectorRotation?: SectorRotationIndexData;
   sectorDetailKeys?: string[];
   marketObserver?: MarketObserverSnapshot;
+  globalBrief?: GlobalMarketBriefPublic | null;
 }) {
   const pathname = usePathname();
   const normalizedPathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
@@ -319,6 +324,7 @@ export default function Dashboard({
   const showMarkets = isOverview || view === "markets";
   const showPredictions = view === "predictions";
   const showBriefs = isOverview || view === "briefs";
+  const showLegacyBriefs = showBriefs && !(isOverview && globalBrief);
   const showHotspots = isOverview || view === "hotspots";
   const showSearch = isOverview || view === "briefs" || view === "hotspots";
   const mobileNavView = view === "fed" ? "overview" : view;
@@ -483,6 +489,14 @@ export default function Dashboard({
         </header>
 
         <div className="dashboard-content">
+          {isOverview && globalBrief ? (
+            <section className="global-home-section" aria-labelledby="global-home-title">
+              <SectionHeading eyebrow="TODAY&apos;S GLOBAL JUDGMENT" title="今日全球判断" description="先看跨市场主线，再回到各市场的独立数据与历史简报。" />
+              <GlobalMainBriefCard brief={globalBrief.mainArticle} />
+              <SpecialReportSection reports={globalBrief.specialReports} />
+            </section>
+          ) : null}
+
           {showFed ? (
           <section className={`hero-grid ${isOverview ? "" : "focused-view"}`} id={isOverview ? "overview" : undefined}>
             {isOverview ? (
@@ -612,14 +626,23 @@ export default function Dashboard({
           </section>
           ) : null}
 
-          {showBriefs || showHotspots ? (
+          {showLegacyBriefs || showHotspots ? (
           <div className={`content-grid ${isOverview ? "" : "single-panel"}`}>
-            {showBriefs ? (
+            {showLegacyBriefs ? (
             <section id="briefs" className="briefs-panel">
-              <SectionHeading eyebrow="CURATED BRIEFS" title="今日精选简报" description="只保留会改变政策预期、风险偏好或行业定价的信息。" />
+              {globalBrief && view === "briefs" ? <SectionHeading eyebrow="WEEKLY JUDGMENT" title="每周判断" description="先看今日全球判断，再按需回查历史市场简报。" /> : <SectionHeading eyebrow="CURATED BRIEFS" title="今日精选简报" description="只保留会改变政策预期、风险偏好或行业定价的信息。" />}
               {weeklyIndex ? <WeeklyTeaser index={weeklyIndex} /> : null}
+              {globalBrief && view === "briefs" ? (
+                <>
+                  <GlobalMainBriefCard brief={globalBrief.mainArticle} />
+                  <SpecialReportSection reports={globalBrief.specialReports} />
+                  <div className="global-history-heading">
+                    <SectionHeading eyebrow="ARCHIVE" title="其他历史文章" description="市场标签保留为次级筛选信息。" />
+                  </div>
+                </>
+              ) : null}
               {view === "briefs" ? <MarketObserver data={marketObserver} mode="daily-macro" /> : null}
-              <div className="filter-row" role="tablist" aria-label="简报市场筛选">
+              <div className="filter-row" role="tablist" aria-label={globalBrief && view === "briefs" ? "历史简报市场筛选" : "简报市场筛选"}>
                 {[
                   ["all", "全部"],
                   ["fed", "美联储"],
