@@ -12,6 +12,8 @@
 
 P2-B0 独占以下冻结热点文件：`docs/HANDOFF.md`、`docs/ARCHITECTURE.md`、`docs/ADR.md`、`package.json`、`schemas/global-market-brief-v1.schema.json`、`schemas/global-market-brief-public-dto-v1.schema.json`、`schemas/global-market-event-v1.schema.json`、`scripts/global-market-brief-contract.mjs` 及其 fixture/test。B1 独占 Writer 主契约，B3 独占首页与简报页主组件；任何 lane 不得修改其他 lane 的热点文件。
 
+P2-B1、P2-B2、P2-B3 均只依赖 P2-B0 合并后的同一个 `main` SHA，可以并行启动；不互相等待。B1/B2/B3 的跨 lane 兼容性、DTO adapter 与真实 Writer 输出连接全部由 P2-B4 集成验证。
+
 ## Lane P2-B1
 
 ```yaml
@@ -20,13 +22,29 @@ baselineMainSha: "P2-B0 merge SHA on main (record before dispatch)"
 allowedFiles:
   - data/research-bundles/**
   - data/writer-contexts/**
+  - content/writer-contexts/**
+  - content/writer-packets/**
   - data/writer-jobs/**
-  - scripts/research-*.mjs
-  - scripts/writer-*.mjs
-  - scripts/codex-writer-*.mjs
-  - scripts/validate-*.mjs
+  - scripts/research-contract.mjs
+  - scripts/research-contract.test.mjs
+  - scripts/research-pipeline.mjs
+  - scripts/research-pipeline.test.mjs
+  - scripts/writer-context.mjs
+  - scripts/writer-context.test.mjs
+  - scripts/writer-jobs.mjs
+  - scripts/writer-jobs.test.mjs
+  - scripts/writer-e2e-rehearsal.mjs
+  - scripts/codex-writer-prepare.mjs
+  - scripts/codex-writer-finalize.mjs
+  - scripts/codex-writer.test.mjs
   - scripts/editorial-lint.mjs
-  - prompts/**
+  - scripts/editorial-lint.test.mjs
+  - scripts/validate-brief.mjs
+  - scripts/validate-brief-lineage.mjs
+  - scripts/validate-writer-packet.mjs
+  - scripts/writer-packet.test.mjs
+  - prompts/codex-daily-writer.md
+  - prompts/luna-daily-brief.md
   - schemas/global-market-brief-writer-output-v1.schema.json
 forbiddenFiles:
   - docs/HANDOFF.md
@@ -52,7 +70,6 @@ outputContract:
   - validator and editorial lint errors containing article id and field path
 dependencies:
   - P2-B0 merged to main
-  - P2-B2 quality rules available as a reviewed external/local input
 requiredTests:
   - existing research contract
   - writer context/request/job
@@ -68,8 +85,10 @@ taskId: P2-B2
 baselineMainSha: "P2-B0 merge SHA on main (record before dispatch)"
 allowedFiles:
   - C:\Users\18442\.codex\skills\guanchao-financial-writer\**
-  - D:\周报个人网站-local-writer-runtime\**
+  - D:\Guanchao-Workspace\runtime\local-writer-runtime\**
   - external quality-rule report files outside the repository
+legacyCompatibilityPath:
+  - D:\周报个人网站-local-writer-runtime\ (compatibility junction only; never the primary write target)
 forbiddenFiles:
   - repository private Skill正文提交
   - .agents/skills/**
@@ -91,7 +110,6 @@ outputContract:
   - no repository Skill正文 and no production content
 dependencies:
   - P2-B0 merged to main
-  - P2-B1 writer target contract available for compatibility review
 requiredTests:
   - Skill static/quality rule checks
   - bounded writer dry-run with wrote=false and productionApply.applied=false
@@ -133,7 +151,6 @@ outputContract:
   - no provider/internal lineage/debug fields in React props or rendered DTO
 dependencies:
   - P2-B0 merged to main
-  - P2-B1 public output fixture and DTO adapter reviewed
 requiredTests:
   - typecheck
   - page/component tests available in the repository
