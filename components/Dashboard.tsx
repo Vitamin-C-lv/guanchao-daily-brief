@@ -37,6 +37,7 @@ import PredictionRankingPreview from "./PredictionRankingPreview";
 import SectorRotationIndex from "./SectorRotationIndex";
 import SpecialReportSection from "./SpecialReportSection";
 import WeeklyTeaser from "./WeeklyTeaser";
+import { isGlobalBriefForEdition, shouldShowLegacyHomeNarrative } from "@/lib/dashboard-visibility";
 import type { GlobalMarketBriefPublic } from "@/lib/global-market-brief-public";
 import { sourceEvidenceClassLabel, sourceMetaLabel, sourceTierLabel } from "./SourceLink";
 import type {
@@ -200,12 +201,12 @@ function SectionHeading({ eyebrow, title, description, action }: { eyebrow: stri
   );
 }
 
-function MarketCard({ market }: { market: MarketSection }) {
+function MarketCard({ market, overviewOnly = false }: { market: MarketSection; overviewOnly?: boolean }) {
   const lead = market.indices[0];
   const detailArticle = market.articles[0];
   const isUp = lead.change >= 0;
   return (
-    <article className={`market-card tone-${market.tone}`}>
+    <article className={`market-card tone-${market.tone} ${overviewOnly ? "market-card-overview" : ""}`}>
       <div className="market-card-head">
         <div>
           <span className="market-name">{market.name}</span>
@@ -233,8 +234,8 @@ function MarketCard({ market }: { market: MarketSection }) {
           </div>
         ))}
       </div>
-      <p className="market-summary">{market.summary}</p>
-      {detailArticle ? <Link className="market-detail-link" href={`/articles/${detailArticle.id}/`}>查看收盘详报 <ChevronRight size={14} /></Link> : null}
+      {!overviewOnly ? <p className="market-summary">{market.summary}</p> : null}
+      {!overviewOnly && detailArticle ? <Link className="market-detail-link" href={`/articles/${detailArticle.id}/`}>查看收盘详报 <ChevronRight size={14} /></Link> : null}
       <SourceLinks sources={market.sources} compact />
     </article>
   );
@@ -324,7 +325,11 @@ export default function Dashboard({
   const showMarkets = isOverview || view === "markets";
   const showPredictions = view === "predictions";
   const showBriefs = isOverview || view === "briefs";
-  const showLegacyBriefs = showBriefs && !(isOverview && globalBrief);
+  const currentGlobalBrief = isGlobalBriefForEdition(globalBrief, data.meta.editionDate);
+  const showGlobalHomeBrief = isOverview && currentGlobalBrief;
+  const showLegacyHomeNarrative = shouldShowLegacyHomeNarrative({ view, editionDate: data.meta.editionDate, globalBrief });
+  const marketOverviewOnly = isOverview && currentGlobalBrief;
+  const showLegacyBriefs = showBriefs && !(isOverview && currentGlobalBrief);
   const showHotspots = isOverview || view === "hotspots";
   const showSearch = isOverview || view === "briefs" || view === "hotspots";
   const mobileNavView = view === "fed" ? "overview" : view;
@@ -435,12 +440,12 @@ export default function Dashboard({
     return combined
       .filter(({ article, market }) => {
         const matchesMarket = selectedMarket === "all" || selectedMarket === market;
-        const sameEditionLegacy = Boolean(globalBrief && view === "briefs" && market !== "fed" && article.publishedAt === data.meta.editionDate);
+        const sameEditionLegacy = Boolean(currentGlobalBrief && view === "briefs" && market !== "fed" && article.publishedAt === data.meta.editionDate);
         const haystack = `${article.title} ${article.summary} ${article.impact} ${article.tags.join(" ")}`.toLowerCase();
         return matchesMarket && !sameEditionLegacy && (!normalizedQuery || haystack.includes(normalizedQuery));
       })
       .sort((left, right) => right.article.publishedAt.localeCompare(left.article.publishedAt));
-  }, [data, globalBrief, query, selectedMarket, view]);
+  }, [currentGlobalBrief, data, query, selectedMarket, view]);
 
   const filteredHotspots = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -490,7 +495,7 @@ export default function Dashboard({
         </header>
 
         <div className="dashboard-content">
-          {isOverview && globalBrief ? (
+          {showGlobalHomeBrief && globalBrief ? (
             <section className="global-home-section" aria-labelledby="global-home-title">
               <SectionHeading eyebrow="TODAY&apos;S GLOBAL JUDGMENT" title="今日全球判断" description="先看跨市场主线，再回到各市场的独立数据与历史简报。" />
               <GlobalMainBriefCard brief={globalBrief.mainArticle} />
@@ -499,8 +504,8 @@ export default function Dashboard({
           ) : null}
 
           {showFed ? (
-          <section className={`hero-grid ${isOverview ? "" : "focused-view"}`} id={isOverview ? "overview" : undefined}>
-            {isOverview ? (
+          <section className={`hero-grid ${isOverview ? "" : "focused-view"} ${showLegacyHomeNarrative ? "" : "global-integrated-grid"}`} id={isOverview ? "overview" : undefined}>
+            {showLegacyHomeNarrative && isOverview ? (
             <article className="hero-card">
               <div className="hero-orbit" aria-hidden="true"><span /><span /></div>
               <div className="hero-copy">
@@ -588,7 +593,7 @@ export default function Dashboard({
 
           {showMarkets ? (
           <section id="markets" className={`section-block ${isOverview ? "" : "route-section"}`}>
-            <SectionHeading eyebrow="THREE MARKETS" title="三地股市简报" description="每个市场使用各自最新完整交易日，避免盘中与收盘数据混用。" action={<span className="updated-label"><RefreshCw size={13} /> 数据截至 {formatCompactDate(data.meta.dataThrough)}</span>} />
+            <SectionHeading eyebrow={marketOverviewOnly ? "MARKET DATA OVERVIEW" : "THREE MARKETS"} title={marketOverviewOnly ? "市场数据概览" : "三地股市简报"} description={marketOverviewOnly ? "保留指数、涨跌、成交与数据时间，作为全球主文章的次级数据概览。" : "每个市场使用各自最新完整交易日，避免盘中与收盘数据混用。"} action={<span className="updated-label"><RefreshCw size={13} /> 数据截至 {formatCompactDate(data.meta.dataThrough)}</span>} />
             {view === "markets" ? <PredictionRankingPreview data={sectorRotation} /> : null}
             <div className="market-mobile-tabs" role="tablist" aria-label="切换市场卡片">
               {data.markets.map((market, index) => (
@@ -603,7 +608,7 @@ export default function Dashboard({
               onTouchStart={startMarketSwipe}
               onTouchEnd={finishMarketSwipe}
             >
-              {data.markets.map((market) => <MarketCard key={market.id} market={market} />)}
+              {data.markets.map((market) => <MarketCard key={market.id} market={market} overviewOnly={marketOverviewOnly} />)}
             </div>
           </section>
           ) : null}

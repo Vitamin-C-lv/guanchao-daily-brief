@@ -67,6 +67,7 @@
     "test:writer-jobs": "node --test scripts/writer-jobs.test.mjs",
     "test:global-market-brief": "node --test scripts/global-market-brief-contract.test.mjs",
     "test:global-market-brief-integration": "node --test scripts/global-market-brief-integration.test.mjs",
+    "test:dashboard-dom": "node --test scripts/dashboard-home-dom.test.mjs",
     "test:research-contract": "node --test scripts/research-contract.test.mjs",
     "test:research-pipeline": "node --test scripts/research-pipeline.test.mjs",
     "test:codex-research": "node --test scripts/codex-research.test.mjs",

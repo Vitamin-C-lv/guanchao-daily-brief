@@ -73,6 +73,20 @@ function publicPublisher(publisher, url) {
   return publisher;
 }
 
+const OFFICIAL_FOMC_STATEMENT_ID = "fed-fomc-statement-2026-07-29";
+const OFFICIAL_FOMC_STATEMENT = {
+  title: "Federal Reserve issues FOMC statement",
+  publisher: "Federal Reserve",
+  url: "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm",
+};
+
+function normalizePublicSource(candidate, preferredId) {
+  if (preferredId === OFFICIAL_FOMC_STATEMENT_ID || candidate.id === OFFICIAL_FOMC_STATEMENT_ID) {
+    return { ...candidate, ...OFFICIAL_FOMC_STATEMENT, id: preferredId };
+  }
+  return { ...candidate, publisher: publicPublisher(candidate.publisher, candidate.url), id: preferredId };
+}
+
 function sourceFromDocument(document, id = document.sourceId) {
   if (!document?.sourceId || !document.canonicalUrl || !document.title || !document.publisher) fail("bundle.documents", "document lacks safe source metadata");
   return {
@@ -104,16 +118,17 @@ function mergeSources(bundle, packet) {
     packetByUrl.set(canonicalUrlKey(source.sourceUrl), source.sourceId);
   }
   const add = (candidate, preferredId = candidate.id) => {
-    const key = canonicalUrlKey(candidate.url);
+    const normalized = normalizePublicSource(candidate, preferredId);
+    const key = canonicalUrlKey(normalized.url);
     const existing = sources.get(key);
     if (existing) {
-      aliases.set(candidate.id, existing.id);
+      aliases.set(normalized.id, existing.id);
       aliases.set(preferredId, existing.id);
       return;
     }
-    const source = { ...candidate, id: preferredId };
+    const source = normalized;
     sources.set(key, source);
-    aliases.set(candidate.id, source.id);
+    aliases.set(normalized.id, source.id);
     aliases.set(source.id, source.id);
   };
   for (const document of bundle.documents ?? []) {
@@ -135,7 +150,7 @@ function mergeSources(bundle, packet) {
       url: fact.sourceUrl,
       asOf: fact.asOf ?? null,
     };
-    add({ ...safe, publisher: publicPublisher(safe.publisher, safe.url) }, safe.id);
+    add(safe, safe.id);
   }
   return {
     sources: [...sources.values()].sort((left, right) => left.id.localeCompare(right.id) || left.url.localeCompare(right.url)),

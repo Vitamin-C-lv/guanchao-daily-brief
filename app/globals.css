@@ -852,6 +852,10 @@ button {
   grid-template-columns: minmax(0, 1fr);
 }
 
+.hero-grid.global-integrated-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 .hero-card,
 .fed-summary-card,
 .policy-card,

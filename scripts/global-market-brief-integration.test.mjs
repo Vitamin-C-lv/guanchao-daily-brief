@@ -35,7 +35,15 @@ test("real frozen inputs build one coherent main article and no eligible special
   assert.equal(result.brief.sourceIndex.length, 7);
   assert.equal(new Set(result.brief.sourceIndex.map((source) => source.url)).size, 7);
   assert.equal(result.brief.sourceIndex.some((source) => source.id === "csi-constituents"), false);
-  assert.equal(result.brief.sourceIndex.find((source) => source.id === "fed-fomc-statement-2026-07-29").publisher, "Compliance Alliance");
+  const fomcSource = result.brief.sourceIndex.find((source) => source.id === "fed-fomc-statement-2026-07-29");
+  assert.deepEqual(fomcSource, {
+    asOf: "2026-07-29",
+    id: "fed-fomc-statement-2026-07-29",
+    publisher: "Federal Reserve",
+    title: "Federal Reserve issues FOMC statement",
+    url: "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm",
+  });
+  assert.equal(result.brief.sourceIndex.some((source) => source.url.includes("compliancealliance.com")), false);
   const packet = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content", "writer-packets", "daily-latest.json"), "utf8"));
   assert.equal(packet.sourceIndex["csi-constituents"].status, "unavailable");
 });
