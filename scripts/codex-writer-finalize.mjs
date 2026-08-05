@@ -5,6 +5,7 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { canonicalJson } from "./research-contract.mjs";
+import { validateGlobalMarketBrief, validateGlobalMarketBriefPublicDto } from "./global-market-brief-contract.mjs";
 import { loadEditorialStyle, lintEditorial } from "./editorial-lint.mjs";
 import { validateCodexResearch } from "./codex-research.mjs";
 import { validateVisualBundle } from "./article-visuals.mjs";
@@ -167,6 +168,23 @@ function allowedApplyFile(file, request, root) {
   return false;
 }
 
+function validateGlobalPublication(root, storage) {
+  const historyPath = storage.allowedFiles.find((file) => file.startsWith("content/global-market-briefs/"));
+  const publicPath = "content/global-market-brief-public.json";
+  if (historyPath === undefined || !storage.allowedFiles.includes(publicPath)) fail("GLOBAL_PUBLICATION", "files", "global storage did not return the two approved content files");
+  const historyFile = path.join(root, ...historyPath.split("/"));
+  const publicFile = path.join(root, ...publicPath.split("/"));
+  const history = readJson(historyFile);
+  const publicDto = readJson(publicFile);
+  try {
+    validateGlobalMarketBrief(history);
+    validateGlobalMarketBriefPublicDto(publicDto);
+  } catch (cause) {
+    fail("GLOBAL_PUBLICATION", historyPath, cause instanceof Error ? cause.message : "global publication validation failed");
+  }
+  return { historyPath, publicPath, status: "valid" };
+}
+
 function validateTargetAfterApply(root, request) {
   const target = request.targetOutputs[0];
   const run = spawnSync(process.execPath, [path.join(root, ...target.validatorPath.split("/"))], { cwd: root, encoding: "utf8" });
@@ -287,12 +305,20 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
   validateRequest(request, { rootDir: root });
   const result = readJson(path.resolve(resultFile));
   if (request.mode === "global_market_brief") {
-    if (write) fail("GLOBAL_PRODUCTION_DISABLED", "productionApply", "global_market_brief production apply is disabled in P2-B1");
     const beforeProtected = protectedFiles(root);
     validateResult(root, request, result);
     const lint = lintEditorial({ mode: "global_market_brief", value: result.payload, result, style: {} });
     if (!lint.passed) fail("EDITORIAL_LINT", "result.payload", lint.errors.join("; "));
     const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root });
+    const approvedFiles = new Set(["content/global-market-brief-public.json", `content/global-market-briefs/${result.payload.editionDate}.json`]);
+    for (const file of [...simulation.files, ...(simulation.wouldWrite ?? [])]) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer may only write history and latest public DTO");
+    let applied = simulation;
+    let targetValidation = null;
+    if (write) {
+      applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root });
+      for (const file of applied.files) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer wrote an unapproved file");
+      targetValidation = validateGlobalPublication(root, applied);
+    }
     const afterProtected = protectedFiles(root);
     assertProtectedEqual(beforeProtected, afterProtected);
     const report = {
@@ -308,11 +334,12 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
       bundleId: null,
       editorialLint: lint,
       articleDepth: null,
-      productionApply: { ...simulation, applied: false, productionApply: { applied: false } },
+      featureBranchWrite: applied,
+      productionApply: { applied: false, reason: "feature-branch-content-only" },
       protectedBoundary: { checked: Object.keys(beforeProtected).length, unchanged: true },
-      targetValidation: null,
-      dryRun: true,
-      wrote: false,
+      targetValidation,
+      dryRun,
+      wrote: Boolean(write && applied.wrote),
       output: output ?? null
     };
     if (output) writeJsonOutside(path.resolve(output), report, root);

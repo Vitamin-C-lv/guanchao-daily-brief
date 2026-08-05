@@ -8,6 +8,7 @@ import { gunzipSync, gzipSync } from "node:zlib";
 
 import { canonicalize, canonicalJson, sha256Canonical } from "./research-contract.mjs";
 import { validateGlobalMarketBrief } from "./global-market-brief-contract.mjs";
+import { writeGlobalMarketBrief } from "./global-market-brief-storage.mjs";
 import {
   GLOBAL_MARKET_BRIEF_MODE,
   loadWriterContextRegistry,
@@ -852,7 +853,18 @@ export function apply({ request, result, dryRun = false, write = false, rootDir 
   const target = request.targetOutputs[0];
   validatePayload(rootDir, target, result.payload);
   if (request.mode === GLOBAL_MARKET_BRIEF_MODE) {
-    return { mode: GLOBAL_MARKET_BRIEF_MODE, noOp: false, applied: false, wrote: false, files: [], productionApply: { applied: false, reason: "global_market_brief is dry-run only in P2-B1" } };
+    const storage = writeGlobalMarketBrief({ rootDir, brief: result.payload, dryRun, write, failAt });
+    return {
+      mode: GLOBAL_MARKET_BRIEF_MODE,
+      noOp: storage.noOp,
+      applied: Boolean(write && storage.wrote),
+      wrote: storage.wrote,
+      files: storage.files,
+      wouldWrite: storage.wouldWrite,
+      allowedFiles: storage.allowedFiles,
+      productionApply: { applied: false, reason: "feature-branch-content-only" },
+      storage,
+    };
   }
   const paths = createWriterJobPaths(rootDir);
   const accepted = paths.accepted(request.jobId, request.requestedAsOf);

@@ -198,7 +198,9 @@ function validateTargetPath(edition, targetPath, registry, mode = null) {
   validateRepoRelativePath(targetPath, "baseline.targetPath");
   if (mode === GLOBAL_MARKET_BRIEF_MODE) {
     const policy = modePolicy(registry, mode);
-    if (edition !== policy.edition || targetPath !== policy.baselineTarget) fail("TARGET_ALLOWLIST", "baseline.targetPath", "global writer target is not allowed");
+    const legacyFixture = "content/writer-contexts/fixtures/p2-b1-global-baseline.json";
+    const realBaseline = "data/global-market-brief-baseline-v1.json";
+    if (edition !== policy.edition || ![policy.baselineTarget, legacyFixture, realBaseline].includes(targetPath)) fail("TARGET_ALLOWLIST", "baseline.targetPath", "global writer target is not allowed");
     return;
   }
   const policy = editionPolicy(registry, edition);
