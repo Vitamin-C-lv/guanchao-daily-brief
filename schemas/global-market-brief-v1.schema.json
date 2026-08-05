@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://guanchao.local/schemas/global-market-brief-v1.schema.json",
   "title": "观潮全球整合主文章执行包",
+  "description": "时间顺序、专项候选唯一性、触发证据文章范围和逻辑链最小证据由本 schema 与配套 executable validator 共同冻结；逻辑链 evidenceStatus 的 source 数量语义见 logicEdge.allOf。",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -103,6 +104,7 @@
     "logicEdge": {
       "type": "object",
       "additionalProperties": false,
+      "description": "confirmed 或 partially_confirmed 至少需要一个 supportingSourceIds；reversed 至少需要一个 contradictorySourceIds；pending 至少需要一侧来源用于说明待观察依据。",
       "required": ["contradictorySourceIds", "evidenceStatus", "from", "relation", "supportingSourceIds", "to"],
       "properties": {
         "from": { "type": "string", "minLength": 1, "maxLength": 120 },
@@ -111,7 +113,39 @@
         "evidenceStatus": { "enum": ["confirmed", "partially_confirmed", "pending", "reversed"] },
         "supportingSourceIds": { "$ref": "#/$defs/optionalSourceIds" },
         "contradictorySourceIds": { "$ref": "#/$defs/optionalSourceIds" }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "evidenceStatus": { "enum": ["confirmed", "partially_confirmed"] } },
+            "required": ["evidenceStatus"]
+          },
+          "then": {
+            "properties": { "supportingSourceIds": { "minItems": 1 } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "evidenceStatus": { "const": "reversed" } },
+            "required": ["evidenceStatus"]
+          },
+          "then": {
+            "properties": { "contradictorySourceIds": { "minItems": 1 } }
+          }
+        },
+        {
+          "if": {
+            "properties": { "evidenceStatus": { "const": "pending" } },
+            "required": ["evidenceStatus"]
+          },
+          "then": {
+            "anyOf": [
+              { "properties": { "supportingSourceIds": { "minItems": 1 } } },
+              { "properties": { "contradictorySourceIds": { "minItems": 1 } } }
+            ]
+          }
+        }
+      ]
     },
     "invalidationCondition": {
       "type": "object",
@@ -189,7 +223,7 @@
     "mainArticle": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["articleUrl", "conclusion", "contentKind", "dek", "id", "invalidationConditions", "keyFacts", "logicChain", "marketTags", "outlook", "slug", "sourceIds", "title", "topicTags", "watchItems"],
+      "required": ["articleUrl", "conclusion", "contentKind", "crossMarketTransmission", "dek", "id", "invalidationConditions", "keyFacts", "logicChain", "marketTags", "outlook", "slug", "sourceIds", "title", "topicTags", "watchItems"],
       "properties": {
         "id": { "$ref": "#/$defs/slug" },
         "slug": { "$ref": "#/$defs/slug" },
@@ -212,7 +246,7 @@
     "specialReport": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["analysis", "articleUrl", "conclusion", "contentKind", "dek", "id", "invalidationConditions", "keyFacts", "logicChain", "marketTags", "outlook", "slug", "sourceIds", "title", "topicTags", "triggerCandidateId", "triggerEvidenceIds", "triggerReason", "triggerType", "watchItems"],
+      "required": ["analysis", "articleUrl", "conclusion", "contentKind", "crossMarketTransmission", "dek", "id", "invalidationConditions", "keyFacts", "logicChain", "marketTags", "outlook", "slug", "sourceIds", "title", "topicTags", "triggerCandidateId", "triggerEvidenceIds", "triggerReason", "triggerType", "watchItems"],
       "properties": {
         "id": { "$ref": "#/$defs/slug" },
         "slug": { "$ref": "#/$defs/slug" },

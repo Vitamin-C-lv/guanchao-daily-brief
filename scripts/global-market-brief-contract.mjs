@@ -283,7 +283,7 @@ function validateOutlook(value, articleId, pathName, sourceIds, articleSourceIds
   }
 }
 
-function validateArticle(value, articleId, sourceIds, { special = false } = {}) {
+function validateArticle(value, articleId, sourceIds, { special = false, dataAsOf = null } = {}) {
   const keys = special ? SPECIAL_ARTICLE_KEYS : ARTICLE_KEYS;
   exactKeys(value, keys, keys, articleId, articleId);
   slugValue(value.id, articleId, `${articleId}.id`);
@@ -312,6 +312,9 @@ function validateArticle(value, articleId, sourceIds, { special = false } = {}) 
     factIds.add(fact.id);
     stringValue(fact.statement, articleId, `${factPath}.statement`, { max: 500 });
     validDate(fact.asOf, articleId, `${factPath}.asOf`);
+    if (dataAsOf !== null && fact.asOf > dataAsOf) {
+      fail("DATE_ORDER", articleId, `${factPath}.asOf`, `key fact asOf must not be later than dataAsOf ${dataAsOf}`);
+    }
     validateSourceRefs(fact.sourceIds, articleId, `${factPath}.sourceIds`, sourceIds, articleSourceIds, { min: 1 });
     enumValue(fact.factStatus, FACT_STATUSES, articleId, `${factPath}.factStatus`);
     if (fact.value !== undefined && fact.value !== null && (typeof fact.value !== "number" || !Number.isFinite(fact.value))) fail("INVALID_TYPE", articleId, `${factPath}.value`, "finite number or null required");
@@ -329,8 +332,17 @@ function validateArticle(value, articleId, sourceIds, { special = false } = {}) 
     stringValue(edge.relation, articleId, `${edgePath}.relation`, { max: 120 });
     stringValue(edge.to, articleId, `${edgePath}.to`, { max: 120 });
     enumValue(edge.evidenceStatus, EVIDENCE_STATUSES, articleId, `${edgePath}.evidenceStatus`);
-    validateSourceRefs(edge.supportingSourceIds, articleId, `${edgePath}.supportingSourceIds`, sourceIds, articleSourceIds);
-    validateSourceRefs(edge.contradictorySourceIds, articleId, `${edgePath}.contradictorySourceIds`, sourceIds, articleSourceIds);
+    const supportingSourceIds = validateSourceRefs(edge.supportingSourceIds, articleId, `${edgePath}.supportingSourceIds`, sourceIds, articleSourceIds);
+    const contradictorySourceIds = validateSourceRefs(edge.contradictorySourceIds, articleId, `${edgePath}.contradictorySourceIds`, sourceIds, articleSourceIds);
+    if (["confirmed", "partially_confirmed"].includes(edge.evidenceStatus) && supportingSourceIds.length < 1) {
+      fail("LOGIC_EVIDENCE_REQUIRED", articleId, `${edgePath}.supportingSourceIds`, `${edge.evidenceStatus} logic edge requires at least one supporting source`);
+    }
+    if (edge.evidenceStatus === "reversed" && contradictorySourceIds.length < 1) {
+      fail("LOGIC_EVIDENCE_REQUIRED", articleId, `${edgePath}.contradictorySourceIds`, "reversed logic edge requires at least one contradictory source");
+    }
+    if (edge.evidenceStatus === "pending" && supportingSourceIds.length + contradictorySourceIds.length < 1) {
+      fail("LOGIC_EVIDENCE_REQUIRED", articleId, edgePath, "pending logic edge requires at least one supporting or contradictory source");
+    }
   }
 
   if (!Array.isArray(value.crossMarketTransmission) || value.crossMarketTransmission.length < 1) fail("INVALID_ARRAY", articleId, `${articleId}.crossMarketTransmission`, "at least one cross-market transmission is required");
@@ -366,7 +378,7 @@ function validateArticle(value, articleId, sourceIds, { special = false } = {}) 
 
   if (special) {
     stringValue(value.triggerReason, articleId, `${articleId}.triggerReason`, { max: 500 });
-    stringArray(value.triggerEvidenceIds, articleId, `${articleId}.triggerEvidenceIds`, { min: 1, max: 20, itemMax: 120, known: sourceIds });
+    stringArray(value.triggerEvidenceIds, articleId, `${articleId}.triggerEvidenceIds`, { min: 1, max: 20, itemMax: 120, known: sourceIds, subset: articleSourceIds });
     stringArray(value.analysis, articleId, `${articleId}.analysis`, { min: 1, max: 20, itemMax: 1000 });
     slugValue(value.triggerCandidateId, articleId, `${articleId}.triggerCandidateId`);
     validateOutlook(value.outlook, articleId, `${articleId}.outlook`, sourceIds, articleSourceIds, conditionIds);
@@ -401,18 +413,21 @@ export function validateGlobalMarketBrief(value) {
   validDate(value.editionDate, documentId, "editionDate");
   validTimestamp(value.generatedAt, documentId, "generatedAt");
   validDate(value.dataAsOf, documentId, "dataAsOf");
+  if (value.dataAsOf > value.editionDate) fail("DATE_ORDER", documentId, "dataAsOf", "dataAsOf must not be later than editionDate");
+  if (value.editionDate > value.generatedAt.slice(0, 10)) fail("DATE_ORDER", documentId, "generatedAt", "editionDate must not be later than the UTC date of generatedAt");
   enumValue(value.buildStatus, new Set(["ready", "partial"]), documentId, "buildStatus");
   const sourceIds = validateSourceIndex(value.sourceIndex, documentId);
   const candidates = validateTriggerCandidates(value.specialTriggerCandidates, documentId, sourceIds);
   if (!isObject(value.mainArticle)) fail("MAIN_ARTICLE_COUNT", "mainArticle", "mainArticle", "exactly one mainArticle object is required");
-  validateArticle(value.mainArticle, value.mainArticle.id ?? "mainArticle", sourceIds);
+  validateArticle(value.mainArticle, value.mainArticle.id ?? "mainArticle", sourceIds, { dataAsOf: value.dataAsOf });
   if (value.mainArticle.contentKind !== "global_main") fail("CONTENT_KIND", value.mainArticle.id, "mainArticle.contentKind", "global_main required");
   if (!Array.isArray(value.specialReports) || value.specialReports.length > 2) fail("SPECIAL_REPORT_LIMIT", "global-market-brief", "specialReports", "zero to two special reports are allowed");
   const articleIds = new Set([value.mainArticle.id]);
+  const usedTriggerCandidateIds = new Set();
   for (let index = 0; index < value.specialReports.length; index += 1) {
     const report = value.specialReports[index];
     const articleId = report?.id ?? `specialReports[${index}]`;
-    validateArticle(report, articleId, sourceIds, { special: true });
+    validateArticle(report, articleId, sourceIds, { special: true, dataAsOf: value.dataAsOf });
     if (report.contentKind !== "special_report") fail("CONTENT_KIND", articleId, `specialReports[${index}].contentKind`, "special_report required");
     if (articleIds.has(report.id)) fail("DUPLICATE_ID", articleId, `specialReports[${index}].id`, "article IDs must be unique");
     articleIds.add(report.id);
@@ -420,7 +435,16 @@ export function validateGlobalMarketBrief(value) {
     if (!candidate) fail("TRIGGER_NOT_AUTHORIZED", articleId, `specialReports[${index}].triggerCandidateId`, "special report must select a frozen trigger candidate");
     if (!candidate.eligible) fail("TRIGGER_NOT_ELIGIBLE", articleId, `specialReports[${index}].triggerCandidateId`, "special report trigger candidate is not marked eligible");
     if (candidate.triggerType !== report.triggerType) fail("TRIGGER_TYPE", articleId, `specialReports[${index}].triggerType`, "trigger type must match the authorized candidate");
-    for (const evidenceId of report.triggerEvidenceIds) if (!candidate.triggerEvidenceIds.includes(evidenceId)) fail("TRIGGER_EVIDENCE", articleId, `specialReports[${index}].triggerEvidenceIds`, "trigger evidence must be authorized by the selected candidate");
+    if (usedTriggerCandidateIds.has(report.triggerCandidateId)) {
+      fail("DUPLICATE_TRIGGER_CANDIDATE", articleId, `specialReports[${index}].triggerCandidateId`, "a trigger candidate can be used by at most one special report per edition");
+    }
+    usedTriggerCandidateIds.add(report.triggerCandidateId);
+    for (let evidenceIndex = 0; evidenceIndex < report.triggerEvidenceIds.length; evidenceIndex += 1) {
+      const evidenceId = report.triggerEvidenceIds[evidenceIndex];
+      if (!candidate.triggerEvidenceIds.includes(evidenceId)) {
+        fail("TRIGGER_EVIDENCE", articleId, `specialReports[${index}].triggerEvidenceIds[${evidenceIndex}]`, "trigger evidence must be authorized by the selected candidate");
+      }
+    }
   }
   return value;
 }

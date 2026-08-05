@@ -48,6 +48,13 @@
       "triggerType": "abnormal_market_move",
       "reason": "冻结研究包将该市场异动标记为可供 Writer 选择的专项候选。",
       "triggerEvidenceIds": ["us-session"]
+    },
+    {
+      "id": "special-hk-data-surprise",
+      "eligible": true,
+      "triggerType": "macro_data_surprise",
+      "reason": "冻结研究包将港股数据意外标记为第二个可供 Writer 选择的专项候选。",
+      "triggerEvidenceIds": ["hk-session"]
     }
   ],
   "mainArticle": {

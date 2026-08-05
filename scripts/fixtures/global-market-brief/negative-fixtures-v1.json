@@ -111,6 +111,94 @@
       "operation": { "type": "set", "path": "mainArticle.keyFacts[2].value", "value": 0 },
       "expectedCode": "UNAVAILABLE_VALUE",
       "expectedPath": "global-main-2026-08-05.keyFacts[2].value"
+    },
+    {
+      "id": "main-without-cross-market-transmission",
+      "target": "global",
+      "operation": { "type": "delete", "path": "mainArticle.crossMarketTransmission" },
+      "expectedCode": "MISSING_KEY",
+      "expectedPath": "global-main-2026-08-05.crossMarketTransmission"
+    },
+    {
+      "id": "special-without-cross-market-transmission",
+      "target": "global",
+      "operation": { "type": "delete", "path": "specialReports[0].crossMarketTransmission" },
+      "expectedCode": "MISSING_KEY",
+      "expectedPath": "special-us-move-2026-08-05.crossMarketTransmission"
+    },
+    {
+      "id": "duplicate-special-trigger-candidate",
+      "target": "global",
+      "operation": { "type": "duplicateSpecialTriggerCandidate" },
+      "expectedCode": "DUPLICATE_TRIGGER_CANDIDATE",
+      "expectedPath": "specialReports[1].triggerCandidateId"
+    },
+    {
+      "id": "trigger-evidence-outside-article-source-scope",
+      "target": "global",
+      "operation": { "type": "setTriggerEvidenceOutsideArticle" },
+      "expectedCode": "ARTICLE_SOURCE_SCOPE",
+      "expectedPath": "special-us-move-2026-08-05.triggerEvidenceIds[0]"
+    },
+    {
+      "id": "confirmed-logic-edge-without-supporting-source",
+      "target": "global",
+      "operation": {
+        "type": "setLogicEvidence",
+        "path": "mainArticle.logicChain[0]",
+        "evidenceStatus": "confirmed",
+        "supportingSourceIds": [],
+        "contradictorySourceIds": []
+      },
+      "expectedCode": "LOGIC_EVIDENCE_REQUIRED",
+      "expectedPath": "global-main-2026-08-05.logicChain[0].supportingSourceIds"
+    },
+    {
+      "id": "reversed-logic-edge-without-contradictory-source",
+      "target": "global",
+      "operation": {
+        "type": "setLogicEvidence",
+        "path": "mainArticle.logicChain[0]",
+        "evidenceStatus": "reversed",
+        "supportingSourceIds": [],
+        "contradictorySourceIds": []
+      },
+      "expectedCode": "LOGIC_EVIDENCE_REQUIRED",
+      "expectedPath": "global-main-2026-08-05.logicChain[0].contradictorySourceIds"
+    },
+    {
+      "id": "pending-logic-edge-without-evidence",
+      "target": "global",
+      "operation": {
+        "type": "setLogicEvidence",
+        "path": "mainArticle.logicChain[0]",
+        "evidenceStatus": "pending",
+        "supportingSourceIds": [],
+        "contradictorySourceIds": []
+      },
+      "expectedCode": "LOGIC_EVIDENCE_REQUIRED",
+      "expectedPath": "global-main-2026-08-05.logicChain[0]"
+    },
+    {
+      "id": "data-as-of-after-edition-date",
+      "target": "global",
+      "operation": { "type": "set", "path": "dataAsOf", "value": "2026-08-06" },
+      "expectedCode": "DATE_ORDER",
+      "expectedPath": "dataAsOf"
+    },
+    {
+      "id": "generated-at-before-edition-date",
+      "target": "global",
+      "operation": { "type": "set", "path": "generatedAt", "value": "2026-08-04T23:00:00.000Z" },
+      "expectedCode": "DATE_ORDER",
+      "expectedPath": "generatedAt"
+    },
+    {
+      "id": "key-fact-after-data-as-of",
+      "target": "global",
+      "operation": { "type": "set", "path": "mainArticle.keyFacts[0].asOf", "value": "2026-08-05" },
+      "expectedCode": "DATE_ORDER",
+      "expectedPath": "global-main-2026-08-05.keyFacts[0].asOf"
     }
   ]
 }
