@@ -3,7 +3,7 @@
 ## 当前定位
 
 - 仓库：`Vitamin-C-lv/guanchao-daily-brief`
-- 当前真实 `origin/main` 基线（2026-08-04 从中立 worktree fetch 后确认）：`b3f0ef0beb9ad3907d3d70fb0aa939e45b27e247`。
+- 当前主线事实：PR #45 已按 expected head `7279f39a975b19128e4215ee344ab77be16dcc2b` squash merge，merge commit 为 `77915afc9a8d6b3d6554fe440eb04c83e51296c7`；本次收尾提交后的最新 `origin/main` SHA 以最终 fetch 记录为准。
 - 本次独立功能分支：`codex/p2a-hk-prediction-model-research`；原工作区 `D:\周报个人网站` 未操作。
 - P1-F PR #23 已 squash merge；P1-F merge SHA：`746378a23ef9ed622f723b2af4921db3d20168e3`。
 - 当前阶段完成 P1-GA 最终加固 + P1-GB/P1-GC 首批工程包：冻结 `research-bundle-v1` 的 canonical array、canonical UTC timestamp、发布日期精度和 raw snapshot lineage，并实现受限官方采集、不可变存储、daily/weekly builder、dry-run 和 rebuild。
@@ -46,6 +46,13 @@ P1-B 以 GitHub 跟踪的不可变 snapshot/evaluation gzip 事件为权威，�
 - 模型路由按 ADR-026 执行：默认 GPT-5.6 Luna Max；同一根因连续两轮失败，或涉及复杂统计、数据泄漏、概率校准、walk-forward 设计时才升级 GPT-5.6 Sol；升级前必须有脱敏 failure bundle。ADR-026 已明确 supersede ADR-007，不重写历史决策。
 
 状态契约及展示规则见 [ARCHITECTURE.md](ARCHITECTURE.md)；账本的 snapshot/evaluation 分离、幂等、legacy 隔离和目标隔离均为冻结边界。
+
+## P2-A 合并收尾（2026-08-05）
+
+- PR #45 已 Ready 并 squash merge；merge commit 为 `77915afc9a8d6b3d6554fe440eb04c83e51296c7`。本阶段完成的是港股研究契约，不是已训练港股模型。
+- 港股仍为 `0 rows / 0 sessions`；无 panel 时 `datasetId=null`，独立 `researchContractId` 保留，候选保持 `shadow`，未训练港股模型，未发布港股概率。
+- 下一阶段尚未启动；不开始港股历史数据采集、模型训练、公开 DTO、UI 改版或美股任务。
+- 日报和周报自动化目前由用户主动暂停；本次收尾未恢复、创建或修改任何 automation。
 
 ## 工作区与环境
 
