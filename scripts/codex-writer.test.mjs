@@ -8,6 +8,8 @@ import { fileURLToPath } from "node:url";
 import { sealCodexResearch } from "./codex-research.mjs";
 import { CodexWriterPrepareError, packetArtifactPlan, prepareCodexWriter } from "./codex-writer-prepare.mjs";
 import { refreshWriterPacket } from "./refresh-writer-packet.mjs";
+import { runGlobalMarketBriefDryRun } from "./writer-e2e-rehearsal.mjs";
+import { finalizeCodexWriter } from "./codex-writer-finalize.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PACKET_AS_OF = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content/writer-packets/daily-latest.json"), "utf8")).marketDates.aShare;
@@ -145,6 +147,63 @@ test("dry-run does not create the package directory", async () => {
   } finally {
     fs.rmSync(output, { recursive: true, force: true });
     cleanup(value);
+  }
+});
+
+test("global_market_brief prepare is offline and always reports wrote=false", async () => {
+  const value = fixture();
+  const output = path.join(value.root, "..", `${path.basename(value.root)}-global-dry-package`);
+  try {
+    for (const relative of [
+      "schemas/global-market-brief-v1.schema.json",
+      "schemas/global-market-brief-writer-output-v1.schema.json",
+      "scripts/global-market-brief-contract.mjs",
+      "content/writer-contexts/fixtures/p2-b1-global-baseline.json",
+      "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json",
+      "data/research-bundles/bundles/2026/08/4c06451a13ac33985c4f8058247d3342e646608ba4cd2df62e4829157759c1d7.json.gz"
+    ]) copy(value.root, relative);
+    const baselinePath = path.join(value.root, "content/writer-contexts/fixtures/p2-b1-global-baseline.json");
+    const baseline = JSON.parse(fs.readFileSync(baselinePath, "utf8"));
+    baseline.editionDate = PACKET_AS_OF;
+    baseline.generatedAt = `${PACKET_AS_OF}T12:00:00.000Z`;
+    fs.writeFileSync(baselinePath, `${JSON.stringify(baseline)}\n`, "utf8");
+    const packetPlan = packetArtifactPlan(value.packet, value.root);
+    fs.mkdirSync(path.dirname(packetPlan.file), { recursive: true });
+    fs.writeFileSync(packetPlan.file, packetPlan.bytes);
+    const summary = await prepareCodexWriter({
+      edition: "daily",
+      mode: "global_market_brief",
+      marketPacket: "content/writer-packets/daily-latest.json",
+      researchBundle: "data/research-bundles/bundles/2026/08/4c06451a13ac33985c4f8058247d3342e646608ba4cd2df62e4829157759c1d7.json.gz",
+      baselineSource: "content/writer-contexts/fixtures/p2-b1-global-baseline.json",
+      globalInput: "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json",
+      outputDirectory: output,
+      write: false,
+      dryRun: true,
+      root: value.root,
+      editionDate: PACKET_AS_OF,
+      now: new Date("2026-08-04T02:00:00Z")
+    });
+    assert.equal(summary.mode, "global_market_brief");
+    assert.equal(summary.wrote, false);
+    assert.equal(summary.contextSummary.mode, "global_market_brief");
+    assert.equal(fs.existsSync(output), false);
+  } finally {
+    fs.rmSync(output, { recursive: true, force: true });
+    cleanup(value);
+  }
+});
+
+test("global_market_brief finalize keeps productionApply.applied=false", () => {
+  const output = fs.mkdtempSync(path.join(os.tmpdir(), "guanchao-global-finalize-"));
+  try {
+    const rehearsal = runGlobalMarketBriefDryRun({ outputDirectory: output, sourceHead: "db26bc727d3f668f80d33e1b58cdb64456af0a6d" });
+    const report = finalizeCodexWriter({ packageDirectory: rehearsal.executionPackage, resultFile: path.join(output, "writer-result.json"), root: rehearsal.isolationRoot, dryRun: true, write: false });
+    assert.equal(report.mode, "global_market_brief");
+    assert.equal(report.wrote, false);
+    assert.equal(report.productionApply.applied, false);
+  } finally {
+    fs.rmSync(output, { recursive: true, force: true });
   }
 });
 

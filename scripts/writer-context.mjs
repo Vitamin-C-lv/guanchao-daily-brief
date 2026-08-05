@@ -10,6 +10,7 @@ import {
   validateBundle,
   validateResearchContractRegistry
 } from "./research-contract.mjs";
+import { validateGlobalMarketBrief } from "./global-market-brief-contract.mjs";
 import { validatePacket } from "./validate-writer-packet.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
@@ -19,6 +20,7 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const TIMESTAMP = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 const BASELINE_SCHEMA = "baseline-content-v1";
 const CONTEXT_SCHEMA = "writer-context-v1";
+export const GLOBAL_MARKET_BRIEF_MODE = "global_market_brief";
 
 export class WriterContextError extends Error {
   constructor(code, errorPath, message) {
@@ -152,9 +154,15 @@ function editionPolicy(registry, edition, errorPath = "edition") {
   return policy;
 }
 
+function modePolicy(registry, mode, errorPath = "mode") {
+  const policy = registry.modes?.[mode];
+  if (!policy) fail("INVALID_MODE", errorPath, "unsupported writer mode");
+  return policy;
+}
+
 export function validateWriterContextRegistry(registry) {
   const required = ["auditOnlyFields", "baselineSchemaVersion", "contextSchemaVersion", "editions", "pathPrefixes", "requestSchemaVersion", "resultSchemaVersion", "schemaVersion", "storage"];
-  assertExactKeys(registry, required, required, "registry");
+  assertExactKeys(registry, required, [...required, "modes"], "registry");
   if (registry.schemaVersion !== "writer-context-contract-v1" || registry.baselineSchemaVersion !== BASELINE_SCHEMA || registry.contextSchemaVersion !== CONTEXT_SCHEMA || registry.requestSchemaVersion !== "writer-request-v2" || registry.resultSchemaVersion !== "writer-result-v2") fail("REGISTRY_SCHEMA", "registry", "schema version mismatch");
   assertExactKeys(registry.auditOnlyFields, ["baseline", "context"], ["baseline", "context"], "registry.auditOnlyFields");
   if (canonicalJson(registry.auditOnlyFields.baseline) !== canonicalJson(["capturedAt", "warnings"]) || canonicalJson(registry.auditOnlyFields.context) !== canonicalJson(["generatedAt", "warnings"])) fail("REGISTRY_SCHEMA", "registry.auditOnlyFields", "audit-only fields mismatch");
@@ -167,6 +175,14 @@ export function validateWriterContextRegistry(registry) {
     for (const key of ["promptPath", "validatorPath"]) validateRepoRelativePath(policy[key], `registry.editions.${edition}.${key}`);
     assertString(policy.targetSchemaVersion, `registry.editions.${edition}.targetSchemaVersion`);
   }
+  if (registry.modes !== undefined) {
+    assertExactKeys(registry.modes, [GLOBAL_MARKET_BRIEF_MODE], [GLOBAL_MARKET_BRIEF_MODE], "registry.modes");
+    const global = registry.modes[GLOBAL_MARKET_BRIEF_MODE];
+    assertExactKeys(global, ["baselineTarget", "edition", "promptPath", "targetSchemaVersion", "validatorMode", "validatorPath", "writerOutputSchemaVersion"], ["baselineTarget", "edition", "promptPath", "targetSchemaVersion", "validatorMode", "validatorPath", "writerOutputSchemaVersion"], "registry.modes.global_market_brief");
+    if (global.edition !== "daily" || global.validatorMode !== GLOBAL_MARKET_BRIEF_MODE || global.targetSchemaVersion !== "global-market-brief-v1" || global.writerOutputSchemaVersion !== "global-market-brief-writer-output-v1") fail("REGISTRY_SCHEMA", "registry.modes.global_market_brief", "global writer mode policy mismatch");
+    validateRepoRelativePath(global.baselineTarget, "registry.modes.global_market_brief.baselineTarget");
+    for (const key of ["promptPath", "validatorPath"]) validateRepoRelativePath(global[key], `registry.modes.global_market_brief.${key}`);
+  }
   assertExactKeys(registry.pathPrefixes, ["baseline", "context", "qualitativeResearchBundle", "quantitativeWriterPacket"], ["baseline", "context", "qualitativeResearchBundle", "quantitativeWriterPacket"], "registry.pathPrefixes");
   for (const [key, value] of Object.entries(registry.pathPrefixes)) {
     assertString(value, `registry.pathPrefixes.${key}`);
@@ -178,15 +194,20 @@ export function validateWriterContextRegistry(registry) {
   return registry;
 }
 
-function validateTargetPath(edition, targetPath, registry) {
+function validateTargetPath(edition, targetPath, registry, mode = null) {
   validateRepoRelativePath(targetPath, "baseline.targetPath");
+  if (mode === GLOBAL_MARKET_BRIEF_MODE) {
+    const policy = modePolicy(registry, mode);
+    if (edition !== policy.edition || targetPath !== policy.baselineTarget) fail("TARGET_ALLOWLIST", "baseline.targetPath", "global writer target is not allowed");
+    return;
+  }
   const policy = editionPolicy(registry, edition);
   if (edition === "daily" && targetPath !== policy.baselineTarget) fail("TARGET_ALLOWLIST", "baseline.targetPath", "daily target is not allowed");
   if (edition === "weekly" && !new RegExp(policy.baselineTargetPattern).test(targetPath)) fail("TARGET_ALLOWLIST", "baseline.targetPath", "weekly target is not allowed");
 }
 
 export function baselineBusinessView(baseline) {
-  return {
+  const view = {
     schemaVersion: baseline.schemaVersion,
     edition: baseline.edition,
     asOf: baseline.asOf,
@@ -194,6 +215,8 @@ export function baselineBusinessView(baseline) {
     targetSchemaVersion: baseline.targetSchemaVersion,
     payload: baseline.payload
   };
+  if (baseline.mode !== undefined) view.mode = baseline.mode;
+  return view;
 }
 
 export function baselineStableArtifactView(baseline) {
@@ -208,7 +231,7 @@ export function computeContentIdentity(baseline) {
   return sha256Canonical(baselineBusinessView(baseline));
 }
 
-export function createBaseline({ edition, asOf, targetPath, targetSchemaVersion, payload, capturedAt = new Date().toISOString(), warnings = [] }, registry = loadWriterContextRegistry()) {
+export function createBaseline({ edition, asOf, targetPath, targetSchemaVersion, payload, mode = null, capturedAt = new Date().toISOString(), warnings = [] }, registry = loadWriterContextRegistry()) {
   validateWriterContextRegistry(registry);
   const baseline = {
     schemaVersion: BASELINE_SCHEMA,
@@ -222,6 +245,7 @@ export function createBaseline({ edition, asOf, targetPath, targetSchemaVersion,
     warnings: [...new Set(warnings)].sort(),
     integrity: { businessSha256: "", sha256: "" }
   };
+  if (mode !== null) baseline.mode = mode;
   baseline.contentIdentity = computeContentIdentity(baseline);
   baseline.integrity.businessSha256 = baseline.contentIdentity;
   baseline.integrity.sha256 = computeFullIntegrity(baseline);
@@ -231,14 +255,21 @@ export function createBaseline({ edition, asOf, targetPath, targetSchemaVersion,
 export function validateBaseline(baseline, registry = loadWriterContextRegistry()) {
   validateWriterContextRegistry(registry);
   const keys = ["asOf", "capturedAt", "contentIdentity", "edition", "integrity", "payload", "schemaVersion", "targetPath", "targetSchemaVersion", "warnings"];
-  assertExactKeys(baseline, keys, keys, "baseline");
+  assertExactKeys(baseline, keys, [...keys, "mode"], "baseline");
   if (baseline.schemaVersion !== BASELINE_SCHEMA) fail("BASELINE_SCHEMA", "baseline.schemaVersion", "baseline-content-v1 required");
-  const policy = editionPolicy(registry, baseline.edition, "baseline.edition");
+  const policy = baseline.mode === GLOBAL_MARKET_BRIEF_MODE ? modePolicy(registry, baseline.mode, "baseline.mode") : editionPolicy(registry, baseline.edition, "baseline.edition");
   assertDate(baseline.asOf, "baseline.asOf");
   assertTimestamp(baseline.capturedAt, "baseline.capturedAt");
-  validateTargetPath(baseline.edition, baseline.targetPath, registry);
+  validateTargetPath(baseline.edition, baseline.targetPath, registry, baseline.mode ?? null);
   if (baseline.targetSchemaVersion !== policy.targetSchemaVersion) fail("TARGET_SCHEMA", "baseline.targetSchemaVersion", "target schema mismatch");
   assertObject(baseline.payload, "baseline.payload");
+  if (baseline.mode === GLOBAL_MARKET_BRIEF_MODE) {
+    try {
+      validateGlobalMarketBrief(baseline.payload);
+    } catch (cause) {
+      fail("TARGET_SCHEMA", "baseline.payload", cause instanceof Error ? cause.message : "global market brief is invalid");
+    }
+  }
   if (baseline.edition === "weekly" && baseline.payload.schemaVersion !== 1) fail("TARGET_SCHEMA", "baseline.payload.schemaVersion", "weekly schemaVersion 1 required");
   assertWarnings(baseline.warnings, "baseline.warnings");
   assertHash(baseline.contentIdentity, "baseline.contentIdentity");
@@ -269,7 +300,7 @@ function assertFileReference(reference, label) {
 }
 
 export function contextBusinessView(context) {
-  return {
+  const view = {
     schemaVersion: context.schemaVersion,
     edition: context.edition,
     asOf: context.asOf,
@@ -280,6 +311,9 @@ export function contextBusinessView(context) {
     targetValidator: context.targetValidator,
     targetSchemaVersion: context.targetSchemaVersion
   };
+  if (context.mode !== undefined) view.mode = context.mode;
+  if (context.globalMarketBrief !== undefined) view.globalMarketBrief = context.globalMarketBrief;
+  return view;
 }
 
 export function contextStableArtifactView(context) {
@@ -329,8 +363,200 @@ function loadResearchRegistry(root) {
   return registry;
 }
 
+function sourceFromPacketFact(fact) {
+  return {
+    asOf: fact.asOf ?? null,
+    id: fact.sourceId,
+    publisher: fact.publisher ?? fact.sourceId,
+    title: fact.sourceTitle ?? fact.label ?? fact.sourceId,
+    url: fact.sourceUrl
+  };
+}
+
+function sourceFromDocument(document) {
+  return {
+    asOf: document.publishedDate ?? null,
+    id: document.sourceId,
+    publisher: document.publisher,
+    title: document.title,
+    url: document.canonicalUrl
+  };
+}
+
+function mergeGlobalSources(seed, packet, bundle) {
+  const sources = new Map((seed.sourceIndex ?? []).map((source) => [source.id, source]));
+  for (const fact of packet.facts ?? []) {
+    if (!fact.sourceId || !fact.sourceUrl) continue;
+    const source = sourceFromPacketFact(fact);
+    if (!sources.has(source.id)) sources.set(source.id, source);
+  }
+  for (const document of bundle.documents ?? []) {
+    if (!document.sourceId || !document.canonicalUrl) continue;
+    const source = sourceFromDocument(document);
+    if (!sources.has(source.id)) sources.set(source.id, source);
+  }
+  return [...sources.values()].sort((left, right) => left.id.localeCompare(right.id) || left.url.localeCompare(right.url));
+}
+
+function packetKeyFacts(packet, sourceIndex) {
+  const known = new Set(sourceIndex.map((source) => source.id));
+  return (packet.facts ?? []).filter((fact) => fact.sourceId && known.has(fact.sourceId)).map((fact) => ({
+    id: fact.factId,
+    statement: fact.value === null || fact.value === undefined
+      ? `${fact.label}: 数据不可用`
+      : `${fact.label}: ${fact.value}${fact.unit === "percent" ? "%" : fact.unit ? ` ${fact.unit}` : ""}`,
+    asOf: fact.asOf,
+    sourceIds: [fact.sourceId],
+    factStatus: fact.status === "unavailable" ? "unavailable" : fact.status === "stale" ? "delayed" : fact.status === "partial" ? "estimated" : "confirmed",
+    value: fact.value ?? null,
+    ...(fact.unit ? { unit: fact.unit } : {})
+  }));
+}
+
+function assertGlobalSourceRefs(value, sourceIds, label) {
+  if (!Array.isArray(value)) fail("GLOBAL_INPUT", label, "array required");
+  for (const sourceId of value) if (typeof sourceId !== "string" || !sourceIds.has(sourceId)) fail("GLOBAL_INPUT", label, `source ${sourceId} is outside frozen sourceIndex`);
+}
+
+function buildGlobalMarketBriefInput({ seed, packet, bundle, baseline, root, globalInputPath, policy, packetArtifactPath, packetArtifactBytes, bundleArtifactPath, bundleArtifactBytes, baselineArtifactBytes, writerOutputSchemaPath = "schemas/global-market-brief-writer-output-v1.schema.json", targetSchemaPath = "schemas/global-market-brief-v1.schema.json" }) {
+  try {
+    validateGlobalMarketBrief(seed);
+  } catch (cause) {
+    fail("GLOBAL_INPUT", globalInputPath, cause instanceof Error ? cause.message : "global seed is invalid");
+  }
+  const sourceIndex = mergeGlobalSources(seed, packet, bundle);
+  const sourceIds = new Set(sourceIndex.map((source) => source.id));
+  const seedArticles = [seed.mainArticle, ...(seed.specialReports ?? [])];
+  const keyFacts = [...seedArticles.flatMap((article) => article.keyFacts ?? []), ...packetKeyFacts(packet, sourceIndex)];
+  for (const fact of keyFacts) assertGlobalSourceRefs(fact.sourceIds, sourceIds, "globalMarketBrief.keyFacts.sourceIds");
+  for (const edge of seed.mainArticle.logicChain ?? []) {
+    assertGlobalSourceRefs(edge.supportingSourceIds, sourceIds, "globalMarketBrief.logicChainCandidates.supportingSourceIds");
+    assertGlobalSourceRefs(edge.contradictorySourceIds, sourceIds, "globalMarketBrief.logicChainCandidates.contradictorySourceIds");
+  }
+  for (const transmission of seed.mainArticle.crossMarketTransmission ?? []) assertGlobalSourceRefs(transmission.supportingSourceIds, sourceIds, "globalMarketBrief.crossMarketCandidates.supportingSourceIds");
+  for (const watch of seed.mainArticle.watchItems ?? []) assertGlobalSourceRefs(watch.sourceIds, sourceIds, "globalMarketBrief.watchItems.sourceIds");
+  const contradictoryEvidence = (bundle.observations ?? []).filter((item) => item.evidenceState === "conflicting").map((item) => ({
+    id: item.observationId,
+    statement: item.statement,
+    sourceIds: [...new Set((item.basis ?? []).map((basis) => basis.sourceId).filter((sourceId) => sourceIds.has(sourceId)))].sort()
+  })).filter((item) => item.sourceIds.length > 0);
+  const globalSeedBytes = fs.readFileSync(resolveRepoPath(root, globalInputPath, "globalInputPath"));
+  const schemaReference = (schemaPath, schemaVersion) => ({ schemaVersion, path: schemaPath, sha256: sha256Bytes(fs.readFileSync(resolveRepoPath(root, schemaPath, schemaPath))) });
+  const globalMarketBrief = {
+    mode: GLOBAL_MARKET_BRIEF_MODE,
+    sourceIndex,
+    keyFacts,
+    quantitativePacket: {
+      schemaVersion: packet.schemaVersion,
+      artifactPath: packetArtifactPath,
+      artifactSha256: sha256Bytes(packetArtifactBytes),
+      writerPacketId: packet.writerPacketId
+    },
+    qualitativeResearchBundle: {
+      schemaVersion: bundle.schemaVersion,
+      artifactPath: bundleArtifactPath,
+      artifactSha256: sha256Bytes(bundleArtifactBytes),
+      bundleId: bundle.bundleId
+    },
+    logicChainCandidates: structuredClone(seed.mainArticle.logicChain),
+    crossMarketCandidates: structuredClone(seed.mainArticle.crossMarketTransmission),
+    specialTriggerCandidates: structuredClone(seed.specialTriggerCandidates),
+    contradictoryEvidence,
+    watchItems: structuredClone(seed.mainArticle.watchItems),
+    baselineArticle: structuredClone(baseline.payload.mainArticle),
+    inputSchemas: {
+      quantitativePacket: { schemaVersion: packet.schemaVersion, artifactSha256: sha256Bytes(packetArtifactBytes) },
+      qualitativeResearchBundle: { schemaVersion: bundle.schemaVersion, artifactSha256: sha256Bytes(bundleArtifactBytes) },
+      baselineContent: { schemaVersion: BASELINE_SCHEMA, artifactSha256: sha256Bytes(baselineArtifactBytes) },
+      globalSeed: { schemaVersion: seed.schemaVersion, path: globalInputPath, sha256: sha256Bytes(globalSeedBytes) },
+      writerOutput: schemaReference(writerOutputSchemaPath, policy.writerOutputSchemaVersion),
+      targetBrief: schemaReference(targetSchemaPath, policy.targetSchemaVersion),
+      writerPrompt: { schemaVersion: "prompt-v1", path: policy.promptPath, sha256: sha256Bytes(fs.readFileSync(resolveRepoPath(root, policy.promptPath, policy.promptPath))) },
+      targetValidator: { schemaVersion: "validator-v1", path: policy.validatorPath, sha256: sha256Bytes(fs.readFileSync(resolveRepoPath(root, policy.validatorPath, policy.validatorPath))) }
+    }
+  };
+  return globalMarketBrief;
+}
+
 function packetAsOf(packet) {
   return packet.marketDates?.aShare ?? null;
+}
+
+function validateGlobalMarketBriefContext(global, context, registry, root) {
+  const field = "context.globalMarketBrief";
+  assertObject(global, field);
+  const keys = ["baselineArticle", "contradictoryEvidence", "crossMarketCandidates", "inputSchemas", "keyFacts", "logicChainCandidates", "mode", "qualitativeResearchBundle", "quantitativePacket", "sourceIndex", "specialTriggerCandidates", "watchItems"];
+  assertExactKeys(global, keys, keys, field);
+  if (global.mode !== GLOBAL_MARKET_BRIEF_MODE) fail("GLOBAL_CONTEXT", `${field}.mode`, "global_market_brief required");
+  if (!Array.isArray(global.sourceIndex) || global.sourceIndex.length < 1) fail("GLOBAL_CONTEXT", `${field}.sourceIndex`, "nonempty source index required");
+  const sourceIds = new Set();
+  for (let index = 0; index < global.sourceIndex.length; index += 1) {
+    const source = global.sourceIndex[index];
+    const sourcePath = `${field}.sourceIndex[${index}]`;
+    assertExactKeys(source, ["asOf", "id", "publisher", "title", "url"], ["asOf", "id", "publisher", "title", "url"], sourcePath);
+    assertString(source.id, `${sourcePath}.id`);
+    if (sourceIds.has(source.id)) fail("GLOBAL_CONTEXT", `${sourcePath}.id`, "source IDs must be unique");
+    sourceIds.add(source.id);
+    assertString(source.title, `${sourcePath}.title`);
+    assertString(source.publisher, `${sourcePath}.publisher`);
+    assertString(source.url, `${sourcePath}.url`);
+    if (!source.url.startsWith("https://")) fail("GLOBAL_CONTEXT", `${sourcePath}.url`, "HTTPS source URL required");
+    if (source.asOf !== null) assertDate(source.asOf, `${sourcePath}.asOf`);
+  }
+  for (const [label, values] of [["keyFacts", global.keyFacts], ["logicChainCandidates", global.logicChainCandidates], ["crossMarketCandidates", global.crossMarketCandidates], ["specialTriggerCandidates", global.specialTriggerCandidates], ["watchItems", global.watchItems]]) {
+    if (!Array.isArray(values)) fail("GLOBAL_CONTEXT", `${field}.${label}`, "array required");
+  }
+  for (let index = 0; index < global.keyFacts.length; index += 1) {
+    const fact = global.keyFacts[index];
+    assertObject(fact, `${field}.keyFacts[${index}]`);
+    assertString(fact.id, `${field}.keyFacts[${index}].id`);
+    assertString(fact.statement, `${field}.keyFacts[${index}].statement`);
+    assertDate(fact.asOf, `${field}.keyFacts[${index}].asOf`);
+    assertGlobalSourceRefs(fact.sourceIds, sourceIds, `${field}.keyFacts[${index}].sourceIds`);
+  }
+  for (const [label, values] of [["logicChainCandidates", global.logicChainCandidates], ["crossMarketCandidates", global.crossMarketCandidates]]) {
+    for (let index = 0; index < values.length; index += 1) {
+      const value = values[index];
+      assertObject(value, `${field}.${label}[${index}]`);
+      for (const key of ["supportingSourceIds", ...(label === "logicChainCandidates" ? ["contradictorySourceIds"] : [])]) assertGlobalSourceRefs(value[key], sourceIds, `${field}.${label}[${index}].${key}`);
+    }
+  }
+  for (let index = 0; index < global.specialTriggerCandidates.length; index += 1) assertGlobalSourceRefs(global.specialTriggerCandidates[index].triggerEvidenceIds, sourceIds, `${field}.specialTriggerCandidates[${index}].triggerEvidenceIds`);
+  for (let index = 0; index < global.watchItems.length; index += 1) assertGlobalSourceRefs(global.watchItems[index].sourceIds, sourceIds, `${field}.watchItems[${index}].sourceIds`);
+  for (let index = 0; index < global.contradictoryEvidence.length; index += 1) {
+    const value = global.contradictoryEvidence[index];
+    assertExactKeys(value, ["id", "sourceIds", "statement"], ["id", "sourceIds", "statement"], `${field}.contradictoryEvidence[${index}]`);
+    assertString(value.id, `${field}.contradictoryEvidence[${index}].id`);
+    assertString(value.statement, `${field}.contradictoryEvidence[${index}].statement`);
+    assertGlobalSourceRefs(value.sourceIds, sourceIds, `${field}.contradictoryEvidence[${index}].sourceIds`);
+  }
+  assertObject(global.baselineArticle, `${field}.baselineArticle`);
+  assertGlobalSourceRefs(global.baselineArticle.sourceIds, sourceIds, `${field}.baselineArticle.sourceIds`);
+  const referenceKeys = ["artifactPath", "artifactSha256", "bundleId", "schemaVersion", "writerPacketId"];
+  assertExactKeys(global.quantitativePacket, referenceKeys.filter((key) => key !== "bundleId"), referenceKeys.filter((key) => key !== "bundleId"), `${field}.quantitativePacket`);
+  assertExactKeys(global.qualitativeResearchBundle, referenceKeys.filter((key) => key !== "writerPacketId"), referenceKeys.filter((key) => key !== "writerPacketId"), `${field}.qualitativeResearchBundle`);
+  assertHash(global.quantitativePacket.artifactSha256, `${field}.quantitativePacket.artifactSha256`);
+  assertHash(global.qualitativeResearchBundle.artifactSha256, `${field}.qualitativeResearchBundle.artifactSha256`);
+  if (global.quantitativePacket.artifactPath !== context.quantitativeWriterPacket.artifactPath || global.quantitativePacket.artifactSha256 !== context.quantitativeWriterPacket.artifactSha256 || global.quantitativePacket.writerPacketId !== context.quantitativeWriterPacket.writerPacketId) fail("GLOBAL_CONTEXT", `${field}.quantitativePacket`, "quantitative packet reference differs from context reference");
+  if (global.qualitativeResearchBundle.artifactPath !== context.qualitativeResearchBundle.artifactPath || global.qualitativeResearchBundle.artifactSha256 !== context.qualitativeResearchBundle.artifactSha256 || global.qualitativeResearchBundle.bundleId !== context.qualitativeResearchBundle.bundleId) fail("GLOBAL_CONTEXT", `${field}.qualitativeResearchBundle`, "research bundle reference differs from context reference");
+  const schemaKeys = ["baselineContent", "globalSeed", "qualitativeResearchBundle", "quantitativePacket", "targetBrief", "targetValidator", "writerOutput", "writerPrompt"];
+  assertExactKeys(global.inputSchemas, schemaKeys, schemaKeys, `${field}.inputSchemas`);
+  for (const key of schemaKeys) {
+    assertObject(global.inputSchemas[key], `${field}.inputSchemas.${key}`);
+    if (!((typeof global.inputSchemas[key].schemaVersion === "string" && global.inputSchemas[key].schemaVersion.length > 0) || (typeof global.inputSchemas[key].schemaVersion === "number" && Number.isFinite(global.inputSchemas[key].schemaVersion)))) fail("GLOBAL_CONTEXT", `${field}.inputSchemas.${key}.schemaVersion`, "schema version required");
+    assertHash(global.inputSchemas[key].sha256 ?? global.inputSchemas[key].artifactSha256, `${field}.inputSchemas.${key}.sha256`);
+  }
+  for (const key of ["globalSeed", "targetBrief", "targetValidator", "writerOutput", "writerPrompt"]) assertFileReference({ path: global.inputSchemas[key].path, sha256: global.inputSchemas[key].sha256 }, `${field}.inputSchemas.${key}`);
+  if (global.inputSchemas.quantitativePacket.artifactSha256 !== context.quantitativeWriterPacket.artifactSha256 || global.inputSchemas.qualitativeResearchBundle.artifactSha256 !== context.qualitativeResearchBundle.artifactSha256) fail("GLOBAL_CONTEXT", `${field}.inputSchemas`, "input schema hashes differ from immutable artifacts");
+  if (global.inputSchemas.baselineContent.artifactSha256 !== context.baselineContent.artifactSha256) fail("GLOBAL_CONTEXT", `${field}.inputSchemas.baselineContent`, "baseline artifact hash differs from immutable artifact");
+  const seedArtifact = artifactFromVirtualOrDisk(root, global.inputSchemas.globalSeed.path, new Map());
+  if (sha256Bytes(seedArtifact.bytes) !== global.inputSchemas.globalSeed.sha256) fail("GLOBAL_CONTEXT", `${field}.inputSchemas.globalSeed.sha256`, "global seed bytes changed");
+  try {
+    validateGlobalMarketBrief(readJsonBytes(seedArtifact.bytes, global.inputSchemas.globalSeed.path));
+  } catch (cause) {
+    fail("GLOBAL_CONTEXT", `${field}.inputSchemas.globalSeed`, cause instanceof Error ? cause.message : "global seed invalid");
+  }
+  return global;
 }
 
 export function validateWriterContextArtifacts(context, { root = repositoryRoot, registry = loadWriterContextRegistry(root), virtualArtifacts = new Map(), requireCurrentFrozen = true } = {}) {
@@ -357,7 +583,8 @@ export function validateWriterContextArtifacts(context, { root = repositoryRoot,
   if (baselineArtifact.value.schemaVersion !== context.baselineContent.schemaVersion || baselineArtifact.value.contentIdentity !== context.baselineContent.contentIdentity) fail("REFERENCE_ID", "context.baselineContent", "baseline schema or ID mismatch");
   if (baselineArtifact.value.edition !== context.edition || baselineArtifact.value.asOf !== context.asOf || baselineArtifact.value.targetSchemaVersion !== context.targetSchemaVersion) fail("REFERENCE_COMPATIBILITY", "context.baselineContent", "baseline edition/asOf/schema mismatch");
 
-  const policy = editionPolicy(registry, context.edition);
+  const policy = context.mode === GLOBAL_MARKET_BRIEF_MODE ? modePolicy(registry, context.mode, "context.mode") : editionPolicy(registry, context.edition);
+  if (context.mode === GLOBAL_MARKET_BRIEF_MODE) validateGlobalMarketBriefContext(context.globalMarketBrief, context, registry, root);
   for (const [label, reference, expectedPath] of [["context.writerPrompt", context.writerPrompt, policy.promptPath], ["context.targetValidator", context.targetValidator, policy.validatorPath]]) {
     if (reference.path !== expectedPath) fail("REFERENCE_PATH", `${label}.path`, "frozen file path mismatch");
     // Historical contexts keep representing the prompt/validator frozen at generation
@@ -368,15 +595,18 @@ export function validateWriterContextArtifacts(context, { root = repositoryRoot,
     const bytes = fs.readFileSync(resolveRepoPath(root, reference.path, `${label}.path`));
     if (sha256Bytes(bytes) !== reference.sha256) fail("ARTIFACT_SHA", `${label}.sha256`, "frozen file bytes do not match SHA");
   }
-  return { packet: packetArtifact.value, bundle: bundleArtifact.value, baseline: baselineArtifact.value };
+  return { packet: packetArtifact.value, bundle: bundleArtifact.value, baseline: baselineArtifact.value, global: context.globalMarketBrief ?? null };
 }
 
 export function validateWriterContext(context, registry = loadWriterContextRegistry(), options = {}) {
   validateWriterContextRegistry(registry);
   const keys = ["asOf", "baselineContent", "contextId", "edition", "generatedAt", "integrity", "qualitativeResearchBundle", "quantitativeWriterPacket", "schemaVersion", "targetSchemaVersion", "targetValidator", "warnings", "writerPrompt"];
-  assertExactKeys(context, keys, keys, "context");
+  assertExactKeys(context, keys, [...keys, "mode", "globalMarketBrief"], "context");
   if (context.schemaVersion !== CONTEXT_SCHEMA) fail("CONTEXT_SCHEMA", "context.schemaVersion", "writer-context-v1 required");
-  const policy = editionPolicy(registry, context.edition, "context.edition");
+  const policy = context.mode === GLOBAL_MARKET_BRIEF_MODE ? modePolicy(registry, context.mode, "context.mode") : editionPolicy(registry, context.edition, "context.edition");
+  if (context.mode === GLOBAL_MARKET_BRIEF_MODE && context.edition !== policy.edition) fail("INVALID_MODE", "context.edition", "global writer mode is daily only");
+  if (context.mode === undefined && context.globalMarketBrief !== undefined) fail("GLOBAL_CONTEXT", "context.globalMarketBrief", "globalMarketBrief requires global_market_brief mode");
+  if (context.mode === GLOBAL_MARKET_BRIEF_MODE && context.globalMarketBrief === undefined) fail("GLOBAL_CONTEXT", "context.globalMarketBrief", "globalMarketBrief is required for global writer mode");
   assertDate(context.asOf, "context.asOf");
   assertTimestamp(context.generatedAt, "context.generatedAt");
   assertArtifactReference(context.quantitativeWriterPacket, "context.quantitativeWriterPacket", "writerPacketId", 1, registry.pathPrefixes.quantitativeWriterPacket);
@@ -431,7 +661,10 @@ function buildWriterContext({ edition, asOf, writerPacket, researchBundle, basel
   }
   validateBundle(researchBundle.value, loadResearchRegistry(root));
   validateBaseline(baseline.value, registry);
-  const policy = editionPolicy(registry, edition);
+  const mode = arguments[0]?.mode ?? null;
+  const globalInput = arguments[0]?.globalInput ?? null;
+  const globalInputPath = arguments[0]?.globalInputPath ?? null;
+  const policy = mode === GLOBAL_MARKET_BRIEF_MODE ? modePolicy(registry, mode) : editionPolicy(registry, edition);
   const context = {
     schemaVersion: CONTEXT_SCHEMA,
     edition,
@@ -447,6 +680,23 @@ function buildWriterContext({ edition, asOf, writerPacket, researchBundle, basel
     warnings: [...new Set(warnings)].sort(),
     integrity: { businessSha256: "", sha256: "" }
   };
+  if (mode !== null) {
+    context.mode = mode;
+    context.globalMarketBrief = buildGlobalMarketBriefInput({
+      seed: globalInput,
+      packet: writerPacket.value,
+      bundle: researchBundle.value,
+      baseline: baseline.value,
+      root,
+      globalInputPath,
+      policy,
+      packetArtifactPath: writerPacket.relativePath,
+      packetArtifactBytes: writerPacket.bytes,
+      bundleArtifactPath: researchBundle.relativePath,
+      bundleArtifactBytes: researchBundle.bytes,
+      baselineArtifactBytes: baseline.bytes
+    });
+  }
   context.contextId = computeContextId(context);
   context.integrity.businessSha256 = context.contextId;
   context.integrity.sha256 = computeFullIntegrity(context);
@@ -598,23 +848,32 @@ function writeSummaryOutput(output, root, summary) {
   fs.writeFileSync(output, `${canonicalJson(summary)}\n`, "utf8");
 }
 
-export function prepareWriterContext({ edition, asOf, writerPacketPath, researchBundlePath, baselineSource, dryRun = false, write = false, root = repositoryRoot, output = null, now = new Date(), warnings = [], failAt = null } = {}) {
+export function prepareWriterContext({ edition, asOf, writerPacketPath, researchBundlePath, baselineSource, mode = null, globalInputPath = null, dryRun = false, write = false, root = repositoryRoot, output = null, now = new Date(), warnings = [], failAt = null } = {}) {
   if (dryRun === write) fail("CLI_ARGUMENT", "mode", "exactly one of dryRun or write is required");
   const registry = validateWriterContextRegistry(loadWriterContextRegistry(root));
-  const policy = editionPolicy(registry, edition);
+  const policy = mode === GLOBAL_MARKET_BRIEF_MODE ? modePolicy(registry, mode) : editionPolicy(registry, edition);
   assertDate(asOf, "asOf");
   for (const [label, value] of [["writerPacket", writerPacketPath], ["researchBundle", researchBundlePath], ["baselineSource", baselineSource]]) assertString(value, label);
-  validateTargetPath(edition, baselineSource, registry);
+  if (mode === GLOBAL_MARKET_BRIEF_MODE && typeof globalInputPath !== "string") fail("CLI_ARGUMENT", "globalInputPath", "global seed path is required for global writer mode");
+  validateTargetPath(edition, baselineSource, registry, mode);
   const packetArtifact = relativeArtifact(root, writerPacketPath, registry.pathPrefixes.quantitativeWriterPacket, "writerPacket");
   const bundleArtifact = relativeArtifact(root, researchBundlePath, registry.pathPrefixes.qualitativeResearchBundle, "researchBundle");
   const baselinePayload = readJsonFile(resolveRepoPath(root, baselineSource, "baselineSource"), "BASELINE_SOURCE");
+  const globalInput = mode === GLOBAL_MARKET_BRIEF_MODE ? readJsonFile(resolveRepoPath(root, globalInputPath, "globalInputPath"), "GLOBAL_INPUT") : null;
+  if (mode === GLOBAL_MARKET_BRIEF_MODE) {
+    try {
+      validateGlobalMarketBrief(globalInput);
+    } catch (cause) {
+      fail("GLOBAL_INPUT", globalInputPath, cause instanceof Error ? cause.message : "global seed is invalid");
+    }
+  }
   const timestamp = now.toISOString();
   assertTimestamp(timestamp, "now");
-  const baselineCandidate = createBaseline({ edition, asOf, targetPath: baselineSource, targetSchemaVersion: policy.targetSchemaVersion, payload: baselinePayload, capturedAt: timestamp, warnings }, registry);
+  const baselineCandidate = createBaseline({ edition, asOf, targetPath: baselineSource, targetSchemaVersion: policy.targetSchemaVersion, payload: baselinePayload, mode, capturedAt: timestamp, warnings }, registry);
   const baselineVirtual = new Map();
   const baselinePlan = planImmutable("baseline", baselineCandidate, { root, registry, virtualArtifacts: baselineVirtual });
   baselineVirtual.set(baselinePlan.relativePath.toLowerCase(), baselinePlan);
-  const contextCandidate = buildWriterContext({ edition, asOf, writerPacket: packetArtifact, researchBundle: bundleArtifact, baseline: baselinePlan, root, generatedAt: timestamp, warnings, registry, virtualArtifacts: baselineVirtual });
+  const contextCandidate = buildWriterContext({ edition, asOf, mode, globalInput, globalInputPath, writerPacket: packetArtifact, researchBundle: bundleArtifact, baseline: baselinePlan, root, generatedAt: timestamp, warnings, registry, virtualArtifacts: baselineVirtual });
   const contextPlan = planImmutable("context", contextCandidate, { root, registry, virtualArtifacts: baselineVirtual });
   const allVirtual = new Map(baselineVirtual);
   allVirtual.set(contextPlan.relativePath.toLowerCase(), contextPlan);
@@ -624,6 +883,7 @@ export function prepareWriterContext({ edition, asOf, writerPacketPath, research
   const plans = [baselinePlan, contextPlan, ...derivedPlans(root, artifacts)];
   const summary = {
     schemaVersion: "writer-context-prepare-summary-v1",
+    ...(mode ? { mode } : {}),
     edition,
     asOf,
     contentIdentity: baselinePlan.value.contentIdentity,
@@ -716,9 +976,9 @@ function runCli() {
     return;
   }
   if (command === "prepare") {
-    onlyKeys(args, ["edition", "as-of", "writer-packet", "research-bundle", "baseline-source", "dry-run", "write", "root", "output"], command);
+    onlyKeys(args, ["edition", "as-of", "writer-packet", "research-bundle", "baseline-source", "mode", "global-input", "dry-run", "write", "root", "output"], command);
     if (typeof args.edition !== "string" || typeof args["as-of"] !== "string" || typeof args["writer-packet"] !== "string" || typeof args["research-bundle"] !== "string" || typeof args["baseline-source"] !== "string" || (args["dry-run"] !== undefined && args["dry-run"] !== true) || (args.write !== undefined && args.write !== true) || (args.root !== undefined && typeof args.root !== "string") || (args.output !== undefined && typeof args.output !== "string")) fail("CLI_ARGUMENT", command, "invalid prepare arguments");
-    const summary = prepareWriterContext({ edition: args.edition, asOf: args["as-of"], writerPacketPath: args["writer-packet"], researchBundlePath: args["research-bundle"], baselineSource: args["baseline-source"], dryRun: args["dry-run"] === true, write: args.write === true, root: args.root ? path.resolve(args.root) : repositoryRoot, output: args.output ? path.resolve(args.output) : null });
+    const summary = prepareWriterContext({ edition: args.edition, asOf: args["as-of"], writerPacketPath: args["writer-packet"], researchBundlePath: args["research-bundle"], baselineSource: args["baseline-source"], mode: args.mode ?? null, globalInputPath: args["global-input"] ?? null, dryRun: args["dry-run"] === true, write: args.write === true, root: args.root ? path.resolve(args.root) : repositoryRoot, output: args.output ? path.resolve(args.output) : null });
     console.log(canonicalJson(summary));
     return;
   }

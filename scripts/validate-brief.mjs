@@ -4,6 +4,21 @@ import process from "node:process";
 
 const inputIndex = process.argv.indexOf("--input");
 const briefPath = inputIndex >= 0 ? path.resolve(process.argv[inputIndex + 1] ?? "") : path.resolve(process.cwd(), "content", "daily-brief.json");
+const modeIndex = process.argv.indexOf("--mode");
+const mode = modeIndex >= 0 ? process.argv[modeIndex + 1] : null;
+
+if (mode === "global_market_brief") {
+  try {
+    const { validateGlobalMarketBrief } = await import("./global-market-brief-contract.mjs");
+    const value = JSON.parse(await readFile(briefPath, "utf8"));
+    validateGlobalMarketBrief(value);
+    console.log(`全球整合简报校验通过：${value.editionDate}，global_main=1，specialReports=${value.specialReports.length}。`);
+    process.exit(0);
+  } catch (cause) {
+    console.error(`全球整合简报校验失败：${cause instanceof Error ? cause.message : "输入无效"}`);
+    process.exit(1);
+  }
+}
 const errors = [];
 const articleIds = new Set();
 const sourceEvidenceClasses = [
