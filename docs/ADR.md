@@ -30,3 +30,14 @@
 | ADR-023 | 恒生官方行业历史、官方主题指数代理和第三方分类必须分层登记。 | 第三方或主题代理不得伪装成恒生 HSICS 一级行业；当前成分股名单不得回填过去；历史 OHLC、成分、权重和 ETF 份额必须以显式 point-in-time lineage 与 SHA-256 进入不可变数据集，缺失不得零填。 |
 | ADR-024 | HK 研究候选与生产模型严格隔离，质量不足时只能保持 candidate/shadow。 | 每周期必须输出样本数、样本外窗口、AUC、Brier、Brier Skill、RankIC、Top-Bottom/扣费收益差、离散度、完整度、市场状态、概率分布、特征缺失/零方差和 provider 失败；任何周期或数据闸门不足都禁止自动晋升。 |
 | ADR-025 | 港股日报日期与数据源观察日期必须分别建模。 | `asOf/sessionDate` 是日报或预测截止日，`sourceAsOf` 是实际 provider 快照日；两者错位时保留诊断并 fail closed，不把未来快照贴到过去日报。未训练未来窗口使用 `outputMode=none`，不得退化为当前观察或默认概率。 |
+| ADR-027 | 每日简报采用全球整合主文章，并以预授权触发候选控制重大专项；编辑市场展望与量化模型预测严格隔离。 | 普通波动进入一篇全球主文章，避免固定三市场凑稿；研究包先确定证据、专项资格和失效条件，Writer 只能读取冻结执行包并输出可追溯内容。 |
+
+## ADR-027 详细冻结（Accepted）
+
+- 每个日报固定生成一个 `global_main` 主文章；`specialReports` 允许 0–2 篇，普通 A 股、港股、美股波动不得分别凑成三篇文章。
+- 主文章必须包含今日结论、关键事实、全球逻辑链、跨市场传导、下一交易日展望、未来一周展望、反证与失效条件、下一步观察；机器可读契约为 `global-market-brief-v1`。
+- 重大专项只能从冻结研究包中 `eligible=true` 的 `specialTriggerCandidates` 选择，Writer 不得自行发明触发事件；没有 eligible 候选时必须返回空数组。
+- 编辑判断使用“市场展望”语义并绑定 `sourceIds`；量化系统的输出继续留在独立冻结 writer packet，使用“模型预测”语义。市场展望不得携带未经模型契约支持的数值概率，`EvidenceScore` 不得重命名为 `probability`。
+- Writer 只读冻结执行包，不联网、不新增来源、不改事实、数值、概率、排名、收益、模型状态或历史；Researcher 可以联网，Validator 负责契约和来源引用校验。
+- 页面只消费公开 DTO 的标题、导语、结论、逻辑链简表、市场标签、数据截止日、来源数和文章 URL，以及专项标题、触发类型、结论、市场标签和文章 URL；provider 错误、内部状态、路径、堆栈、gate failure、原始研究 payload 和私人 Skill 内容不进入页面 DTO。
+- 本 ADR supersede 旧的“每日固定三市场分稿”内容生产习惯，但不重写历史 ADR；P2-B0 只冻结契约，不切换生产内容。

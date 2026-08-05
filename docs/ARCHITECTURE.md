@@ -94,3 +94,34 @@ research bundle, autonomous Luna runner, automatic content publisher, or schedul
 `writer-context-v1` must reference an immutable quantitative writer packet, immutable qualitative
 research bundle, immutable baseline content, and the SHA plus Schema version of each input. Luna
 must never browse autonomously; it may only operate on explicitly frozen context inputs.
+
+## P2-B0 全球整合主文章与并行边界
+
+P2-B0 在不切换当前生产内容的前提下冻结 `global-market-brief-v1`。它是面向后续 Writer、Validator 和 Page 集成的独立输出契约，不替换现有 `daily-brief-v1`，也不建立 old/new 长期双写。
+
+### 契约与数据流
+
+```text
+Researcher（可联网）
+  → 冻结 execution package：事实、来源索引、量化 writer packet、逻辑链候选、跨市场候选、专项候选、反向证据、观察项、旧文章基线
+  → Writer（不联网，只读 package）
+  → 1 个 global_main + 0–2 个 special_report
+  → Validator：结构、sourceIds、evidenceStatus、失效条件、专项 eligible、公开 DTO 边界
+  → Page DTO：只暴露公开内容字段
+```
+
+机器可读文件为 `schemas/global-market-brief-v1.schema.json`，执行校验器为 `scripts/global-market-brief-contract.mjs`。主文章的 `contentKind` 固定为 `global_main`；专项固定为 `special_report`。`specialTriggerCandidates` 是冻结研究包授权结果的最小投影，报告必须回指 eligible 候选及其证据 ID。
+
+当前生产写作链仍为 `writer-context-v1 → writer-request-v2/result-v2 → scripts/writer-jobs.mjs → content/daily-brief.json`，其 `markets` 数组仍由 `scripts/validate-brief.mjs` 强制 A 股、港股、美股三项。本阶段只增加新契约和迁移边界，不修改旧 validator、旧 prompt、当前 `content/daily-brief.json` 或页面。
+
+### 市场展望、模型预测与公开边界
+
+编辑的 `outlook.nextSession` 与 `outlook.oneWeek` 必须包含 `statement`、支持来源和至少一个 `invalidationConditionId`，只能表达“市场展望”；它们不得有 `probability`、`EvidenceScore`、ranking、model state 等字段。量化系统的概率、排名、收益和模型状态仍由独立 writer packet/预测契约提供，使用“模型预测”标记，Writer 只能逐值引用、不能改写。不可用值保留 `null`，不得转成 0。
+
+未来页面消费 `global-market-brief-public-dto-v1`：主文章卡只读取 `title`、`dek`、`conclusion`、逻辑链简表、`marketTags`、`dataAsOf`、`sourceCount`、`articleUrl`；专项区只读取 `title`、`triggerType`、`conclusion`、`marketTags`、`articleUrl`。公开 DTO 不含 provider diagnostics、raw research、internal lineage、gate failures、文件路径、运行日志或私人 Skill。
+
+### 结构化事件与迁移窗口
+
+`schemas/global-market-event-v1.schema.json` 只冻结 `eventType`、`occurredAt`、`region`、`affectedAssets`、`affectedThemes`、`direction`、`horizon`、`sourceConfidence`、`marketConfirmation`、`supportingSourceIds`、`contradictorySourceIds`、`status`。它复用现有 research bundle 的证据状态语义，不引入数据库、向量库、图数据库、知识图谱、搜索服务或通用事件平台。
+
+P2-B0 保留明确迁移窗口：旧 `daily-brief-v1`/三市场生产链只有在 P2-B4 完成 Writer context、Writer result、Validator、内容应用和页面消费的统一切换，并完成外部审查与完整回归后，才允许删除；在此之前不得生产双写、替换生产文章或恢复自动化。
