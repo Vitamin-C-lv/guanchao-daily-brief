@@ -128,7 +128,7 @@ function safeSource(value: unknown, field: string): ArticleSource {
 
 function articleUrl(value: unknown, field: string): string {
   const parsed = string(value, field);
-  if (!/^\/articles\/[a-z0-9][a-z0-9._-]{1,79}\/\/$/.test(parsed)) throw new Error(`GLOBAL_ARTICLE_INVALID ${field}: article URL required`);
+  if (!/^\/articles\/[a-z0-9][a-z0-9._-]{1,79}\/$/.test(parsed)) throw new Error(`GLOBAL_ARTICLE_INVALID ${field}: article URL required`);
   return parsed;
 }
 

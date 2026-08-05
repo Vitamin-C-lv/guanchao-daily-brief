@@ -400,10 +400,17 @@ function mergeGlobalSources(seed, packet, bundle) {
   return [...sources.values()].sort((left, right) => left.id.localeCompare(right.id) || left.url.localeCompare(right.url));
 }
 
+function normalizeStableFactId(id) {
+  const value = String(id ?? "");
+  const normalized = value.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(normalized)) fail("GLOBAL_INPUT", "globalMarketBrief.keyFacts.id", `invalid packet fact id: ${value}`);
+  return normalized;
+}
+
 function packetKeyFacts(packet, sourceIndex) {
   const known = new Set(sourceIndex.map((source) => source.id));
   return (packet.facts ?? []).filter((fact) => fact.sourceId && known.has(fact.sourceId)).map((fact) => ({
-    id: fact.factId,
+    id: normalizeStableFactId(fact.factId),
     statement: fact.value === null || fact.value === undefined
       ? `${fact.label}: 数据不可用`
       : `${fact.label}: ${fact.value}${fact.unit === "percent" ? "%" : fact.unit ? ` ${fact.unit}` : ""}`,

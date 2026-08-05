@@ -42,6 +42,13 @@ function claim(claimPath, ids) {
   return { claimPath, sourceIds: sorted(ids) };
 }
 
+function normalizeFactId(fact) {
+  const id = String(fact?.id ?? "");
+  const normalized = id.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(normalized)) fail("mainArticle.keyFacts", `invalid frozen fact id: ${id}`);
+  return normalized === id ? fact : { ...fact, id: normalized };
+}
+
 export function createRealGlobalWriterResult({ packageDirectory, output }) {
   if (typeof packageDirectory !== "string" || typeof output !== "string") fail("arguments", "packageDirectory and output are required");
   const directory = path.resolve(packageDirectory);
@@ -50,7 +57,7 @@ export function createRealGlobalWriterResult({ packageDirectory, output }) {
   const baseline = readJson(path.join(directory, "BASELINE_CONTENT.json"));
   if (request.mode !== "global_market_brief") fail("REQUEST.mode", "global_market_brief request required");
   const global = context.globalMarketBrief;
-  const facts = structuredClone(global.keyFacts);
+  const facts = structuredClone(global.keyFacts).map(normalizeFactId);
   const sources = structuredClone(global.sourceIndex);
   const allSourceIds = sourceIds(context, sources.map((source) => source.id));
   const ap = sourceIds(context, ["ap-us-stocks-2026-08-03"]);
