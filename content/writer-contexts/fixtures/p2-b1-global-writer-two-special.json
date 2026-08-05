@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "global-market-brief-v1",
+  "editionDate": "2026-08-04",
+  "generatedAt": "2026-08-04T12:00:00.000Z",
+  "dataAsOf": "2026-08-03",
+  "buildStatus": "partial",
+  "sourceIndex": [
+    { "id": "fixture-a-share", "title": "A股收盘记录", "publisher": "Market Data Fixture", "url": "https://example.com/fixture/a-share", "asOf": "2026-08-03" },
+    { "id": "fixture-fed", "title": "FOMC statement", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/monetarypolicy/fomc.htm", "asOf": "2026-07-29" },
+    { "id": "fixture-hk", "title": "港股收盘记录", "publisher": "Market Data Fixture", "url": "https://example.com/fixture/hk", "asOf": "2026-08-03" },
+    { "id": "fixture-treasury", "title": "Treasury yield curve", "publisher": "U.S. Department of the Treasury", "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates", "asOf": "2026-08-03" }
+  ],
+  "specialTriggerCandidates": [
+    { "id": "policy-surprise", "eligible": true, "triggerType": "central_bank_policy", "reason": "政策表述出现需要专项解释的变化。", "triggerEvidenceIds": ["fixture-fed"] },
+    { "id": "cross-market-move", "eligible": true, "triggerType": "abnormal_market_move", "reason": "跨市场同步波动达到专项观察阈值。", "triggerEvidenceIds": ["fixture-a-share", "fixture-hk"] }
+  ],
+  "mainArticle": {
+    "id": "global-liquidity-cross-market",
+    "slug": "global-liquidity-cross-market",
+    "articleUrl": "/articles/global-liquidity-cross-market/",
+    "contentKind": "global_main",
+    "title": "流动性信号仍是跨市场定价的共同线索",
+    "dek": "美国利率与政策表述提供共同背景，但市场传导仍需后续数据确认。",
+    "conclusion": "当前更适合把利率变化视为跨市场的共同线索，而不是单一市场的确定性方向。后续判断取决于数据是否继续支持这一逻辑链。",
+    "keyFacts": [
+      { "id": "fact-fed-guidance", "statement": "联储最近一次政策声明仍是观察利率路径的重要依据。", "asOf": "2026-07-29", "sourceIds": ["fixture-fed"], "factStatus": "confirmed" },
+      { "id": "fact-treasury-curve", "statement": "美国国债曲线数据截至 2026-08-03 可用。", "asOf": "2026-08-03", "sourceIds": ["fixture-treasury"], "factStatus": "confirmed" }
+    ],
+    "logicChain": [
+      { "from": "政策表述", "relation": "影响", "to": "利率路径预期", "evidenceStatus": "partially_confirmed", "supportingSourceIds": ["fixture-fed"], "contradictorySourceIds": [] }
+    ],
+    "crossMarketTransmission": [
+      { "fromMarket": "US", "toMarket": "A_SHARE", "direction": "mixed", "horizon": "one_week", "explanation": "美国利率背景可能影响全球风险定价，但本地市场仍需独立确认。", "evidenceStatus": "pending", "supportingSourceIds": ["fixture-fed", "fixture-treasury"], "invalidationConditionIds": ["condition-next-data"] }
+    ],
+    "invalidationConditions": [
+      { "id": "condition-next-data", "condition": "若后续通胀或政策数据不再支持当前利率解释，则该跨市场判断失效。", "affectedClaims": ["利率背景影响跨市场定价"] }
+    ],
+    "outlook": {
+      "nextSession": { "statement": "下一交易时段关注利率数据与风险资产的同步性。", "supportingSourceIds": ["fixture-treasury"], "invalidationConditionIds": ["condition-next-data"] },
+      "oneWeek": { "statement": "未来一周观察政策表述是否继续支持当前传导线索。", "supportingSourceIds": ["fixture-fed"], "invalidationConditionIds": ["condition-next-data"] }
+    },
+    "watchItems": [
+      { "item": "下一组利率与政策数据", "whyItMatters": "它将检验当前跨市场传导线索是否仍有依据。", "expectedAt": "2026-08-05", "sourceIds": ["fixture-fed", "fixture-treasury"] }
+    ],
+    "sourceIds": ["fixture-fed", "fixture-treasury"],
+    "marketTags": ["US", "A_SHARE", "GLOBAL"],
+    "topicTags": ["rates", "liquidity", "cross-market"]
+  },
+  "specialReports": [
+    {
+      "id": "policy-surprise-report",
+      "slug": "policy-surprise-report",
+      "articleUrl": "/articles/policy-surprise-report/",
+      "contentKind": "special_report",
+      "triggerCandidateId": "policy-surprise",
+      "triggerType": "central_bank_policy",
+      "triggerReason": "政策表述出现需要专项解释的变化。",
+      "triggerEvidenceIds": ["fixture-fed"],
+      "title": "政策表述变化需要单独观察",
+      "dek": "专项报告只解释已授权的政策触发候选，不扩展新的来源。",
+      "conclusion": "政策专项的价值在于厘清表述变化与利率路径之间的关系，后续仍需数据确认。",
+      "keyFacts": [
+        { "id": "policy-fact", "statement": "政策声明是本专项触发的冻结证据。", "asOf": "2026-07-29", "sourceIds": ["fixture-fed"], "factStatus": "confirmed" }
+      ],
+      "analysis": ["政策表述改变了市场需要观察的利率路径线索。"],
+      "logicChain": [
+        { "from": "政策表述", "relation": "改变观察重点", "to": "利率路径", "evidenceStatus": "confirmed", "supportingSourceIds": ["fixture-fed"], "contradictorySourceIds": [] }
+      ],
+      "crossMarketTransmission": [
+        { "fromMarket": "US", "toMarket": "HK", "direction": "mixed", "horizon": "next_session", "explanation": "政策线索可能影响风险定价，但幅度仍待观察。", "evidenceStatus": "pending", "supportingSourceIds": ["fixture-fed"], "invalidationConditionIds": ["policy-condition"] }
+      ],
+      "invalidationConditions": [
+        { "id": "policy-condition", "condition": "若后续声明不再支持该政策解释，则专项判断失效。", "affectedClaims": ["政策表述改变观察重点"] }
+      ],
+      "outlook": {
+        "nextSession": { "statement": "下一交易时段关注利率资产是否回应政策线索。", "supportingSourceIds": ["fixture-fed"], "invalidationConditionIds": ["policy-condition"] },
+        "oneWeek": { "statement": "未来一周观察政策线索是否得到新数据确认。", "supportingSourceIds": ["fixture-fed"], "invalidationConditionIds": ["policy-condition"] }
+      },
+      "watchItems": [
+        { "item": "后续政策声明", "whyItMatters": "它将检验当前专项解释是否仍然成立。", "expectedAt": "2026-08-06", "sourceIds": ["fixture-fed"] }
+      ],
+      "sourceIds": ["fixture-fed"],
+      "marketTags": ["US", "GLOBAL"],
+      "topicTags": ["policy", "rates"]
+    },
+    {
+      "id": "cross-market-move-report",
+      "slug": "cross-market-move-report",
+      "articleUrl": "/articles/cross-market-move-report/",
+      "contentKind": "special_report",
+      "triggerCandidateId": "cross-market-move",
+      "triggerType": "abnormal_market_move",
+      "triggerReason": "跨市场同步波动达到专项观察阈值。",
+      "triggerEvidenceIds": ["fixture-a-share", "fixture-hk"],
+      "title": "跨市场波动的同步性仍待确认",
+      "dek": "专项报告只呈现冻结触发证据及其失效条件。",
+      "conclusion": "当前证据支持继续观察跨市场同步性，但不足以把一次波动直接解释为持续趋势。",
+      "keyFacts": [
+        { "id": "move-fact-a", "statement": "A股收盘记录构成该专项的冻结证据。", "asOf": "2026-08-03", "sourceIds": ["fixture-a-share"], "factStatus": "confirmed" },
+        { "id": "move-fact-hk", "statement": "港股收盘记录构成该专项的冻结证据。", "asOf": "2026-08-03", "sourceIds": ["fixture-hk"], "factStatus": "confirmed" }
+      ],
+      "analysis": ["两个市场的同步波动需要结合后续交易时段继续确认。"],
+      "logicChain": [
+        { "from": "同步波动", "relation": "提出", "to": "跨市场观察", "evidenceStatus": "partially_confirmed", "supportingSourceIds": ["fixture-a-share", "fixture-hk"], "contradictorySourceIds": [] }
+      ],
+      "crossMarketTransmission": [
+        { "fromMarket": "A_SHARE", "toMarket": "HK", "direction": "mixed", "horizon": "one_week", "explanation": "同步波动提供观察线索，但传导方向仍需后续数据确认。", "evidenceStatus": "pending", "supportingSourceIds": ["fixture-a-share", "fixture-hk"], "invalidationConditionIds": ["move-condition"] }
+      ],
+      "invalidationConditions": [
+        { "id": "move-condition", "condition": "若后续交易时段不再出现同步变化，则该专项判断失效。", "affectedClaims": ["同步波动构成跨市场观察线索"] }
+      ],
+      "outlook": {
+        "nextSession": { "statement": "下一交易时段观察两个市场是否仍有同步变化。", "supportingSourceIds": ["fixture-a-share", "fixture-hk"], "invalidationConditionIds": ["move-condition"] },
+        "oneWeek": { "statement": "未来一周观察同步性是否持续，而不是预设方向。", "supportingSourceIds": ["fixture-a-share", "fixture-hk"], "invalidationConditionIds": ["move-condition"] }
+      },
+      "watchItems": [
+        { "item": "两个市场的下一交易时段", "whyItMatters": "它将验证本次同步波动是否具有持续性。", "expectedAt": "2026-08-05", "sourceIds": ["fixture-a-share", "fixture-hk"] }
+      ],
+      "sourceIds": ["fixture-a-share", "fixture-hk"],
+      "marketTags": ["A_SHARE", "HK", "GLOBAL"],
+      "topicTags": ["market-structure", "cross-market"]
+    }
+  ]
+}

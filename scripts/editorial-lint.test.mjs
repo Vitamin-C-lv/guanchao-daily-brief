@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import { lintEditorial } from "./editorial-lint.mjs";
 
@@ -21,6 +24,10 @@ const style = {
   tradingInstructionPatterns: [],
   strongClaimPatterns: ["稳赚"]
 };
+
+const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const globalZero = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content/writer-contexts/fixtures/p2-b1-global-baseline.json"), "utf8"));
+const globalTwo = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json"), "utf8"));
 
 function daily(title = "风险偏好回来了，但资金没有回到高估值资产") {
   return {
@@ -108,4 +115,52 @@ test("rejects a data-limit explanation that occupies too much of the body", () =
   assert.ok(report.dataLimitationRatio > 0.1);
   assert.equal(report.dataLimitationRatioPass, false);
   assert.equal(report.stylePass, false);
+});
+
+test("global mode accepts zero or two authorized special reports", () => {
+  assert.equal(lintEditorial({ mode: "global_market_brief", value: globalZero }).passed, true);
+  assert.equal(lintEditorial({ mode: "global_market_brief", value: globalTwo }).passed, true);
+});
+
+test("global mode rejects a fixed three-market draft", () => {
+  const value = structuredClone(globalZero);
+  value.markets = [{}, {}, {}];
+  const report = lintEditorial({ mode: "global_market_brief", value });
+  assert.equal(report.fixedThreeMarketDraftPass, false);
+  assert.equal(report.passed, false);
+});
+
+test("global mode rejects machine diagnostics in article prose", () => {
+  const value = structuredClone(globalZero);
+  value.mainArticle.conclusion = "provider coverage gateFailures 已进入正文。";
+  const report = lintEditorial({ mode: "global_market_brief", value });
+  assert.equal(report.machineTextPass, false);
+  assert.equal(report.passed, false);
+});
+
+test("global mode rejects source-less high-impact judgement", () => {
+  const value = structuredClone(globalZero);
+  value.mainArticle.sourceIds = [];
+  value.mainArticle.keyFacts = [];
+  value.mainArticle.logicChain = [{ ...value.mainArticle.logicChain[0], supportingSourceIds: [], contradictorySourceIds: [] }];
+  value.mainArticle.crossMarketTransmission = [{ ...value.mainArticle.crossMarketTransmission[0], supportingSourceIds: [] }];
+  const report = lintEditorial({ mode: "global_market_brief", value });
+  assert.equal(report.sourcedHighImpactPass, false);
+  assert.equal(report.passed, false);
+});
+
+test("global mode rejects EvidenceScore described as probability", () => {
+  const value = structuredClone(globalZero);
+  value.mainArticle.conclusion = "EvidenceScore 不是概率，但这里把观察分称为概率。";
+  const report = lintEditorial({ mode: "global_market_brief", value });
+  assert.equal(report.evidenceScoreProbabilityPass, false);
+  assert.equal(report.passed, false);
+});
+
+test("global mode rejects future outlook without invalidation", () => {
+  const value = structuredClone(globalZero);
+  value.mainArticle.outlook.nextSession.invalidationConditionIds = [];
+  const report = lintEditorial({ mode: "global_market_brief", value });
+  assert.equal(report.futureOutlookInvalidationPass, false);
+  assert.equal(report.passed, false);
 });

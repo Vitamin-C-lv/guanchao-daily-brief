@@ -81,7 +81,7 @@ function assertPacketFreshness(packet, { editionDate, baselineFile, now }) {
   }
   if (baselineFile && fs.existsSync(baselineFile)) {
     const baseline = readJson(baselineFile);
-    const baselineEdition = baseline.meta?.editionDate;
+    const baselineEdition = baseline.meta?.editionDate ?? baseline.editionDate;
     if (typeof baselineEdition === "string") {
       relations.baselineEditionDate = baselineEdition;
       if (baselineEdition > effectiveEditionDate) {
@@ -256,10 +256,12 @@ function existingBundlePath(root, edition, asOf) {
 
 export async function prepareCodexWriter({
   edition,
+  mode = null,
   marketPacket,
   codexResearch = null,
   researchBundle = null,
   baselineSource = null,
+  globalInput = null,
   editionDate = null,
   outputDirectory,
   dryRun = false,
@@ -269,15 +271,20 @@ export async function prepareCodexWriter({
 } = {}) {
   if (dryRun === write) fail("MODE", "mode", "exactly one of dryRun or write is required");
   if (!["daily", "weekly"].includes(edition)) fail("EDITION", "edition", "daily or weekly required");
+  if (mode !== null && mode !== "global_market_brief") fail("MODE", "mode", "unsupported writer mode");
+  if (mode === "global_market_brief" && edition !== "daily") fail("MODE", "edition", "global_market_brief is daily only");
+  if (mode === "global_market_brief" && codexResearch) fail("MODE", "codexResearch", "global_market_brief cannot consume an unfrozen Codex research run");
   const packetFile = resolveRootFile(root, marketPacket ?? `content/writer-packets/${edition}-latest.json`, "marketPacket");
   const packet = loadPacket(packetFile);
   if (packet.edition !== edition) fail("PACKET_EDITION", "packet.edition", "packet edition differs from requested edition");
   const asOf = packet.marketDates?.aShare;
   if (typeof asOf !== "string" || !DATE.test(asOf)) fail("PACKET_DATE", "packet.marketDates.aShare", "packet market date is required");
   const packetPlan = packetArtifactPlan(packet, root);
-  const baseline = baselineSource ?? defaultBaselineSource(root, edition);
+  const baseline = baselineSource ?? (mode === "global_market_brief" ? "content/writer-contexts/fixtures/p2-b1-global-baseline.json" : defaultBaselineSource(root, edition));
   const baselineFile = resolveRootFile(root, baseline, "baselineSource");
   if (!fs.existsSync(baselineFile)) fail("BASELINE", baseline, "baseline source is missing");
+  if (mode === "global_market_brief" && typeof globalInput !== "string") fail("GLOBAL_INPUT", "globalInput", "global seed path is required");
+  const globalInputPath = mode === "global_market_brief" ? relative(root, resolveRootFile(root, globalInput, "globalInput")) : null;
   const freshness = assertPacketFreshness(packet, { editionDate, baselineFile, now });
   if (typeof outputDirectory !== "string") fail("OUTPUT", "outputDirectory", "absolute execution package directory is required");
   const output = path.resolve(outputDirectory);
@@ -306,11 +313,12 @@ export async function prepareCodexWriter({
     const contextReady = fs.existsSync(packetPlan.file) && bundleExists;
     let contextSummary = null;
     if (contextReady) {
-      contextSummary = prepareWriterContext({ edition, asOf, writerPacketPath: relative(root, packetPlan.file), researchBundlePath: bundlePath, baselineSource: baseline, dryRun: true, write: false, root, now });
+       contextSummary = prepareWriterContext({ edition, asOf, writerPacketPath: relative(root, packetPlan.file), researchBundlePath: bundlePath, baselineSource: baseline, mode, globalInputPath, dryRun: true, write: false, root, now });
     }
     return {
       schemaVersion: "codex-writer-prepare-summary-v1",
       edition,
+      ...(mode ? { mode } : {}),
       asOf,
       freshness,
       packetPath: relative(root, packetPlan.file),
@@ -325,14 +333,15 @@ export async function prepareCodexWriter({
   }
 
   if (packetPlan.shouldWrite) atomicBytes(packetPlan.file, packetPlan.bytes);
-  const contextSummary = prepareWriterContext({ edition, asOf, writerPacketPath: relative(root, packetPlan.file), researchBundlePath: bundlePath, baselineSource: baseline, write: true, dryRun: false, root, now });
-  const jobSummary = prepareWriterJob({ edition, contextPath: contextSummary.contextPath, write: true, dryRun: false, rootDir: root, createdAt: now.toISOString() });
+  const contextSummary = prepareWriterContext({ edition, asOf, writerPacketPath: relative(root, packetPlan.file), researchBundlePath: bundlePath, baselineSource: baseline, mode, globalInputPath, write: true, dryRun: false, root, now });
+  const jobSummary = prepareWriterJob({ edition, mode, contextPath: contextSummary.contextPath, write: true, dryRun: false, rootDir: root, createdAt: now.toISOString() });
   const request = jobSummary.request;
   validateRequest(request, { rootDir: root });
   if (packageDirectoryIsValid(output, request.requestId)) {
     return {
       schemaVersion: "codex-writer-prepare-summary-v1",
       edition,
+      ...(mode ? { mode } : {}),
       asOf,
       freshness,
       requestId: request.requestId,
@@ -379,6 +388,7 @@ export async function prepareCodexWriter({
   return {
     schemaVersion: "codex-writer-prepare-summary-v1",
     edition,
+    ...(mode ? { mode } : {}),
     asOf,
     freshness,
     requestId: request.requestId,
@@ -414,7 +424,7 @@ async function runCli() {
   const root = args.root ? path.resolve(args.root) : repositoryRoot;
   if (args["dry-run"] !== true && args.write !== true || args["dry-run"] === true && args.write === true) fail("CLI_ARGUMENT", "mode", "exactly one of --dry-run or --write is required");
   if (typeof args.edition !== "string" || typeof args.output !== "string") fail("CLI_ARGUMENT", "arguments", "--edition and --output are required");
-  const summary = await prepareCodexWriter({ edition: args.edition, marketPacket: args["market-packet"], codexResearch: args["codex-research"], researchBundle: args["research-bundle"], baselineSource: args["baseline-source"], editionDate: args["edition-date"], outputDirectory: path.resolve(args.output), dryRun: args["dry-run"] === true, write: args.write === true, root });
+  const summary = await prepareCodexWriter({ edition: args.edition, mode: args.mode ?? null, marketPacket: args["market-packet"], codexResearch: args["codex-research"], researchBundle: args["research-bundle"], baselineSource: args["baseline-source"], globalInput: args["global-input"], editionDate: args["edition-date"], outputDirectory: path.resolve(args.output), dryRun: args["dry-run"] === true, write: args.write === true, root });
   console.log(canonicalJson(summary));
 }
 
