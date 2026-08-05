@@ -1,0 +1,270 @@
+{
+  "schemaVersion": "global-market-brief-v1",
+  "editionDate": "2026-08-05",
+  "generatedAt": "2026-08-05T08:00:00.000Z",
+  "dataAsOf": "2026-08-04",
+  "buildStatus": "ready",
+  "sourceIndex": [
+    {
+      "id": "macro-fed",
+      "title": "Federal Reserve policy release",
+      "publisher": "Federal Reserve",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260804a.htm",
+      "asOf": "2026-08-04"
+    },
+    {
+      "id": "us-session",
+      "title": "US market closing data",
+      "publisher": "Public market data source",
+      "url": "https://example.com/evidence/us-session-2026-08-04",
+      "asOf": "2026-08-04"
+    },
+    {
+      "id": "hk-session",
+      "title": "Hong Kong market closing data",
+      "publisher": "Public market data source",
+      "url": "https://example.com/evidence/hk-session-2026-08-04",
+      "asOf": "2026-08-04"
+    },
+    {
+      "id": "a-share-session",
+      "title": "A-share market closing data",
+      "publisher": "Public market data source",
+      "url": "https://example.com/evidence/a-share-session-2026-08-04",
+      "asOf": "2026-08-04"
+    },
+    {
+      "id": "global-policy",
+      "title": "Global policy calendar",
+      "publisher": "Official public calendar",
+      "url": "https://example.com/evidence/global-policy-2026-08-04",
+      "asOf": "2026-08-04"
+    }
+  ],
+  "specialTriggerCandidates": [
+    {
+      "id": "special-us-move",
+      "eligible": true,
+      "triggerType": "abnormal_market_move",
+      "reason": "冻结研究包将该市场异动标记为可供 Writer 选择的专项候选。",
+      "triggerEvidenceIds": ["us-session"]
+    },
+    {
+      "id": "special-hk-data-surprise",
+      "eligible": true,
+      "triggerType": "macro_data_surprise",
+      "reason": "冻结研究包将港股数据意外标记为第二个可供 Writer 选择的专项候选。",
+      "triggerEvidenceIds": ["hk-session"]
+    }
+  ],
+  "mainArticle": {
+    "id": "global-main-2026-08-05",
+    "slug": "global-main-2026-08-05",
+    "articleUrl": "/articles/global-main-2026-08-05/",
+    "contentKind": "global_main",
+    "title": "全球风险偏好重新定价，跨市场传导仍需验证",
+    "dek": "政策、利率与市场表现形成一条可追踪但尚未闭合的全球逻辑链。",
+    "conclusion": "今日重点不是把普通波动拆成三篇市场稿，而是判断政策与风险偏好能否通过美股、港股和 A 股之间的传导得到交叉确认。",
+    "keyFacts": [
+      {
+        "id": "fact-fed-policy",
+        "statement": "政策口径保持观察窗口，尚不足以单独证明下一交易日的资产方向。",
+        "asOf": "2026-08-04",
+        "sourceIds": ["macro-fed"],
+        "factStatus": "confirmed"
+      },
+      {
+        "id": "fact-us-close",
+        "statement": "美股收盘表现为跨市场风险定价提供了已发生的观察信号。",
+        "asOf": "2026-08-04",
+        "sourceIds": ["us-session"],
+        "factStatus": "confirmed"
+      },
+      {
+        "id": "fact-hk-flow-unavailable",
+        "statement": "港股南向细分资金数据暂不可用，本文不将缺失写成零。",
+        "asOf": "2026-08-04",
+        "sourceIds": ["hk-session"],
+        "factStatus": "unavailable",
+        "value": null,
+        "unit": "人民币"
+      }
+    ],
+    "logicChain": [
+      {
+        "from": "政策观察窗口",
+        "relation": "影响",
+        "to": "利率与风险偏好定价",
+        "evidenceStatus": "partially_confirmed",
+        "supportingSourceIds": ["macro-fed"],
+        "contradictorySourceIds": []
+      },
+      {
+        "from": "美股风险偏好",
+        "relation": "可能传导至",
+        "to": "港股科技与 A 股成长风格",
+        "evidenceStatus": "pending",
+        "supportingSourceIds": ["us-session"],
+        "contradictorySourceIds": ["hk-session"]
+      }
+    ],
+    "crossMarketTransmission": [
+      {
+        "fromMarket": "US",
+        "toMarket": "HK",
+        "direction": "positive",
+        "horizon": "next_session",
+        "explanation": "美股风险偏好若在下一交易日延续，可能先通过科技资产估值映射到港股；该判断仍需盘面确认。",
+        "evidenceStatus": "pending",
+        "supportingSourceIds": ["us-session"],
+        "invalidationConditionIds": ["invalidate-us-hk"]
+      },
+      {
+        "fromMarket": "HK",
+        "toMarket": "A_SHARE",
+        "direction": "mixed",
+        "horizon": "one_week",
+        "explanation": "港股科技与 A 股成长风格的联动方向存在分化，不能用单一市场表现替代另一市场确认。",
+        "evidenceStatus": "partially_confirmed",
+        "supportingSourceIds": ["hk-session", "a-share-session"],
+        "invalidationConditionIds": ["invalidate-hk-a-share"]
+      },
+      {
+        "fromMarket": "GLOBAL",
+        "toMarket": "US",
+        "direction": "neutral",
+        "horizon": "one_week",
+        "explanation": "全球政策日历提供背景约束，但不会自动生成美股方向结论。",
+        "evidenceStatus": "confirmed",
+        "supportingSourceIds": ["global-policy"],
+        "invalidationConditionIds": ["invalidate-global-us"]
+      }
+    ],
+    "outlook": {
+      "nextSession": {
+        "statement": "下一交易日优先观察美股风险偏好是否延续，以及港股科技能否出现同方向的市场确认。",
+        "supportingSourceIds": ["us-session", "hk-session"],
+        "invalidationConditionIds": ["invalidate-us-hk"]
+      },
+      "oneWeek": {
+        "statement": "未来一周关注政策口径与跨市场价格表现是否继续同向，否则全球传导链应降级为部分确认。",
+        "supportingSourceIds": ["macro-fed", "global-policy"],
+        "invalidationConditionIds": ["invalidate-global-us", "invalidate-hk-a-share"]
+      }
+    },
+    "invalidationConditions": [
+      {
+        "id": "invalidate-us-hk",
+        "condition": "美股科技风险偏好反转，且港股科技未出现同方向市场确认。",
+        "affectedClaims": ["美股至港股传导", "下一交易日观察"]
+      },
+      {
+        "id": "invalidate-hk-a-share",
+        "condition": "港股与 A 股成长风格在未来一周出现持续相反的价格和成交表现。",
+        "affectedClaims": ["港股至 A 股传导", "未来一周展望"]
+      },
+      {
+        "id": "invalidate-global-us",
+        "condition": "后续政策信息改变当前观察窗口，且市场定价不再支持该背景约束。",
+        "affectedClaims": ["全球至美股背景约束", "未来一周展望"]
+      }
+    ],
+    "watchItems": [
+      {
+        "item": "下一交易日港股科技与美股科技方向是否同步",
+        "whyItMatters": "这是跨市场传导由逻辑假设转为价格确认的最短路径。",
+        "expectedAt": "2026-08-05",
+        "sourceIds": ["us-session", "hk-session"]
+      },
+      {
+        "item": "政策日历中的下一项已公布事件",
+        "whyItMatters": "新信息可能使当前政策观察窗口失效或重新定价。",
+        "expectedAt": null,
+        "sourceIds": ["global-policy"]
+      }
+    ],
+    "sourceIds": ["a-share-session", "global-policy", "hk-session", "macro-fed", "us-session"],
+    "marketTags": ["GLOBAL", "US", "HK", "A_SHARE"],
+    "topicTags": ["宏观政策", "风险偏好", "跨市场传导"]
+  },
+  "specialReports": [
+    {
+      "id": "special-us-move-2026-08-05",
+      "slug": "special-us-move-2026-08-05",
+      "articleUrl": "/articles/special-us-move-2026-08-05/",
+      "contentKind": "special_report",
+      "triggerCandidateId": "special-us-move",
+      "triggerType": "abnormal_market_move",
+      "triggerReason": "冻结研究包将该市场异动标记为 eligible，满足专项候选的预授权条件。",
+      "triggerEvidenceIds": ["us-session"],
+      "title": "美股异动是否会成为全球传导起点",
+      "dek": "专项只解释预授权异动，不替普通市场波动凑稿。",
+      "conclusion": "该异动值得单独观察，但只有在港股或 A 股出现同方向确认后，才可升级为跨市场事件。",
+      "keyFacts": [
+        {
+          "id": "special-fact-us-move",
+          "statement": "美股出现预授权的异常市场波动，研究包已提供对应证据。",
+          "asOf": "2026-08-04",
+          "sourceIds": ["us-session"],
+          "factStatus": "confirmed"
+        }
+      ],
+      "analysis": [
+        "先区分已发生的价格事实与尚待确认的跨市场解释。",
+        "如果其他市场没有跟随，专项结论应停留在局部风险偏好变化。"
+      ],
+      "logicChain": [
+        {
+          "from": "美股异常波动",
+          "relation": "需要验证",
+          "to": "跨市场风险偏好传导",
+          "evidenceStatus": "pending",
+          "supportingSourceIds": ["us-session"],
+          "contradictorySourceIds": []
+        }
+      ],
+      "crossMarketTransmission": [
+        {
+          "fromMarket": "US",
+          "toMarket": "HK",
+          "direction": "mixed",
+          "horizon": "next_session",
+          "explanation": "港股科技是否同步是该专项能否扩展为全球主线的验证点。",
+          "evidenceStatus": "pending",
+          "supportingSourceIds": ["us-session", "hk-session"],
+          "invalidationConditionIds": ["special-invalidate-no-follow"]
+        }
+      ],
+      "outlook": {
+        "nextSession": {
+          "statement": "下一交易日只观察港股科技是否出现同方向确认。",
+          "supportingSourceIds": ["us-session", "hk-session"],
+          "invalidationConditionIds": ["special-invalidate-no-follow"]
+        },
+        "oneWeek": {
+          "statement": "未来一周若无第二市场确认，专项保持局部事件解释。",
+          "supportingSourceIds": ["us-session"],
+          "invalidationConditionIds": ["special-invalidate-no-follow"]
+        }
+      },
+      "invalidationConditions": [
+        {
+          "id": "special-invalidate-no-follow",
+          "condition": "港股和 A 股均未出现可追溯的同方向市场确认。",
+          "affectedClaims": ["跨市场扩散", "专项一周展望"]
+        }
+      ],
+      "watchItems": [
+        {
+          "item": "港股科技的下一交易日收盘方向",
+          "whyItMatters": "它决定专项是否仍然只是美股局部波动。",
+          "expectedAt": "2026-08-05",
+          "sourceIds": ["hk-session"]
+        }
+      ],
+      "sourceIds": ["hk-session", "us-session"],
+      "marketTags": ["US", "HK"],
+      "topicTags": ["异常波动", "风险偏好"]
+    }
+  ]
+}

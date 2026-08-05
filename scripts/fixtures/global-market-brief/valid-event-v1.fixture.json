@@ -1,0 +1,14 @@
+{
+  "eventType": "market-move",
+  "occurredAt": "2026-08-04T21:30:00.000Z",
+  "region": "US",
+  "affectedAssets": ["US_TECH"],
+  "affectedThemes": ["risk_appetite", "technology"],
+  "direction": "mixed",
+  "horizon": "next_session",
+  "sourceConfidence": "confirmed",
+  "marketConfirmation": "pending",
+  "supportingSourceIds": ["us-session"],
+  "contradictorySourceIds": [],
+  "status": "new"
+}
