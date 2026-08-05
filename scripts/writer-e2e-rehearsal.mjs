@@ -6,9 +6,10 @@ import { fileURLToPath } from "node:url";
 import { gzipSync } from "node:zlib";
 
 import { canonicalJson, sha256Canonical } from "./research-contract.mjs";
-import { loadResearchSourceCatalog, runResearchPipeline } from "./research-pipeline.mjs";
 import { prepareWriterContext } from "./writer-context.mjs";
 import { apply, createWriterJobPaths, exportWriterJob, prepare, sealWriterResult, validateResult } from "./writer-jobs.mjs";
+import { lintEditorial } from "./editorial-lint.mjs";
+import { GLOBAL_MARKET_BRIEF_MODE } from "./writer-context.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
@@ -125,14 +126,17 @@ function writePacketArtifact(packet, rootDir, asOf) {
 }
 
 function controlledCatalog() {
-  const catalog = loadResearchSourceCatalog();
-  return { ...catalog, sources: catalog.sources.filter((source) => source.sourceId === "fed-press-all-rss") };
+  return import("./research-pipeline.mjs").then(({ loadResearchSourceCatalog }) => {
+    const catalog = loadResearchSourceCatalog();
+    return { ...catalog, sources: catalog.sources.filter((source) => source.sourceId === "fed-press-all-rss") };
+  });
 }
 
 async function generateResearchBundle(edition, asOf) {
+  const { runResearchPipeline } = await import("./research-pipeline.mjs");
   const fixture = fs.readFileSync(path.join(repositoryRoot, "scripts", "fixtures", "research-pipeline", "fed-rss.xml"));
   const response = () => new Response(fixture, { status: 200, headers: { "content-type": "application/rss+xml" } });
-  const summary = await runResearchPipeline({ edition, asOf, write: true, dryRun: false, root: repositoryRoot, catalog: controlledCatalog(), fetchImpl: async () => response(), now: new Date(`${asOf}T12:00:00.000Z`) });
+  const summary = await runResearchPipeline({ edition, asOf, write: true, dryRun: false, root: repositoryRoot, catalog: await controlledCatalog(), fetchImpl: async () => response(), now: new Date(`${asOf}T12:00:00.000Z`) });
   return { summary, relativePath: `data/research-bundles/bundles/${asOf.slice(0, 4)}/${asOf.slice(5, 7)}/${summary.bundleId}.json.gz` };
 }
 
@@ -160,6 +164,125 @@ function sensitiveSnapshot() {
 
 function operationLog(operation, startedAt, endedAt, extra = {}) {
   return { schemaVersion: "writer-e2e-operation-log-v1", operation, startedAt, endedAt, ...extra };
+}
+
+function productionBoundarySnapshot() {
+  const status = spawnSync("git", ["status", "--porcelain=v1", "--untracked-files=all"], { cwd: repositoryRoot, encoding: "utf8" });
+  const contentFile = path.join(repositoryRoot, "content", "daily-brief.json");
+  return {
+    gitStatus: status.stdout ?? "",
+    dailyBriefSha256: fs.existsSync(contentFile) ? sha256(fs.readFileSync(contentFile)) : null
+  };
+}
+
+function copyIntoIsolatedRoot(relativePath, isolatedRoot) {
+  const source = path.join(repositoryRoot, ...relativePath.split("/"));
+  const target = path.join(isolatedRoot, ...relativePath.split("/"));
+  if (!fs.existsSync(source)) fail(`required global dry-run input is missing: ${relativePath}`);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.copyFileSync(source, target);
+}
+
+function globalInputFiles() {
+  const packetPath = "data/writer-jobs/packets/2026/08/b2d544c8fc01b1dae46ee0fe42a0215c43beb7ef2121555e67bd4883d838b752.json.gz";
+  const bundlePath = "data/research-bundles/bundles/2026/08/4c06451a13ac33985c4f8058247d3342e646608ba4cd2df62e4829157759c1d7.json.gz";
+  return {
+    packetPath,
+    bundlePath,
+    baselinePath: "content/writer-contexts/fixtures/p2-b1-global-baseline.json",
+    seedPath: "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json",
+    resultPath: "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json"
+  };
+}
+
+export function runGlobalMarketBriefDryRun({ outputDirectory, sourceHead }) {
+  if (typeof sourceHead !== "string" || !/^[a-f0-9]{40}$/.test(sourceHead)) fail("sourceHead must be a full Git commit");
+  const output = outsideRepository(outputDirectory);
+  fs.mkdirSync(output, { recursive: true });
+  if (fs.readdirSync(output).length) fail("global dry-run output directory must be empty");
+  const before = productionBoundarySnapshot();
+  const isolatedRoot = path.join(output, "isolated-root");
+  const files = [
+    "data/writer-contexts/contract.json",
+    "data/research-bundles/contract.json",
+    "data/writer-jobs/contract.json",
+    "prompts/luna-daily-brief.md",
+    "schemas/global-market-brief-v1.schema.json",
+    "schemas/global-market-brief-writer-output-v1.schema.json",
+    "scripts/editorial-lint.mjs",
+    "scripts/global-market-brief-contract.mjs",
+    "scripts/research-contract.mjs",
+    "scripts/validate-brief.mjs",
+    "scripts/validate-writer-packet.mjs",
+    "scripts/writer-context.mjs",
+    "scripts/writer-jobs.mjs",
+    "content/writer-contexts/fixtures/p2-b1-global-baseline.json",
+    "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json",
+    globalInputFiles().packetPath,
+    globalInputFiles().bundlePath
+  ];
+  for (const file of files) copyIntoIsolatedRoot(file, isolatedRoot);
+  const input = globalInputFiles();
+  const contextSummary = prepareWriterContext({
+    edition: "daily",
+    asOf: "2026-08-03",
+    writerPacketPath: input.packetPath,
+    researchBundlePath: input.bundlePath,
+    baselineSource: input.baselinePath,
+    mode: GLOBAL_MARKET_BRIEF_MODE,
+    globalInputPath: input.seedPath,
+    write: true,
+    root: isolatedRoot,
+    now: new Date("2026-08-04T04:30:00.000Z"),
+    warnings: []
+  });
+  const job = prepare({ mode: GLOBAL_MARKET_BRIEF_MODE, edition: "daily", contextPath: contextSummary.contextPath, write: true, rootDir: isolatedRoot, createdAt: "2026-08-04T04:40:00.000Z" });
+  const packageDirectory = path.join(output, "execution-package");
+  exportWriterJob({ request: job.request, outputDirectory: packageDirectory, rootDir: isolatedRoot });
+  const payload = readJson(path.join(repositoryRoot, ...input.resultPath.split("/")));
+  const result = sealWriterResult({
+    schemaVersion: "writer-result-v2",
+    mode: GLOBAL_MARKET_BRIEF_MODE,
+    jobId: job.request.jobId,
+    requestId: job.request.requestId,
+    contextId: job.request.context.contextId,
+    generatedAt: "2026-08-04T05:00:00.000Z",
+    writerEngine: "luna-max-dry-run-fixture",
+    writerVersion: "gpt-5.6-luna-max",
+    payload,
+    claimBindings: { global: [], quantitative: [], qualitative: [], sourceMetadata: [] },
+    warnings: [],
+    resultId: "",
+    integrity: { businessSha256: "", sha256: "" }
+  });
+  const resultFile = path.join(output, "writer-result.json");
+  writeJson(resultFile, result);
+  validateResult(isolatedRoot, job.request, result);
+  const editorialLint = lintEditorial({ mode: GLOBAL_MARKET_BRIEF_MODE, value: result.payload, result });
+  if (!editorialLint.passed) fail(`global editorial lint failed: ${editorialLint.errors.join("; ")}`);
+  const dryRunApply = apply({ request: job.request, result, dryRun: true, write: false, rootDir: isolatedRoot });
+  const after = productionBoundarySnapshot();
+  const unchanged = before.gitStatus === after.gitStatus && before.dailyBriefSha256 === after.dailyBriefSha256;
+  if (!unchanged) fail("production boundary changed during global dry-run");
+  const report = {
+    schemaVersion: "global-market-brief-dry-run-report-v1",
+    mode: GLOBAL_MARKET_BRIEF_MODE,
+    sourceHead,
+    inputSchemas: { writerContext: "writer-context-v1", writerRequest: "writer-request-v2", writerResult: "writer-result-v2", target: "global-market-brief-v1", writerOutput: "global-market-brief-writer-output-v1" },
+    contextId: contextSummary.contextId,
+    requestId: job.request.requestId,
+    resultId: result.resultId,
+    specialReports: result.payload.specialReports.length,
+    validators: { globalMarketBrief: true, sourceScope: true, triggerEligibility: true, logicChainEvidence: true, timeOrdering: true, editorialLint: editorialLint.passed },
+    editorialLint,
+    wrote: false,
+    productionApply: { applied: false, reason: "global_market_brief is dry-run only in P2-B1" },
+    productionBoundary: { unchanged, before, after },
+    isolationRoot: isolatedRoot,
+    executionPackage: packageDirectory
+  };
+  writeJson(path.join(output, "DRY_RUN_RESULT.json"), report);
+  return report;
 }
 
 function verifyExecutionPackage(packageDirectory) {
@@ -306,6 +429,11 @@ async function runCli() {
   if (!ALLOWED_COMMANDS.has(command)) fail("usage: run | write-result | finalize");
   const args = parseArgs(process.argv.slice(3));
   if (command === "run") {
+    if (args.mode === GLOBAL_MARKET_BRIEF_MODE) {
+      if (typeof args.output !== "string" || typeof args["source-head"] !== "string" || args["dry-run"] !== true || Object.keys(args).some((key) => !["mode", "output", "source-head", "dry-run"].includes(key))) fail("global_market_brief run requires --mode global_market_brief --dry-run --output --source-head");
+      console.log(canonicalJson(runGlobalMarketBriefDryRun({ outputDirectory: path.resolve(args.output), sourceHead: args["source-head"] })));
+      return;
+    }
     if (typeof args.edition !== "string" || typeof args.output !== "string" || typeof args["source-head"] !== "string" || Object.keys(args).some((key) => !["edition", "output", "source-head"].includes(key))) fail("run requires --edition --output --source-head");
     console.log(canonicalJson(await runRehearsal({ edition: args.edition, outputDirectory: path.resolve(args.output), sourceHead: args["source-head"] })));
     return;

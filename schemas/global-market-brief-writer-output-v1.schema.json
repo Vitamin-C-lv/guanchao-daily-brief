@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/global-market-brief-writer-output-v1.schema.json",
+  "title": "观潮全球整合文章 Writer 输出契约",
+  "description": "离线 Writer 只能输出 global_market_brief 模式下的一个 global_main，以及零至两个经冻结候选授权的 special_report。目标内容仍须通过 global-market-brief-v1 executable validator。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["mode", "output", "schemaVersion"],
+  "properties": {
+    "schemaVersion": { "const": "global-market-brief-writer-output-v1" },
+    "mode": { "const": "global_market_brief" },
+    "output": { "$ref": "./global-market-brief-v1.schema.json" }
+  }
+}

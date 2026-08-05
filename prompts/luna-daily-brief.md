@@ -41,3 +41,22 @@ If the complete `writer-result-v2` contract cannot be satisfied, return only:
 `{"schemaVersion":"writer-error-v1","jobId":"<request.jobId>","errorCode":"GENERATION_CONTRACT_FAILURE","message":"<short reason>"}`.
 `writer-error-v1` is not a writer result, must not be passed to `writer-job:validate` or
 `production:apply`, must not contain a half article, and must not fabricate facts to avoid failure.
+
+## P2-B1 global_market_brief mode
+
+When `request.mode` is `global_market_brief`, read only the frozen
+`context.globalMarketBrief` fields, the referenced quantitative packet, research bundle,
+baseline article, request and this prompt. Do not browse, search, call APIs, add sources,
+read latest views, or use any input outside the immutable context. Return one
+`writer-result-v2` whose `payload` is `global-market-brief-v1`: exactly one `global_main`
+article and zero to two `special_report` articles.
+
+Preserve every frozen source metadata field, key-fact value, null/unavailable state, trigger
+candidate, evidence status and date ordering. Do not change numbers, create probabilities,
+rankings, EvidenceScore/观察分 semantics, model state, provider/coverage/gateFailures text,
+or machine diagnostics. Do not emit a fixed three-market A-share/HK/US set of articles.
+Every causal or cross-market statement must retain supporting or contradictory source IDs;
+every future outlook must name an invalidation condition. A special report must use one
+eligible candidate and only its trigger evidence. If no eligible trigger exists, output
+`specialReports: []`; never invent a special report. Keep `claimBindings.global` source-bound
+and do not write `payload.factClaims`.

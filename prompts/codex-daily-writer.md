@@ -81,6 +81,17 @@ Writer 仍然禁止修改：概率、排名、EvidenceScore、prediction ledger�
 模型。这些由 Prediction Publisher 负责。提交格式 `chore(content): publish daily brief
 YYYY-MM-DD`。
 
+## P2-B1 global_market_brief dry-run
+
+`global_market_brief` 是独立的离线整合文章路径，不替换旧 daily-brief-v1 链，也不双写
+`content/daily-brief.json`。它只消费冻结的 research-bundle-v1、quantitative writer
+packet、baseline article 与 P2-B0 trigger candidates。Writer 不联网、不新增来源、不修改
+数值、不输出固定三市场分稿、不把 EvidenceScore/观察分写成概率、不输出 provider、coverage、
+gateFailures 或其他机器状态；没有 eligible trigger 时必须输出 `specialReports: []`。
+必须先通过 global-market-brief-v1、source scope、trigger eligibility、logic-chain evidence、
+time ordering 和 global editorial lint。P2-B1 的 dry-run 只能报告
+`wrote=false`、`productionApply.applied=false`，不得写入生产 content、不得 push main。
+
 ## Failure handling
 
 研究源不可用、限流或 schema 改变时保留显式状态；不补零、不回填、不猜测。缺少必需绑定时输出

@@ -105,6 +105,22 @@ function readPackage(directory) {
   return { root, manifest, files };
 }
 
+function readGlobalExecutionPackage(directory) {
+  const root = path.resolve(directory);
+  const manifestFile = path.join(root, "MANIFEST.json");
+  if (!fs.existsSync(manifestFile)) return null;
+  const manifest = readJson(manifestFile);
+  if (manifest.schemaVersion !== "writer-execution-package-manifest-v1") return null;
+  const names = ["BASELINE_CONTENT.json", "MANIFEST.json", "PROMPT.md", "QUANTITATIVE_PACKET.json", "REQUEST.json", "RESEARCH_BUNDLE.json", "RESULT_TEMPLATE.json", "SHA256SUMS.txt", "TARGET_SCHEMA.json", "WRITER_CONTEXT.json"];
+  const files = new Map();
+  for (const name of names.filter((item) => item !== "MANIFEST.json" && item !== "SHA256SUMS.txt")) {
+    const file = path.join(root, name);
+    if (!fs.existsSync(file)) fail("PACKAGE_MISSING", name, "global writer execution package file is missing");
+    files.set(name, fs.readFileSync(file));
+  }
+  return { root, manifest, files };
+}
+
 function protectedFiles(root) {
   const roots = [
     "data/prediction-ledger",
@@ -266,10 +282,42 @@ function injectVisuals(targetFile, visuals, root) {
 export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = false, write = false, root = repositoryRoot, output = null } = {}) {
   if (dryRun === write) fail("MODE", "mode", "exactly one of dryRun or write is required");
   if (typeof packageDirectory !== "string" || typeof resultFile !== "string") fail("ARGUMENT", "arguments", "packageDirectory and resultFile are required");
-  const packageValue = readPackage(packageDirectory);
+  const packageValue = readGlobalExecutionPackage(packageDirectory) ?? readPackage(packageDirectory);
   const request = JSON.parse(packageValue.files.get("REQUEST.json").toString("utf8"));
   validateRequest(request, { rootDir: root });
   const result = readJson(path.resolve(resultFile));
+  if (request.mode === "global_market_brief") {
+    if (write) fail("GLOBAL_PRODUCTION_DISABLED", "productionApply", "global_market_brief production apply is disabled in P2-B1");
+    const beforeProtected = protectedFiles(root);
+    validateResult(root, request, result);
+    const lint = lintEditorial({ mode: "global_market_brief", value: result.payload, result, style: {} });
+    if (!lint.passed) fail("EDITORIAL_LINT", "result.payload", lint.errors.join("; "));
+    const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root });
+    const afterProtected = protectedFiles(root);
+    assertProtectedEqual(beforeProtected, afterProtected);
+    const report = {
+      schemaVersion: "codex-writer-finalize-report-v1",
+      mode: "global_market_brief",
+      edition: request.edition,
+      requestedAsOf: request.requestedAsOf,
+      requestId: request.requestId,
+      jobId: request.jobId,
+      contextId: request.context.contextId,
+      resultId: result.resultId,
+      codexResearchRunId: null,
+      bundleId: null,
+      editorialLint: lint,
+      articleDepth: null,
+      productionApply: { ...simulation, applied: false, productionApply: { applied: false } },
+      protectedBoundary: { checked: Object.keys(beforeProtected).length, unchanged: true },
+      targetValidation: null,
+      dryRun: true,
+      wrote: false,
+      output: output ?? null
+    };
+    if (output) writeJsonOutside(path.resolve(output), report, root);
+    return report;
+  }
   const bundleRegistry = JSON.parse(fs.readFileSync(path.join(root, "data", "research-bundles", "contract.json"), "utf8"));
   const codexResearch = JSON.parse(packageValue.files.get("CODEX_RESEARCH.json").toString("utf8"));
   if (codexResearch.schemaVersion === "codex-research-v1") validateCodexResearch(codexResearch, { bundleRegistry, contract: JSON.parse(fs.readFileSync(path.join(root, "data", "codex-research", "contract.json"), "utf8")) });

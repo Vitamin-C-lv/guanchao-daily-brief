@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "global-market-brief-v1",
+  "editionDate": "2026-08-04",
+  "generatedAt": "2026-08-04T12:00:00.000Z",
+  "dataAsOf": "2026-08-03",
+  "buildStatus": "partial",
+  "sourceIndex": [
+    { "id": "fixture-fed", "title": "FOMC statement", "publisher": "Federal Reserve", "url": "https://www.federalreserve.gov/monetarypolicy/fomc.htm", "asOf": "2026-07-29" },
+    { "id": "fixture-treasury", "title": "Treasury yield curve", "publisher": "U.S. Department of the Treasury", "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates", "asOf": "2026-08-03" }
+  ],
+  "specialTriggerCandidates": [],
+  "mainArticle": {
+    "id": "global-liquidity-cross-market",
+    "slug": "global-liquidity-cross-market",
+    "articleUrl": "/articles/global-liquidity-cross-market/",
+    "contentKind": "global_main",
+    "title": "流动性信号仍是跨市场定价的共同线索",
+    "dek": "美国利率与政策表述提供共同背景，但市场传导仍需后续数据确认。",
+    "conclusion": "当前更适合把利率变化视为跨市场的共同线索，而不是单一市场的确定性方向。后续判断取决于数据是否继续支持这一逻辑链。",
+    "keyFacts": [
+      { "id": "fact-fed-guidance", "statement": "联储最近一次政策声明仍是观察利率路径的重要依据。", "asOf": "2026-07-29", "sourceIds": ["fixture-fed"], "factStatus": "confirmed" },
+      { "id": "fact-treasury-curve", "statement": "美国国债曲线数据截至 2026-08-03 可用。", "asOf": "2026-08-03", "sourceIds": ["fixture-treasury"], "factStatus": "confirmed" }
+    ],
+    "logicChain": [
+      { "from": "政策表述", "relation": "影响", "to": "利率路径预期", "evidenceStatus": "partially_confirmed", "supportingSourceIds": ["fixture-fed"], "contradictorySourceIds": [] }
+    ],
+    "crossMarketTransmission": [
+      { "fromMarket": "US", "toMarket": "A_SHARE", "direction": "mixed", "horizon": "one_week", "explanation": "美国利率背景可能影响全球风险定价，但本地市场仍需独立确认。", "evidenceStatus": "pending", "supportingSourceIds": ["fixture-fed", "fixture-treasury"], "invalidationConditionIds": ["condition-next-data"] }
+    ],
+    "invalidationConditions": [
+      { "id": "condition-next-data", "condition": "若后续通胀或政策数据不再支持当前利率解释，则该跨市场判断失效。", "affectedClaims": ["利率背景影响跨市场定价"] }
+    ],
+    "outlook": {
+      "nextSession": { "statement": "下一交易时段关注利率数据与风险资产的同步性。", "supportingSourceIds": ["fixture-treasury"], "invalidationConditionIds": ["condition-next-data"] },
+      "oneWeek": { "statement": "未来一周观察政策表述是否继续支持当前传导线索。", "supportingSourceIds": ["fixture-fed"], "invalidationConditionIds": ["condition-next-data"] }
+    },
+    "watchItems": [
+      { "item": "下一组利率与政策数据", "whyItMatters": "它将检验当前跨市场传导线索是否仍有依据。", "expectedAt": "2026-08-05", "sourceIds": ["fixture-fed", "fixture-treasury"] }
+    ],
+    "sourceIds": ["fixture-fed", "fixture-treasury"],
+    "marketTags": ["US", "A_SHARE", "GLOBAL"],
+    "topicTags": ["rates", "liquidity", "cross-market"]
+  },
+  "specialReports": []
+}

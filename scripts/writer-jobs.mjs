@@ -7,7 +7,9 @@ import { fileURLToPath } from "node:url";
 import { gunzipSync, gzipSync } from "node:zlib";
 
 import { canonicalize, canonicalJson, sha256Canonical } from "./research-contract.mjs";
+import { validateGlobalMarketBrief } from "./global-market-brief-contract.mjs";
 import {
+  GLOBAL_MARKET_BRIEF_MODE,
   loadWriterContextRegistry,
   validateRepoRelativePath,
   validateWriterContext,
@@ -127,6 +129,7 @@ function ensureOutsideRoot(output, rootDir, field = "output") {
 }
 
 function assertNoAbsolute(value, field) {
+  if (typeof value === "string" && value.startsWith("/articles/")) return;
   if (typeof value === "string" && (/^[A-Za-z]:[\\/]/.test(value) || value.startsWith("/") || value.startsWith("\\\\"))) error("LOCAL_ABSOLUTE_PATH", field, "local absolute paths are forbidden");
   if (Array.isArray(value)) value.forEach((item, index) => assertNoAbsolute(item, `${field}[${index}]`));
   if (object(value)) Object.entries(value).forEach(([key, item]) => assertNoAbsolute(item, `${field}.${key}`));
@@ -241,21 +244,23 @@ function requestStableView(request) {
 }
 
 function targetOutput(context, baseline) {
+  const global = context.mode === GLOBAL_MARKET_BRIEF_MODE;
   return {
     targetPath: baseline.targetPath,
-    contentType: context.edition === "daily" ? "daily-brief" : "weekly-report",
+    contentType: global ? "global-market-brief" : context.edition === "daily" ? "daily-brief" : "weekly-report",
     targetSchemaVersion: context.targetSchemaVersion,
-    validatorId: context.edition === "daily" ? "validate-brief" : "validate-weekly",
+    validatorId: global ? "validate-brief-global-market" : context.edition === "daily" ? "validate-brief" : "validate-weekly",
     validatorPath: context.targetValidator.path,
     validatorSha256: context.targetValidator.sha256,
     required: true
   };
 }
 
-export function makeRequest({ edition, contextPath, createdAt = new Date().toISOString(), rootDir = root }) {
+export function makeRequest({ edition, contextPath, mode = null, createdAt = new Date().toISOString(), rootDir = root }) {
   const loaded = contextReference(rootDir, contextPath);
   const { context, registry } = loaded;
   if (context.edition !== edition) error("REQUEST_CONTEXT_EDITION", "edition", "context edition differs from request", edition, context.edition);
+  if ((mode ?? null) !== (context.mode ?? null)) error("REQUEST_CONTEXT_MODE", "mode", "context mode differs from request", mode, context.mode ?? null);
   const inputs = validateWriterContextArtifacts(context, { root: rootDir, registry });
   const request = {
     schemaVersion: requestVersion,
@@ -278,6 +283,14 @@ export function makeRequest({ edition, contextPath, createdAt = new Date().toISO
     jobId: "",
     integrity: { businessSha256: "", sha256: "" }
   };
+  if (context.mode === GLOBAL_MARKET_BRIEF_MODE) {
+    request.mode = GLOBAL_MARKET_BRIEF_MODE;
+    request.allowedSourceIds = inputs.global.sourceIndex.map((source) => source.id).sort();
+    request.allowedTriggerCandidateIds = inputs.global.specialTriggerCandidates.map((candidate) => candidate.id).sort();
+    request.writerOutputSchemaPath = inputs.global.inputSchemas.writerOutput.path;
+    request.writerOutputSchemaSha256 = inputs.global.inputSchemas.writerOutput.sha256;
+    request.requiredSections = ["crossMarketTransmission", "invalidationConditions", "logicChain", "outlook", "sourceScope", "specialTriggerCandidates"];
+  }
   request.requestId = hash(requestBusinessView(request));
   request.jobId = request.requestId;
   request.integrity.businessSha256 = request.requestId;
@@ -298,9 +311,16 @@ export function validateLegacyRequestV1(request) {
 
 export function validateRequest(request, { rootDir = root, requireCurrentFrozen = true } = {}) {
   const keys = ["allowedDocumentIds", "allowedFactIds", "allowedObservationIds", "context", "createdAt", "edition", "inputStatus", "integrity", "jobId", "requestId", "requestedAsOf", "requiredSections", "schemaVersion", "targetOutputs", "targetSchemaVersion", "targetValidatorPath", "targetValidatorSha256", "writerPromptPath", "writerPromptSha256"];
+  const globalKeys = ["allowedSourceIds", "allowedTriggerCandidateIds", "mode", "writerOutputSchemaPath", "writerOutputSchemaSha256"];
   if (!object(request) || request.schemaVersion !== requestVersion) error("REQUEST_SCHEMA", "schemaVersion", "invalid writer request schema", requestVersion, request?.schemaVersion);
-  exactKeys(request, keys, keys, "request");
+  exactKeys(request, keys, [...keys, ...globalKeys], "request");
   if (!["daily", "weekly"].includes(request.edition)) error("REQUEST_FIELDS", "edition", "daily or weekly required");
+  if (request.mode !== undefined && request.mode !== GLOBAL_MARKET_BRIEF_MODE) error("REQUEST_MODE", "mode", "unsupported writer mode");
+  const global = request.mode === GLOBAL_MARKET_BRIEF_MODE;
+  for (const key of globalKeys) {
+    if (global && !Object.hasOwn(request, key)) error("REQUEST_MODE", `request.${key}`, "global writer request field is required");
+    if (!global && Object.hasOwn(request, key)) error("REQUEST_MODE", `request.${key}`, "global writer request field is not allowed for legacy mode");
+  }
   isoDate(request.requestedAsOf, "requestedAsOf");
   isoTimestamp(request.createdAt, "createdAt");
   exactKeys(request.context, ["artifactPath", "artifactSha256", "contextId", "schemaVersion"], ["artifactPath", "artifactSha256", "contextId", "schemaVersion"], "request.context");
@@ -317,7 +337,7 @@ export function validateRequest(request, { rootDir = root, requireCurrentFrozen 
   const target = request.targetOutputs[0];
   const targetKeys = ["contentType", "required", "targetPath", "targetSchemaVersion", "validatorId", "validatorPath", "validatorSha256"];
   exactKeys(target, targetKeys, targetKeys, "request.targetOutputs[0]");
-  if (typeof target.required !== "boolean" || !target.required || !["daily-brief", "weekly-report"].includes(target.contentType)) error("REQUEST_TARGETS", "targetOutputs", "invalid target");
+  if (typeof target.required !== "boolean" || !target.required || !["daily-brief", "weekly-report", "global-market-brief"].includes(target.contentType)) error("REQUEST_TARGETS", "targetOutputs", "invalid target");
   try { validateRepoRelativePath(target.targetPath, "targetOutputs.targetPath"); validateRepoRelativePath(target.validatorPath, "targetOutputs.validatorPath"); } catch { error("REQUEST_TARGETS", "targetOutputs", "unsafe target path"); }
   validHash(target.validatorSha256, "targetOutputs.validatorSha256");
   for (const [field, nonemptyArray] of [["allowedFactIds", true], ["allowedObservationIds", false], ["allowedDocumentIds", false], ["requiredSections", true]]) assertSortedUniqueStrings(request[field], field, { nonempty: nonemptyArray });
@@ -334,6 +354,7 @@ export function validateRequest(request, { rootDir = root, requireCurrentFrozen 
   if (loaded.reference.artifactSha256 !== request.context.artifactSha256) error("REQUEST_CONTEXT_SHA", "request.context.artifactSha256", "context bytes changed");
   if (loaded.context.contextId !== request.context.contextId) error("REQUEST_CONTEXT_ID", "request.context.contextId", "context ID mismatch");
   if (loaded.context.edition !== request.edition || loaded.context.asOf !== request.requestedAsOf) error("REQUEST_CONTEXT_COMPATIBILITY", "request.context", "context edition/asOf mismatch");
+  if ((loaded.context.mode ?? null) !== (request.mode ?? null)) error("REQUEST_CONTEXT_MODE", "request.mode", "request mode differs from immutable context");
   const inputs = validateWriterContextArtifacts(loaded.context, { root: rootDir, registry: loaded.registry, requireCurrentFrozen });
   if (request.writerPromptPath !== loaded.context.writerPrompt.path || request.writerPromptSha256 !== loaded.context.writerPrompt.sha256) error("PROMPT_SHA_MISMATCH", "writerPrompt", "request prompt binding differs from context");
   if (request.targetValidatorPath !== loaded.context.targetValidator.path || request.targetValidatorSha256 !== loaded.context.targetValidator.sha256) error("TARGET_VALIDATOR_SHA_MISMATCH", "targetValidator", "request validator binding differs from context");
@@ -341,6 +362,11 @@ export function validateRequest(request, { rootDir = root, requireCurrentFrozen 
   const expectedTarget = targetOutput(loaded.context, inputs.baseline);
   if (canonicalJson(target) !== canonicalJson(expectedTarget)) error("REQUEST_TARGETS", "targetOutputs", "target differs from immutable baseline/context");
   if (canonicalJson(request.allowedFactIds) !== canonicalJson(inputs.packet.facts.map((item) => item.factId).sort()) || canonicalJson(request.allowedObservationIds) !== canonicalJson(inputs.bundle.observations.map((item) => item.observationId).sort()) || canonicalJson(request.allowedDocumentIds) !== canonicalJson(inputs.bundle.documents.map((item) => item.documentId).sort())) error("REQUEST_EVIDENCE_INDEX", "allowed IDs", "request evidence index differs from context artifacts");
+  if (global) {
+    if (canonicalJson(request.allowedSourceIds) !== canonicalJson(inputs.global.sourceIndex.map((source) => source.id).sort()) || canonicalJson(request.allowedTriggerCandidateIds) !== canonicalJson(inputs.global.specialTriggerCandidates.map((candidate) => candidate.id).sort())) error("REQUEST_GLOBAL_INDEX", "allowedSourceIds/allowedTriggerCandidateIds", "global request index differs from frozen context");
+    if (request.writerOutputSchemaPath !== inputs.global.inputSchemas.writerOutput.path || request.writerOutputSchemaSha256 !== inputs.global.inputSchemas.writerOutput.sha256) error("REQUEST_GLOBAL_SCHEMA", "writerOutputSchema", "writer output schema binding differs from context");
+    if (target.contentType !== "global-market-brief" || target.validatorId !== "validate-brief-global-market") error("REQUEST_TARGETS", "targetOutputs", "global writer target is required");
+  } else if (target.contentType === "global-market-brief") error("REQUEST_TARGETS", "targetOutputs", "global target requires global writer mode");
   return request;
 }
 
@@ -385,11 +411,11 @@ export function rebuild(rootDir = root) {
   return next.index.jobs;
 }
 
-export function prepare({ edition, contextPath, dryRun = false, write = false, rootDir = root, createdAt = new Date().toISOString(), failAt = null } = {}) {
+export function prepare({ edition, contextPath, mode = null, dryRun = false, write = false, rootDir = root, createdAt = new Date().toISOString(), failAt = null } = {}) {
   if (dryRun === write) error("PREPARE_MODE", "mode", "exactly one of dryRun or write is required");
   if (!["daily", "weekly"].includes(edition)) error("PREPARE_ARGUMENT", "edition", "daily or weekly required");
   if (typeof contextPath !== "string") error("PREPARE_ARGUMENT", "context", "explicit immutable context required");
-  const request = makeRequest({ edition, contextPath, createdAt, rootDir });
+  const request = makeRequest({ edition, contextPath, mode, createdAt, rootDir });
   const paths = createWriterJobPaths(rootDir);
   const file = paths.request(request.jobId, request.requestedAsOf);
   let effective = request;
@@ -412,6 +438,7 @@ export function prepare({ edition, contextPath, dryRun = false, write = false, r
     summary: {
       schemaVersion: "writer-job-prepare-summary-v2",
       edition,
+      ...(request.mode ? { mode: request.mode } : {}),
       requestedAsOf: effective.requestedAsOf,
       contextId: effective.context.contextId,
       requestId: effective.requestId,
@@ -596,14 +623,83 @@ function assertNoFactClaims(value, field = "payload") {
   }
 }
 
+function globalArticles(payload) {
+  return [payload.mainArticle, ...(payload.specialReports ?? [])];
+}
+
+export function validateGlobalWriterPayload(request, inputs, payload) {
+  try {
+    validateGlobalMarketBrief(payload);
+  } catch (cause) {
+    error("GLOBAL_BRIEF_INVALID", "payload", cause instanceof Error ? cause.message : "global market brief is invalid");
+  }
+  const frozenSources = new Map(inputs.global.sourceIndex.map((source) => [source.id, source]));
+  for (let index = 0; index < payload.sourceIndex.length; index += 1) {
+    const source = payload.sourceIndex[index];
+    const frozen = frozenSources.get(source.id);
+    if (!frozen) error("GLOBAL_SOURCE_SCOPE", `payload.sourceIndex[${index}].id`, "writer introduced a source outside the frozen context");
+    if (canonicalJson(source) !== canonicalJson(frozen)) error("GLOBAL_SOURCE_MUTATION", `payload.sourceIndex[${index}]`, "writer changed frozen source metadata");
+  }
+  const frozenCandidates = new Map(inputs.global.specialTriggerCandidates.map((candidate) => [candidate.id, candidate]));
+  const outputCandidates = new Map(payload.specialTriggerCandidates.map((candidate) => [candidate.id, candidate]));
+  if (outputCandidates.size !== frozenCandidates.size) error("GLOBAL_TRIGGER_SCOPE", "payload.specialTriggerCandidates", "writer must preserve the frozen trigger candidate set");
+  for (const [id, candidate] of outputCandidates) {
+    if (!frozenCandidates.has(id) || canonicalJson(candidate) !== canonicalJson(frozenCandidates.get(id))) error("GLOBAL_TRIGGER_SCOPE", `payload.specialTriggerCandidates.${id}`, "writer changed or invented a trigger candidate");
+  }
+  const frozenFacts = new Map(inputs.global.keyFacts.map((fact) => [fact.id, fact]));
+  const outputFacts = new Set();
+  for (const article of globalArticles(payload)) {
+    for (const fact of article.keyFacts) {
+      if (outputFacts.has(fact.id)) error("GLOBAL_FACT_DUPLICATE", `payload.${article.id}.keyFacts`, "key fact IDs must be unique across global output");
+      outputFacts.add(fact.id);
+      const frozen = frozenFacts.get(fact.id);
+      if (!frozen) error("GLOBAL_FACT_SCOPE", `payload.${article.id}.keyFacts.${fact.id}`, "writer introduced a key fact outside the frozen context");
+      if (canonicalJson(fact) !== canonicalJson(frozen)) error("GLOBAL_FACT_MUTATION", `payload.${article.id}.keyFacts.${fact.id}`, "writer changed a frozen fact or number");
+    }
+    for (const edge of article.logicChain) {
+      for (const sourceId of [...edge.supportingSourceIds, ...edge.contradictorySourceIds]) if (!frozenSources.has(sourceId)) error("GLOBAL_LOGIC_SCOPE", `payload.${article.id}.logicChain`, "logic-chain evidence is outside the frozen source scope");
+    }
+    for (const transmission of article.crossMarketTransmission) for (const sourceId of transmission.supportingSourceIds) if (!frozenSources.has(sourceId)) error("GLOBAL_LOGIC_SCOPE", `payload.${article.id}.crossMarketTransmission`, "cross-market evidence is outside the frozen source scope");
+  }
+  const numericValues = [];
+  const collectNumbers = (value) => {
+    if (Array.isArray(value)) return value.forEach(collectNumbers);
+    if (!object(value)) return;
+    for (const child of Object.values(value)) {
+      if (typeof child === "number") numericValues.push(child);
+      else collectNumbers(child);
+    }
+  };
+  collectNumbers(payload);
+  const frozenNumbers = new Set(inputs.global.keyFacts.map((fact) => fact.value).filter((value) => typeof value === "number"));
+  for (const number of numericValues) if (!frozenNumbers.has(number)) error("GLOBAL_NUMBER_MUTATION", "payload", `writer introduced unsupported numeric value ${number}`);
+  return payload;
+}
+
+function validateGlobalClaimBindings(bindings, request) {
+  if (!Array.isArray(bindings)) error("GLOBAL_BINDINGS", "claimBindings.global", "array required");
+  const allowed = new Set(request.allowedSourceIds);
+  for (let index = 0; index < bindings.length; index += 1) {
+    const binding = bindings[index];
+    const field = `claimBindings.global[${index}]`;
+    exactKeys(binding, ["claimPath", "sourceIds"], ["claimPath", "sourceIds"], field);
+    parseClaimPath(binding.claimPath);
+    assertSortedUniqueStrings(binding.sourceIds, `${field}.sourceIds`, { nonempty: true });
+    for (const sourceId of binding.sourceIds) if (!allowed.has(sourceId)) error("GLOBAL_BINDINGS", `${field}.sourceIds`, "binding source is outside request scope");
+  }
+}
+
 export function validateResult(rootDir, request, result) {
   validateRequest(request, { rootDir });
   const loaded = contextReference(rootDir, request.context.artifactPath);
   const inputs = validateWriterContextArtifacts(loaded.context, { root: rootDir, registry: loaded.registry });
   const requiredKeys = ["claimBindings", "contextId", "generatedAt", "integrity", "jobId", "payload", "requestId", "resultId", "schemaVersion", "warnings", "writerEngine", "writerVersion"];
-  const allowedKeys = [...requiredKeys, "articleDepth", "visualSelections"];
+  const allowedKeys = [...requiredKeys, "articleDepth", "visualSelections", "mode"];
   exactKeys(result, requiredKeys, allowedKeys, "result");
   if (result.schemaVersion !== resultVersion) error("RESULT_SCHEMA", "schemaVersion", "writer-result-v2 required");
+  const global = request.mode === GLOBAL_MARKET_BRIEF_MODE;
+  if (global && result.mode !== GLOBAL_MARKET_BRIEF_MODE) error("RESULT_MODE", "mode", "global result mode is required");
+  if (!global && result.mode !== undefined) error("RESULT_MODE", "mode", "legacy result cannot declare global mode");
   if (result.jobId !== request.jobId || result.requestId !== request.requestId || result.contextId !== request.context.contextId) error("RESULT_METADATA", "jobId/requestId/contextId", "result does not bind request/context");
   isoTimestamp(result.generatedAt, "generatedAt");
   nonempty(result.writerEngine, "writerEngine");
@@ -634,8 +730,19 @@ export function validateResult(rootDir, request, result) {
   if (!object(result.payload)) error("RESULT_PAYLOAD", "payload", "complete payload object required");
   assertNoAbsolute(result, "result");
   assertNoFactClaims(result.payload);
-  exactKeys(result.claimBindings, ["qualitative", "quantitative", "sourceMetadata"], ["qualitative", "quantitative", "sourceMetadata"], "claimBindings");
+  exactKeys(result.claimBindings, ["qualitative", "quantitative", "sourceMetadata"], global ? ["global", "qualitative", "quantitative", "sourceMetadata"] : ["qualitative", "quantitative", "sourceMetadata"], "claimBindings");
   for (const key of ["quantitative", "qualitative", "sourceMetadata"]) if (!Array.isArray(result.claimBindings[key])) error("CLAIM_BINDINGS", `claimBindings.${key}`, "array required");
+  if (global) {
+    if (!Object.hasOwn(result.claimBindings, "global")) error("CLAIM_BINDINGS", "claimBindings.global", "global bindings array is required");
+    validateGlobalClaimBindings(result.claimBindings.global, request);
+    validateGlobalWriterPayload(request, inputs, result.payload);
+    validHash(result.resultId, "resultId");
+    const expectedGlobalId = hash(resultBusinessView(result));
+    if (result.resultId !== expectedGlobalId) error("RESULT_INTEGRITY", "resultId", "result ID mismatch");
+    exactKeys(result.integrity, ["businessSha256", "sha256"], ["businessSha256", "sha256"], "result.integrity");
+    if (result.integrity.businessSha256 !== expectedGlobalId || result.integrity.sha256 !== fullLogicalHash(result)) error("RESULT_INTEGRITY", "integrity", "result integrity mismatch");
+    return result;
+  }
   if (!inputs.bundle.observations.length) {
     if (result.claimBindings.qualitative.length) error("EMPTY_OBSERVATIONS", "claimBindings.qualitative", "bundle has no qualitative observations");
     if (!result.warnings.includes("no-new-qualitative-observations")) error("EMPTY_OBSERVATIONS", "warnings", "empty observation bundle must remain explicit");
@@ -669,6 +776,18 @@ export function validateResult(rootDir, request, result) {
 }
 
 function validatePayload(rootDir, target, payload) {
+  if (target.contentType === "global-market-brief") {
+    const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "writer-global-validator-"));
+    try {
+      const candidate = path.join(temporary, "candidate.json");
+      writeJson(candidate, payload);
+      const run = spawnSync(process.execPath, [path.join(rootDir, "scripts", "validate-brief.mjs"), "--mode", GLOBAL_MARKET_BRIEF_MODE, "--input", candidate], { cwd: rootDir, encoding: "utf8" });
+      if (run.status !== 0) error("TARGET_SCHEMA_INVALID", target.targetPath, (run.stderr || run.stdout || "global target validator failed").trim());
+    } finally {
+      fs.rmSync(temporary, { recursive: true, force: true });
+    }
+    return;
+  }
   if (target.contentType === "weekly-report") return;
   if (target.contentType !== "daily-brief") error("TARGET_SCHEMA_UNKNOWN", "contentType", "unknown target content type");
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "writer-job-validator-"));
@@ -732,6 +851,9 @@ export function apply({ request, result, dryRun = false, write = false, rootDir 
   validateResult(rootDir, request, result);
   const target = request.targetOutputs[0];
   validatePayload(rootDir, target, result.payload);
+  if (request.mode === GLOBAL_MARKET_BRIEF_MODE) {
+    return { mode: GLOBAL_MARKET_BRIEF_MODE, noOp: false, applied: false, wrote: false, files: [], productionApply: { applied: false, reason: "global_market_brief is dry-run only in P2-B1" } };
+  }
   const paths = createWriterJobPaths(rootDir);
   const accepted = paths.accepted(request.jobId, request.requestedAsOf);
   if (fs.existsSync(accepted)) {
@@ -770,6 +892,7 @@ export function createResultTemplate({ request, rootDir = root }) {
   return {
     schemaVersion: "writer-result-template-v1",
     resultSchemaVersion: resultVersion,
+    ...(request.mode ? { mode: request.mode } : {}),
     jobId: request.jobId,
     requestId: request.requestId,
     contextId: request.context.contextId,
@@ -781,6 +904,7 @@ export function createResultTemplate({ request, rootDir = root }) {
     },
     resultTemplate: {
       schemaVersion: resultVersion,
+      ...(request.mode ? { mode: request.mode } : {}),
       jobId: request.jobId,
       requestId: request.requestId,
       contextId: request.context.contextId,
@@ -788,7 +912,7 @@ export function createResultTemplate({ request, rootDir = root }) {
       writerEngine: "<manual writer engine>",
       writerVersion: "<writer version>",
       payload: null,
-      claimBindings: { quantitative: [], qualitative: [], sourceMetadata: [] },
+      claimBindings: request.mode === GLOBAL_MARKET_BRIEF_MODE ? { global: [], quantitative: [], qualitative: [], sourceMetadata: [] } : { quantitative: [], qualitative: [], sourceMetadata: [] },
       warnings: [],
       resultId: "<computed SHA-256>",
       integrity: { businessSha256: "<same as resultId>", sha256: "<full logical SHA-256>" }
@@ -873,9 +997,9 @@ function runCli() {
   const args = parseArgs(process.argv.slice(3));
   const rootDir = args.root && typeof args.root === "string" ? path.resolve(args.root) : root;
   if (command === "prepare") {
-    only(args, ["edition", "context", "dry-run", "write", "root"], command);
+    only(args, ["edition", "context", "mode", "dry-run", "write", "root"], command);
     if (typeof args.edition !== "string" || typeof args.context !== "string" || (args["dry-run"] !== undefined && args["dry-run"] !== true) || (args.write !== undefined && args.write !== true)) error("CLI_ARGUMENT", command, "edition, context and exactly one mode are required");
-    console.log(canonicalJson(prepare({ edition: args.edition, contextPath: args.context, dryRun: args["dry-run"] === true, write: args.write === true, rootDir }).summary));
+    console.log(canonicalJson(prepare({ edition: args.edition, contextPath: args.context, mode: args.mode ?? null, dryRun: args["dry-run"] === true, write: args.write === true, rootDir }).summary));
     return;
   }
   if (command === "validate") {

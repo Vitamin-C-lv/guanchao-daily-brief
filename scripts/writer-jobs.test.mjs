@@ -35,6 +35,7 @@ import {
   sealWriterResult,
   shanghaiDate,
   validateLegacyRequestV1,
+  validateGlobalWriterPayload,
   validateRequest,
   validateResult,
   writeResultTemplate
@@ -45,6 +46,17 @@ const AS_OF = { daily: "2026-07-24", weekly: "2026-07-17" };
 const NOW = new Date("2026-07-30T12:00:00.000Z");
 const moduleFile = path.join(root, "scripts", "writer-jobs.mjs");
 const hashBytes = (bytes) => createHash("sha256").update(bytes).digest("hex");
+const globalTwoFixture = JSON.parse(fs.readFileSync(path.join(root, "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json"), "utf8"));
+
+function globalPayloadInputs() {
+  return {
+    global: {
+      sourceIndex: globalTwoFixture.sourceIndex,
+      specialTriggerCandidates: globalTwoFixture.specialTriggerCandidates,
+      keyFacts: [globalTwoFixture.mainArticle, ...(globalTwoFixture.specialReports ?? [])].flatMap((article) => article.keyFacts)
+    }
+  };
+}
 
 function copy(repo, relativePath) {
   const destination = path.join(repo, ...relativePath.split("/"));
@@ -411,3 +423,18 @@ test("71 CLI prepare rejects missing context", () => { const run = spawnSync(pro
 test("72 CLI rejects implicit real apply", () => { const run = spawnSync(process.execPath, [moduleFile, "apply"], { cwd: root, encoding: "utf8" }); assert.equal(run.status, 1); assert.match(run.stderr, /CLI_ARGUMENT/); });
 test("73 Luna prompts define the v2 closed evidence boundary", () => { for (const file of ["prompts/luna-daily-brief.md", "prompts/luna-weekly-brief.md"]) { const prompt = fs.readFileSync(path.join(root, file), "utf8"); for (const phrase of ["writer-request-v2", "writer-context-v1", "writer-result-v2", "claimBindings", "quantitative", "qualitative", "sourceMetadata", "payload.factClaims", "latest", "no-new-qualitative-observations"]) assert.ok(prompt.includes(phrase), `${file} lacks ${phrase}`); assert.match(prompt, /Do not browse, search, call APIs/); } });
 test("74 workflow is manual, context-explicit, latest-free and single-runner", () => { const workflow = fs.readFileSync(path.join(root, ".github/workflows/writer-job-prepare.yml"), "utf8"); assert.match(workflow, /workflow_dispatch:/); assert.match(workflow, /context_path:/); assert.match(workflow, /--context "\$CONTEXT_PATH" --dry-run/); assert.match(workflow, /--context "\$CONTEXT_PATH" --write/); assert.doesNotMatch(workflow, /^\s*schedule:/m); assert.doesNotMatch(workflow, /cron:|--as-of auto|writer-packets\/.*latest/); assert.doesNotMatch(workflow, /matrix:/); });
+
+test("75 global writer cannot invent a special report trigger", () => {
+  const value = structuredClone(globalTwoFixture);
+  value.specialReports[0].triggerCandidateId = "writer-created-special";
+  const request = { allowedSourceIds: globalTwoFixture.sourceIndex.map((source) => source.id) };
+  assert.equal(codeOf(() => validateGlobalWriterPayload(request, globalPayloadInputs(), value)), "GLOBAL_BRIEF_INVALID");
+});
+
+test("76 global writer cannot rewrite a frozen numeric fact", () => {
+  const value = structuredClone(globalTwoFixture);
+  value.mainArticle.keyFacts[0].value = 99;
+  value.mainArticle.keyFacts[0].unit = "percent";
+  const request = { allowedSourceIds: globalTwoFixture.sourceIndex.map((source) => source.id) };
+  assert.equal(codeOf(() => validateGlobalWriterPayload(request, globalPayloadInputs(), value)), "GLOBAL_FACT_MUTATION");
+});

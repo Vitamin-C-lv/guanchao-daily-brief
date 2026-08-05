@@ -28,6 +28,17 @@
       "validatorPath": "scripts/validate-weekly.mjs"
     }
   },
+  "modes": {
+    "global_market_brief": {
+      "edition": "daily",
+      "baselineTarget": "content/writer-contexts/fixtures/p2-b1-global-baseline.json",
+      "promptPath": "prompts/luna-daily-brief.md",
+      "targetSchemaVersion": "global-market-brief-v1",
+      "writerOutputSchemaVersion": "global-market-brief-writer-output-v1",
+      "validatorPath": "scripts/validate-brief.mjs",
+      "validatorMode": "global_market_brief"
+    }
+  },
   "pathPrefixes": {
     "baseline": "data/writer-contexts/baselines/",
     "context": "data/writer-contexts/contexts/",

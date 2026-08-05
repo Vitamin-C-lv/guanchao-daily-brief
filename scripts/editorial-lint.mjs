@@ -182,6 +182,66 @@ function sourceCoverage(payload, edition) {
   return articles.length > 0 && articles.every((article) => Array.isArray(article.sources) && article.sources.length > 0);
 }
 
+function globalArticleText(article) {
+  if (!object(article)) return [];
+  const text = [];
+  for (const key of ["title", "dek", "conclusion", "triggerReason"]) pushText(text, article[key]);
+  for (const fact of article.keyFacts ?? []) if (object(fact)) pushText(text, fact.statement);
+  for (const analysis of article.analysis ?? []) pushText(text, analysis);
+  for (const edge of article.logicChain ?? []) {
+    if (!object(edge)) continue;
+    for (const key of ["from", "relation", "to"]) pushText(text, edge[key]);
+  }
+  for (const transmission of article.crossMarketTransmission ?? []) if (object(transmission)) pushText(text, transmission.explanation);
+  for (const item of [article.outlook?.nextSession, article.outlook?.oneWeek]) if (object(item)) pushText(text, item.statement);
+  for (const condition of article.invalidationConditions ?? []) if (object(condition)) pushText(text, condition.condition);
+  for (const watch of article.watchItems ?? []) if (object(watch)) for (const key of ["item", "whyItMatters"]) pushText(text, watch[key]);
+  return text;
+}
+
+function lintGlobalEditorial(payload) {
+  const articles = [payload.mainArticle, ...(payload.specialReports ?? [])].filter(object);
+  const entries = articles.flatMap((article) => globalArticleText(article).map((text) => ({ article, text })));
+  const body = entries.map((entry) => entry.text).join("\n");
+  const errors = [];
+  const fixedThreeMarketDraft = Array.isArray(payload.markets) && payload.markets.length === 3;
+  if (fixedThreeMarketDraft) errors.push("global writer must not emit the fixed three-market draft");
+  const machinePattern = /模型(?:尚未训练|未训练)|\bprovider\b|\bcoverage\b|gateFailures?|gate failures|机器状态|not[_ -]?trained|productionApply|writerPacketId|contextId|internalLineage/i;
+  const machineText = entries.filter(({ text }) => machinePattern.test(text)).map(({ article, text }) => `${article.id}: machine diagnostic text`);
+  if (machineText.length) errors.push(`machine diagnostic text entered article: ${machineText.join(", ")}`);
+  const highImpactPattern = /确认|转向|重估|系统性|显著|决定|冲击|主线|风险偏好|会传导|成为起点|大幅/u;
+  const sourceLessHighImpact = articles.filter((article) => {
+    const articleText = globalArticleText(article).join(" ");
+    const sourceIds = new Set([
+      ...(article.sourceIds ?? []),
+      ...(article.keyFacts ?? []).flatMap((fact) => fact.sourceIds ?? []),
+      ...(article.logicChain ?? []).flatMap((edge) => [...(edge.supportingSourceIds ?? []), ...(edge.contradictorySourceIds ?? [])]),
+      ...(article.crossMarketTransmission ?? []).flatMap((edge) => edge.supportingSourceIds ?? [])
+    ]);
+    return highImpactPattern.test(articleText) && sourceIds.size === 0;
+  }).map((article) => article.id);
+  if (sourceLessHighImpact.length) errors.push(`high-impact judgement has no source: ${sourceLessHighImpact.join(", ")}`);
+  const futureOutlookWithoutInvalidation = articles.flatMap((article) => ["nextSession", "oneWeek"].filter((horizon) => {
+    const item = article.outlook?.[horizon];
+    return !object(item) || !Array.isArray(item.invalidationConditionIds) || item.invalidationConditionIds.length === 0;
+  }).map((horizon) => `${article.id}.outlook.${horizon}`));
+  if (futureOutlookWithoutInvalidation.length) errors.push(`future outlook lacks invalidation condition: ${futureOutlookWithoutInvalidation.join(", ")}`);
+  const evidenceScoreAsProbability = /(?:EvidenceScore|证据分|观察分)[^。！？\n]{0,40}(?:概率|probability)|(?:概率|probability)[^。！？\n]{0,40}(?:EvidenceScore|证据分|观察分)/iu.test(body);
+  if (evidenceScoreAsProbability) errors.push("EvidenceScore/观察分 must not be described as probability");
+  return {
+    schemaVersion: "editorial-lint-result-v1",
+    mode: "global_market_brief",
+    fixedThreeMarketDraftPass: !fixedThreeMarketDraft,
+    machineTextPass: machineText.length === 0,
+    sourcedHighImpactPass: sourceLessHighImpact.length === 0,
+    futureOutlookInvalidationPass: futureOutlookWithoutInvalidation.length === 0,
+    evidenceScoreProbabilityPass: !evidenceScoreAsProbability,
+    sevenHeadingRequirement: "not_required",
+    passed: errors.length === 0,
+    errors
+  };
+}
+
 function latestWeeklyReportInput(root) {
   const indexPath = path.join(root, "content", "weekly-reports", "index.json");
   if (!fs.existsSync(indexPath)) return path.join(root, "content", "weekly-reports", "weekly-2026-W29.json");
@@ -196,9 +256,13 @@ export function loadEditorialStyle(root = repositoryRoot) {
   return readJson(path.join(root, "config", "editorial-style.json"));
 }
 
-export function lintEditorial({ edition, value, style = loadEditorialStyle(), result = null } = {}) {
-  if (!['daily', 'weekly'].includes(edition)) throw new Error("edition must be daily or weekly");
+export function lintEditorial({ edition, mode = null, value, style = loadEditorialStyle(), result = null } = {}) {
   const payload = result?.payload ?? value;
+  if (mode === "global_market_brief") {
+    if (!object(payload)) throw new Error("editorial payload must be an object");
+    return lintGlobalEditorial(payload);
+  }
+  if (!['daily', 'weekly'].includes(edition)) throw new Error("edition must be daily or weekly");
   if (!object(payload)) throw new Error("editorial payload must be an object");
   const paragraphs = visibleParagraphs(edition, payload);
   const body = paragraphs.join("\n");
@@ -397,13 +461,14 @@ function parseArgs(args) {
 if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
   try {
     const args = parseArgs(process.argv.slice(2));
+    const mode = args.mode === "global_market_brief" ? "global_market_brief" : null;
     const edition = args.edition === "weekly" ? "weekly" : "daily";
     const input = typeof args.input === "string" ? path.resolve(args.input) : edition === "daily"
       ? path.join(repositoryRoot, "content/daily-brief.json")
       : latestWeeklyReportInput(repositoryRoot);
     const value = readJson(input);
     const result = value?.schemaVersion === "writer-result-v2" ? value : null;
-    const report = lintEditorial({ edition, value: result ? null : value, result });
+    const report = lintEditorial({ edition, mode, value: result ? null : value, result });
     console.log(JSON.stringify(report));
     if (!report.passed) process.exitCode = 1;
   } catch (cause) {
