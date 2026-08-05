@@ -98,7 +98,11 @@ function fixture({ docs = GOOD_DOCS, dailyPrompt = DAILY_PROMPT, promptShaMismat
   if (promptShaMismatch) state.prompts.daily.sha256 = "a".repeat(64);
   const stateFile = path.join(root, "automation-state.json");
   fs.writeFileSync(stateFile, `${JSON.stringify(state, null, 2)}\n`, "utf8");
-  return { root, repo, automations, stateFile, cleanup: () => fs.rmSync(root, { recursive: true, force: true }) };
+  const skillDirectory = path.join(root, "skills", "guanchao-financial-writer");
+  fs.mkdirSync(path.join(skillDirectory, "references"), { recursive: true });
+  fs.mkdirSync(path.join(skillDirectory, "scripts"), { recursive: true });
+  fs.writeFileSync(path.join(skillDirectory, "SKILL.md"), "---\nname: guanchao-financial-writer\n---\n", "utf8");
+  return { root, repo, automations, stateFile, skillDirectory, cleanup: () => fs.rmSync(root, { recursive: true, force: true }) };
 }
 
 function check(value) {
@@ -106,16 +110,31 @@ function check(value) {
     configPath: path.join(value.repo, "config", "codex-writer-automation.json"),
     docsPath: path.join(value.repo, "docs", "CODEX_WRITER_AUTOMATION.md"),
     automationsRoot: value.automations,
-    statePath: value.stateFile
+    statePath: value.stateFile,
+    skillDirectory: value.skillDirectory
   });
 }
 
-test("consistent config/docs/native automation passes", () => {
+test("consistent fixture uses an explicit skill directory, not runner HOME", () => {
   const value = fixture();
   try {
     const report = check(value);
     assert.equal(report.consistent, true);
     assert.equal(report.checks.length > 10, true);
+    assert.equal(report.checks.find((item) => item.name === "writer.skill guanchao-financial-writer installed").detail, value.skillDirectory);
+    assert.equal(report.checks.find((item) => item.name === "writer.skill frontmatter name").passed, true);
+  } finally {
+    value.cleanup();
+  }
+});
+
+test("missing required skill fixture file fails closed", () => {
+  const value = fixture();
+  try {
+    fs.rmSync(path.join(value.skillDirectory, "SKILL.md"));
+    const report = check(value);
+    assert.equal(report.consistent, false);
+    assert.equal(report.checks.find((item) => item.name === "writer.skill guanchao-financial-writer installed").passed, false);
   } finally {
     value.cleanup();
   }

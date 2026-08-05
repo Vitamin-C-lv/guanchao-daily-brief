@@ -99,6 +99,11 @@ P1-E PR #18 已合并；merge SHA：`16cde0056432b7d839420f545bbabbc4f49475a0`�
 10. [package.json](../package.json)
 11. 当前任务相关源码
 
+## CI automation consistency portability
+
+- scripts/test-automation-consistency.mjs creates a minimal temporary guanchao-financial-writer Skill fixture and passes its explicit skillDirectory into checkAutomationConsistency; positive tests no longer depend on runner HOME or a private local Skill.
+- The fixture also removes a required Skill file and verifies that the production check remains fail closed. pnpm check invokes the isolated unit test only; the production automation:consistency CLI still uses its real local paths and retains WRITER_SKILL_MISSING/AUTOMATION_DRIFT behavior.
+
 ## P1-F writer job queue
 
 P1-F is queue/apply infrastructure: immutable packet snapshot → writer request → externally
