@@ -7,6 +7,8 @@ import { fileURLToPath } from "node:url";
 
 import { buildRealGlobalMarketBrief } from "./global-market-brief-real-input.mjs";
 import { projectGlobalMarketBriefPublicDto, writeGlobalMarketBrief } from "./global-market-brief-storage.mjs";
+import { sha256Canonical } from "./research-contract.mjs";
+import { formatPacketFactStatement, validatePacketFactDirection } from "./writer-context.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -29,6 +31,34 @@ test("real frozen inputs build one coherent main article and no eligible special
   assert.equal(result.brief.mainArticle.crossMarketTransmission.length, 2);
   assert.equal(result.brief.mainArticle.watchItems.length, 4);
   assert.equal(result.brief.buildStatus, "partial");
+  assert.equal(result.brief.mainArticle.analysisSections.length, 5);
+  assert.equal(result.brief.sourceIndex.length, 7);
+  assert.equal(new Set(result.brief.sourceIndex.map((source) => source.url)).size, 7);
+  assert.equal(result.brief.sourceIndex.some((source) => source.id === "csi-constituents"), false);
+  assert.equal(result.brief.sourceIndex.find((source) => source.id === "fed-fomc-statement-2026-07-29").publisher, "Compliance Alliance");
+  const packet = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content", "writer-packets", "daily-latest.json"), "utf8"));
+  assert.equal(packet.sourceIndex["csi-constituents"].status, "unavailable");
+});
+
+test("negative Treasury change renders as a fall and frozen value/unit/change remain read-only", () => {
+  const packet = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content", "writer-packets", "daily-latest.json"), "utf8"));
+  const fact = packet.facts.find((item) => item.label === "US Treasury 10Y");
+  assert.ok(fact);
+  const before = structuredClone(fact);
+  const statement = formatPacketFactStatement(fact);
+  assert.match(statement, /4\.70%/);
+  assert.match(statement, /回落5bp/);
+  assert.doesNotMatch(statement, /上行|上升|走高|升至/);
+  assert.deepEqual(fact, before);
+  assert.throws(() => validatePacketFactDirection(fact, "美国10年期国债收益率为4.70%，较前一交易日上行5bp。"), (error) => error.code === "PACKET_DIRECTION_CONFLICT");
+
+  const changed = structuredClone(fact);
+  changed.value = 4.71;
+  assert.notEqual(changed.value, before.value);
+  changed.unit = "bp";
+  assert.notEqual(changed.unit, before.unit);
+  changed.change1d = 5;
+  assert.notEqual(changed.change1d, before.change1d);
 });
 
 test("real input has no internal diagnostics in the article payload", () => {
@@ -86,6 +116,27 @@ test("history business conflict and source scope fail closed", () => {
     const outOfScope = structuredClone(brief);
     outOfScope.mainArticle.sourceIds = [...outOfScope.mainArticle.sourceIds, "outside-source"];
     assert.throws(() => writeGlobalMarketBrief({ rootDir: root, brief: outOfScope, dryRun: true, write: false }), (error) => error.code === "GLOBAL_BRIEF_INVALID");
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("explicit replacement can migrate a legacy same-edition history only with its exact business hash", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "guanchao-global-replace-"));
+  try {
+    const { brief } = buildRealGlobalMarketBrief({ root: repositoryRoot });
+    const legacy = structuredClone(brief);
+    delete legacy.mainArticle.analysisSections;
+    const historyFile = path.join(root, "content", "global-market-briefs", "2026-08-04.json");
+    fs.mkdirSync(path.dirname(historyFile), { recursive: true });
+    fs.writeFileSync(historyFile, `${JSON.stringify(legacy)}\n`, "utf8");
+    const { generatedAt, ...legacyBusiness } = legacy;
+    const expected = sha256Canonical(legacyBusiness);
+    assert.throws(() => writeGlobalMarketBrief({ rootDir: root, brief, dryRun: true, write: false, replaceExisting: true, expectedExistingBusinessSha256: "0".repeat(64) }), (error) => error.code === "GLOBAL_HISTORY_REPLACE_CONFLICT");
+    const dry = writeGlobalMarketBrief({ rootDir: root, brief, dryRun: true, write: false, replaceExisting: true, expectedExistingBusinessSha256: expected });
+    assert.equal(dry.replacement.existingValidated, false);
+    const applied = writeGlobalMarketBrief({ rootDir: root, brief, dryRun: false, write: true, replaceExisting: true, expectedExistingBusinessSha256: expected });
+    assert.deepEqual(applied.files.sort(), ["content/global-market-brief-public.json", "content/global-market-briefs/2026-08-04.json"]);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

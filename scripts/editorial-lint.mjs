@@ -187,6 +187,10 @@ function globalArticleText(article) {
   const text = [];
   for (const key of ["title", "dek", "conclusion", "triggerReason"]) pushText(text, article[key]);
   for (const fact of article.keyFacts ?? []) if (object(fact)) pushText(text, fact.statement);
+  for (const section of article.analysisSections ?? []) if (object(section)) {
+    pushText(text, section.heading);
+    for (const paragraph of section.paragraphs ?? []) pushText(text, paragraph);
+  }
   for (const analysis of article.analysis ?? []) pushText(text, analysis);
   for (const edge of article.logicChain ?? []) {
     if (!object(edge)) continue;

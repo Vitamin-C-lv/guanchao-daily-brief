@@ -4,7 +4,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { canonicalJson } from "./research-contract.mjs";
+import { canonicalJson, sha256Canonical } from "./research-contract.mjs";
 import { validateGlobalMarketBrief, validateGlobalMarketBriefPublicDto } from "./global-market-brief-contract.mjs";
 import { loadEditorialStyle, lintEditorial } from "./editorial-lint.mjs";
 import { validateCodexResearch } from "./codex-research.mjs";
@@ -59,6 +59,17 @@ function readJson(file) {
   } catch {
     fail("INPUT_JSON", file, "JSON input is missing or invalid");
   }
+}
+
+function explicitGlobalReplacement(root, payload) {
+  const historyFile = path.join(root, "content", "global-market-briefs", `${payload.editionDate}.json`);
+  if (!fs.existsSync(historyFile)) return null;
+  const existing = readJson(historyFile);
+  const { generatedAt, ...business } = existing;
+  return {
+    mode: "explicit-replace",
+    expectedExistingBusinessSha256: sha256Canonical(business),
+  };
 }
 
 function writeJsonOutside(file, value, root) {
@@ -309,13 +320,14 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
     validateResult(root, request, result);
     const lint = lintEditorial({ mode: "global_market_brief", value: result.payload, result, style: {} });
     if (!lint.passed) fail("EDITORIAL_LINT", "result.payload", lint.errors.join("; "));
-    const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root });
+    const replacement = explicitGlobalReplacement(root, result.payload);
+    const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root, replacement });
     const approvedFiles = new Set(["content/global-market-brief-public.json", `content/global-market-briefs/${result.payload.editionDate}.json`]);
     for (const file of [...simulation.files, ...(simulation.wouldWrite ?? [])]) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer may only write history and latest public DTO");
     let applied = simulation;
     let targetValidation = null;
     if (write) {
-      applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root });
+      applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root, replacement });
       for (const file of applied.files) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer wrote an unapproved file");
       targetValidation = validateGlobalPublication(root, applied);
     }

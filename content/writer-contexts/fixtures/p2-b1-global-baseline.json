@@ -14,6 +14,18 @@
     "slug": "global-liquidity-cross-market",
     "articleUrl": "/articles/global-liquidity-cross-market/",
     "contentKind": "global_main",
+    "analysisSections": [
+      {
+        "heading": "跨市场主线",
+        "paragraphs": [
+          "美国利率与政策表述构成共同背景，但本地市场仍需后续数据确认。"
+        ],
+        "sourceIds": [
+          "fixture-fed",
+          "fixture-treasury"
+        ]
+      }
+    ],
     "title": "流动性信号仍是跨市场定价的共同线索",
     "dek": "美国利率与政策表述提供共同背景，但市场传导仍需后续数据确认。",
     "conclusion": "当前更适合把利率变化视为跨市场的共同线索，而不是单一市场的确定性方向。后续判断取决于数据是否继续支持这一逻辑链。",

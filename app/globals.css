@@ -24,7 +24,7 @@
 
 /* P2-B4A real article projection: the page receives only article-safe fields. */
 .global-full-article {
-  max-width: 980px;
+  max-width: 860px;
   margin: 0 auto;
 }
 
@@ -153,6 +153,10 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
+}
+
+.global-full-facts-grid {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .global-full-fact,
@@ -334,6 +338,55 @@
   line-height: 1.9;
 }
 
+.global-full-analysis-sections {
+  max-width: 790px;
+}
+
+.global-full-analysis-block + .global-full-analysis-block {
+  margin-top: 24px;
+  border-top: 1px solid rgba(33, 25, 42, .08);
+  padding-top: 22px;
+}
+
+.global-full-analysis-block h3 {
+  margin: 0 0 10px;
+  color: #33263b;
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.global-full-analysis-block p {
+  margin: 0 0 13px;
+  color: #3f3545;
+  font-size: 16px;
+  line-height: 2;
+  overflow-wrap: anywhere;
+}
+
+.global-full-analysis-block p:last-child {
+  margin-bottom: 0;
+}
+
+.global-full-citations {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+.global-full-citations a {
+  color: #765587;
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.global-full-citations a:hover,
+.global-full-citations a:focus-visible {
+  color: #3f294a;
+  text-decoration: underline;
+}
+
 .global-full-related {
   display: grid;
   grid-template-columns: minmax(150px, .4fr) minmax(0, 1fr);
@@ -398,6 +451,11 @@
     align-items: flex-start;
     flex-direction: column;
     gap: 2px;
+  }
+
+  .global-full-analysis-block p {
+    font-size: 15px;
+    line-height: 1.95;
   }
 
   .global-full-related {

@@ -59,6 +59,10 @@ function equalBusiness(left, right) {
   return canonicalJson(businessView(left)) === canonicalJson(businessView(right));
 }
 
+function businessSha256(value) {
+  return sha256Canonical(businessView(value));
+}
+
 function publicDto(brief) {
   const dto = {
     schemaVersion: PUBLIC_DTO_SCHEMA_VERSION,
@@ -107,15 +111,24 @@ function planEntry(rootDir, relativePath, bytes, kind) {
   return { file, relativePath, bytes, kind, shouldWrite: true, status: "update" };
 }
 
-function validateExistingHistory(file, candidate) {
+function validateExistingHistory(file, candidate, { replaceExisting = false, expectedExistingBusinessSha256 = null } = {}) {
   const existing = readJson(file, file);
+  let existingValidated = true;
   try {
     validateGlobalMarketBrief(existing);
   } catch (cause) {
-    fail("GLOBAL_HISTORY_CORRUPT", file, cause instanceof Error ? cause.message : "existing history failed validation");
+    if (!replaceExisting || existing.schemaVersion !== "global-market-brief-v1") {
+      fail("GLOBAL_HISTORY_CORRUPT", file, cause instanceof Error ? cause.message : "existing history failed validation");
+    }
+    existingValidated = false;
   }
-  if (!equalBusiness(existing, candidate)) fail("GLOBAL_HISTORY_CONFLICT", file, "existing history differs in business content; refusing overwrite");
-  return existing;
+  const existingBusinessSha256 = businessSha256(existing);
+  if (!equalBusiness(existing, candidate)) {
+    if (!replaceExisting) fail("GLOBAL_HISTORY_CONFLICT", file, "existing history differs in business content; refusing overwrite without explicit replacement");
+    if (typeof expectedExistingBusinessSha256 !== "string" || expectedExistingBusinessSha256 !== existingBusinessSha256) fail("GLOBAL_HISTORY_REPLACE_CONFLICT", file, "explicit replacement hash does not match the existing business content");
+    return { existing, existingBusinessSha256, existingValidated, replaced: true };
+  }
+  return { existing, existingBusinessSha256, existingValidated, replaced: false };
 }
 
 function commit(entries, failAt = null) {
@@ -150,7 +163,7 @@ export function projectGlobalMarketBriefPublicDto(brief) {
   return publicDto(brief);
 }
 
-export function planGlobalMarketBriefWrite({ rootDir, brief }) {
+export function planGlobalMarketBriefWrite({ rootDir, brief, replaceExisting = false, expectedExistingBusinessSha256 = null }) {
   const root = path.resolve(rootDir);
   try {
     validateGlobalMarketBrief(brief);
@@ -161,8 +174,8 @@ export function planGlobalMarketBriefWrite({ rootDir, brief }) {
   const historyPath = historyRelativePath(brief.editionDate);
   const historyFile = resolveRoot(root, historyPath);
   let historyExisting = null;
-  if (fs.existsSync(historyFile)) historyExisting = validateExistingHistory(historyFile, brief);
-  const historyBytes = historyExisting ? fs.readFileSync(historyFile) : jsonBytes(brief);
+  if (fs.existsSync(historyFile)) historyExisting = validateExistingHistory(historyFile, brief, { replaceExisting, expectedExistingBusinessSha256 });
+  const historyBytes = historyExisting?.replaced ? jsonBytes(brief) : historyExisting ? fs.readFileSync(historyFile) : jsonBytes(brief);
   const publicPath = GLOBAL_PUBLIC_DTO_PATH;
   const historyEntry = planEntry(root, historyPath, historyBytes, "global-history");
   const publicEntry = planEntry(root, publicPath, jsonBytes(dto), "global-public-dto");
@@ -174,15 +187,21 @@ export function planGlobalMarketBriefWrite({ rootDir, brief }) {
     historyPath,
     publicPath,
     dtoSha256: sha256Canonical(dto),
+    replacement: historyExisting?.replaced ? {
+      mode: "explicit-replace",
+      expectedExistingBusinessSha256,
+      existingBusinessSha256: historyExisting.existingBusinessSha256,
+      existingValidated: historyExisting.existingValidated,
+    } : null,
     entries,
     noOp: entries.every((entry) => !entry.shouldWrite),
     wouldWrite: entries.filter((entry) => entry.shouldWrite).map((entry) => entry.relativePath),
   };
 }
 
-export function writeGlobalMarketBrief({ rootDir, brief, dryRun = false, write = false, failAt = null }) {
+export function writeGlobalMarketBrief({ rootDir, brief, dryRun = false, write = false, failAt = null, replaceExisting = false, expectedExistingBusinessSha256 = null }) {
   if (dryRun === write) fail("GLOBAL_STORAGE_MODE", "mode", "exactly one of dryRun or write is required");
-  const plan = planGlobalMarketBriefWrite({ rootDir, brief });
+  const plan = planGlobalMarketBriefWrite({ rootDir, brief, replaceExisting, expectedExistingBusinessSha256 });
   const written = write ? commit(plan.entries, failAt) : [];
   return {
     schemaVersion: "global-market-brief-storage-result-v1",
@@ -194,6 +213,7 @@ export function writeGlobalMarketBrief({ rootDir, brief, dryRun = false, write =
     files: written.map((entry) => entry.relativePath),
     wouldWrite: plan.wouldWrite,
     allowedFiles: [plan.historyPath, plan.publicPath],
+    replacement: plan.replacement,
     dtoSha256: plan.dtoSha256,
   };
 }

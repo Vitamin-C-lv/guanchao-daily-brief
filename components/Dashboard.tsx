@@ -435,11 +435,12 @@ export default function Dashboard({
     return combined
       .filter(({ article, market }) => {
         const matchesMarket = selectedMarket === "all" || selectedMarket === market;
+        const sameEditionLegacy = Boolean(globalBrief && view === "briefs" && market !== "fed" && article.publishedAt === data.meta.editionDate);
         const haystack = `${article.title} ${article.summary} ${article.impact} ${article.tags.join(" ")}`.toLowerCase();
-        return matchesMarket && (!normalizedQuery || haystack.includes(normalizedQuery));
+        return matchesMarket && !sameEditionLegacy && (!normalizedQuery || haystack.includes(normalizedQuery));
       })
       .sort((left, right) => right.article.publishedAt.localeCompare(left.article.publishedAt));
-  }, [data, query, selectedMarket]);
+  }, [data, globalBrief, query, selectedMarket, view]);
 
   const filteredHotspots = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();

@@ -13,6 +13,12 @@ export interface ArticleSource {
   publishedAt: string | null;
 }
 
+export interface ArticleAnalysisSection {
+  heading: string;
+  paragraphs: string[];
+  sources: ArticleSource[];
+}
+
 export interface ArticleFact {
   id: string;
   statement: string;
@@ -74,6 +80,7 @@ export interface GlobalArticlePage {
   sourceCount: number;
   triggerType: string | null;
   triggerReason: string | null;
+  analysisSections: ArticleAnalysisSection[];
   analysis: string[];
   keyFacts: ArticleFact[];
   logicChain: ArticleLogicEdge[];
@@ -177,6 +184,18 @@ function outlookItem(value: unknown, field: string, resolveSources: (ids: unknow
   };
 }
 
+function analysisSections(value: unknown, field: string, resolveSources: (ids: unknown, field: string) => ArticleSource[]): ArticleAnalysisSection[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((entry, index) => {
+    const item = record(entry, `${field}[${index}]`);
+    return {
+      heading: string(item.heading, `${field}[${index}].heading`),
+      paragraphs: stringArray(item.paragraphs, `${field}[${index}].paragraphs`),
+      sources: resolveSources(item.sourceIds, `${field}[${index}].sourceIds`),
+    };
+  });
+}
+
 function projectArticle(brief: Record<string, unknown>, article: Record<string, unknown>, kind: GlobalArticleKind, resolveSources: (ids: unknown, field: string) => ArticleSource[]): GlobalArticlePage {
   const field = kind === "global_main" ? "mainArticle" : "specialReport";
   const sourceLinks = resolveSources(article.sourceIds, `${field}.sourceIds`);
@@ -193,6 +212,7 @@ function projectArticle(brief: Record<string, unknown>, article: Record<string, 
     sourceCount: sourceLinks.length,
     triggerType: kind === "special_report" ? string(article.triggerType, `${field}.triggerType`) : null,
     triggerReason: kind === "special_report" ? string(article.triggerReason, `${field}.triggerReason`) : null,
+    analysisSections: analysisSections(article.analysisSections, `${field}.analysisSections`, resolveSources),
     analysis: kind === "special_report" ? stringArray(article.analysis, `${field}.analysis`) : [],
     keyFacts: Array.isArray(article.keyFacts) ? article.keyFacts.map((item, index) => fact(item, index, resolveSources)) : [],
     logicChain: Array.isArray(article.logicChain) ? article.logicChain.map((item, index) => logic(item, index, resolveSources)) : [],

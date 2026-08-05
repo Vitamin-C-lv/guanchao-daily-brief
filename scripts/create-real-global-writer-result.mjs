@@ -62,7 +62,7 @@ export function createRealGlobalWriterResult({ packageDirectory, output }) {
   const allSourceIds = sourceIds(context, sources.map((source) => source.id));
   const ap = sourceIds(context, ["ap-us-stocks-2026-08-03"]);
   const hk = sourceIds(context, ["aastocks-hk-close-2026-08-03"]);
-  const ashare = sourceIds(context, ["eastmoney-a-share-close-2026-08-03", "csi-constituents"]);
+  const ashare = sourceIds(context, ["eastmoney-a-share-close-2026-08-03"]);
   const treasury = sourceIds(context, ["us-treasury-nominal-xml"]);
   const realTreasury = sourceIds(context, ["us-treasury-real-xml"]);
   const fed = sourceIds(context, ["fed-fomc-statement-2026-07-29", "fed-fomc-calendar-2026"]);
@@ -76,6 +76,48 @@ export function createRealGlobalWriterResult({ packageDirectory, output }) {
     title: "海外风险偏好回暖，估值修复仍等本地确认",
     dek: "美股逼近纪录、美国长端收益率回落，港股科技同步走强；但A股缩量回调，外部风险偏好尚未完成跨市场确认。",
     conclusion: "8月3日的核心线索不是单一市场上涨，而是折现率压力暂缓后风险偏好先在美股和港股得到价格确认；A股成交收缩说明本地资金尚未接力。下一步应先验证收益率回落能否延续，以及亚洲市场的相对强势能否扩散。",
+    analysisSections: [
+      {
+        heading: "全球主线",
+        paragraphs: [
+          "截至8月3日，最强线索来自折现率压力暂缓与风险资产同步反应。美股走强，名义10年期与实际10年期收益率分别收于4.70%和2.43%，单日分别回落5bp和4bp；这让成长资产的估值约束暂时减轻。",
+          "但这还不是无条件的风险偏好回归。收益率较20日前仍分别高出22bp和19bp，说明长端利率只是从短期压力位回落，尚未回到更宽松的背景。当前更稳妥的表述是估值修复获得窗口，而不是折现率风险已经消失。",
+        ],
+        sourceIds: sorted([...ap, ...treasury, ...realTreasury]),
+      },
+      {
+        heading: "折现率与风险偏好",
+        paragraphs: [
+          "油价回落先缓解了市场对通胀的担忧，美股在这一背景下接近纪录；与此同时，2年期、10年期和30年期收益率分别为4.25%、4.70%和5.23%，较前一交易日回落3bp、5bp和4bp。价格与利率同日向有利于成长估值的一侧变化，因而风险偏好回暖有了可观察的价格证据。",
+          "反证也很清楚：2s10s利差收窄2bp至45bp，且名义10年期收益率较20日前仍上行22bp。曲线与长端位置并没有共同指向彻底宽松，市场更像是在等待下一组利率数据确认，而不是已经完成政策方向切换。",
+        ],
+        sourceIds: sorted([...ap, ...treasury]),
+      },
+      {
+        heading: "跨市场传导",
+        paragraphs: [
+          "美国市场的第一站是港股科技：8月3日恒指上涨0.48%至26009.40点，恒生科技指数上涨约1.0%，科技股表现强于大盘。美股风险偏好改善与折现率压力暂缓，为港股成长资产提供了外部顺风，但单日同步仍不足以证明传导已经稳定。",
+          "传向A股时，链条出现断点。沪指、深证成指和创业板指分别下跌0.59%、0.96%和1.24%，成交额约1.9974万亿元，较前一日减少约5446亿元。外部线索已经在美股和港股得到价格回应，却尚未在本地成交中得到同方向确认。",
+        ],
+        sourceIds: sorted([...ap, ...hk, ...ashare]),
+      },
+      {
+        heading: "本地确认缺口",
+        paragraphs: [
+          "A股的反向证据不是跌幅本身，而是下跌与成交收缩同时出现。若外部风险偏好正在形成跨市场扩散，本地市场至少需要看到成交不再继续收缩，或成长板块相对表现与港股科技同步；当前数据只支持‘尚未接力’，不支持更强的本地趋势判断。",
+          "本轮市场广度数据未取得，因此这里只把成交额收缩作为反向证据，不用缺失数据推断上涨家数、内部参与度或资金净流入。这个缺口会直接影响A股是否完成全球主线确认，也意味着下一步需要等待可复核的广度与成交数据同时闭合。",
+        ],
+        sourceIds: ashare,
+      },
+      {
+        heading: "下一步验证",
+        paragraphs: [
+          "下一交易时段先看10年期与实际10年期收益率能否继续回落，再看恒生科技相对恒指的强势是否延续。若利率回升、港股科技转弱且A股成交仍低于8月3日基线，当前的跨市场传导判断应当撤回；如果三项观察相反，估值修复线索才有机会从单日反应变成连续信号。",
+          "未来一周还要把政策分歧放回定价框架：7月会议有三票异议，9月15—16日是下一次FOMC会议。收益率回落、海外风险偏好延续，并得到A/H成交或广度接力时，修复线索才可能扩展；否则，本文只保留‘折现率压力暂缓’这一有限判断。",
+        ],
+        sourceIds: sorted([...ap, ...hk, ...ashare, ...fed, ...treasury, ...realTreasury]),
+      },
+    ],
     keyFacts: facts,
     logicChain: [
       { from: "油价回落与美股走强", relation: "先给风险偏好提供价格确认", to: "海外风险偏好回暖", evidenceStatus: "confirmed", supportingSourceIds: sorted([...ap, ...treasury]), contradictorySourceIds: [] },
@@ -130,7 +172,9 @@ export function createRealGlobalWriterResult({ packageDirectory, output }) {
     claimBindings: {
       global: [
         claim("$.payload.mainArticle.conclusion", sorted([...ap, ...treasury, ...realTreasury, ...ashare])),
-        claim("$.payload.mainArticle.keyFacts[0].statement", sourceIds(context, facts[0].sourceIds)),
+      claim("$.payload.mainArticle.keyFacts[0].statement", sourceIds(context, facts[0].sourceIds)),
+      claim("$.payload.mainArticle.analysisSections[0].paragraphs[0]", sorted([...ap, ...treasury, ...realTreasury])),
+      claim("$.payload.mainArticle.analysisSections[3].paragraphs[1]", ashare),
         claim("$.payload.mainArticle.logicChain[0].to", sorted([...ap, ...treasury])),
         claim("$.payload.mainArticle.logicChain[1].to", sorted([...treasury, ...realTreasury])),
         claim("$.payload.mainArticle.crossMarketTransmission[0].explanation", sorted([...ap, ...hk])),

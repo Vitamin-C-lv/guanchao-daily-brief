@@ -375,27 +375,46 @@ function sourceFromPacketFact(fact) {
   };
 }
 
+function canonicalSourceUrl(url) {
+  const parsed = new URL(url);
+  parsed.hash = "";
+  return parsed.toString();
+}
+
+function publicPublisher(publisher, url) {
+  const hostname = new URL(url).hostname.toLowerCase();
+  if (publisher === "Federal Reserve" && !(hostname === "federalreserve.gov" || hostname.endsWith(".federalreserve.gov"))) return "Compliance Alliance";
+  return publisher;
+}
+
 function sourceFromDocument(document) {
   return {
     asOf: document.publishedDate ?? null,
     id: document.sourceId,
-    publisher: document.publisher,
+    publisher: publicPublisher(document.publisher, document.canonicalUrl),
     title: document.title,
     url: document.canonicalUrl
   };
 }
 
 function mergeGlobalSources(seed, packet, bundle) {
-  const sources = new Map((seed.sourceIndex ?? []).map((source) => [source.id, source]));
+  const sources = new Map();
+  const urls = new Map();
+  const add = (source, { status = "ready" } = {}) => {
+    if (!source?.id || !source.url || status !== "ready") return;
+    const key = canonicalSourceUrl(source.url);
+    if (urls.has(key)) return;
+    sources.set(source.id, source);
+    urls.set(key, source.id);
+  };
+  for (const source of seed.sourceIndex ?? []) add(source);
   for (const fact of packet.facts ?? []) {
     if (!fact.sourceId || !fact.sourceUrl) continue;
-    const source = sourceFromPacketFact(fact);
-    if (!sources.has(source.id)) sources.set(source.id, source);
+    add({ ...sourceFromPacketFact(fact), publisher: publicPublisher(fact.publisher ?? fact.sourceId, fact.sourceUrl) });
   }
   for (const document of bundle.documents ?? []) {
     if (!document.sourceId || !document.canonicalUrl) continue;
-    const source = sourceFromDocument(document);
-    if (!sources.has(source.id)) sources.set(source.id, source);
+    add(sourceFromDocument(document));
   }
   return [...sources.values()].sort((left, right) => left.id.localeCompare(right.id) || left.url.localeCompare(right.url));
 }
@@ -411,15 +430,47 @@ function packetKeyFacts(packet, sourceIndex) {
   const known = new Set(sourceIndex.map((source) => source.id));
   return (packet.facts ?? []).filter((fact) => fact.sourceId && known.has(fact.sourceId)).map((fact) => ({
     id: normalizeStableFactId(fact.factId),
-    statement: fact.value === null || fact.value === undefined
-      ? `${fact.label}: 数据不可用`
-      : `${fact.label}: ${fact.value}${fact.unit === "percent" ? "%" : fact.unit ? ` ${fact.unit}` : ""}`,
+    statement: formatPacketFactStatement(fact),
     asOf: fact.asOf,
     sourceIds: [fact.sourceId],
     factStatus: fact.status === "unavailable" ? "unavailable" : fact.status === "stale" ? "delayed" : fact.status === "partial" ? "estimated" : "confirmed",
     value: fact.value ?? null,
     ...(fact.unit ? { unit: fact.unit } : {})
   }));
+}
+
+export function validatePacketFactDirection(fact, statement) {
+  if (typeof statement !== "string" || typeof fact?.change1d !== "number") return true;
+  const rising = /上行|上涨|上升|走高|升至|扩大|扩张/u;
+  const falling = /回落|下行|下跌|下降|走低|收窄|缩小/u;
+  if (fact.change1d < 0 && rising.test(statement)) fail("PACKET_DIRECTION_CONFLICT", "packet.facts", `${fact.factId} has a negative change but rising language`);
+  if (fact.change1d > 0 && falling.test(statement)) fail("PACKET_DIRECTION_CONFLICT", "packet.facts", `${fact.factId} has a positive change but falling language`);
+  return true;
+}
+
+export function formatPacketFactStatement(fact) {
+  const labels = {
+    "US Treasury 2Y": "美国2年期国债收益率",
+    "US Treasury 10Y": "美国10年期国债收益率",
+    "US Treasury 30Y": "美国30年期国债收益率",
+    "US Treasury real 10Y": "美国实际10年期国债收益率",
+    "US Treasury 2s10s spread": "美国2年期与10年期国债收益率利差",
+  };
+  const label = labels[fact.label] ?? fact.label;
+  if (fact.value === null || fact.value === undefined) return `${label}：数据不可用`;
+  const valueText = fact.unit === "percent" ? `${Number(fact.value).toFixed(2)}%` : `${fact.value}${fact.unit === "bp" ? "bp" : fact.unit ? ` ${fact.unit}` : ""}`;
+  const change = typeof fact.change1d === "number" ? fact.change1d : null;
+  if (change === null) return `${label}为${valueText}。`;
+  let statement;
+  if (fact.changeUnit === "bp") {
+    if (change < 0) statement = `${label}为${valueText}，较前一交易日回落${Math.abs(change)}bp。`;
+    else if (change > 0) statement = `${label}为${valueText}，较前一交易日上行${change}bp。`;
+    else statement = `${label}为${valueText}，较前一交易日持平。`;
+  } else {
+    statement = `${label}为${valueText}，较前一交易日${change < 0 ? "回落" : change > 0 ? "上行" : "持平"}${change === 0 ? "" : Math.abs(change)}。`;
+  }
+  validatePacketFactDirection(fact, statement);
+  return statement;
 }
 
 function assertGlobalSourceRefs(value, sourceIds, label) {

@@ -42,12 +42,20 @@ function SourceLinks({ sources }: { sources: ArticleSource[] }) {
   );
 }
 
+function SourceCitations({ sources, sourceNumbers }: { sources: ArticleSource[]; sourceNumbers: Map<string, number> }) {
+  const uniqueSources = sources.filter((source, index, list) => list.findIndex((item) => item.sourceId === source.sourceId) === index);
+  if (!uniqueSources.length) return null;
+  return <span className="global-full-citations" aria-label="段落来源">{uniqueSources.map((source) => <a key={source.sourceId} href={source.url} target="_blank" rel="noreferrer" title={`${source.publisher} · ${source.title}`}>〔{sourceNumbers.get(source.sourceId) ?? "·"}〕</a>)}</span>;
+}
+
 function SourceChip({ sources }: { sources: ArticleSource[] }) {
   return sources.length ? <span className="global-full-source-chip">来源 {sources.length}</span> : null;
 }
 
 function FullGlobalArticle({ article, relatedSpecialReports }: { article: GlobalArticlePage; relatedSpecialReports?: GlobalArticlePage[] }) {
   const isSpecial = article.kind === "special_report";
+  const sectionOffset = !isSpecial && article.analysisSections.length ? 1 : 0;
+  const sourceNumbers = new Map(article.sources.map((source, index) => [source.sourceId, index + 1]));
   const invalidations = new Map(article.invalidationConditions.map((condition) => [condition.id, condition.condition]));
   return (
     <article className="global-full-article">
@@ -64,6 +72,20 @@ function FullGlobalArticle({ article, relatedSpecialReports }: { article: Global
         <p>{article.conclusion}</p>
       </section>
 
+      {article.analysisSections.length ? (
+        <section className="global-full-section global-full-prose-section">
+          <div className="global-full-section-heading"><span>01</span><h2>分析正文</h2></div>
+          <div className="global-full-analysis-sections">
+            {article.analysisSections.map((section) => (
+              <section key={section.heading} className="global-full-analysis-block">
+                <h3>{section.heading}</h3>
+                {section.paragraphs.map((paragraph) => <p key={paragraph}>{paragraph}<SourceCitations sources={section.sources} sourceNumbers={sourceNumbers} /></p>)}
+              </section>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       {isSpecial && article.analysis.length ? (
         <section className="global-full-section">
           <div className="global-full-section-heading"><span>01</span><h2>专项分析</h2></div>
@@ -72,67 +94,65 @@ function FullGlobalArticle({ article, relatedSpecialReports }: { article: Global
       ) : null}
 
       <section className="global-full-section">
-        <div className="global-full-section-heading"><span>{isSpecial ? "02" : "01"}</span><h2>核心事实</h2></div>
+        <div className="global-full-section-heading"><span>{isSpecial ? "02" : String(1 + sectionOffset).padStart(2, "0")}</span><h2>核心事实</h2></div>
         <div className="global-full-facts-grid">
           {article.keyFacts.map((fact) => (
             <article className="global-full-fact" key={fact.id}>
               <div className="global-full-fact-topline"><span>{statusLabels[fact.factStatus] ?? fact.factStatus}</span><span>{fact.asOf}</span></div>
-              <p>{fact.statement}</p>
+              <p>{fact.statement}<SourceCitations sources={fact.sources} sourceNumbers={sourceNumbers} /></p>
               {fact.value !== null ? <strong>{fact.value}{fact.unit === "percent" ? "%" : fact.unit ? ` ${fact.unit}` : ""}</strong> : null}
-              <SourceLinks sources={fact.sources} />
             </article>
           ))}
         </div>
       </section>
 
       <section className="global-full-section">
-        <div className="global-full-section-heading"><span>{isSpecial ? "03" : "02"}</span><h2>逻辑链</h2></div>
+        <div className="global-full-section-heading"><span>{isSpecial ? "03" : String(2 + sectionOffset).padStart(2, "0")}</span><h2>逻辑链</h2></div>
         <ol className="global-full-logic-list">
           {article.logicChain.map((edge, index) => (
             <li key={`${edge.from}-${edge.to}-${index}`}>
               <span className="global-full-step-number">{index + 1}</span>
-              <div><p><strong>{edge.from}</strong><em>{edge.relation}</em><strong>{edge.to}</strong></p><div className="global-full-status-line"><span>{statusLabels[edge.evidenceStatus] ?? edge.evidenceStatus}</span><SourceChip sources={edge.supportingSources} /></div><SourceLinks sources={[...edge.supportingSources, ...edge.contradictorySources].filter((source, sourceIndex, list) => list.findIndex((item) => item.sourceId === source.sourceId) === sourceIndex)} /></div>
+              <div><p><strong>{edge.from}</strong><em>{edge.relation}</em><strong>{edge.to}</strong><SourceCitations sources={[...edge.supportingSources, ...edge.contradictorySources]} sourceNumbers={sourceNumbers} /></p><div className="global-full-status-line"><span>{statusLabels[edge.evidenceStatus] ?? edge.evidenceStatus}</span><SourceChip sources={edge.supportingSources} /></div></div>
             </li>
           ))}
         </ol>
       </section>
 
       <section className="global-full-section">
-        <div className="global-full-section-heading"><span>{isSpecial ? "04" : "03"}</span><h2>跨市场传导</h2></div>
+        <div className="global-full-section-heading"><span>{isSpecial ? "04" : String(3 + sectionOffset).padStart(2, "0")}</span><h2>跨市场传导</h2></div>
         <div className="global-full-transmission-grid">
           {article.crossMarketTransmission.map((item, index) => (
             <article className="global-full-transmission" key={`${item.fromMarket}-${item.toMarket}-${index}`}>
               <div className="global-full-transmission-route"><strong>{marketLabels[item.fromMarket] ?? item.fromMarket}</strong><span>→</span><strong>{marketLabels[item.toMarket] ?? item.toMarket}</strong></div>
-              <p>{item.explanation}</p>
+              <p>{item.explanation}<SourceCitations sources={item.sources} sourceNumbers={sourceNumbers} /></p>
               <div className="global-full-status-line"><span>{item.direction} · {item.horizon} · {statusLabels[item.evidenceStatus] ?? item.evidenceStatus}</span><SourceChip sources={item.sources} /></div>
-              <SourceLinks sources={item.sources} />
             </article>
           ))}
         </div>
       </section>
 
       <section className="global-full-section">
-        <div className="global-full-section-heading"><span>{isSpecial ? "05" : "04"}</span><h2>展望</h2></div>
+        <div className="global-full-section-heading"><span>{isSpecial ? "05" : String(4 + sectionOffset).padStart(2, "0")}</span><h2>展望</h2></div>
         <div className="global-full-outlook-grid">
           {(["nextSession", "oneWeek"] as const).map((horizon) => {
             const item = article.outlook[horizon];
-            return <article className="global-full-outlook" key={horizon}><span>{horizon === "nextSession" ? "下一交易时段" : "未来一周"}</span><p>{item.statement}</p><SourceLinks sources={item.sources} /><div className="global-full-invalidation-ref">失效条件：{item.invalidationConditionIds.map((id) => invalidations.get(id) ?? id).join("；")}</div></article>;
+            return <article className="global-full-outlook" key={horizon}><span>{horizon === "nextSession" ? "下一交易时段" : "未来一周"}</span><p>{item.statement}<SourceCitations sources={item.sources} sourceNumbers={sourceNumbers} /></p><div className="global-full-invalidation-ref">失效条件：{item.invalidationConditionIds.map((id) => invalidations.get(id) ?? id).join("；")}</div></article>;
           })}
         </div>
       </section>
 
       <section className="global-full-section">
-        <div className="global-full-section-heading"><span>{isSpecial ? "06" : "05"}</span><h2>失效条件</h2></div>
+        <div className="global-full-section-heading"><span>{isSpecial ? "06" : String(5 + sectionOffset).padStart(2, "0")}</span><h2>失效条件</h2></div>
         <div className="global-full-invalidation-list">{article.invalidationConditions.map((condition) => <article key={condition.id}><strong>{condition.condition}</strong><p>影响判断：{condition.affectedClaims.join("、")}</p></article>)}</div>
       </section>
 
       <section className="global-full-section">
-        <div className="global-full-section-heading"><span>{isSpecial ? "07" : "06"}</span><h2>观察清单</h2></div>
-        <div className="global-full-watch-grid">{article.watchItems.map((item) => <article className="global-full-watch" key={item.item}><strong>{item.item}</strong><p>{item.whyItMatters}</p><span>{item.expectedAt ? `观察时间：${item.expectedAt}` : "观察时间：下一次可验证数据"}</span><SourceLinks sources={item.sources} /></article>)}</div>
+        <div className="global-full-section-heading"><span>{isSpecial ? "07" : String(6 + sectionOffset).padStart(2, "0")}</span><h2>观察清单</h2></div>
+        <div className="global-full-watch-grid">{article.watchItems.map((item) => <article className="global-full-watch" key={item.item}><strong>{item.item}</strong><p>{item.whyItMatters}<SourceCitations sources={item.sources} sourceNumbers={sourceNumbers} /></p><span>{item.expectedAt ? `观察时间：${item.expectedAt}` : "观察时间：下一次可验证数据"}</span></article>)}</div>
       </section>
 
       <section className="global-full-section global-full-sources-section">
-        <div className="global-full-section-heading"><span>{isSpecial ? "08" : "07"}</span><h2>来源</h2></div>
+        <div className="global-full-section-heading"><span>{isSpecial ? "08" : String(7 + sectionOffset).padStart(2, "0")}</span><h2>来源</h2></div>
         <SourceLinks sources={article.sources} />
       </section>
 

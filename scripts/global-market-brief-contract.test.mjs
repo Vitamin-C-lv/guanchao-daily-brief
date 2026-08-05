@@ -127,6 +127,25 @@ test("schema requires cross-market transmission and rejects missing fields", () 
   });
 });
 
+test("source registry rejects duplicate canonical URLs and official-publisher mismatches", () => {
+  const base = readFixture("valid-global-market-brief-v1.fixture.json");
+  const duplicate = clone(base);
+  duplicate.sourceIndex[1].url = `${duplicate.sourceIndex[0].url}#duplicate-fragment`;
+  assert.throws(() => validateGlobalMarketBrief(duplicate), (error) => {
+    assert.equal(error.code, "DUPLICATE_CANONICAL_URL");
+    assert.equal(error.path, "sourceIndex[1].url");
+    return true;
+  });
+
+  const wrongOfficialDomain = clone(base);
+  wrongOfficialDomain.sourceIndex[0].url = "https://example.com/federal-reserve-copy";
+  assert.throws(() => validateGlobalMarketBrief(wrongOfficialDomain), (error) => {
+    assert.equal(error.code, "OFFICIAL_PUBLISHER_DOMAIN");
+    assert.equal(error.path, "sourceIndex[0].publisher");
+    return true;
+  });
+});
+
 test("negative fixtures cover the frozen article and writer boundaries", () => {
   const manifest = readFixture("negative-fixtures-v1.json");
   const base = readFixture(manifest.baseFixture);
