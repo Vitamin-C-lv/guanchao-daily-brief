@@ -147,3 +147,12 @@ or touches the prediction ledger.
 - 初始实现提交为 `e534be1`，文章读取器/真实内容收尾提交为 `912560d`；B4A 不改变预测模型、概率、排名、发布门槛、prediction ledger 或生产内容。
 - Draft PR #50：<https://github.com/Vitamin-C-lv/guanchao-daily-brief/pull/50>；Dataset validation、Ledger contract、Vercel 与 Vercel Preview Comments 均通过；ledger publish job 按策略 `skipping`。Vercel deployment：<https://guanchao-daily-brief-git-f-2288a4-lxy13738164923-3443s-projects.vercel.app>。
 - 远端 Preview 已部署，但匿名访问被 Vercel protection 重定向到登录页，因此不把远端匿名页面冒充为已目视验收。使用同一 commit 的 `out/` 静态导出在本地 `http://127.0.0.1:3102` 做了真实 DOM/截图 QA：`/`、`/briefs/`、`/articles/global-market-brief-2026-08-04/` 在 1920/1440/390 宽度均无横向溢出；文章标题、跨市场传导、下一交易时段、未来一周、失效条件、来源实际渲染，无 404/Application error。截图证据保留在 `D:\Guanchao-Workspace\temp\p2-b4-global\screenshots\local-dismissed\`。
+
+## P2-B 合并与本机自动化恢复收尾（2026-08-06）
+
+- PR #50 已 squash merge，merge commit：`14110781d301aaf37b05ee3bd92b478115963946`；本收尾提交前最新 `main`：`14110781d301aaf37b05ee3bd92b478115963946`。
+- P2-B 全球整合日报正式完成；生产页面切换到全球主文章；同 editionDate 的旧三市场分稿降级为历史，不再作为首页主叙事。
+- 日报 automation `观潮本机 Codex 日报写手` 已恢复并启用，既有 Asia/Shanghai 07:30 时间表保持不变；global_market_brief dry-run 通过：1 个 `global_main`、0 个专项、`wrote=false`、`productionApply.applied=false`，未写生产。
+- 周报 automation `观潮本机 Codex 周报写手` 已恢复并启用，既有 Asia/Shanghai 周六 10:00 时间表保持不变；既有周报语义、全球日报历史与 ledger 校验通过，未写生产、未 push。
+- `pnpm automation:consistency` 通过；正式 runtime 为 `D:\Guanchao-Workspace\runtime\local-writer-runtime`，正式 Skill 为本机 `guanchao-financial-writer`。
+- 港股仍未训练、未发布概率。下一大阶段是：“三市场预测数据与模型核心”。
