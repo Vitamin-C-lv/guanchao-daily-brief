@@ -43,6 +43,7 @@ const cmd = args[0];
 fs.appendFileSync(process.env.CALL_LOG || "call-log.jsonl", JSON.stringify({ cmd, args }) + "\\n");
 if (cmd === "fetch" || cmd === "features") { console.log(cmd + " ok"); process.exit(0); }
 if (cmd === "refresh" || cmd === "infer") {
+  if (process.env.ROTATION_FAIL === "1") { console.error("rotation refresh failed"); process.exit(1); }
   const asOf = process.env.ROTATION_AS_OF || "2026-08-03";
   const status = process.env.ROTATION_STATUS || "published";
   const mode = process.env.ROTATION_MODE || "probability";
@@ -73,6 +74,7 @@ const root = process.cwd();
 fs.mkdirSync(path.join(root, "data", "prediction-ledger"), { recursive: true });
 const index = path.join(root, "data", "prediction-ledger", "index.json");
 const report = JSON.parse(process.env.LEDGER_REPORT || "{\\"ok\\":true,\\"mode\\":\\"daily\\",\\"snapshot\\":{\\"written\\":true},\\"evaluations\\":{\\"appended\\":0},\\"public\\":{\\"recordCount\\":324}}");
+if (process.env.LEDGER_FAIL === "1") { console.error("ledger failed"); process.exit(1); }
 if (process.env.LEDGER_NO_WRITE !== "1") {
   const before = fs.existsSync(index) ? fs.readFileSync(index, "utf8") : null;
   const next = JSON.stringify({ lastPredictionDate: process.env.ROTATION_AS_OF || "2026-08-03" }, null, 2) + "\\n";
@@ -114,6 +116,10 @@ const report = {
 };
 if (out) fs.writeFileSync(out, JSON.stringify(report, null, 2) + "\\n", "utf8");
 fs.writeFileSync(statesOut, JSON.stringify({ schemaVersion: "ledger-state-records-v1", states: [] }, null, 2) + "\\n", "utf8");
+if (process.env.GATE_CREATE_UNTRACKED === "1") {
+  fs.mkdirSync("data/prediction-ledger/untracked-test", { recursive: true });
+  fs.writeFileSync("data/prediction-ledger/untracked-test/file.txt", "untracked\\n", "utf8");
+}
 console.log(JSON.stringify(report));
 if (process.env.GATE_FAIL === "1") { console.error("gate failed"); process.exit(1); }
 if (process.env.GATE_PUBLISHED === "1") { console.error("HK/US probabilities published"); process.exit(1); }
@@ -181,12 +187,13 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
   write(root, "scripts/prediction-publication-gate.mjs", gateStub());
   write(root, "scripts/build-public-prediction-view.mjs", builderStub());
   write(root, "scripts/validate-public-prediction-view.mjs", dtoValidatorStub());
-  write(root, "scripts/validate-sector-rotation.mjs", `console.log("fixture rotation validation ok");`);
-  write(root, "scripts/validate-prediction-ledger.mjs", `console.log("fixture ledger validation ok");`);
+  write(root, "scripts/validate-sector-rotation.mjs", `if (process.env.VALIDATION_FAIL === "1") { console.error("fixture validation failed"); process.exit(1); }\nconsole.log("fixture rotation validation ok");`);
+  write(root, "scripts/validate-prediction-ledger.mjs", `if (process.env.VALIDATION_FAIL === "1") { console.error("fixture validation failed"); process.exit(1); }\nconsole.log("fixture ledger validation ok");`);
   git(root, "init");
   git(root, "branch", "-M", "main");
   git(root, "config", "user.email", "test@example.com");
   git(root, "config", "user.name", "Test");
+  git(root, "config", "core.autocrlf", "false");
   git(root, "add", ".");
   git(root, "commit", "-m", "initial");
   const bare = path.join(root, "..", `${path.basename(root)}-bare.git`);
@@ -213,6 +220,10 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
   if (process.env.GATE_FAIL === "1") env.GATE_FAIL = "1";
   if (process.env.GATE_PUBLISHED === "1") env.GATE_PUBLISHED = "1";
   if (process.env.BUILDER_TOUCH_FORBIDDEN === "1") env.BUILDER_TOUCH_FORBIDDEN = "1";
+  if (process.env.ROTATION_FAIL === "1") env.ROTATION_FAIL = "1";
+  if (process.env.LEDGER_FAIL === "1") env.LEDGER_FAIL = "1";
+  if (process.env.VALIDATION_FAIL === "1") env.VALIDATION_FAIL = "1";
+  if (process.env.GATE_CREATE_UNTRACKED === "1") env.GATE_CREATE_UNTRACKED = "1";
   return {
     root,
     runs,
@@ -244,6 +255,7 @@ test("prediction publisher publishes a probability ranking and pushes main", asy
     const report = await runPredictionPublisher({ ...value.options, write: true, env: value.env });
     assert.equal(report.status, "published");
     assert.match(report.commit.message, /chore\(predictions\): publish probability ranking 2026-08-04/);
+    assert.equal(report.writeApplied, true);
     assert.equal(report.push.ok, true);
     const remoteRef = git(value.bare, "show-ref", "--verify", "refs/heads/main");
     assert.match(remoteRef.stdout, /refs\/heads\/main/);
@@ -373,17 +385,82 @@ test("missing stage2 research output fails closed", async () => {
   }
 });
 
-test("dry-run computes but does not commit or push", async () => {
+test("dry-run is atomic: workspace fully restored, HEAD and remote unchanged", async () => {
+  const previous = process.env.GATE_CREATE_UNTRACKED;
+  process.env.GATE_CREATE_UNTRACKED = "1";
   const value = fixture();
   try {
     const before = git(value.root, "rev-parse", "HEAD").stdout.trim();
     const remoteBefore = git(value.bare, "show-ref", "--verify", "refs/heads/main").stdout.trim();
+    const tracked = [
+      "content/sector-rotation.json",
+      "content/writer-packets/daily-latest.json",
+      "public/data/predictions/current.json",
+    ];
+    const beforeBytes = Object.fromEntries(tracked.map((file) => [file, fs.readFileSync(path.join(value.root, ...file.split("/")))]));
     const report = await runPredictionPublisher({ ...value.options, dryRun: true, env: value.env });
     assert.equal(report.status, "dry-run");
     assert.equal(report.commit, null);
+    assert.equal(report.writeApplied, false);
+    assert.equal(report.workspaceRestored, true);
+    assert.equal(report.headUnchanged, true);
+    assert.equal(report.cleanupSucceeded, true);
+    assert.deepEqual(report.remainingChanges, []);
     assert.equal(git(value.root, "rev-parse", "HEAD").stdout.trim(), before);
     assert.equal(git(value.bare, "show-ref", "--verify", "refs/heads/main").stdout.trim(), remoteBefore);
+    assert.equal(git(value.root, "status", "--porcelain").stdout.trim(), "");
+    for (const file of tracked) {
+      assert.deepEqual(fs.readFileSync(path.join(value.root, ...file.split("/"))), beforeBytes[file], `${file} bytes changed by dry-run`);
+    }
+    assert.ok(!fs.existsSync(path.join(value.root, "data", "prediction-ledger", "index.json")), "ledger index created by dry-run must be removed");
+    assert.ok(!fs.existsSync(path.join(value.root, "data", "prediction-ledger", "untracked-test", "file.txt")), "untracked file created by dry-run must be removed");
   } finally {
+    if (previous === undefined) delete process.env.GATE_CREATE_UNTRACKED; else process.env.GATE_CREATE_UNTRACKED = previous;
     value.cleanup();
+  }
+});
+
+test("rotation failure after market refresh restores the runtime", async () => {
+  const previous = process.env.ROTATION_FAIL;
+  process.env.ROTATION_FAIL = "1";
+  const value = fixture();
+  try {
+    const before = git(value.root, "rev-parse", "HEAD").stdout.trim();
+    const report = await runPredictionPublisher({ ...value.options, write: true, env: value.env });
+    assert.equal(report.status, "failed");
+    assert.match(report.error, /INFER_FAILED/);
+    assert.equal(report.cleanupAttempted, true);
+    assert.equal(report.cleanupSucceeded, true);
+    assert.deepEqual(report.remainingChanges, []);
+    assert.equal(report.workspaceRestored, true);
+    assert.equal(report.headUnchanged, true);
+    assert.equal(git(value.root, "rev-parse", "HEAD").stdout.trim(), before);
+    assert.equal(git(value.root, "status", "--porcelain").stdout.trim(), "");
+  } finally {
+    if (previous === undefined) delete process.env.ROTATION_FAIL; else process.env.ROTATION_FAIL = previous;
+    value.cleanup();
+  }
+});
+
+test("gate, ledger and validator failures also restore the runtime", async () => {
+  const cases = [["GATE_FAIL", /GATE_FAILED/], ["LEDGER_FAIL", /LEDGER_FAILED/], ["VALIDATION_FAIL", /VALIDATION_FAILED/]];
+  for (const [envName, errorPattern] of cases) {
+    const previous = process.env[envName];
+    process.env[envName] = "1";
+    const value = fixture();
+    try {
+      const before = git(value.root, "rev-parse", "HEAD").stdout.trim();
+      const report = await runPredictionPublisher({ ...value.options, write: true, env: value.env });
+      assert.equal(report.status, "failed", envName);
+      assert.match(report.error, errorPattern, envName);
+      assert.equal(report.cleanupSucceeded, true, envName);
+      assert.equal(report.workspaceRestored, true, envName);
+      assert.equal(report.headUnchanged, true, envName);
+      assert.equal(git(value.root, "rev-parse", "HEAD").stdout.trim(), before, envName);
+      assert.equal(git(value.root, "status", "--porcelain").stdout.trim(), "", envName);
+    } finally {
+      if (previous === undefined) delete process.env[envName]; else process.env[envName] = previous;
+      value.cleanup();
+    }
   }
 });
