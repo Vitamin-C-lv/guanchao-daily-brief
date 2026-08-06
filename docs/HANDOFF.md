@@ -196,3 +196,17 @@ or touches the prediction ledger.
 - Publisher 原子性补丁（2026-08-06，合并前，同 PR #52）：`run-prediction-publisher.mjs` 在 run baseline（pull 后）记录 HEAD 与初始 clean 状态；dry-run 与任何 commit 前失败（market/rotation/gate/DTO/ledger/validator/forbidden write）都执行精确恢复——tracked 修改用 `git restore` 精确路径恢复、本轮新建的 untracked 文件精确删除，禁止 `git clean`/`reset --hard`/`stash`，最终 `git status --porcelain` 为空且 HEAD 不变；报告新增 `writeApplied=false`、`workspaceRestored`、`headUnchanged`、`cleanupAttempted`、`cleanupSucceeded`、`remainingChanges`；commit 创建后的 push/Vercel 失败不回滚 commit。回归测试 12/12（dry-run 原子性、rotation 失败清理、gate/ledger/validator 失败清理、write 成功路径）。
 - 阶段二研究产物稳定路径：删除 temp 硬编码，稳定私有路径为 `D:\Guanchao-Workspace\runtime\model-research\stage2-three-market`（manifest SHA-256 `3b067828a0fdeecccf9e058978da9e3a6b2c57e2932ea9ccadbfd49eb14f19a0`，含 RUN_RESULT/MODEL_CARDS/OOS_METRICS/GATE_RESULTS/SOURCE_AUDIT 等）。Publisher 只通过 `--research-output`、`GUANCHAO_STAGE2_RESEARCH_OUTPUT` 或该稳定默认路径获取；私有产物不入 Git；automation 时间/时区/ACTIVE 与日报/周报 automation 均未改动。
 - 当前状态：Draft PR，未 Ready、未 merge；生产账本未写；模型 SHA 未变；A 股 champion 未替换；HK/US 未发布概率。
+
+## 阶段三正式完成：预测产品发布与持续复盘（2026-08-06）
+
+- PR #52 已转 Ready 并 squash merge；merge commit：`4bdb2f550cb4b256d6822e933eef5abf2038aa80`（squash 树与 expected head `5d1867f76cd91c68d5f3cf1612e6e55303d0e2fb` 完全一致）。docs-only 收尾提交后最新 main SHA 以最终 fetch 为准。
+- 阶段三“预测产品发布与持续复盘”完成：`/predictions` 已使用 PublicPredictionView v1（`public/data/predictions/current.json` 为唯一公开权威输入）；A 股为规则观察榜 + 冻结生产 champion（模型 SHA 未变，`358e19ae...`）；HK/US 当前均未发布概率（`probabilityCount=0`，无默认 50%）。
+- HK/US 账本采用 state-only snapshot 状态契约：概率/预期收益恒为 null、evaluation 不适用、相同状态跨天幂等、只有状态/datasetId/modelVersion/horizon 变化才新增 snapshot；`identity.statePayloadSha256` 为现有契约的兼容修复（不是新 ADR）。
+- Publisher 原子恢复边界：dry-run 与 commit 前任何失败都精确恢复 tracked 修改与新建 untracked 文件（禁止 git clean/reset/stash），`git status --porcelain` 为空且 HEAD 不变；commit 后 push/Vercel 失败不回滚 commit；报告含 `writeApplied/workspaceRestored/headUnchanged/cleanupAttempted/cleanupSucceeded/remainingChanges`。
+- 稳定研究产物路径：`D:\Guanchao-Workspace\runtime\model-research\stage2-three-market`，manifest totalSha256 `3b067828a0fdeecccf9e058978da9e3a6b2c57e2932ea9ccadbfd49eb14f19a0`；Publisher 只经 `--research-output` / `GUANCHAO_STAGE2_RESEARCH_OUTPUT` / 该稳定默认路径获取，私有产物不入 Git。
+- 正式 runtime（`D:\Guanchao-Workspace\runtime\local-writer-runtime`）已从旧 HEAD `9c8869fc` 升级到最新 main 并保持 clean（config 规范化为 canonical LF，native state configSha256 同步为 `a8263960...`）。
+- P1L 遗留本地修改（旧 config 与 3 个 prompt）已归档到 `D:\Guanchao-Workspace\archives\runtime-local-changes\p1l-before-stage3-20260806\`（含 ARCHIVE_MANIFEST.json 与各文件 SHA-256），未自动重新应用。
+- prediction automation 已恢复：`guanchao-prediction-publisher`，Asia/Shanghai 06:45，ACTIVE，无重复任务；正式 runtime 完整 dry-run 通过（13 步全 ok，writeApplied=false、workspaceRestored=true、cleanupSucceeded=true、remainingChanges=[]、headUnchanged=true，运行后 runtime clean）。
+- 日报 07:30 与周报周六 10:00 automation 保持原状态与时间表；daily/weekly 只读 consistency 与 writer-context validate 通过，不依赖被归档的 P1L 临时修改。
+- CSI 403 为可恢复 provider incident：早期 dry-run 曾因 CSI 403 阻断，已如实记录为 BLOCKED_PROVIDER_CSI_403（未绕过 WAF、未换供应商）；后续与正式 runtime dry-run 均完整通过。
+- 下一阶段不是继续扩页面，而是“生产稳定性观察与样本积累”。
