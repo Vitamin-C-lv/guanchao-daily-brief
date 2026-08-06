@@ -2939,7 +2939,8 @@
       "abstained": 36,
       "insufficient_data": 0,
       "not_applicable": 6,
-      "published": 0
+      "published": 0,
+      "unavailable": 0
     }
   },
   "yearMonth": "2026-08"

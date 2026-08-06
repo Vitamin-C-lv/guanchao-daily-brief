@@ -32,6 +32,7 @@
 | ADR-025 | 港股日报日期与数据源观察日期必须分别建模。 | `asOf/sessionDate` 是日报或预测截止日，`sourceAsOf` 是实际 provider 快照日；两者错位时保留诊断并 fail closed，不把未来快照贴到过去日报。未训练未来窗口使用 `outputMode=none`，不得退化为当前观察或默认概率。 |
 | ADR-027 | 每日简报采用全球整合主文章，并以预授权触发候选控制重大专项；编辑市场展望与量化模型预测严格隔离。 | 普通波动进入一篇全球主文章，避免固定三市场凑稿；研究包先确定证据、专项资格和失效条件，Writer 只能读取冻结执行包并输出可追溯内容。 |
 | ADR-028 | 阶段二三市场研究使用统一不可变 panel manifest，但 raw snapshot identity 与 normalized panel identity 分离；训练只产生研究/shadow 产物。 | A/HK/US 需要共享 session/object/feature/label 审计和可重放 OOS 评价，同时必须保护受限 raw history、冻结 A 股 champion、生产页面和 prediction ledger。 |
+| ADR-029 | HK/US 生产发布必须通过独立、可复用的 publication gate，且本阶段真实结果全部 blocked；HK/US 账本记录采用 state-only snapshot。 | 未来可复用门禁按样本外证据放行，但阶段二结果不得伪造通过；状态记录不携带概率、不进入评价分母，只有状态变化才新增 snapshot。 |
 
 ## ADR-027 详细冻结（Accepted）
 
@@ -49,3 +50,13 @@
 - raw snapshot lineage 与 normalized panel identity 各自有 SHA；相同 identity 同内容必须物理 no-op，identity 冲突必须 fail closed。
 - HK/US 主题合法历史不足时保持 `unavailable`；HK/US 指数模型即使有 OOS 训练也保持 shadow/abstained，不向用户页面发布概率。
 - A 股当前 champion、文章、UI、Writer、日报/周报 automation 和 prediction ledger 不属于阶段二写入范围。
+
+## ADR-029 详细冻结（Accepted）
+
+- `data/model-research/prediction-publication-gates-v1.json` 是 HK/US 发布门禁 registry；A 股继续使用现有冻结生产 gate，本 registry 不复制、不放宽 A 股门槛。
+- 每个 `market/object/horizon/target/modelVersion` 独立判断；dataset status、datasetId、source health、modelAvailability、OOS 样本数、有效 fold 数、Brier/log-loss skill、fold 通过率、AUC、校准 slope/intercept、概率离散度、coverage、泄漏与 fold 稳定性全部满足才允许 `published`。
+- 任一失败：`publicationStatus=abstained | insufficient_data | unavailable`、`outputMode=none`、`probability=null`；禁止回退为历史基准率并标成模型概率，禁止默认 50%。
+- 阶段二真实结果固定为：HSI 1/5/20 `abstained`、HSTECH `insufficient_data`、港股两个主题 `unavailable`、Nasdaq 1/5/20 `abstained`；Nasdaq 20 日正向研究指标不得解释为已通过发布门槛。
+- `public/data/predictions/current.json` 是 `/predictions` 页面唯一公开权威输入（PublicPredictionView v1）；私有路径、raw cache、fold 预测、provider 响应、gate 内部诊断、训练参数与本地用户名永不进入 DTO。
+- HK/US 账本使用 state-only snapshot：`predictions=[]`、`states[]` 全部 `probability/expectedReturn=null`、`probabilitySource/Target=none`、`outputMode=none`；evaluation 不适用，不进入正确率/Brier/AUC 分母；相同状态跨天幂等，只有状态、datasetId、modelVersion 或 horizon 变化才新增 snapshot。
+- `run-prediction-publisher.mjs` 是唯一预测发布入口：A 股 infer 保持不训练、不 promotion；gate → DTO → ledger states → validators 全部由确定性脚本执行；写入白名单只增加 `public/data/predictions/`；阶段二私有研究输出只通过 CLI/env 传入。

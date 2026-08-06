@@ -32,7 +32,7 @@ import sys
 import tempfile
 import time
 from collections import defaultdict
-from datetime import date, datetime, timedelta, time, timezone
+from datetime import date, datetime, timedelta, time as dt_time, timezone
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 from urllib.parse import urlencode, urlparse
@@ -273,7 +273,7 @@ def latest_complete_a_share_session(now: datetime | None = None) -> str | None:
     latest = current
     while not is_trading(latest):
         latest -= timedelta(days=1)
-    if latest == current and (now or datetime.now(SHANGHAI)).time() < time(17, 0):
+    if latest == current and (now or datetime.now(SHANGHAI)).time() < dt_time(17, 0):
         latest -= timedelta(days=1)
         while not is_trading(latest):
             latest -= timedelta(days=1)

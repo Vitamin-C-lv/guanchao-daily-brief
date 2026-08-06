@@ -133,3 +133,22 @@ P2-B0 保留明确迁移窗口：旧 `daily-brief-v1`/三市场生产链只有�
 统一 panel manifest 同时记录 raw snapshot lineage 与 normalized panel identity，但两者使用独立 SHA。panel 使用确定性 gzip、UTF-8/LF、明确 session/object/feature/label 列；相同 identity 且字节相同是 no-op，相同 identity 内容变化 fail closed。所有缺失值保持 `null`，主题对象在冻结来源无法提供合法历史时保持 `unavailable`，不静默替换或回测混入正式历史。
 
 特征只使用预测时点已知信息，标签按 1/5/20 日独立生成；训练采用 expanding walk-forward、target-date purge 和 horizon embargo。没有至少三个有效 OOS fold 的对象/周期保持 `insufficient_data`；即使训练完成，HK/US 也固定 `publicationStatus=abstained`、`outputMode=none`。阶段二不写文章、UI、Writer、日报/周报 automation、生产模型或 prediction ledger。
+
+## 阶段三：预测产品发布与持续复盘（2026-08-06）
+
+阶段三新增三层，全部只读消费阶段二私有研究输出，不训练、不 promotion、不改模型与文章边界：
+
+```text
+阶段二私有研究输出（MODEL_CARDS / OOS_METRICS / RUN_RESULT）
+  → HK/US publication gate（registry + 确定性 validator）
+  → PublicPredictionView v1 DTO（public/data/predictions/current.json）
+  → /predictions 专用页面（A/HK/US 三市场、1/5/20、概率/观察/弃权/不足/不可用分离）
+  → HK/US state-only ledger snapshot（幂等、不进入评价分母）
+  → prediction publisher 集成（gate → DTO → states → validators → 白名单）
+```
+
+- A 股继续使用现有冻结生产 gate 与 `content/sector-rotation.json` 观察榜；HK/US 走 `prediction-publication-gates-v1` 门禁，本阶段真实结果全部 blocked（HSI/Nasdaq abstained、HSTECH insufficient_data、两个主题 unavailable），任何 HK/US 概率保持 `null`。
+- `/predictions` 使用专用组件（PredictionCurrentView / PredictionMarketTabs / PredictionHorizonCard / PredictionStatusPanel / PredictionSourceNote / PredictionWeeklyReviewTeaser），不再渲染通用 Dashboard predictions view；URL query `market=a-share|hk|us` 在刷新与分享后保持；移动端保持五项底部导航，390px 无横向溢出。
+- `/predictions/history` 保留按月分片与哈希校验，新增当前三市场状态摘要与“数据不足”筛选；弃权、未训练、数据不可用不计为错误，legacy/current 与市场/目标/周期保持隔离。
+- 账本：HK/US 状态写入 state-only snapshot，`probability/expectedReturn=null`、evaluation 不适用、相同状态跨天幂等；公开分片保留状态记录，`statusSummary` 增加 `unavailable`；生产账本在 PR 审查阶段不写入。
+- 自动化：既有本机 `guanchao-prediction-publisher` 任务保持不变（Asia/Shanghai 06:45，无重复任务）；日报 07:30 与周报周六 10:00 自动化未改动；发布前必须 `pnpm automation:consistency` 通过，dry-run 不写、不 commit、不 push。

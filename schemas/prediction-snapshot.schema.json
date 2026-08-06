@@ -14,7 +14,8 @@
     "codeCommit": {"type": "string", "pattern": "^[a-f0-9]{40}$"},
     "markets": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},
     "models": {"type": "array", "items": {"$ref": "#/$defs/model"}},
-    "predictions": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/prediction"}},
+    "predictions": {"type": "array", "minItems": 0, "items": {"$ref": "#/$defs/prediction"}},
+    "states": {"type": "array", "items": {"$ref": "#/$defs/state"}},
     "migration": {"type": "object", "additionalProperties": false, "required": ["sourceKind", "sourceSha256", "grouping", "lineage"], "properties": {
       "sourceKind": {"type": "string"}, "sourceSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}, "grouping": {"type": "string"}, "lineage": {"type": "string"}
     }},
@@ -22,7 +23,8 @@
       "markets": {"type": "array", "items": {"type": "string"}}, "dataAsOf": {"type": "string", "format": "date"},
       "publicationEdition": {"type": "string"}, "publicationVersion": {"type": "string", "format": "date-time"},
       "models": {"type": "array", "items": {"$ref": "#/$defs/model"}}, "horizons": {"type": "array", "items": {"enum": [1, 5, 20]}},
-      "predictionPayloadSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      "predictionPayloadSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+      "statePayloadSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
     }},
     "integrity": {"$ref": "#/$defs/integrity"}
   },
@@ -44,7 +46,7 @@
         "market": {"type": "string"}, "sectorId": {"type": "string"}, "sectorName": {"type": "string"},
         "horizonSessions": {"enum": [1, 5, 20]}, "dueDate": {"type": ["string", "null"], "format": "date"},
         "modelVersion": {"type": "string"}, "modelAvailability": {"enum": ["trained", "not_trained", "not_implemented"]},
-        "publicationStatus": {"enum": ["published", "abstained", "insufficient_data", "not_applicable"]},
+        "publicationStatus": {"enum": ["published", "abstained", "insufficient_data", "not_applicable", "unavailable"]},
         "outputMode": {"type": "string"}, "calibrationStatus": {"type": "string"},
         "probabilitySource": {"enum": ["raw_model", "calibrated_model", "historical_base_rate", "legacy_unknown", "none"]},
         "probabilityTarget": {"enum": ["absolute_up", "relative_outperformance", "top_quartile", "none"]},
@@ -65,6 +67,36 @@
     "evidence": {"type": "object", "additionalProperties": false, "required": ["label", "observation", "sourceIndexes"], "properties": {
       "label": {"type": "string"}, "observation": {"type": "string"}, "sourceIndexes": {"type": "array", "items": {"type": "integer", "minimum": 0}}
     }},
+    "state": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stateId", "recordDate", "market", "objectId", "objectLabel", "horizonSessions", "target", "modelVersion", "modelAvailability", "datasetId", "datasetStatus", "publicationStatus", "outputMode", "probability", "expectedReturn", "probabilitySource", "probabilityTarget", "calibrationStatus", "abstainReasons", "statusReason", "asOf", "dueDate", "sourceUrls", "legacy"],
+      "properties": {
+        "stateId": {"type": "string", "minLength": 8},
+        "recordDate": {"type": "string", "format": "date"},
+        "market": {"type": "string"},
+        "objectId": {"type": "string"},
+        "objectLabel": {"type": "string"},
+        "horizonSessions": {"enum": [1, 5, 20]},
+        "target": {"type": "string"},
+        "modelVersion": {"type": "string"},
+        "modelAvailability": {"enum": ["trained", "not_trained", "not_implemented"]},
+        "datasetId": {"type": ["string", "null"]},
+        "datasetStatus": {"type": ["string", "null"]},
+        "publicationStatus": {"enum": ["abstained", "insufficient_data", "not_applicable", "unavailable"]},
+        "outputMode": {"const": "none"},
+        "probability": {"const": null},
+        "expectedReturn": {"const": null},
+        "probabilitySource": {"const": "none"},
+        "probabilityTarget": {"const": "none"},
+        "calibrationStatus": {"type": "string"},
+        "abstainReasons": {"type": "array", "items": {"type": "string"}},
+        "statusReason": {"type": "string"},
+        "asOf": {"type": "string", "format": "date"},
+        "dueDate": {"type": ["string", "null"], "format": "date"},
+        "sourceUrls": {"type": "array", "items": {"type": "string", "format": "uri"}},
+        "legacy": {"const": false}
+      }
+    },
     "benchmark": {"type": "object", "additionalProperties": false, "required": ["code", "name", "contractVersion"], "properties": {
       "code": {"type": "string"}, "name": {"type": "string"}, "contractVersion": {"type": "string"}
     }},

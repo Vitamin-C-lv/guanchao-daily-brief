@@ -1,18 +1,11 @@
-import Dashboard from "@/components/Dashboard";
-import dailyBrief from "@/content/daily-brief.json";
-import marketObserver from "@/content/market-observer.json";
-import sectorRotation from "@/content/sector-rotation.json";
-import { collectSectorDetailKeys } from "@/lib/sector-details";
-import type { DailyBrief, MarketObserverSnapshot, SectorRotationIndex } from "@/lib/types";
+import type { Metadata } from "next";
+import PredictionCurrentView from "@/components/PredictionCurrentView";
+
+export const metadata: Metadata = {
+  title: "预测与模型状态 · 观潮",
+  description: "A股、港股、美股三市场当前预测状态：只有通过样本外门槛的模型才显示概率；弃权与数据不足不会被伪装成概率。",
+};
 
 export default function PredictionsPage() {
-  return (
-    <Dashboard
-      data={dailyBrief as DailyBrief}
-      sectorRotation={sectorRotation as SectorRotationIndex}
-      sectorDetailKeys={collectSectorDetailKeys()}
-      marketObserver={marketObserver as MarketObserverSnapshot}
-      view="predictions"
-    />
-  );
+  return <PredictionCurrentView />;
 }

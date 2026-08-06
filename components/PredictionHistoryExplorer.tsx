@@ -4,11 +4,14 @@ import { ArrowLeft, CheckCircle2, Clock3, Database, ExternalLink, History, Searc
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import MobileBottomNav from "./MobileBottomNav";
+import { isPublicPredictionView } from "@/lib/public-prediction-view";
+import { calibrationStatusLabel, modelAvailabilityLabel, probabilitySourceLabel, targetLabel } from "@/lib/public-prediction-view";
 import type { PredictionHistoryFilter, PredictionHistoryShard, PredictionLedgerPublicIndex, PredictionLedgerPublicRecord, PredictionWeeklyReview, ProbabilityTarget } from "@/lib/types";
+import type { PublicPredictionView } from "@/lib/public-prediction-view";
 
 const markets = [{ id: "a-share", label: "A股" }, { id: "hk", label: "港股" }, { id: "us", label: "美股" }] as const;
 const horizons = [1, 5, 20] as const;
-const statuses = [["all", "全部状态"], ["published", "已发布"], ["abstained", "模型弃权"], ["unavailable", "未训练 / 未实现"], ["evaluated", "已到期"], ["pending", "待验证"]] as const;
+const statuses = [["all", "全部状态"], ["published", "已发布"], ["abstained", "模型弃权"], ["insufficient", "数据不足"], ["unavailable", "未训练 / 未实现"], ["evaluated", "已到期"], ["pending", "待验证"]] as const;
 const targets: Array<[PredictionHistoryFilter["probabilityTarget"], string]> = [["all", "全部概率目标"], ["top_quartile", "前25%"], ["relative_outperformance", "跑赢基准"], ["absolute_up", "绝对上涨"], ["none", "无概率目标"]];
 const initialFilter: PredictionHistoryFilter = { month: "", market: "a-share", horizon: 1, status: "all", modelVersion: "all", probabilityTarget: "all", lineage: "all", query: "" };
 
@@ -30,6 +33,7 @@ function stateLabel(record: PredictionLedgerPublicRecord) {
   if (record.modelAvailability === "not_trained") return "模型未训练";
   if (record.publicationStatus === "abstained") return "模型弃权 · 仅展示观察";
   if (record.publicationStatus === "insufficient_data") return "数据不足";
+  if (record.publicationStatus === "unavailable") return "数据不可用";
   return "已发布概率";
 }
 
@@ -43,6 +47,7 @@ function matchesStatus(record: PredictionLedgerPublicRecord, status: PredictionH
   if (status === "all") return true;
   if (status === "published") return record.publicationStatus === "published";
   if (status === "abstained") return record.publicationStatus === "abstained";
+  if (status === "insufficient") return record.publicationStatus === "insufficient_data";
   if (status === "unavailable") return record.modelAvailability !== "trained";
   if (status === "evaluated") return record.evaluation != null && ["correct", "wrong", "near_neutral"].includes(record.evaluation.result);
   return record.publicationStatus === "published" && record.evaluation == null;
@@ -79,6 +84,7 @@ function ResultIcon({ record }: { record: PredictionLedgerPublicRecord }) {
 export default function PredictionHistoryExplorer() {
   const [index, setIndex] = useState<PredictionLedgerPublicIndex | null>(null);
   const [review, setReview] = useState<PredictionWeeklyReview | null>(null);
+  const [currentView, setCurrentView] = useState<PublicPredictionView | null>(null);
   const [records, setRecords] = useState<PredictionLedgerPublicRecord[]>([]);
   const [filter, setFilter] = useState<PredictionHistoryFilter>(initialFilter);
   const [visible, setVisible] = useState(60);
@@ -94,6 +100,16 @@ export default function PredictionHistoryExplorer() {
         const raw: unknown = await response.json();
         if (!isPublicIndex(raw)) throw new Error("公开索引契约无效");
         const payload = raw;
+        try {
+          const currentResponse = await fetch("/data/predictions/current.json", { cache: "no-cache" });
+          if (currentResponse.ok) {
+            const currentRaw: unknown = await currentResponse.json();
+            if (isPublicPredictionView(currentRaw) && !cancelled) setCurrentView(currentRaw);
+          }
+        } catch {
+          // The three-market summary is an enhancement; its absence must not
+          // block the immutable history explorer.
+        }
         const params = new URLSearchParams(window.location.search);
         const month = params.get("month");
         const market = params.get("market");
@@ -177,6 +193,15 @@ export default function PredictionHistoryExplorer() {
   const update = <K extends keyof PredictionHistoryFilter>(key: K, value: PredictionHistoryFilter[K]) => { setFilter((current) => ({ ...current, [key]: value })); setVisible(60); };
   const currentModelRecords = index ? index.currentRecordCount : 0;
   const topHit = review?.metrics.topQuartileHitRate;
+  const currentSummary = currentView?.markets.map((market) => ({
+    marketId: market.marketId,
+    label: market.label,
+    objects: market.objects.map((object) => ({
+      label: object.label,
+      status: object.horizons[0]?.publicationStatus ?? "unavailable",
+      modelAvailability: object.modelAvailability,
+    })),
+  })) ?? [];
 
   return <div className="prediction-history-shell">
     <header className="prediction-history-header"><div className="prediction-history-header-inner">
@@ -195,6 +220,23 @@ export default function PredictionHistoryExplorer() {
         <div><span>当前模型 Top25% 命中率</span><strong>{typeof topHit === "number" ? `${(topHit * 100).toFixed(1)}%` : "样本不足"}</strong></div>
         <div><span>RankIC / Brier Skill</span><strong>{review && typeof review.metrics.rankIc === "number" ? review.metrics.rankIc.toFixed(3) : "样本不足"} / {review && typeof review.metrics.brierSkill === "number" ? review.metrics.brierSkill.toFixed(3) : "样本不足"}</strong></div>
       </section>
+      {currentSummary.length ? <section className="prediction-history-current" aria-label="当前三市场状态摘要">
+        <div className="prediction-history-current-heading"><p className="eyebrow">CURRENT STATUS</p><h2>当前三市场预测状态</h2></div>
+        <div className="prediction-history-current-grid">
+          {currentSummary.map((market) => (
+            <article key={market.marketId}>
+              <strong>{market.label}</strong>
+              <ul>{market.objects.map((object) => (
+                <li key={object.label}>
+                  <span>{object.label}</span>
+                  <em className={`state-${object.status}`}>{object.status === "abstained" ? "弃权" : object.status === "insufficient_data" ? "样本不足" : object.status === "unavailable" ? "数据不可用" : object.status === "not_applicable" ? "不适用" : "已发布"}</em>
+                </li>
+              ))}</ul>
+            </article>
+          ))}
+        </div>
+        <p className="prediction-history-current-note">弃权、样本不足、未训练与数据不可用都不计为错误，也不进入命中率或概率指标分母。</p>
+      </section> : null}
       <section className="prediction-history-review"><div><p className="eyebrow">WEEKLY REVIEW · {review?.isoWeek ?? "LOADING"}</p><h2>本周模型评价</h2></div><p>{review?.metrics.sampleSize ? `当前模型有效评价样本 ${review.metrics.sampleSize} 条。` : "当前模型尚无可计分样本，概率、排序与校准指标按契约保持为空。"}</p>{review?.recommendations.length ? <ul>{review.recommendations.map((item) => <li key={item}>{item}</li>)}</ul> : null}</section>
       <section className="prediction-history-controls" aria-label="历史预测筛选">
         <label><span className="sr-only">月份</span><select value={filter.month} onChange={(event) => update("month", event.target.value)}>{index?.availableMonths.map((month) => <option key={month} value={month}>{month}</option>)}</select></label>
@@ -212,7 +254,7 @@ export default function PredictionHistoryExplorer() {
           <header><div><span className="prediction-history-date">{dateLabel(record.predictionDate)}</span><h2>{record.sectorName}</h2><code>{record.sectorId}</code></div><span className="prediction-history-state">{stateLabel(record)}</span></header>
           <div className="prediction-history-metrics"><div><span>{probabilityValue?.label ?? (record.observationScore != null ? "观察分（不是概率）" : "概率输出")}</span><strong>{probabilityValue?.value != null ? `${probabilityValue.value.toFixed(1)}%` : record.observationScore != null ? record.observationScore.toFixed(1) : "未发布"}</strong></div><div><span>历史基准</span><strong>{record.historicalBaseRate == null ? "—" : `${record.historicalBaseRate.toFixed(1)}%`}</strong></div><div><span>到期结果</span><strong className={`result-${record.evaluation?.result ?? "pending"}`}><ResultIcon record={record} />{resultLabel(record)}</strong></div><div><span>实现超额收益</span><strong>{pct(record.evaluation?.realizedExcessReturn ?? null)}</strong></div></div>
           <p className="prediction-history-claim">{record.claim}</p>{record.abstainReasons.length ? <div className="prediction-history-reasons"><strong>未发布原因</strong>{record.abstainReasons.map((reason) => <span key={reason}>{reason}</span>)}</div> : null}
-          <details><summary>查看契约与证据</summary><dl><div><dt>模型版本</dt><dd>{record.modelVersion}</dd></div><div><dt>概率目标</dt><dd>{record.probabilityTarget}</dd></div><div><dt>概率来源</dt><dd>{record.probabilitySource}</dd></div><div><dt>模型状态</dt><dd>{record.modelAvailability}</dd></div><div><dt>触发条件</dt><dd>{record.trigger}</dd></div><div><dt>失效条件</dt><dd>{record.invalidation}</dd></div></dl>{record.sourceUrls.length ? <div className="prediction-history-sources">{record.sourceUrls.map((url, sourceIndex) => <a key={url} href={url} target="_blank" rel="noreferrer">来源 {sourceIndex + 1}<ExternalLink size={13} /></a>)}</div> : <p className="prediction-history-no-source">该状态记录没有可公开的直接来源链接。</p>}</details>
+          <details><summary>查看契约与证据</summary><dl><div><dt>模型版本</dt><dd>{record.modelVersion}</dd></div><div><dt>概率目标</dt><dd>{targetLabel(record.probabilityTarget)}</dd></div><div><dt>概率来源</dt><dd>{probabilitySourceLabel(record.probabilitySource)}</dd></div><div><dt>模型状态</dt><dd>{modelAvailabilityLabel(record.modelAvailability)}</dd></div><div><dt>校准状态</dt><dd>{calibrationStatusLabel(record.calibrationStatus)}</dd></div><div><dt>触发条件</dt><dd>{record.trigger}</dd></div><div><dt>失效条件</dt><dd>{record.invalidation}</dd></div></dl>{record.sourceUrls.length ? <div className="prediction-history-sources">{record.sourceUrls.map((url, sourceIndex) => <a key={url} href={url} target="_blank" rel="noreferrer">来源 {sourceIndex + 1}<ExternalLink size={13} /></a>)}</div> : <p className="prediction-history-no-source">该状态记录没有可公开的直接来源链接。</p>}</details>
         </article>; })}{visible < filtered.length ? <button className="prediction-history-more" type="button" onClick={() => setVisible((value) => value + 60)}>继续加载（尚余 {filtered.length - visible} 条）</button> : null}
       </section> : <section className="prediction-history-empty"><History size={28} /><h2>{filter.market === "us" ? "美股预测模型尚未实现" : "当前筛选没有记录"}</h2><p>{filter.market === "us" ? "页面明确保留未实现状态，不生成概率、不借用其他市场模型，也不把空白记成错误。" : "可切换月份、期限或筛选条件；权威记录未被删除。"}</p></section>}
     </main><MobileBottomNav active="predictions" />

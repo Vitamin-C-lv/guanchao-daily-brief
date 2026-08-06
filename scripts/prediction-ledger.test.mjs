@@ -3,6 +3,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import test from "node:test";
 
+import Ajv2020 from "ajv/dist/2020.js";
+
 import { validateLedger } from "./validate-prediction-ledger.mjs";
 
 const fixtureRoot = join(import.meta.dirname, "fixtures", "prediction-ledger");
@@ -18,6 +20,83 @@ test("authoritative ledger, manifests, schemas, review and public shards agree",
   assert.equal(report.ok, true);
   assert.equal(report.predictionRecordCount, 366);
   assert.equal(report.evaluationEventCount, 300);
+});
+
+test("state-only snapshot identity schema accepts statePayloadSha256 and keeps old snapshots valid", () => {
+  const schema = JSON.parse(readFileSync(join(repoRoot, "schemas", "prediction-snapshot.schema.json"), "utf8"));
+  const ajv = new Ajv2020({ allErrors: true, strict: false });
+  ajv.addFormat("date", /^\d{4}-\d{2}-\d{2}$/u);
+  ajv.addFormat("date-time", /^\d{4}-\d{2}-\d{2}T/u);
+  ajv.addFormat("uri", /^https?:\/\//u);
+  const validate = ajv.compile(schema);
+  const state = {
+    stateId: "state-hk-hsi-20260806-h1-hk-regularized-logistic-shadow-v1-aaaaaaaaaaaa",
+    recordDate: "2026-08-06",
+    market: "hk",
+    objectId: "hsi",
+    objectLabel: "恒生指数",
+    horizonSessions: 1,
+    target: "absolute_up",
+    modelVersion: "hk-regularized-logistic-shadow-v1",
+    modelAvailability: "trained",
+    datasetId: "hk-panel-5a1325340d0c",
+    datasetStatus: "partial",
+    publicationStatus: "abstained",
+    outputMode: "none",
+    probability: null,
+    expectedReturn: null,
+    probabilitySource: "none",
+    probabilityTarget: "none",
+    calibrationStatus: "disabled",
+    abstainReasons: ["未通过全部生产发布门槛"],
+    statusReason: "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+    asOf: "2026-08-06",
+    dueDate: null,
+    sourceUrls: ["https://www.hsi.com.hk/eng/indexes/all-indexes/hang-seng-index"],
+    legacy: false,
+  };
+  const models = [{ market: "hk", modelVersion: "hk-regularized-logistic-shadow-v1", artifactSha256: null, availability: "trained" }];
+  const identityWithState = {
+    markets: ["hk"],
+    dataAsOf: "2026-08-06",
+    publicationEdition: "daily",
+    publicationVersion: "2026-08-06T20:00:00+08:00",
+    models,
+    horizons: [1],
+    predictionPayloadSha256: "0".repeat(64),
+    statePayloadSha256: "1".repeat(64),
+  };
+  const document = {
+    schemaVersion: 1,
+    runId: "prun-20260806-aaaaaaaaaaaaaaaaaaaa",
+    createdAt: "2026-08-06T20:00:00+08:00",
+    dataAsOf: "2026-08-06",
+    edition: "daily",
+    codeCommit: "a".repeat(40),
+    markets: ["hk"],
+    models,
+    predictions: [],
+    states: [state],
+    identity: identityWithState,
+    integrity: {
+      contractVersion: "prediction-ledger-v1",
+      hashMode: {
+        text: "utf8-canonical-lf-v1",
+        binary: "raw-bytes-v1",
+        gzip: "deterministic-gzip-v1",
+        selfHashExclusion: "integrity-digests-zeroed-v1",
+      },
+      payloadSha256: "2".repeat(64),
+      compressedSha256: "3".repeat(64),
+    },
+  };
+  assert.equal(validate(document), true);
+  const legacyDocument = {
+    ...document,
+    states: undefined,
+    identity: { ...identityWithState, statePayloadSha256: undefined },
+  };
+  assert.equal(validate(legacyDocument), true);
 });
 
 test("public index exposes selectable months and complete-history policy", () => {

@@ -25,7 +25,8 @@
       "manifestSha256": "c89054b651cdd988049789386bcf770189d6587413616a11d83f6ce9e12bc369",
       "month": "2026-07",
       "recordCount": 324,
-      "snapshotCount": 9
+      "snapshotCount": 9,
+      "stateCount": 0
     },
     {
       "evaluationCount": 48,
@@ -34,7 +35,8 @@
       "manifestSha256": "9783d272e8dff60834d77eebdf6564783fba7dadebe417fda0a4fe70497b7218",
       "month": "2026-08",
       "recordCount": 42,
-      "snapshotCount": 1
+      "snapshotCount": 1,
+      "stateCount": 0
     }
   ],
   "predictionRecordCount": 366,
@@ -52,10 +54,12 @@
   ],
   "schemaVersion": 1,
   "snapshotCount": 10,
+  "stateRecordCount": 0,
   "statusSummary": {
     "abstained": 180,
     "insufficient_data": 0,
     "not_applicable": 150,
-    "published": 36
+    "published": 36,
+    "unavailable": 0
   }
 }

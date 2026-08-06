@@ -390,5 +390,159 @@ class PredictionLedgerTests(unittest.TestCase):
                 ledger.append_snapshot(root, item)
 
 
+def state_record(
+    state_id: str = "state-hk-hsi-20260806-h1-hk-regularized-logistic-shadow-v1-aaaaaaaaaaaa",
+    *,
+    horizon: int = 1,
+    publication_status: str = "abstained",
+    model_availability: str = "trained",
+    record_date: str = "2026-08-06",
+    object_id: str = "hsi",
+) -> dict:
+    return {
+        "stateId": state_id,
+        "recordDate": record_date,
+        "market": "hk",
+        "objectId": object_id,
+        "objectLabel": "恒生指数",
+        "horizonSessions": horizon,
+        "target": "absolute_up",
+        "modelVersion": "hk-regularized-logistic-shadow-v1",
+        "modelAvailability": model_availability,
+        "datasetId": "hk-panel-5a1325340d0c",
+        "datasetStatus": "partial",
+        "publicationStatus": publication_status,
+        "outputMode": "none",
+        "probability": None,
+        "expectedReturn": None,
+        "probabilitySource": "none",
+        "probabilityTarget": "none",
+        "calibrationStatus": "disabled" if publication_status == "abstained" else "not_applicable",
+        "abstainReasons": ["dataset_status_ready:datasetStatus=partial"] if publication_status == "abstained" else ["insufficient_data"],
+        "statusReason": "模型已训练但未通过全部发布门槛；不发布概率。" if publication_status == "abstained" else "样本或有效样本外窗口不足，无法通过发布门槛。",
+        "asOf": record_date,
+        "dueDate": None,
+        "sourceUrls": ["https://www.hsi.com.hk/eng/indexes/all-indexes/hang-seng-index"],
+        "legacy": False,
+    }
+
+
+def state_snapshot(records: list[dict] | None = None, *, data_as_of: str = "2026-08-06", created_at: str = "2026-08-06T20:00:00+08:00") -> dict:
+    items = records if records is not None else [state_record()]
+    models: list[dict] = []
+    seen: set[tuple[str, str]] = set()
+    for item in items:
+        key = (item["market"], item["modelVersion"])
+        if key in seen:
+            continue
+        seen.add(key)
+        models.append({
+            "market": item["market"],
+            "modelVersion": item["modelVersion"],
+            "artifactSha256": None,
+            "availability": item["modelAvailability"],
+        })
+    return ledger.build_state_snapshot(
+        states=items,
+        created_at=created_at,
+        data_as_of=data_as_of,
+        edition="daily",
+        code_commit=COMMIT,
+        models=models,
+    )
+
+
+class StateSnapshotLedgerTests(unittest.TestCase):
+    def root(self, directory: str) -> Path:
+        target = Path(directory) / "ledger"
+        ledger.initialize_ledger(target)
+        return target
+
+    def test_state_snapshot_append_is_idempotent(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.root(directory)
+            item = state_snapshot()
+            self.assertTrue(ledger.append_state_snapshot(root, item))
+            self.assertFalse(ledger.append_state_snapshot(root, item))
+            self.assertEqual(len(list(root.glob("snapshots/**/*.json.gz"))), 1)
+            self.assertEqual(len(ledger.collect_states(root)), 1)
+
+    def test_same_state_is_not_duplicated_across_days(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.root(directory)
+            first = state_snapshot(created_at="2026-08-06T20:00:00+08:00")
+            ledger.append_state_snapshot(root, first)
+            # The automation derives createdAt deterministically from the stable
+            # research data-as-of, so a later day with identical states is a no-op.
+            second = state_snapshot(created_at="2026-08-06T20:00:00+08:00")
+            self.assertEqual(first["runId"], second["runId"])
+            self.assertFalse(ledger.append_state_snapshot(root, second))
+            self.assertEqual(len(ledger.collect_states(root)), 1)
+
+    def test_state_change_forms_a_new_snapshot_without_overwriting(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.root(directory)
+            ledger.append_state_snapshot(root, state_snapshot())
+            changed = state_record(publication_status="insufficient_data", model_availability="not_trained", state_id="state-hk-hsi-20260806-h1-not-trained-bbbbbbbbbbbb")
+            ledger.append_state_snapshot(root, state_snapshot([changed], created_at="2026-08-06T20:01:00+08:00"))
+            states = ledger.collect_states(root)
+            self.assertEqual(len(states), 2)
+            self.assertEqual(len(list(root.glob("snapshots/**/*.json.gz"))), 2)
+
+    def test_states_never_enter_predictions_or_evaluations(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.root(directory)
+            ledger.append_state_snapshot(root, state_snapshot())
+            self.assertEqual(ledger.collect_predictions(root), [])
+            self.assertEqual(ledger.collect_evaluations(root), [])
+            index = ledger.rebuild_index(root)
+            self.assertEqual(index["predictionRecordCount"], 0)
+            self.assertEqual(index["stateRecordCount"], 1)
+            self.assertEqual(index["statusSummary"]["abstained"], 1)
+
+    def test_public_export_contains_state_records_with_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.root(directory)
+            records = [
+                state_record(),
+                state_record(
+                    state_id="state-hk-hk_innovative_drug-20260806-h1-hk-shadow-cccccccccccc",
+                    publication_status="unavailable",
+                    model_availability="not_trained",
+                    object_id="hk_innovative_drug",
+                ),
+            ]
+            ledger.append_state_snapshot(root, state_snapshot(records))
+            ledger.rebuild_index(root)
+            public_root = Path(directory) / "public"
+            index = ledger.export_public(root, public_root)
+            self.assertEqual(index["recordCount"], 2)
+            self.assertEqual(index["statusSummary"]["abstained"], 1)
+            self.assertEqual(index["statusSummary"]["unavailable"], 1)
+            shard = json.loads(ledger.canonical_text_bytes(public_root / "2026-08.json", artifact="shard"))
+            self.assertEqual(shard["summary"]["statusSummary"]["unavailable"], 1)
+            probability_fields = (
+                "rawProbability", "calibratedProbability", "absoluteUpProbability",
+                "outperformanceProbability", "topQuartileProbability",
+            )
+            self.assertTrue(all(all(record[field] is None for field in probability_fields) for record in shard["records"]))
+            self.assertTrue(all(record["outputMode"] == "none" for record in shard["records"]))
+            verification = ledger.verify_ledger(root, public_root=public_root)
+            self.assertEqual(verification["ok"], True)
+
+    def test_state_validation_rejects_probability_and_trained_unavailable(self) -> None:
+        bad_probability = state_record()
+        bad_probability["probability"] = 0.5
+        with self.assertRaisesRegex(ledger.LedgerError, "never carry probability"):
+            ledger.validate_state_record(bad_probability)
+        bad_status = state_record(publication_status="unavailable")
+        with self.assertRaisesRegex(ledger.LedgerError, "trained states cannot use unavailable"):
+            ledger.validate_state_record(bad_status)
+
+    def test_state_snapshot_requires_at_least_one_record(self) -> None:
+        with self.assertRaisesRegex(ledger.LedgerError, "at least one state record"):
+            state_snapshot([])
+
+
 if __name__ == "__main__":
     unittest.main()

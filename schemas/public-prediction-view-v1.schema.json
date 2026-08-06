@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://guanchao.local/schemas/public-prediction-view-v1.schema.json",
+  "title": "PublicPredictionView v1",
+  "description": "Sole public authoritative input for the /predictions page. Only published model probabilities carry numeric probability; evidence observations, abstentions, insufficient data and unavailable states stay null and are never disguised as probabilities.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "contractVersion", "generatedAt", "asOf", "historyUrl", "latestReview", "markets"],
+  "properties": {
+    "schemaVersion": {"const": "public-prediction-view-v1"},
+    "contractVersion": {"const": "public-prediction-view-v1"},
+    "generatedAt": {"type": "string", "format": "date-time"},
+    "asOf": {"type": "string", "format": "date"},
+    "historyUrl": {"type": "string"},
+    "latestReview": {
+      "oneOf": [
+        {"type": "null"},
+        {"type": "object", "additionalProperties": false, "required": ["isoWeek", "path", "sha256"], "properties": {
+          "isoWeek": {"type": "string"}, "path": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        }}
+      ]
+    },
+    "markets": {"type": "array", "minItems": 3, "items": {"$ref": "#/$defs/market"}}
+  },
+  "$defs": {
+    "market": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["marketId", "label", "datasetStatus", "dataAsOf", "datasetId", "sourceStatus", "objects"],
+      "properties": {
+        "marketId": {"type": "string"},
+        "label": {"type": "string"},
+        "datasetStatus": {"type": "string"},
+        "dataAsOf": {"type": "string", "format": "date"},
+        "datasetId": {"type": ["string", "null"]},
+        "sourceStatus": {"type": "object", "additionalProperties": {"type": "object", "properties": {"status": {"type": "string"}, "reason": {"type": "string"}}}},
+        "objects": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/object"}}
+      }
+    },
+    "object": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["objectId", "label", "objectType", "benchmarkLabel", "modelAvailability", "candidateStatus", "horizons"],
+      "properties": {
+        "objectId": {"type": "string"},
+        "label": {"type": "string"},
+        "objectType": {"type": "string"},
+        "benchmarkLabel": {"type": "string"},
+        "modelAvailability": {"enum": ["trained", "not_trained", "not_implemented"]},
+        "candidateStatus": {"type": "string"},
+        "horizons": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/horizon"}}
+      }
+    },
+    "horizon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "horizonSessions", "label", "target", "modelVersion", "publicationStatus", "outputMode",
+        "probabilitySource", "calibrationStatus", "probability", "expectedReturn", "evidenceScore",
+        "claim", "statusReason", "asOf", "dueDate", "historyUrl"
+      ],
+      "properties": {
+        "horizonSessions": {"enum": [1, 5, 20]},
+        "label": {"type": "string"},
+        "target": {"type": "string"},
+        "modelVersion": {"type": ["string", "null"]},
+        "publicationStatus": {"enum": ["published", "abstained", "insufficient_data", "unavailable", "not_applicable"]},
+        "outputMode": {"enum": ["probability", "evidence_observation", "current_observation", "none"]},
+        "probabilitySource": {"enum": ["raw_model", "calibrated_model", "historical_base_rate", "legacy_unknown", "none"]},
+        "calibrationStatus": {"enum": ["enabled", "disabled", "collapsed", "not_applicable", "legacy_unknown"]},
+        "probability": {"type": ["number", "null"], "minimum": 0, "maximum": 100},
+        "expectedReturn": {"type": ["number", "null"]},
+        "evidenceScore": {"type": ["number", "null"]},
+        "claim": {"type": "string"},
+        "statusReason": {"type": "string"},
+        "asOf": {"type": ["string", "null"], "format": "date"},
+        "dueDate": {"type": ["string", "null"], "format": "date"},
+        "historyUrl": {"type": "string"},
+        "observationItems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["rank", "sector", "score", "signal"],
+            "properties": {
+              "rank": {"type": "integer", "minimum": 1},
+              "sector": {"type": "string"},
+              "code": {"type": "string"},
+              "score": {"type": "number"},
+              "signal": {"type": "string"},
+              "direction": {"type": "string"}
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"publicationStatus": {"const": "published"}}},
+          "then": {
+            "properties": {
+              "outputMode": {"const": "probability"},
+              "probability": {"type": "number"},
+              "probabilitySource": {"enum": ["raw_model", "calibrated_model"]}
+            }
+          }
+        },
+        {
+          "if": {"properties": {"outputMode": {"const": "evidence_observation"}}},
+          "then": {"properties": {"probability": {"const": null}, "expectedReturn": {"const": null}}}
+        },
+        {
+          "if": {"properties": {"publicationStatus": {"enum": ["abstained", "insufficient_data", "unavailable", "not_applicable"]}}},
+          "then": {"properties": {"probability": {"const": null}, "expectedReturn": {"const": null}}}
+        }
+      ]
+    }
+  }
+}

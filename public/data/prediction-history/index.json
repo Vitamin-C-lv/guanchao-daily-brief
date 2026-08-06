@@ -10,13 +10,13 @@
     {
       "path": "2026-07.json",
       "recordCount": 324,
-      "sha256": "15dbb5c4a162722359ddd4dcb0b4f97e52fd183dc631055615302af78bbd316a",
+      "sha256": "0b66ab7a2286370226c9c601b4b1649d7ac9c03e1d19b8456e28d3384c652434",
       "yearMonth": "2026-07"
     },
     {
       "path": "2026-08.json",
       "recordCount": 42,
-      "sha256": "3ed4fffaed8b2cbbfab26701c49a5cdc84ce1e98989444d6c144f97a8ee32fd8",
+      "sha256": "ebe2344a3c6b5480ade6b0ad78d2aafb7d9cf9858f96cd10f1c409a4f4107981",
       "yearMonth": "2026-08"
     }
   ],
@@ -53,6 +53,7 @@
     "abstained": 180,
     "insufficient_data": 0,
     "not_applicable": 150,
-    "published": 36
+    "published": 36,
+    "unavailable": 0
   }
 }

@@ -56,6 +56,7 @@ export function validateLedger({
   const snapshotFiles = walk(join(ledgerRoot, "snapshots"), ".json.gz");
   const evaluationFiles = walk(join(ledgerRoot, "evaluations"), ".json.gz");
   let predictionCount = 0;
+  let stateCount = 0;
   const publicationVersions = new Set();
   assertSchema(contractSchema, json(join(ledgerRoot, "contract.json")), "ledger contract");
   for (const path of snapshotFiles) {
@@ -64,6 +65,7 @@ export function validateLedger({
     const document = JSON.parse(gunzipSync(compressed).toString("utf8"));
     assertSchema(snapshotSchema, document, relative(ledgerRoot, path));
     predictionCount += document.predictions.length;
+    stateCount += document.states?.length ?? 0;
     publicationVersions.add(`${document.dataAsOf}\u0000${document.createdAt}`);
   }
   for (const path of evaluationFiles) {
@@ -73,7 +75,7 @@ export function validateLedger({
   }
   const index = json(join(ledgerRoot, "index.json"));
   assertSchema(indexSchema, index, "ledger index");
-  if (index.snapshotCount !== snapshotFiles.length || index.evaluationEventCount !== evaluationFiles.length || index.predictionRecordCount !== predictionCount) {
+  if (index.snapshotCount !== snapshotFiles.length || index.evaluationEventCount !== evaluationFiles.length || index.predictionRecordCount !== predictionCount || index.stateRecordCount !== stateCount) {
     throw new Error("ledger index counts do not match immutable files");
   }
   const currentPublication = json(join(REPO_ROOT, "content", "sector-rotation.json"));
@@ -92,7 +94,7 @@ export function validateLedger({
   }
   assertSchema(reviewSchema, json(reviewPath), "latest weekly review");
   const publicIndex = json(join(publicRoot, "index.json"));
-  if (publicIndex.recordCount !== index.predictionRecordCount || publicIndex.policy.recordLimit !== null) throw new Error("public history is truncated");
+  if (publicIndex.recordCount !== index.predictionRecordCount + (index.stateRecordCount ?? 0) || publicIndex.policy.recordLimit !== null) throw new Error("public history is truncated");
   for (const file of publicIndex.files) {
     const shardPath = join(publicRoot, file.path);
     const shard = json(shardPath);

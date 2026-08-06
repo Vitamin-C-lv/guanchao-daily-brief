@@ -36,6 +36,7 @@ const ALLOWED_WRITE_PREFIXES = [
   "content/prediction-diagnostics.json",
   "content/prediction-review-latest.json",
   "content/prediction-review/",
+  "public/data/predictions/",
   "data/prediction-ledger/",
   "public/data/prediction-history/",
   "content/prediction-history.json",
@@ -44,6 +45,13 @@ const ALLOWED_WRITE_PREFIXES = [
   "data/market-evidence/",
   "content/writer-packets/"
 ];
+
+// Machine-local stage-2 private research outputs consumed by the HK/US
+// publication gate.  The stable path lives under the automation runtime
+// (D:/Guanchao-Workspace/runtime/model-research/stage2-three-market) and
+// never enters the public DTO.  Override via --research-output or
+// GUANCHAO_STAGE2_RESEARCH_OUTPUT; the temp fallback is no longer used.
+const DEFAULT_RESEARCH_OUTPUT = "D:/Guanchao-Workspace/runtime/model-research/stage2-three-market";
 
 export class PredictionPublisherError extends Error {
   constructor(code, message) {
@@ -87,6 +95,11 @@ function git(root, ...args) {
 function gitStatusShort(root) {
   const result = git(root, "status", "--porcelain", "-uall");
   return result.stdout.split(/\r?\n/).filter((line) => line.trim().length > 0);
+}
+
+function gitHead(root) {
+  const result = git(root, "rev-parse", "HEAD");
+  return result.stdout.trim();
 }
 
 function gitHeadBytes(root, relativePath) {
@@ -185,10 +198,69 @@ function ledgerReportFromJson(text) {
   }
 }
 
+/**
+ * Precise workspace restore for dry-run and pre-commit failures.
+ *
+ * - Restores every modified/deleted tracked path with `git restore` on the
+ *   exact path (never git clean / reset --hard / stash).
+ * - Removes exactly the untracked files created during this run.  The runtime
+ *   is verified clean before the run, so any untracked path is ours.
+ * - Never touches paths outside the repository.
+ */
+function restoreWorkspace(root) {
+  const cleanup = { cleanupAttempted: true, restoredTracked: [], removedUntracked: [], remainingChanges: [] };
+  const rootPath = path.resolve(root);
+  const changes = gitStatusShort(root);
+  for (const line of changes) {
+    const status = line.slice(0, 2).trim();
+    const relative = changedRelative(line);
+    if (status === "??") {
+      const file = path.join(rootPath, ...relative.split("/"));
+      try {
+        fs.rmSync(file, { recursive: true, force: true });
+        cleanup.removedUntracked.push(relative);
+        let dir = path.dirname(file);
+        while (dir.startsWith(rootPath) && dir !== rootPath) {
+          try {
+            fs.rmdirSync(dir);
+          } catch {
+            break;
+          }
+          dir = path.dirname(dir);
+        }
+      } catch {
+        cleanup.remainingChanges.push(`?? ${relative}`);
+      }
+    } else {
+      const restored = run("git", ["-C", root, "restore", "--", relative], { cwd: root, allowFailure: true });
+      if (restored.ok) {
+        cleanup.restoredTracked.push(relative);
+      } else {
+        cleanup.remainingChanges.push(line);
+      }
+    }
+  }
+  cleanup.remainingChanges = [...cleanup.remainingChanges, ...gitStatusShort(root)];
+  cleanup.cleanupSucceeded = cleanup.remainingChanges.length === 0;
+  return cleanup;
+}
+
+function applyCleanupReport(report, cleanup, root, headBefore) {
+  report.cleanupAttempted = cleanup.cleanupAttempted;
+  report.cleanupSucceeded = cleanup.cleanupSucceeded;
+  report.remainingChanges = cleanup.remainingChanges;
+  report.restoredTracked = cleanup.restoredTracked;
+  report.removedUntracked = cleanup.removedUntracked;
+  report.workspaceRestored = cleanup.cleanupSucceeded;
+  report.headUnchanged = headBefore === null || gitHead(root) === headBefore;
+  return report;
+}
+
 export async function runPredictionPublisher({
   editionDate = null,
   dryRun = false,
   write = false,
+  researchOutput = null,
   root = repositoryRoot,
   runsRoot = null,
   lockFile = null,
@@ -206,8 +278,10 @@ export async function runPredictionPublisher({
   const runDirectory = path.join(effectiveRunsRoot, effectiveEditionDate, "prediction");
   fs.mkdirSync(runDirectory, { recursive: true });
   const release = acquireLock(lockFile ?? path.join(effectiveRunsRoot, "..", ".guanchao-automation.lock"));
-  const report = { schemaVersion: "prediction-publisher-report-v1", editionDate: effectiveEditionDate, dryRun, status: "pending", steps: [] };
+  const report = { schemaVersion: "prediction-publisher-report-v1", editionDate: effectiveEditionDate, dryRun, status: "pending", writeApplied: false, steps: [] };
   const step = (name, value) => report.steps.push({ name, ...value });
+  let headBefore = null;
+  let cleanup = null;
   try {
     // 2. runtime pull --ff-only (runtime must be clean before pull)
     const dirtyBefore = gitStatusShort(root);
@@ -215,6 +289,10 @@ export async function runPredictionPublisher({
     git(root, "fetch", "origin");
     const pull = run("git", ["-C", root, "pull", "--ff-only", "origin", "main"], { cwd: root, allowFailure: true, env });
     step("runtime-pull", { ok: pull.ok, detail: pull.detail.slice(0, 500) });
+    // Record the run baseline (HEAD + clean workspace) before any modification.
+    headBefore = gitHead(root);
+    const statusBefore = gitStatusShort(root);
+    if (statusBefore.length) fail("RUNTIME_DIRTY", `stable runtime is not clean after pull: ${statusBefore.join(", ")}`);
 
     // 3. refresh market data (official sources + writer packet) and rotation history
     const marketFile = path.resolve(root, ...String(marketRunner).split("/"));
@@ -242,17 +320,57 @@ export async function runPredictionPublisher({
       step("observation-board", { ok: true, note: "规则观察分，不是概率" });
     }
 
+    // 6b. HK/US publication gate (stage3).  The gate reads the frozen stage-2
+    // private research outputs; every HK/US horizon must remain blocked now.
+    const effectiveResearchOutput = researchOutput ?? process.env.GUANCHAO_STAGE2_RESEARCH_OUTPUT ?? DEFAULT_RESEARCH_OUTPUT;
+    if (!fs.existsSync(path.join(effectiveResearchOutput, "RUN_RESULT.json"))) {
+      fail("PRIVATE_OUTPUT_MISSING", `stage2 private research output is required: ${effectiveResearchOutput}`);
+    }
+    const gateFile = path.join(runDirectory, "publication-gate-results.json");
+    const statesFile = path.join(runDirectory, "ledger-states.json");
+    const gateRun = run("node", [
+      "scripts/prediction-publication-gate.mjs",
+      "--research-output", effectiveResearchOutput,
+      "--rotation", "content/sector-rotation.json",
+      "--states-output", statesFile,
+      "--output", gateFile,
+      "--forbid-published",
+    ], { cwd: root, allowFailure: true, env });
+    const gateReport = ledgerReportFromJson(gateRun.stdout);
+    if (!gateRun.ok || !gateReport?.summary) fail("GATE_FAILED", `publication gate failed: ${gateRun.detail.slice(0, 800)}`);
+    report.publicationGate = gateReport.summary;
+    step("publication-gate", { ok: true, summary: gateReport.summary });
+
+    // 6c. Build and validate the public current-prediction DTO.
+    const dtoRun = run("node", [
+      "scripts/build-public-prediction-view.mjs",
+      "--research-output", effectiveResearchOutput,
+      "--rotation", "content/sector-rotation.json",
+      "--history", "public/data/prediction-history/index.json",
+      "--output", "public/data/predictions/current.json",
+      "--now", `${effectiveEditionDate}T12:00:00+08:00`,
+    ], { cwd: root, allowFailure: true, env });
+    const dtoReport = ledgerReportFromJson(dtoRun.stdout);
+    if (!dtoRun.ok || !dtoReport) fail("DTO_BUILD_FAILED", `public DTO build failed: ${dtoRun.detail.slice(0, 800)}`);
+    report.publicDto = { ok: true, shouldWrite: dtoReport.shouldWrite ?? null };
+    step("public-dto", { ok: true, shouldWrite: dtoReport.shouldWrite ?? null });
+    const dtoValidate = run("node", ["scripts/validate-public-prediction-view.mjs"], { cwd: root, allowFailure: true, env });
+    if (!dtoValidate.ok) fail("DTO_INVALID", `public DTO validation failed: ${dtoValidate.detail.slice(0, 800)}`);
+    step("validate-public-dto", { ok: true });
+
     // 11-14. immutable ledger snapshot/evaluations/review/public export
     let ledgerReport = null;
     if (ledgerCommand) {
-      const ledgerResult = run(ledgerCommand[0], ledgerCommand.slice(1), { cwd: root, allowFailure: true, env });
+      const ledgerResult = run(ledgerCommand[0], [...ledgerCommand.slice(1), "--states", statesFile], { cwd: root, allowFailure: true, env });
       ledgerReport = ledgerReportFromJson(ledgerResult.stdout);
       step("ledger-automation", { ok: ledgerResult.ok, detail: ledgerResult.detail.slice(0, 1200), report: ledgerReport });
+      if (!ledgerResult.ok) fail("LEDGER_FAILED", `ledger automation failed: ${ledgerResult.detail.slice(0, 800)}`);
     } else {
       // Windows zoneinfo needs the tzdata package for Asia/Shanghai.
-      const uvLedger = run("uv", ["run", "--no-project", "--python", "3.12", "--with", "requests", "--with", "tzdata", "python", "scripts/prediction_ledger_automation.py", "--mode", "daily"], { cwd: root, allowFailure: true, env });
+      const uvLedger = run("uv", ["run", "--no-project", "--python", "3.12", "--with", "requests", "--with", "tzdata", "python", "scripts/prediction_ledger_automation.py", "--mode", "daily", "--states", statesFile], { cwd: root, allowFailure: true, env });
       ledgerReport = ledgerReportFromJson(uvLedger.stdout);
       step("ledger-automation", { ok: uvLedger.ok, detail: uvLedger.detail.slice(0, 1200), report: ledgerReport });
+      if (!uvLedger.ok) fail("LEDGER_FAILED", `ledger automation failed: ${uvLedger.detail.slice(0, 800)}`);
     }
 
     // 15. rotation and ledger validation
@@ -271,12 +389,9 @@ export async function runPredictionPublisher({
     const realChanges = changes.filter((line) => !businessEquivalentFile(root, changedRelative(line)));
     const noOp = realChanges.length === 0;
     if (noOp) {
-      // Restore timestamp-only diffs so the stable runtime stays clean.
-      for (const line of changes) {
-        const relative = changedRelative(line);
-        const headBytes = gitHeadBytes(root, relative);
-        if (headBytes !== null) fs.writeFileSync(path.join(root, ...relative.split("/")), headBytes);
-      }
+      // Precise restore keeps the stable runtime clean without git clean/reset/stash.
+      cleanup = restoreWorkspace(root);
+      applyCleanupReport(report, cleanup, root, headBefore);
       report.status = "no-op";
       report.commit = null;
       report.push = null;
@@ -285,6 +400,8 @@ export async function runPredictionPublisher({
     }
 
     if (dryRun) {
+      cleanup = restoreWorkspace(root);
+      applyCleanupReport(report, cleanup, root, headBefore);
       report.status = "dry-run";
       report.commit = null;
       report.push = null;
@@ -297,6 +414,10 @@ export async function runPredictionPublisher({
     const commit = run("git", ["-C", root, "commit", "-m", commitMessage], { cwd: root, allowFailure: true, env });
     if (!commit.ok) fail("COMMIT_FAILED", commit.detail.slice(0, 1200));
     report.commit = { message: commitMessage, ok: true };
+    report.writeApplied = true;
+    report.workspaceRestored = false;
+    report.headUnchanged = false;
+    report.cleanupAttempted = false;
     step("commit", { ok: true, message: commitMessage });
 
     // 19. push main (never force)
@@ -323,6 +444,15 @@ export async function runPredictionPublisher({
   } catch (cause) {
     report.status = "failed";
     report.error = cause instanceof Error ? `${cause.code ?? "PREDICTION_PUBLISHER_FAILURE"} ${cause.message}` : "unexpected failure";
+    if (!report.commit && headBefore !== null) {
+      cleanup = restoreWorkspace(root);
+      applyCleanupReport(report, cleanup, root, headBefore);
+    } else {
+      // A commit already exists (push/Vercel failures) must never be rolled back.
+      report.cleanupAttempted = false;
+      report.workspaceRestored = false;
+      report.headUnchanged = headBefore === null || gitHead(root) === headBefore;
+    }
     report.steps.push({ name: "failure", ok: false, detail: report.error });
     return report;
   } finally {
@@ -351,6 +481,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
       dryRun: args["dry-run"] === true,
       write: args.write === true,
       root: args.root ? path.resolve(args.root) : repositoryRoot,
+      researchOutput: args["research-output"] ? path.resolve(args["research-output"]) : null,
       runsRoot: args["runs-root"] ? path.resolve(args["runs-root"]) : null,
       lockFile: args["lock-file"] ? path.resolve(args["lock-file"]) : null,
       marketRunner: args["market-runner"] ?? "scripts/run-market-evidence.mjs",

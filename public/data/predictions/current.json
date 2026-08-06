@@ -1,0 +1,737 @@
+{
+  "schemaVersion": "public-prediction-view-v1",
+  "contractVersion": "public-prediction-view-v1",
+  "generatedAt": "2026-08-06T00:00:00.000Z",
+  "asOf": "2026-08-03",
+  "historyUrl": "/predictions/history/",
+  "latestReview": {
+    "isoWeek": "2026-W31",
+    "path": "reviews/2026-W31.json",
+    "sha256": "d015f145d471a8577ad13ff06a913f9db02d0c4b817e3397a0a94383c3b85582"
+  },
+  "markets": [
+    {
+      "marketId": "a-share",
+      "label": "A股",
+      "datasetStatus": "ready",
+      "dataAsOf": "2026-08-03",
+      "datasetId": "a-share-2026-07-21-3448b55c8ae4",
+      "sourceStatus": {
+        "marketBreadth": {
+          "status": "unavailable",
+          "reason": "暂无 2026-08-03 的不可变市场广度快照，市场广度不参与发布。"
+        }
+      },
+      "objects": [
+        {
+          "objectId": "a-share-sector-rotation",
+          "label": "A股核心行业与重点主题观察池（12项）",
+          "objectType": "sector-rotation",
+          "benchmarkLabel": "中证全指",
+          "modelAvailability": "trained",
+          "candidateStatus": "生产模型",
+          "horizons": [
+            {
+              "horizonSessions": 1,
+              "label": "下一交易日",
+              "target": "top_quartile",
+              "modelVersion": "2026-07-21-relative-v2",
+              "publicationStatus": "abstained",
+              "outputMode": "evidence_observation",
+              "probabilitySource": "raw_model",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "基于资金可得性、相对强度与流动性证据排序；当前概率模型未通过样本外质量检验。观察分不是上涨概率。",
+              "statusReason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
+              "asOf": "2026-08-03",
+              "dueDate": "2026-08-04",
+              "historyUrl": "/predictions/history/?month=&market=a-share&horizon=1",
+              "observationItems": [
+                {
+                  "rank": 1,
+                  "sector": "主要消费",
+                  "code": "000990",
+                  "score": 100,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "leading"
+                },
+                {
+                  "rank": 2,
+                  "sector": "金融地产",
+                  "code": "000992",
+                  "score": 90.9,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "leading"
+                },
+                {
+                  "rank": 3,
+                  "sector": "可选消费",
+                  "code": "000989",
+                  "score": 81.8,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "leading"
+                },
+                {
+                  "rank": 4,
+                  "sector": "公用事业",
+                  "code": "000995",
+                  "score": 72.7,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "strengthening"
+                },
+                {
+                  "rank": 5,
+                  "sector": "能源",
+                  "code": "000986",
+                  "score": 63.6,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "strengthening"
+                },
+                {
+                  "rank": 6,
+                  "sector": "工业",
+                  "code": "000988",
+                  "score": 54.5,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "neutral"
+                },
+                {
+                  "rank": 7,
+                  "sector": "医药医疗",
+                  "code": "000991",
+                  "score": 45.5,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "neutral"
+                },
+                {
+                  "rank": 8,
+                  "sector": "原材料",
+                  "code": "000987",
+                  "score": 36.4,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "weakening"
+                },
+                {
+                  "rank": 9,
+                  "sector": "通信服务",
+                  "code": "000994",
+                  "score": 27.3,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "weakening"
+                },
+                {
+                  "rank": 10,
+                  "sector": "移动互联网",
+                  "code": "399970",
+                  "score": 18.2,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "lagging"
+                },
+                {
+                  "rank": 11,
+                  "sector": "军工",
+                  "code": "399967",
+                  "score": 9.1,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "lagging"
+                },
+                {
+                  "rank": 12,
+                  "sector": "信息技术",
+                  "code": "000993",
+                  "score": 0,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "lagging"
+                }
+              ]
+            },
+            {
+              "horizonSessions": 5,
+              "label": "5个交易日",
+              "target": "top_quartile",
+              "modelVersion": "2026-07-21-relative-v2",
+              "publicationStatus": "abstained",
+              "outputMode": "evidence_observation",
+              "probabilitySource": "raw_model",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "基于资金可得性、相对强度与流动性证据排序；当前概率模型未通过样本外质量检验。观察分不是上涨概率。",
+              "statusReason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
+              "asOf": "2026-08-03",
+              "dueDate": "2026-08-10",
+              "historyUrl": "/predictions/history/?month=&market=a-share&horizon=5",
+              "observationItems": [
+                {
+                  "rank": 1,
+                  "sector": "主要消费",
+                  "code": "000990",
+                  "score": 100,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "leading"
+                },
+                {
+                  "rank": 2,
+                  "sector": "金融地产",
+                  "code": "000992",
+                  "score": 90.9,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "leading"
+                },
+                {
+                  "rank": 3,
+                  "sector": "可选消费",
+                  "code": "000989",
+                  "score": 81.8,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "leading"
+                },
+                {
+                  "rank": 4,
+                  "sector": "公用事业",
+                  "code": "000995",
+                  "score": 72.7,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "strengthening"
+                },
+                {
+                  "rank": 5,
+                  "sector": "能源",
+                  "code": "000986",
+                  "score": 63.6,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "strengthening"
+                },
+                {
+                  "rank": 6,
+                  "sector": "工业",
+                  "code": "000988",
+                  "score": 54.5,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "neutral"
+                },
+                {
+                  "rank": 7,
+                  "sector": "医药医疗",
+                  "code": "000991",
+                  "score": 45.5,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "neutral"
+                },
+                {
+                  "rank": 8,
+                  "sector": "原材料",
+                  "code": "000987",
+                  "score": 36.4,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "weakening"
+                },
+                {
+                  "rank": 9,
+                  "sector": "通信服务",
+                  "code": "000994",
+                  "score": 27.3,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "weakening"
+                },
+                {
+                  "rank": 10,
+                  "sector": "移动互联网",
+                  "code": "399970",
+                  "score": 18.2,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "lagging"
+                },
+                {
+                  "rank": 11,
+                  "sector": "军工",
+                  "code": "399967",
+                  "score": 9.1,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "lagging"
+                },
+                {
+                  "rank": 12,
+                  "sector": "信息技术",
+                  "code": "000993",
+                  "score": 0,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "lagging"
+                }
+              ]
+            },
+            {
+              "horizonSessions": 20,
+              "label": "20个交易日",
+              "target": "top_quartile",
+              "modelVersion": "2026-07-21-relative-v2",
+              "publicationStatus": "abstained",
+              "outputMode": "evidence_observation",
+              "probabilitySource": "raw_model",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "基于资金可得性、相对强度与流动性证据排序；当前概率模型未通过样本外质量检验。观察分不是上涨概率。",
+              "statusReason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
+              "asOf": "2026-08-03",
+              "dueDate": "2026-08-31",
+              "historyUrl": "/predictions/history/?month=&market=a-share&horizon=20",
+              "observationItems": [
+                {
+                  "rank": 1,
+                  "sector": "主要消费",
+                  "code": "000990",
+                  "score": 100,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "leading"
+                },
+                {
+                  "rank": 2,
+                  "sector": "金融地产",
+                  "code": "000992",
+                  "score": 90.9,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "leading"
+                },
+                {
+                  "rank": 3,
+                  "sector": "可选消费",
+                  "code": "000989",
+                  "score": 81.8,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "leading"
+                },
+                {
+                  "rank": 4,
+                  "sector": "公用事业",
+                  "code": "000995",
+                  "score": 72.7,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "strengthening"
+                },
+                {
+                  "rank": 5,
+                  "sector": "能源",
+                  "code": "000986",
+                  "score": 63.6,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "strengthening"
+                },
+                {
+                  "rank": 6,
+                  "sector": "工业",
+                  "code": "000988",
+                  "score": 54.5,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "neutral"
+                },
+                {
+                  "rank": 7,
+                  "sector": "医药医疗",
+                  "code": "000991",
+                  "score": 45.5,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "neutral"
+                },
+                {
+                  "rank": 8,
+                  "sector": "原材料",
+                  "code": "000987",
+                  "score": 36.4,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "weakening"
+                },
+                {
+                  "rank": 9,
+                  "sector": "通信服务",
+                  "code": "000994",
+                  "score": 27.3,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "weakening"
+                },
+                {
+                  "rank": 10,
+                  "sector": "移动互联网",
+                  "code": "399970",
+                  "score": 18.2,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "lagging"
+                },
+                {
+                  "rank": 11,
+                  "sector": "军工",
+                  "code": "399967",
+                  "score": 9.1,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "lagging"
+                },
+                {
+                  "rank": 12,
+                  "sector": "信息技术",
+                  "code": "000993",
+                  "score": 0,
+                  "signal": "截至2026-08-03的量价相对强弱观察；不包含未来方向判断。",
+                  "direction": "lagging"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "marketId": "hk",
+      "label": "港股",
+      "datasetStatus": "partial",
+      "dataAsOf": "2026-08-06",
+      "datasetId": "hk-panel-5a1325340d0c",
+      "sourceStatus": {
+        "requiredSources": {
+          "status": "partial",
+          "reason": "必需历史数据源不可用（恒生科技指数历史行情），暂不发布预测。"
+        }
+      },
+      "objects": [
+        {
+          "objectId": "hsi",
+          "label": "恒生指数",
+          "objectType": "index",
+          "benchmarkLabel": "恒生指数",
+          "modelAvailability": "trained",
+          "candidateStatus": "研究候选",
+          "horizons": [
+            {
+              "horizonSessions": 1,
+              "label": "下一交易日",
+              "target": "absolute_up",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "abstained",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=1"
+            },
+            {
+              "horizonSessions": 5,
+              "label": "5个交易日",
+              "target": "absolute_up",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "abstained",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=5"
+            },
+            {
+              "horizonSessions": 20,
+              "label": "20个交易日",
+              "target": "absolute_up",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "abstained",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=20"
+            }
+          ]
+        },
+        {
+          "objectId": "hstech",
+          "label": "恒生科技指数",
+          "objectType": "index",
+          "benchmarkLabel": "恒生科技指数",
+          "modelAvailability": "not_trained",
+          "candidateStatus": "研究候选",
+          "horizons": [
+            {
+              "horizonSessions": 1,
+              "label": "下一交易日",
+              "target": "absolute_up",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "insufficient_data",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
+              "statusReason": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=1"
+            },
+            {
+              "horizonSessions": 5,
+              "label": "5个交易日",
+              "target": "absolute_up",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "insufficient_data",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
+              "statusReason": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=5"
+            },
+            {
+              "horizonSessions": 20,
+              "label": "20个交易日",
+              "target": "absolute_up",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "insufficient_data",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
+              "statusReason": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=20"
+            }
+          ]
+        },
+        {
+          "objectId": "hk_innovative_drug",
+          "label": "港股创新药",
+          "objectType": "index",
+          "benchmarkLabel": "恒生指数",
+          "modelAvailability": "not_trained",
+          "candidateStatus": "研究候选",
+          "horizons": [
+            {
+              "horizonSessions": 1,
+              "label": "下一交易日",
+              "target": "relative_outperformance_vs_hsi",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "unavailable",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "not_applicable",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=1"
+            },
+            {
+              "horizonSessions": 5,
+              "label": "5个交易日",
+              "target": "relative_outperformance_vs_hsi",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "unavailable",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "not_applicable",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=5"
+            },
+            {
+              "horizonSessions": 20,
+              "label": "20个交易日",
+              "target": "relative_outperformance_vs_hsi",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "unavailable",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "not_applicable",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=20"
+            }
+          ]
+        },
+        {
+          "objectId": "hk_tech_internet",
+          "label": "科技互联网",
+          "objectType": "index",
+          "benchmarkLabel": "恒生指数",
+          "modelAvailability": "not_trained",
+          "candidateStatus": "研究候选",
+          "horizons": [
+            {
+              "horizonSessions": 1,
+              "label": "下一交易日",
+              "target": "relative_outperformance_vs_hsi",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "unavailable",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "not_applicable",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=1"
+            },
+            {
+              "horizonSessions": 5,
+              "label": "5个交易日",
+              "target": "relative_outperformance_vs_hsi",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "unavailable",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "not_applicable",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=5"
+            },
+            {
+              "horizonSessions": 20,
+              "label": "20个交易日",
+              "target": "relative_outperformance_vs_hsi",
+              "modelVersion": "hk-regularized-logistic-shadow-v1",
+              "publicationStatus": "unavailable",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "not_applicable",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=20"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "marketId": "us",
+      "label": "美股",
+      "datasetStatus": "ready",
+      "dataAsOf": "2026-08-06",
+      "datasetId": "us-nasdaq-panel-99c070c7614c",
+      "sourceStatus": {
+        "requiredSources": {
+          "status": "ready",
+          "reason": "该市场必需数据源全部可用。"
+        }
+      },
+      "objects": [
+        {
+          "objectId": "nasdaq_composite",
+          "label": "纳斯达克综合指数",
+          "objectType": "index",
+          "benchmarkLabel": "纳斯达克综合指数",
+          "modelAvailability": "trained",
+          "candidateStatus": "研究候选",
+          "horizons": [
+            {
+              "horizonSessions": 1,
+              "label": "下一交易日",
+              "target": "absolute_up",
+              "modelVersion": "us_nasdaq-regularized-logistic-shadow-v1",
+              "publicationStatus": "abstained",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=us&horizon=1"
+            },
+            {
+              "horizonSessions": 5,
+              "label": "5个交易日",
+              "target": "absolute_up",
+              "modelVersion": "us_nasdaq-regularized-logistic-shadow-v1",
+              "publicationStatus": "abstained",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=us&horizon=5"
+            },
+            {
+              "horizonSessions": 20,
+              "label": "20个交易日",
+              "target": "absolute_up",
+              "modelVersion": "us_nasdaq-regularized-logistic-shadow-v1",
+              "publicationStatus": "abstained",
+              "outputMode": "none",
+              "probabilitySource": "none",
+              "calibrationStatus": "disabled",
+              "probability": null,
+              "expectedReturn": null,
+              "evidenceScore": null,
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "asOf": "2026-08-06",
+              "dueDate": null,
+              "historyUrl": "/predictions/history/?month=2026-08&market=us&horizon=20"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
