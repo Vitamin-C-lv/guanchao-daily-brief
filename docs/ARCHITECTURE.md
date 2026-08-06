@@ -125,3 +125,11 @@ Researcher（可联网）
 `schemas/global-market-event-v1.schema.json` 只冻结 `eventType`、`occurredAt`、`region`、`affectedAssets`、`affectedThemes`、`direction`、`horizon`、`sourceConfidence`、`marketConfirmation`、`supportingSourceIds`、`contradictorySourceIds`、`status`。它复用现有 research bundle 的证据状态语义，不引入数据库、向量库、图数据库、知识图谱、搜索服务或通用事件平台。
 
 P2-B0 保留明确迁移窗口：旧 `daily-brief-v1`/三市场生产链只有在 P2-B4 完成 Writer context、Writer result、Validator、内容应用和页面消费的统一切换，并完成外部审查与完整回归后，才允许删除；在此之前不得生产双写、替换生产文章或恢复自动化。
+
+## 阶段二：三市场预测数据与模型核心（2026-08-06）
+
+阶段二增加独立的 `three-market-model-core-v1` 研究边界。采集脚本先在中立目录生成私有 cache；离线工程入口 `scripts/three_market_model_core.py` 只消费显式 cache，不联网、不发现新来源。A 股复用现有 prediction dataset contract 和 champion replay；HK/US 生成非空指数 panel 时只保留 shadow/research 语义。
+
+统一 panel manifest 同时记录 raw snapshot lineage 与 normalized panel identity，但两者使用独立 SHA。panel 使用确定性 gzip、UTF-8/LF、明确 session/object/feature/label 列；相同 identity 且字节相同是 no-op，相同 identity 内容变化 fail closed。所有缺失值保持 `null`，主题对象在冻结来源无法提供合法历史时保持 `unavailable`，不静默替换或回测混入正式历史。
+
+特征只使用预测时点已知信息，标签按 1/5/20 日独立生成；训练采用 expanding walk-forward、target-date purge 和 horizon embargo。没有至少三个有效 OOS fold 的对象/周期保持 `insufficient_data`；即使训练完成，HK/US 也固定 `publicationStatus=abstained`、`outputMode=none`。阶段二不写文章、UI、Writer、日报/周报 automation、生产模型或 prediction ledger。

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "three-market-model-core-v1",
+  "marketSet": ["A_SHARE", "HK", "US_NASDAQ"],
+  "horizons": [1, 5, 20],
+  "timezone": "Asia/Shanghai",
+  "panel": {
+    "schemaVersion": "three-market-panel-v1",
+    "rawSnapshotAndNormalizedPanelIdentitySeparate": true,
+    "contentAddressed": true,
+    "sameIdentitySameContentIsNoOp": true,
+    "sameIdentityDifferentContentFailsClosed": true,
+    "missingValuePolicy": "preserve-null-never-zero",
+    "networkAccessDuringTraining": false
+  },
+  "features": {
+    "schemaVersion": "three-market-features-v1",
+    "priorOnly": true,
+    "sessionAlignmentRequired": true,
+    "releaseDateMustNotExceedFeatureDate": true
+  },
+  "labels": {
+    "schemaVersion": "three-market-labels-v1",
+    "futureReturnsExcludeFeatureDate": true,
+    "independentHorizons": true,
+    "horizons": [1, 5, 20]
+  },
+  "validation": {
+    "protocol": "expanding-walk-forward-purged-time-series-with-embargo",
+    "minimumTrainingSessions": 252,
+    "foldSizeSessions": 63,
+    "minimumValidFolds": 3,
+    "calibration": "disabled-until-out-of-sample-evidence",
+    "randomSplitAllowed": false
+  },
+  "model": {
+    "family": "regularized-logistic-regression",
+    "baseline": "training-fold-historical-base-rate",
+    "randomSeed": 20260806,
+    "automaticPromotion": false,
+    "automaticProductionReplacement": false
+  },
+  "productionBoundary": {
+    "mayWriteContent": false,
+    "mayWritePredictionLedger": false,
+    "mayReplaceProductionModel": false,
+    "mayPublishHKProbability": false,
+    "mayPublishUSProbability": false,
+    "mayModifyAshareChampion": false,
+    "mayModifyUI": false,
+    "mayModifyAutomation": false
+  }
+}

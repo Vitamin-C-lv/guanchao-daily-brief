@@ -156,3 +156,12 @@ or touches the prediction ledger.
 - 周报 automation `观潮本机 Codex 周报写手` 已恢复并启用，既有 Asia/Shanghai 周六 10:00 时间表保持不变；既有周报语义、全球日报历史与 ledger 校验通过，未写生产、未 push。
 - `pnpm automation:consistency` 通过；正式 runtime 为 `D:\Guanchao-Workspace\runtime\local-writer-runtime`，正式 Skill 为本机 `guanchao-financial-writer`。
 - 港股仍未训练、未发布概率。下一大阶段是：“三市场预测数据与模型核心”。
+
+## 阶段二三市场模型核心交接（2026-08-06）
+
+- 冻结基线：`9c8869fc3193a57e83ce46bde40c96c3aba8af41`；实现分支：`feature/stage2-three-market-model-core`。
+- 私有数据采集严格使用附件 `SOURCE_MANIFEST.json` 和 `RUN_FETCH.ps1`；raw history 不进入 Git 或 Review ZIP。采集源失败保留真实状态，不更换供应商、不把 USD/CNY 改名为 USD/CNH、不把 HSTECH 回测值混入正式历史。
+- 新入口：`scripts/three_market_model_core.py`。它只消费显式 cache，产出非空 HK/US 指数 panel manifest、prior-only 特征、1/5/20 标签、purge+embargo OOS 指标和 shadow model cards；主题对象无合法历史时为 `unavailable`。
+- A 股继续使用现有 `models/sector-rotation/datasets/a-share/...` contract 和 champion replay，只生成 challenger recommendation；不得自动替换 champion。
+- 生产边界：`content/`、预测 UI、Writer Skill、日报/周报 automation、三套生产模型和 `data/prediction-ledger/` 均必须保持字节不变；`LEDGER_DRY_RUN.json` 只能证明未 append。
+- 定向测试：`pnpm test:three-market`；完整仓库检查仍按本阶段验收执行，失败必须保留真实日志，不得删除门禁。
