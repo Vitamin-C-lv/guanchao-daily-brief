@@ -165,3 +165,15 @@ or touches the prediction ledger.
 - A 股继续使用现有 `models/sector-rotation/datasets/a-share/...` contract 和 champion replay，只生成 challenger recommendation；不得自动替换 champion。
 - 生产边界：`content/`、预测 UI、Writer Skill、日报/周报 automation、三套生产模型和 `data/prediction-ledger/` 均必须保持字节不变；`LEDGER_DRY_RUN.json` 只能证明未 append。
 - 定向测试：`pnpm test:three-market`；完整仓库检查仍按本阶段验收执行，失败必须保留真实日志，不得删除门禁。
+
+## 阶段二 PR #51 合并收尾（2026-08-06）
+
+- PR #51 已按 expected head `31c99cbcfc89c703042f0e784429dad584b6056b` 转 Ready 并 squash merge；merge commit：`06a4b9b27ba32eb4ee26550f12bb8bedf035f818`。
+- 本次合并后 main 验证基线：`06a4b9b27ba32eb4ee26550f12bb8bedf035f818`；Dataset portability、Prediction ledger contract 和 Vercel main 均通过，Vercel 状态为 Ready。
+- 阶段二“三市场预测数据与模型核心”已完成；A 股 dataset 为 `ready`，challenger 已按冻结协议完成真实 OOS 数值比较，`promotionRecommendation=keep-champion`，现有 A 股 champion 保持不变；exact production champion artifact replay 仍不可用。
+- HK dataset 为 `partial`：HSI 的 1/5/20 模型均为 `trained`、`shadow`、`abstained`；HSTECH 仅 1 条有效记录，1/5/20 均为 `insufficient_data`；港股创新药与科技互联网均为 `unavailable`。
+- US Nasdaq dataset 为 `ready`；Nasdaq 1/5/20 均为 `trained`、`shadow`、`abstained`。Nasdaq 20 日的正向研究指标只属于研究观察，不得自动解释为可发布模型。
+- HK/US 尚无 production publication gate；没有发布 HK/US 概率，没有写 production prediction ledger。
+- 日报与周报 automation 保持原 `ACTIVE` 状态和原时间表：日报 Asia/Shanghai 07:30，周报 Asia/Shanghai 周六 10:00；本次未修改 automation。
+- 本次未修改文章、UI、Writer Skill；未替换 A 股 champion；未写 production ledger。
+- 下一大阶段：“预测产品发布与持续复盘”。
