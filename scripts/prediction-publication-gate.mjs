@@ -82,6 +82,35 @@ function requiredSourceHealth(registryObject, runResult) {
   return { ok: failures.length === 0, failures };
 }
 
+const SOURCE_ROLE_LABELS = {
+  hsi_ohlcv: "恒生指数历史行情",
+  hstech_ohlcv: "恒生科技指数历史行情",
+  nasdaq_composite_close_fallback: "纳斯达克综合指数历史行情",
+  sox_ohlcv: "费城半导体指数历史行情",
+  vix_close: "CBOE 波动率指数历史行情",
+};
+
+function marketSourceStatus(registryMarket, runResult) {
+  const sources = Array.isArray(runResult.sourceAudit?.sources) ? runResult.sourceAudit.sources : [];
+  const byRole = new Map(sources.filter((entry) => entry && typeof entry.role === "string").map((entry) => [entry.role, entry]));
+  const roles = [];
+  for (const object of registryMarket.objects ?? []) {
+    for (const role of object.requiredSourceRoles ?? []) {
+      if (!roles.includes(role)) roles.push(role);
+    }
+  }
+  const failures = [];
+  for (const role of roles) {
+    const entry = byRole.get(role);
+    if (!entry || entry.status !== "ready") failures.push({ role, status: entry?.status ?? "missing" });
+  }
+  if (!failures.length) {
+    return { status: "ready", reason: "该市场必需数据源全部可用。" };
+  }
+  const names = failures.map((failure) => SOURCE_ROLE_LABELS[failure.role] ?? "必需历史数据源").join("、");
+  return { status: "partial", reason: `必需历史数据源不可用（${names}），暂不发布预测。` };
+}
+
 function logLossSkill(logLoss) {
   if (!finiteNumber(logLoss)) return null;
   return 1 - logLoss / LOG2;
@@ -135,7 +164,7 @@ function evaluateHorizon({ registryObject, card, oosEntry, runResult, policy, ho
       expectedReturn: null,
       probabilitySource: "none",
       calibrationStatus: card?.calibrationStatus ?? "not_applicable",
-      statusReason: card?.reason ?? "数据不可用：合法、稳定、可追溯的历史未包含在冻结来源清单中。",
+      statusReason: "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
       failedChecks: [],
       passedChecks: [],
       asOf: recordDate,
@@ -197,10 +226,10 @@ function evaluateHorizon({ registryObject, card, oosEntry, runResult, policy, ho
   let statusReason;
   if (!modelTrained || !enoughFolds || !enoughSamples) {
     publicationStatus = "insufficient_data";
-    statusReason = "样本或有效样本外窗口不足，无法通过发布门槛。";
+    statusReason = "有效历史样本或样本外窗口不足，暂不训练或发布概率。";
   } else if (failed.length) {
     publicationStatus = "abstained";
-    statusReason = "模型已训练但未通过全部发布门槛；不发布概率。";
+    statusReason = "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。";
   } else {
     publicationStatus = "published";
     statusReason = "全部发布门槛通过。";
@@ -265,7 +294,12 @@ function stateRecordForHorizon(result, marketId, registryObject, recordDate) {
     probabilitySource: "none",
     probabilityTarget: "none",
     calibrationStatus: result.calibrationStatus,
-    abstainReasons: result.failedChecks.length ? result.failedChecks : [result.publicationStatus],
+    abstainReasons: [{
+      abstained: "未通过全部生产发布门槛",
+      insufficient_data: "有效历史样本或样本外窗口不足",
+      unavailable: "该对象数据不可用",
+      not_applicable: "模型未实现",
+    }[result.publicationStatus] ?? result.publicationStatus],
     statusReason: result.statusReason,
     asOf: result.asOf,
     dueDate: null,
@@ -336,7 +370,7 @@ export function evaluatePublicationGate({
       datasetStatus: runResult.datasets?.[marketKey]?.status ?? "unknown",
       dataAsOf: recordDate,
       datasetId: runResult.datasets?.[marketKey]?.datasetId ?? null,
-      sourceStatus: { requiredFailures: runResult.sourceAudit?.requiredFailures ?? [] },
+      sourceStatus: marketSourceStatus(registryMarket, runResult),
       objects,
     };
   }

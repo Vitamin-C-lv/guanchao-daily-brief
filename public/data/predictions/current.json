@@ -19,7 +19,7 @@
       "sourceStatus": {
         "marketBreadth": {
           "status": "unavailable",
-          "reason": "no immutable market breadth snapshot for 2026-08-03"
+          "reason": "暂无 2026-08-03 的不可变市场广度快照，市场广度不参与发布。"
         }
       },
       "objects": [
@@ -29,7 +29,7 @@
           "objectType": "sector-rotation",
           "benchmarkLabel": "中证全指",
           "modelAvailability": "trained",
-          "candidateStatus": "production",
+          "candidateStatus": "生产模型",
           "horizons": [
             {
               "horizonSessions": 1,
@@ -392,7 +392,7 @@
       "sourceStatus": {
         "requiredSources": {
           "status": "partial",
-          "reason": "required research sources unavailable: yahoo_hstech"
+          "reason": "必需历史数据源不可用（恒生科技指数历史行情），暂不发布预测。"
         }
       },
       "objects": [
@@ -402,7 +402,7 @@
           "objectType": "index",
           "benchmarkLabel": "恒生指数",
           "modelAvailability": "trained",
-          "candidateStatus": "shadow",
+          "candidateStatus": "研究候选",
           "horizons": [
             {
               "horizonSessions": 1,
@@ -416,8 +416,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "模型已训练但未通过全部发布门槛；不发布概率。",
-              "statusReason": "模型已训练但未通过全部发布门槛；不发布概率。",
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=1"
@@ -434,8 +434,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "模型已训练但未通过全部发布门槛；不发布概率。",
-              "statusReason": "模型已训练但未通过全部发布门槛；不发布概率。",
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=5"
@@ -452,8 +452,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "模型已训练但未通过全部发布门槛；不发布概率。",
-              "statusReason": "模型已训练但未通过全部发布门槛；不发布概率。",
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=20"
@@ -466,7 +466,7 @@
           "objectType": "index",
           "benchmarkLabel": "恒生科技指数",
           "modelAvailability": "not_trained",
-          "candidateStatus": "shadow",
+          "candidateStatus": "研究候选",
           "horizons": [
             {
               "horizonSessions": 1,
@@ -480,8 +480,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "样本或有效样本外窗口不足，无法通过发布门槛。",
-              "statusReason": "样本或有效样本外窗口不足，无法通过发布门槛。",
+              "claim": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
+              "statusReason": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=1"
@@ -498,8 +498,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "样本或有效样本外窗口不足，无法通过发布门槛。",
-              "statusReason": "样本或有效样本外窗口不足，无法通过发布门槛。",
+              "claim": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
+              "statusReason": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=5"
@@ -516,8 +516,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "样本或有效样本外窗口不足，无法通过发布门槛。",
-              "statusReason": "样本或有效样本外窗口不足，无法通过发布门槛。",
+              "claim": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
+              "statusReason": "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=20"
@@ -530,7 +530,7 @@
           "objectType": "index",
           "benchmarkLabel": "恒生指数",
           "modelAvailability": "not_trained",
-          "candidateStatus": "shadow",
+          "candidateStatus": "研究候选",
           "horizons": [
             {
               "horizonSessions": 1,
@@ -544,8 +544,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
-              "statusReason": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=1"
@@ -562,8 +562,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
-              "statusReason": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=5"
@@ -580,8 +580,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
-              "statusReason": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=20"
@@ -594,7 +594,7 @@
           "objectType": "index",
           "benchmarkLabel": "恒生指数",
           "modelAvailability": "not_trained",
-          "candidateStatus": "shadow",
+          "candidateStatus": "研究候选",
           "horizons": [
             {
               "horizonSessions": 1,
@@ -608,8 +608,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
-              "statusReason": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=1"
@@ -626,8 +626,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
-              "statusReason": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=5"
@@ -644,8 +644,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
-              "statusReason": "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy.",
+              "claim": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+              "statusReason": "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=hk&horizon=20"
@@ -662,8 +662,8 @@
       "datasetId": "us-nasdaq-panel-99c070c7614c",
       "sourceStatus": {
         "requiredSources": {
-          "status": "partial",
-          "reason": "required research sources unavailable: yahoo_hstech"
+          "status": "ready",
+          "reason": "该市场必需数据源全部可用。"
         }
       },
       "objects": [
@@ -673,7 +673,7 @@
           "objectType": "index",
           "benchmarkLabel": "纳斯达克综合指数",
           "modelAvailability": "trained",
-          "candidateStatus": "shadow",
+          "candidateStatus": "研究候选",
           "horizons": [
             {
               "horizonSessions": 1,
@@ -687,8 +687,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "模型已训练但未通过全部发布门槛；不发布概率。",
-              "statusReason": "模型已训练但未通过全部发布门槛；不发布概率。",
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=us&horizon=1"
@@ -705,8 +705,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "模型已训练但未通过全部发布门槛；不发布概率。",
-              "statusReason": "模型已训练但未通过全部发布门槛；不发布概率。",
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=us&horizon=5"
@@ -723,8 +723,8 @@
               "probability": null,
               "expectedReturn": null,
               "evidenceScore": null,
-              "claim": "模型已训练但未通过全部发布门槛；不发布概率。",
-              "statusReason": "模型已训练但未通过全部发布门槛；不发布概率。",
+              "claim": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+              "statusReason": "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
               "asOf": "2026-08-06",
               "dueDate": null,
               "historyUrl": "/predictions/history/?month=2026-08&market=us&horizon=20"

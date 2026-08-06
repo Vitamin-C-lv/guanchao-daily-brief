@@ -68,6 +68,21 @@ test("real A-share + blocked HK/US produces a valid public DTO without probabili
       assert.ok(horizon.statusReason.includes("门槛"));
     }
     assert.equal(view.latestReview?.isoWeek, "2026-W31");
+    assert.equal(us.sourceStatus.requiredSources.status, "ready");
+    assert.ok(!us.sourceStatus.requiredSources.reason.includes("yahoo_hstech"));
+    assert.ok(!us.sourceStatus.requiredSources.reason.includes("恒生科技"));
+    assert.ok(hk.sourceStatus.requiredSources.reason.includes("必需历史数据源不可用"));
+    for (const market of view.markets) {
+      for (const object of market.objects) {
+        assert.ok(["研究候选", "生产模型"].includes(object.candidateStatus), `candidateStatus ${object.candidateStatus}`);
+        for (const horizon of object.horizons) {
+          for (const forbidden of ["HK object panel", "OOS model trained", "candidate shadow"]) {
+            assert.ok(!horizon.claim.includes(forbidden));
+            assert.ok(!horizon.statusReason.includes(forbidden));
+          }
+        }
+      }
+    }
     const validated = validatePublicPredictionView({ file });
     assert.equal(validated.probabilityCount, 0);
     assert.equal(validated.blockedProbabilityCount, 0);

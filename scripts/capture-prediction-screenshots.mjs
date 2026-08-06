@@ -86,6 +86,16 @@ async function capturePage(call, { url, width, height, mobile, name, outDir }) {
   await call("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile });
   await call("Page.navigate", { url });
   await sleep(1200);
+  // QA-only dismissal of the weekly/daily update notice; production behavior
+  // is untouched and no preference is persisted into the repository.
+  await evaluate(call, `(() => {
+    const disable = [...document.querySelectorAll("button")].find((button) => button.innerText.trim() === "不再提醒此类更新");
+    disable?.click();
+    document.querySelector('button[aria-label="关闭本期提醒"]')?.click();
+    const backdrop = document.querySelector(".update-notice-backdrop");
+    if (backdrop) backdrop.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+  })()`);
+  await sleep(400);
   await sleep(400);
   const dom = await evaluate(call, `JSON.stringify((() => {
     const root = document.documentElement;
@@ -104,6 +114,20 @@ async function capturePage(call, { url, width, height, mobile, name, outDir }) {
       marketTabCount: document.querySelectorAll(".prediction-market-tabs button").length,
       hasHistoryLink: !!document.querySelector("a.prediction-history-link"),
       hasNoProbabilityWording: text.includes("不发布概率") || text.includes("不是概率"),
+      weeklyModalCount: document.querySelectorAll(".update-notice").length,
+      modalBackdropCount: document.querySelectorAll(".update-notice-backdrop").length,
+      visibleEnglishInternalTokenCount: (() => {
+        const tokens = ["absolute_up", "relative_outperformance", "top_quartile", "expected_return",
+          "HK object panel", "OOS model trained", "candidate shadow", "not_trained", "not_implemented",
+          "legacy_unknown", "raw_model", "calibrated_model", "historical_base_rate",
+          "probabilityTarget", "probabilitySource", "modelAvailability", "calibrationStatus"];
+        let count = 0;
+        for (const token of tokens) if (text.includes(token)) count += 1;
+        for (const word of ["shadow", "ready", "partial", "unavailable"]) {
+          if (new RegExp("\\\\b" + word + "\\\\b", "i").test(text)) count += 1;
+        }
+        return count;
+      })(),
     };
   })())`);
   const parsed = JSON.parse(dom);
@@ -249,6 +273,9 @@ try {
         marketTabCount: record.dom.marketTabCount,
         hasHistoryLink: record.dom.hasHistoryLink,
         hasNoProbabilityWording: record.dom.hasNoProbabilityWording,
+        weeklyModalCount: record.dom.weeklyModalCount,
+        modalBackdropCount: record.dom.modalBackdropCount,
+        visibleEnglishInternalTokenCount: record.dom.visibleEnglishInternalTokenCount,
       },
     })),
   };

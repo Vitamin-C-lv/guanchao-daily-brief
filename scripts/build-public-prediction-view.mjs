@@ -76,7 +76,7 @@ function businessEquivalent(left, right) {
 function aShareMarket(rotation) {
   const market = rotation.markets?.find((item) => item.id === "a-share");
   if (!market) fail("INPUT_MISSING", "sector-rotation.json has no a-share market");
-  const object = { ...A_SHARE_OBJECT, modelAvailability: "trained", candidateStatus: "production" };
+  const object = { ...A_SHARE_OBJECT, modelAvailability: "trained", candidateStatus: "生产模型" };
   const horizons = [];
   for (const [key, sessions, label] of HORIZON_KEYS) {
     const horizon = market.horizons?.[key];
@@ -113,7 +113,13 @@ function aShareMarket(rotation) {
   const sourceStatus = {};
   if (market.sourceStatus && typeof market.sourceStatus === "object") {
     for (const [name, entry] of Object.entries(market.sourceStatus)) {
-      sourceStatus[name] = { status: String(entry?.status ?? "unknown"), reason: entry?.reason ? String(entry.reason) : undefined };
+      const status = String(entry?.status ?? "unknown");
+      sourceStatus[name] = {
+        status,
+        reason: name === "marketBreadth"
+          ? `暂无 ${market.asOf ?? "当前"} 的不可变市场广度快照，市场广度不参与发布。`
+          : (entry?.reason ? "该数据源当前不可用，相关信号保留为观察。".replace("该数据源", name) : undefined),
+      };
     }
   }
   return {
@@ -142,10 +148,8 @@ function gateMarketToDto(gateMarket, availableMonths) {
     datasetId: gateMarket.datasetId,
     sourceStatus: {
       requiredSources: {
-        status: gateMarket.sourceStatus?.requiredFailures?.length ? "partial" : "ready",
-        reason: gateMarket.sourceStatus?.requiredFailures?.length
-          ? `required research sources unavailable: ${gateMarket.sourceStatus.requiredFailures.join(", ")}`
-          : undefined,
+        status: gateMarket.sourceStatus?.status === "ready" ? "ready" : "partial",
+        reason: gateMarket.sourceStatus?.reason ?? "该市场必需数据源状态待确认。",
       },
     },
     objects: gateMarket.objects.map((object) => ({
@@ -154,7 +158,7 @@ function gateMarketToDto(gateMarket, availableMonths) {
       objectType: object.objectType,
       benchmarkLabel: object.benchmarkLabel,
       modelAvailability: object.modelAvailability,
-      candidateStatus: object.candidateStatus,
+      candidateStatus: object.candidateStatus === "shadow" ? "研究候选" : object.candidateStatus === "production" ? "生产模型" : object.candidateStatus,
       horizons: object.horizons.map((horizon) => ({
         horizonSessions: horizon.horizonSessions,
         label: `${horizon.horizonSessions === 1 ? "下一交易日" : `${horizon.horizonSessions}个交易日`}`,

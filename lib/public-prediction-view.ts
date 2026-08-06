@@ -114,3 +114,74 @@ export function probabilityOf(horizon: PublicPredictionHorizon): number | null {
 export function marketOf(view: PublicPredictionView, marketId: string): PublicPredictionMarket | null {
   return view.markets.find((market) => market.marketId === marketId) ?? null;
 }
+
+/**
+ * Single Chinese label map for every public enum that can reach page text.
+ * Pages must never render raw machine enums; keep this as the one source.
+ */
+export const publicPredictionLabels = {
+  target: {
+    absolute_up: "绝对上涨",
+    relative_outperformance: "跑赢基准",
+    relative_outperformance_vs_hsi: "相对恒生指数跑赢",
+    top_quartile: "进入前25%",
+    expected_return: "预期收益",
+    none: "无概率目标",
+  } as Record<string, string>,
+  datasetStatus: {
+    ready: "数据完整",
+    partial: "部分数据可用",
+    insufficient: "部分数据可用",
+    unavailable: "数据不可用",
+  } as Record<string, string>,
+  candidateStatus: {
+    shadow: "研究候选",
+    production: "生产模型",
+  } as Record<string, string>,
+  modelAvailability: {
+    trained: "已训练",
+    not_trained: "未训练",
+    not_implemented: "未实现",
+  } as Record<string, string>,
+  publicationStatus: {
+    published: "已发布概率",
+    abstained: "模型弃权",
+    insufficient_data: "样本不足",
+    unavailable: "数据不可用",
+    not_applicable: "不适用",
+  } as Record<string, string>,
+  probabilitySource: {
+    raw_model: "原始模型",
+    calibrated_model: "校准模型",
+    historical_base_rate: "历史基准率",
+    legacy_unknown: "旧版未知",
+    none: "无",
+  } as Record<string, string>,
+  calibrationStatus: {
+    enabled: "已启用",
+    disabled: "已禁用",
+    collapsed: "已塌缩",
+    not_applicable: "不适用",
+    legacy_unknown: "旧版未知",
+  } as Record<string, string>,
+  outputMode: {
+    probability: "模型概率",
+    evidence_observation: "证据观察",
+    current_observation: "当前观察",
+    none: "无输出",
+  } as Record<string, string>,
+};
+
+export function labelOf(map: Record<string, string>, value: string | null | undefined, fallback = "未知") {
+  if (value == null) return fallback;
+  return map[value] ?? value;
+}
+
+export const targetLabel = (value: string | null | undefined) => labelOf(publicPredictionLabels.target, value);
+export const datasetStatusLabel = (value: string | null | undefined) => labelOf(publicPredictionLabels.datasetStatus, value);
+export const candidateStatusLabel = (value: string | null | undefined) => labelOf(publicPredictionLabels.candidateStatus, value);
+export const modelAvailabilityLabel = (value: string | null | undefined) => labelOf(publicPredictionLabels.modelAvailability, value);
+export const publicationStatusLabel = (value: string | null | undefined) => labelOf(publicPredictionLabels.publicationStatus, value);
+export const probabilitySourceLabel = (value: string | null | undefined) => labelOf(publicPredictionLabels.probabilitySource, value);
+export const calibrationStatusLabel = (value: string | null | undefined) => labelOf(publicPredictionLabels.calibrationStatus, value);
+export const outputModeLabel = (value: string | null | undefined) => labelOf(publicPredictionLabels.outputMode, value);

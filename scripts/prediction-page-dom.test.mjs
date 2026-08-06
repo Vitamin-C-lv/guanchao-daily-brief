@@ -41,6 +41,16 @@ async function inspect(call, url, width, mobile) {
   await call("Emulation.setDeviceMetricsOverride", { width, height: 900, deviceScaleFactor: 1, mobile });
   await call("Page.navigate", { url });
   await sleep(1200);
+  await call("Runtime.evaluate", {
+    expression: `(() => {
+      const disable = [...document.querySelectorAll("button")].find((button) => button.innerText.trim() === "不再提醒此类更新");
+      disable?.click();
+      document.querySelector('button[aria-label="关闭本期提醒"]')?.click();
+      const backdrop = document.querySelector(".update-notice-backdrop");
+      if (backdrop) backdrop.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+    })()`,
+  });
+  await sleep(300);
   const result = await call("Runtime.evaluate", {
     expression: `JSON.stringify((() => {
       const root = document.documentElement;
@@ -57,6 +67,20 @@ async function inspect(call, url, width, mobile) {
         observationBoards: document.querySelectorAll(".prediction-observation-list").length,
         statusPanels: document.querySelectorAll(".prediction-status-panel").length,
         objectTitles: [...document.querySelectorAll(".prediction-object-header h3")].map((node) => node.innerText.trim()),
+        weeklyModalCount: document.querySelectorAll(".update-notice").length,
+        modalBackdropCount: document.querySelectorAll(".update-notice-backdrop").length,
+        visibleEnglishInternalTokenCount: (() => {
+          const tokens = ["absolute_up", "relative_outperformance", "top_quartile", "expected_return",
+            "HK object panel", "OOS model trained", "candidate shadow", "not_trained", "not_implemented",
+            "legacy_unknown", "raw_model", "calibrated_model", "historical_base_rate",
+            "probabilityTarget", "probabilitySource", "modelAvailability", "calibrationStatus"];
+          let count = 0;
+          for (const token of tokens) if (text.includes(token)) count += 1;
+          for (const word of ["shadow", "ready", "partial", "unavailable"]) {
+            if (new RegExp("\\b" + word + "\\b", "i").test(text)) count += 1;
+          }
+          return count;
+        })(),
         text,
       };
     })())`,
@@ -85,11 +109,11 @@ test("HK page shows no probability numbers and fixed object order", async () => 
   assert.deepEqual(dom.objectTitles, ["恒生指数", "恒生科技指数", "港股创新药", "科技互联网"]);
 });
 
-test("US page shows no probability numbers and research-shadow wording", async () => {
+test("US page shows no probability numbers and research-candidate wording", async () => {
   const dom = await inspect(browser.call, `${baseUrl.replace(/\/$/, "")}/predictions/?market=us`, 1440, false);
   assert.equal(dom.activeTab, "美股");
   assert.equal(dom.probabilityNumbers, 0);
-  assert.match(dom.text, /研究 shadow|不发布概率/);
+  assert.match(dom.text, /研究候选|不发布概率/);
 });
 
 test("390px mobile has no horizontal overflow and keeps five bottom nav items", async () => {
@@ -104,4 +128,18 @@ test("history page still loads monthly shards and shows the current three-market
   assert.match(dom.title, /历史预测与到期复盘/);
   assert.match(dom.text, /当前三市场预测状态/);
   assert.match(dom.text, /2026-W31/);
+});
+
+test("update notice is dismissed and no English internal tokens remain visible", async () => {
+  for (const [url, width, mobile] of [
+    ["/predictions/?market=a-share", 1440, false],
+    ["/predictions/?market=hk", 390, true],
+    ["/predictions/?market=us", 1440, false],
+    ["/predictions/history/", 1440, false],
+  ]) {
+    const dom = await inspect(browser.call, `${baseUrl.replace(/\/$/, "")}${url}`, width, mobile);
+    assert.equal(dom.weeklyModalCount, 0, `weekly modal on ${url}`);
+    assert.equal(dom.modalBackdropCount, 0, `modal backdrop on ${url}`);
+    assert.equal(dom.visibleEnglishInternalTokenCount, 0, `English internal tokens on ${url}: ${dom.text.slice(0, 400)}`);
+  }
 });

@@ -1,4 +1,5 @@
 import { Database, Info, ShieldCheck } from "lucide-react";
+import { modelAvailabilityLabel, targetLabel } from "@/lib/public-prediction-view";
 import type { PublicPredictionHorizon } from "@/lib/public-prediction-view";
 
 const statusTitle: Record<PublicPredictionHorizon["publicationStatus"], string> = {
@@ -22,8 +23,8 @@ export default function PredictionStatusPanel({ horizon, modelAvailability }: { 
       </div>
       <p className="prediction-status-reason">{horizon.statusReason}</p>
       <dl className="prediction-status-meta">
-        <div><dt>模型状态</dt><dd>{modelAvailability === "trained" ? "已训练" : modelAvailability === "not_trained" ? "未训练" : "未实现"}</dd></div>
-        <div><dt>概率目标</dt><dd>{horizon.target === "none" ? "无" : horizon.target}</dd></div>
+        <div><dt>模型状态</dt><dd>{modelAvailabilityLabel(modelAvailability)}</dd></div>
+        <div><dt>概率目标</dt><dd>{targetLabel(horizon.target)}</dd></div>
         <div><dt>数据截至</dt><dd>{dateText(horizon.asOf)}</dd></div>
         <div><dt>到期日</dt><dd>{dateText(horizon.dueDate)}</dd></div>
       </dl>

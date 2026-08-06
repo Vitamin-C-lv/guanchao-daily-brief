@@ -1,17 +1,11 @@
-import { CalendarDays, Database, ShieldCheck, Target } from "lucide-react";
+import { CalendarDays, ShieldCheck, Target } from "lucide-react";
 import Link from "next/link";
+import { targetLabel } from "@/lib/public-prediction-view";
 import type { PublicPredictionHorizon } from "@/lib/public-prediction-view";
 import PredictionStatusPanel from "./PredictionStatusPanel";
 
 function dateText(value: string | null) {
   return value ? value.replaceAll("-", ".") : "—";
-}
-
-function targetLabel(target: string) {
-  if (target === "absolute_up") return "绝对上涨";
-  if (target === "relative_outperformance" || target === "relative_outperformance_vs_hsi") return "跑赢基准";
-  if (target === "top_quartile") return "进入前25%";
-  return target === "none" ? "无概率目标" : target;
 }
 
 function ProbabilityCard({ horizon }: { horizon: PublicPredictionHorizon }) {
@@ -24,7 +18,6 @@ function ProbabilityCard({ horizon }: { horizon: PublicPredictionHorizon }) {
       <p className="prediction-card-approved"><ShieldCheck size={13} aria-hidden="true" />已通过发布门槛</p>
       <p className="prediction-card-claim">{horizon.claim}</p>
       <dl className="prediction-card-meta">
-        <div><dt><Database size={12} aria-hidden="true" />模型版本</dt><dd>{horizon.modelVersion}</dd></div>
         <div><dt><CalendarDays size={12} aria-hidden="true" />数据截至 / 到期</dt><dd>{dateText(horizon.asOf)} / {dateText(horizon.dueDate)}</dd></div>
       </dl>
     </div>
@@ -49,7 +42,6 @@ function ObservationCard({ horizon }: { horizon: PublicPredictionHorizon }) {
         </ol>
       ) : null}
       <dl className="prediction-card-meta">
-        <div><dt><Database size={12} aria-hidden="true" />模型版本</dt><dd>{horizon.modelVersion ?? "—"}</dd></div>
         <div><dt><CalendarDays size={12} aria-hidden="true" />数据截至 / 到期</dt><dd>{dateText(horizon.asOf)} / {dateText(horizon.dueDate)}</dd></div>
       </dl>
     </div>

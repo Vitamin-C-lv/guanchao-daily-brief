@@ -8,7 +8,7 @@ import PredictionHorizonCard from "./PredictionHorizonCard";
 import PredictionMarketTabs, { type PredictionMarketId } from "./PredictionMarketTabs";
 import PredictionSourceNote from "./PredictionSourceNote";
 import PredictionWeeklyReviewTeaser from "./PredictionWeeklyReviewTeaser";
-import { isPublicPredictionView, marketOf } from "@/lib/public-prediction-view";
+import { candidateStatusLabel, datasetStatusLabel, isPublicPredictionView, marketOf, modelAvailabilityLabel } from "@/lib/public-prediction-view";
 import type { PublicPredictionMarket, PublicPredictionView } from "@/lib/public-prediction-view";
 
 function statusWord(market: PublicPredictionMarket) {
@@ -20,17 +20,29 @@ function statusWord(market: PublicPredictionMarket) {
   return "不发布概率";
 }
 
+function marketPublishesProbability(market: PublicPredictionMarket) {
+  return market.objects.some((object) => object.horizons.some((horizon) => horizon.publicationStatus === "published"));
+}
+
 function MarketHeader({ market }: { market: PublicPredictionMarket }) {
+  const modelVersions = [...new Set(market.objects.flatMap((object) => object.horizons.map((horizon) => horizon.modelVersion).filter(Boolean)))];
   return (
     <section className="prediction-market-summary" aria-label={`${market.label}市场摘要`}>
       <div className="prediction-market-summary-title">
         <h2>{market.label} · {statusWord(market)}</h2>
-        <p>数据截至 {market.dataAsOf.replaceAll("-", ".")} · 数据状态 {market.datasetStatus} · 数据集 {market.datasetId ?? "—"}</p>
+        <p>数据截至 {market.dataAsOf.replaceAll("-", ".")} · 数据状态 {datasetStatusLabel(market.datasetStatus)} · {marketPublishesProbability(market) ? "已发布概率" : "不发布概率"}</p>
       </div>
       <div className="prediction-market-summary-tags">
-        <span><Database size={12} aria-hidden="true" />dataset {market.datasetId ?? "null"}</span>
-        {market.marketId === "a-share" ? <span><ShieldCheck size={12} aria-hidden="true" />生产模型已训练</span> : <span><ShieldCheck size={12} aria-hidden="true" />研究 shadow · 未发布</span>}
+        <span><ShieldCheck size={12} aria-hidden="true" />{marketPublishesProbability(market) ? "已通过发布门槛" : "未发布概率"}</span>
       </div>
+      <details className="prediction-technical-info">
+        <summary>技术信息</summary>
+        <dl>
+          <div><dt>数据集 ID</dt><dd>{market.datasetId ?? "—"}</dd></div>
+          <div><dt>模型版本</dt><dd>{modelVersions.join("、") || "—"}</dd></div>
+          <div><dt>来源状态</dt><dd>{market.sourceStatus.requiredSources?.reason ?? "—"}</dd></div>
+        </dl>
+      </details>
     </section>
   );
 }
@@ -41,7 +53,7 @@ function ObjectSection({ marketId, object }: { marketId: string; object: PublicP
       <header className="prediction-object-header">
         <div>
           <h3>{object.label}</h3>
-          <p>基准 {object.benchmarkLabel} · 模型状态 {object.modelAvailability === "trained" ? "已训练" : object.modelAvailability === "not_trained" ? "未训练" : "未实现"} · 候选 {object.candidateStatus}</p>
+          <p>基准 {object.benchmarkLabel} · 模型状态 {modelAvailabilityLabel(object.modelAvailability)} · 候选 {candidateStatusLabel(object.candidateStatus)}</p>
         </div>
         {marketId === "a-share" && object.objectId === "a-share-sector-rotation" ? <span className="prediction-object-badge">当前生产模型</span> : null}
       </header>

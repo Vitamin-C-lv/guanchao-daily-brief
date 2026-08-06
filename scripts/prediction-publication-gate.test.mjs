@@ -89,6 +89,40 @@ test("negative fixture reproduces the frozen stage2 expectation: all HK/US block
   }
 });
 
+test("source health is isolated per market and never leaks other markets' failures", () => {
+  const results = evaluatePublicationGate({ researchOutput: negative, now: new Date("2026-08-06T00:00:00Z") });
+  const hk = results.markets.hk;
+  const us = results.markets.us;
+  assert.equal(hk.sourceStatus.status, "partial");
+  assert.match(hk.sourceStatus.reason, /恒生科技指数历史行情/);
+  assert.ok(!hk.sourceStatus.reason.toLowerCase().includes("nasdaq"));
+  assert.ok(!hk.sourceStatus.reason.toLowerCase().includes("sox"));
+  assert.ok(!hk.sourceStatus.reason.toLowerCase().includes("vix"));
+  assert.ok(!hk.sourceStatus.reason.includes("yahoo"));
+  assert.equal(us.sourceStatus.status, "ready");
+  assert.ok(!us.sourceStatus.reason.includes("yahoo_hstech"));
+  assert.ok(!us.sourceStatus.reason.includes("恒生科技"));
+  const positiveResults = evaluatePublicationGate({ researchOutput: positive, now: new Date("2026-08-06T00:00:00Z") });
+  assert.equal(positiveResults.markets.hk.sourceStatus.status, "ready");
+  assert.equal(positiveResults.markets.us.sourceStatus.status, "ready");
+});
+
+test("public status reasons are natural Chinese, never research English", () => {
+  const results = evaluatePublicationGate({ researchOutput: negative, now: new Date("2026-08-06T00:00:00Z") });
+  const expectedByStatus = {
+    abstained: "模型已完成样本外研究，但未通过全部生产发布门槛，暂不发布概率。",
+    insufficient_data: "有效历史样本或样本外窗口不足，暂不训练或发布概率。",
+    unavailable: "该对象尚无可验证的连续历史数据，未使用未标记代理，暂不发布预测。",
+  };
+  for (const { market, object, horizon } of allHorizons(results)) {
+    const entry = results.markets[market].objects.find((item) => item.objectId === object).horizons.find((item) => item.horizonSessions === horizon);
+    assert.equal(entry.statusReason, expectedByStatus[entry.publicationStatus], `${market}/${object}/${horizon}`);
+    for (const forbidden of ["HK object panel", "OOS model trained", "candidate shadow", "research only"]) {
+      assert.ok(!entry.statusReason.includes(forbidden));
+    }
+  }
+});
+
 test("market/object/horizon/target are isolated and never mixed", () => {
   const results = evaluatePublicationGate({ researchOutput: positive, now: new Date("2026-08-06T00:00:00Z") });
   const targetByObject = {
