@@ -23,7 +23,8 @@
       "markets": {"type": "array", "items": {"type": "string"}}, "dataAsOf": {"type": "string", "format": "date"},
       "publicationEdition": {"type": "string"}, "publicationVersion": {"type": "string", "format": "date-time"},
       "models": {"type": "array", "items": {"$ref": "#/$defs/model"}}, "horizons": {"type": "array", "items": {"enum": [1, 5, 20]}},
-      "predictionPayloadSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      "predictionPayloadSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+      "statePayloadSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
     }},
     "integrity": {"$ref": "#/$defs/integrity"}
   },
