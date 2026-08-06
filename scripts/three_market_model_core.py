@@ -64,6 +64,11 @@ HK_FEATURES = PRICE_FEATURES + (
     "curve_2s10s",
     "us2y_change_1d",
     "us10y_change_1d",
+    "hk_liquidity_overnight",
+    "hk_liquidity_1m",
+    "hk_liquidity_opening_balance",
+    "hk_liquidity_closing_balance",
+    "hk_liquidity_twi",
 )
 US_FEATURES = PRICE_FEATURES + (
     "us2y",
@@ -177,17 +182,17 @@ def payload_path(cache: Path, source_id: str) -> Path | None:
     folder = cache / "raw" / source_id
     if not folder.is_dir():
         return None
-    candidates = sorted(path for path in folder.iterdir() if path.is_file() and path.name != "meta.json")
+    candidates = sorted(path for path in folder.iterdir() if path.is_file() and path.name.lower().startswith("payload."))
     return candidates[0] if candidates else None
 
 
 def load_cache_metadata(cache: Path) -> dict[str, Any]:
     result: dict[str, Any] = {"fetch": {}, "validation": {}, "meta": {}}
-    fetch_path = cache / "fetch-results.json"
-    if fetch_path.is_file():
-        fetch = read_json(fetch_path)
-        for item in fetch.get("results", []):
-            result["fetch"][item.get("sourceId")] = item
+    for fetch_path in (cache / "fetch-results.json", cache / "fallback-fetch-results.json"):
+        if fetch_path.is_file():
+            fetch = read_json(fetch_path)
+            for item in fetch.get("results", []):
+                result["fetch"][item.get("sourceId")] = item
     validation_path = cache / "validation-report.json"
     if validation_path.is_file():
         validation = read_json(validation_path)
@@ -328,14 +333,28 @@ def build_source_audit(manifest: dict[str, Any], cache: Path) -> tuple[list[dict
         fetch_item = metadata["fetch"].get(source_id, {})
         validation_item = metadata["validation"].get(source_id, {})
         meta = metadata["meta"].get(source_id, {})
-        status = fetch_item.get("status") or ("ready" if payload else "unavailable")
-        if payload and status != "ready":
-            status = "ready" if not fetch_item else status
         first_date, last_date = source_date_range(source, payload)
         parsed_rows = raw_row_count(source, payload)
-        rows = parsed_rows if payload and parsed_rows > 0 else validation_item.get("rows")
-        if not isinstance(rows, int):
-            rows = 0
+        validation_status = validation_item.get("status")
+        validation_reasons = list(validation_item.get("reasons", []))
+        expected_min_rows = source.get("expectedMinRows")
+        if isinstance(expected_min_rows, int) and expected_min_rows > 0 and 0 < parsed_rows < expected_min_rows:
+            reason = f"rows {parsed_rows} < expectedMinRows {expected_min_rows}"
+            if reason not in validation_reasons:
+                validation_reasons.append(reason)
+        if parsed_rows == 0:
+            status = "unavailable"
+        elif validation_status in {"failed", "partial"} or validation_reasons:
+            status = "partial"
+        else:
+            status = fetch_item.get("status") or "ready"
+            if status not in {"ready", "partial", "unavailable"}:
+                status = "ready"
+        error = fetch_item.get("error")
+        if status == "partial" and validation_reasons:
+            error = "; ".join(str(reason) for reason in validation_reasons)
+        if status == "unavailable" and not error and validation_reasons:
+            error = "; ".join(str(reason) for reason in validation_reasons)
         item = {
             "sourceId": source_id,
             "market": source.get("market"),
@@ -344,7 +363,7 @@ def build_source_audit(manifest: dict[str, Any], cache: Path) -> tuple[list[dict
             "tier": source.get("tier"),
             "required": bool(source.get("required")),
             "status": status,
-            "rows": rows,
+            "rows": parsed_rows,
             "firstDate": first_date or validation_item.get("firstDate"),
             "lastDate": last_date or validation_item.get("lastDate"),
             "expectedMinRows": source.get("expectedMinRows"),
@@ -352,9 +371,10 @@ def build_source_audit(manifest: dict[str, Any], cache: Path) -> tuple[list[dict
             "rawBytes": meta.get("bytes") or fetch_item.get("bytes"),
             "licenseNote": source.get("licenseNote"),
             "url": source.get("url") or source.get("urlTemplate"),
-            "error": fetch_item.get("error") if status != "ready" else None,
-            "packageValidationStatus": validation_item.get("status"),
-            "packageValidationReasons": validation_item.get("reasons", []),
+            "error": error if status != "ready" else None,
+            "packageValidationStatus": validation_status or "not_run",
+            "packageValidationReasons": validation_reasons,
+            "validationConsistent": not (status == "ready" and validation_status in {"failed", "partial"}),
         }
         audit.append(item)
     required_failures = [item["sourceId"] for item in audit if item["required"] and item["status"] != "ready"]
@@ -479,19 +499,128 @@ def add_exact_macro(row: dict[str, Any], name: str, series: dict[str, float]) ->
     row[f"{name}_change_1d"] = change_1d(series, str(row["date"]))
 
 
+def source_candidates(sources: dict[str, dict[str, Any]], ids: Iterable[str] = (), role_prefixes: Iterable[str] = ()) -> list[dict[str, Any]]:
+    result: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for source_id in ids:
+        source = sources.get(source_id)
+        if source and source_id not in seen:
+            result.append(source)
+            seen.add(source_id)
+    prefixes = tuple(role_prefixes)
+    for source_id, source in sources.items():
+        role = str(source.get("role") or "")
+        if prefixes and any(role == prefix or role.startswith(prefix) for prefix in prefixes) and source_id not in seen:
+            result.append(source)
+            seen.add(source_id)
+    return result
+
+
+def resolved_series(
+    sources: dict[str, dict[str, Any]],
+    cache: Path,
+    *,
+    ids: Iterable[str] = (),
+    role_prefixes: Iterable[str] = (),
+    field_keys: tuple[str, ...] = (),
+) -> tuple[dict[str, float], str | None]:
+    first_source_id: str | None = None
+    for source in source_candidates(sources, ids, role_prefixes):
+        source_id = str(source["id"])
+        if first_source_id is None:
+            first_source_id = source_id
+        series = load_series(source, cache, field_keys=field_keys)
+        if series:
+            return series, source_id
+    return {}, first_source_id
+
+
+def source_quality(source: dict[str, Any] | None, cache: Path, series: dict[str, float]) -> str:
+    if source is None or not series:
+        return "unavailable"
+    expected = source.get("expectedMinRows")
+    raw_rows = raw_row_count(source, payload_path(cache, str(source["id"])))
+    if isinstance(expected, int) and expected > 0 and raw_rows < expected:
+        return "partial"
+    return "ready"
+
+
+def source_by_id(sources: dict[str, dict[str, Any]], source_id: str | None) -> dict[str, Any] | None:
+    return sources.get(source_id) if source_id else None
+
+
+def crosscheck_series(
+    primary: dict[str, float],
+    primary_source_id: str | None,
+    cross_source: dict[str, Any] | None,
+    cache: Path,
+    field_keys: tuple[str, ...] = (),
+) -> dict[str, Any]:
+    if not primary or not primary_source_id or cross_source is None or str(cross_source.get("id")) == primary_source_id:
+        return {"status": "not_run", "overlapRows": 0, "mismatchRows": 0, "maxAbsDifference": None}
+    cross = load_series(cross_source, cache, field_keys=field_keys)
+    overlap = sorted(set(primary) & set(cross))
+    differences = [abs(primary[date_value] - cross[date_value]) for date_value in overlap]
+    mismatches = sum(difference > 1e-7 for difference in differences)
+    return {
+        "status": "passed" if overlap and mismatches == 0 else "mismatch" if overlap else "not_run",
+        "primarySourceId": primary_source_id,
+        "crossSourceId": cross_source.get("id"),
+        "overlapRows": len(overlap),
+        "mismatchRows": mismatches,
+        "maxAbsDifference": max(differences) if differences else None,
+    }
+
+
 def build_hk_panels(sources: dict[str, dict[str, Any]], cache: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    hsi = load_series(sources["yahoo_hsi"], cache)
-    hstech = load_series(sources["yahoo_hstech"], cache)
-    hibor_overnight = load_series(sources["hkma_hibor_fixing"], cache, field_keys=("ir_overnight", "hibor_overnight"))
-    hibor_1m = load_series(sources["hkma_hibor_fixing"], cache, field_keys=("ir_1m", "hibor_1m"))
-    usd_hkd = load_series(sources["fred_dexhkus"], cache)
-    us2y = load_series(sources["fred_dgs2"], cache)
-    us10y = load_series(sources["fred_dgs10"], cache)
+    hsi, hsi_source_id = resolved_series(sources, cache, ids=("yahoo_hsi",), role_prefixes=("hsi_ohlcv",))
+    hstech, hstech_source_id = resolved_series(sources, cache, ids=("yahoo_hstech",), role_prefixes=("hstech_ohlcv",))
+    hibor_overnight, hibor_source_id = resolved_series(
+        sources,
+        cache,
+        ids=("hkma_hibor_fixing_chunked", "hkma_hibor_fixing"),
+        role_prefixes=("hibor_fixing",),
+        field_keys=("ir_overnight", "hibor_overnight"),
+    )
+    hibor_1m, hibor_1m_source_id = resolved_series(
+        sources,
+        cache,
+        ids=("hkma_hibor_fixing_chunked", "hkma_hibor_fixing"),
+        role_prefixes=("hibor_fixing",),
+        field_keys=("ir_1m", "hibor_1m"),
+    )
+    liquidity_source = source_candidates(sources, ("hkma_interbank_liquidity_chunked", "hkma_interbank_liquidity"), ("hk_liquidity",))
+    liquidity_source_id = str(liquidity_source[0]["id"]) if liquidity_source else None
+    liquidity_overnight, _ = resolved_series(
+        sources, cache, ids=("hkma_interbank_liquidity_chunked", "hkma_interbank_liquidity"), role_prefixes=("hk_liquidity",), field_keys=("hibor_overnight",)
+    )
+    liquidity_1m, _ = resolved_series(
+        sources, cache, ids=("hkma_interbank_liquidity_chunked", "hkma_interbank_liquidity"), role_prefixes=("hk_liquidity",), field_keys=("hibor_fixing_1m",)
+    )
+    liquidity_opening, _ = resolved_series(
+        sources, cache, ids=("hkma_interbank_liquidity_chunked", "hkma_interbank_liquidity"), role_prefixes=("hk_liquidity",), field_keys=("opening_balance",)
+    )
+    liquidity_closing, _ = resolved_series(
+        sources, cache, ids=("hkma_interbank_liquidity_chunked", "hkma_interbank_liquidity"), role_prefixes=("hk_liquidity",), field_keys=("closing_balance",)
+    )
+    liquidity_twi, _ = resolved_series(
+        sources, cache, ids=("hkma_interbank_liquidity_chunked", "hkma_interbank_liquidity"), role_prefixes=("hk_liquidity",), field_keys=("twi",)
+    )
+    if not hibor_overnight:
+        hibor_overnight = liquidity_overnight
+        hibor_source_id = liquidity_source_id
+    if not hibor_1m:
+        hibor_1m = liquidity_1m
+        hibor_1m_source_id = liquidity_source_id
+    usd_hkd, usd_hkd_source_id = resolved_series(sources, cache, ids=("yahoo_usd_hkd", "fred_dexhkus"), role_prefixes=("usd_hkd",), field_keys=())
+    us2y, us2y_source_id = resolved_series(sources, cache, ids=("treasury_yield_curve", "fred_dgs2"), role_prefixes=("us_2y_yield",), field_keys=("us2y",))
+    us10y, us10y_source_id = resolved_series(sources, cache, ids=("treasury_yield_curve", "fred_dgs10"), role_prefixes=("us_10y_yield",), field_keys=("us10y",))
     rows: list[dict[str, Any]] = []
+    hstech_launch = require_date(sources.get("yahoo_hstech", {}).get("startDate", "2020-07-27"), "HSTECH launch date")
+    hstech_prelaunch_rows = sum(1 for date_value in hstech if date_value < hstech_launch)
     for object_id, object_kind, series in (("hsi", "index", hsi), ("hstech", "index", hstech)):
         if object_id == "hstech":
-            launch = require_date(sources["yahoo_hstech"].get("startDate", "2020-07-27"), "HSTECH launch date")
-            series = {date_value: value for date_value, value in series.items() if date_value >= launch}
+            series = {date_value: value for date_value, value in series.items() if date_value >= hstech_launch}
         object_rows = derive_price_rows("HK", object_id, object_kind, series, hsi if object_id != "hsi" else None)
         for row in object_rows:
             add_exact_macro(row, "hibor_overnight", hibor_overnight)
@@ -505,27 +634,56 @@ def build_hk_panels(sources: dict[str, dict[str, Any]], cache: Path) -> tuple[li
                 if row["us10y_change_1d"] is not None and row["us2y_change_1d"] is not None
                 else None
             )
+            row["hk_liquidity_overnight"] = liquidity_overnight.get(str(row["date"]))
+            row["hk_liquidity_1m"] = liquidity_1m.get(str(row["date"]))
+            row["hk_liquidity_opening_balance"] = liquidity_opening.get(str(row["date"]))
+            row["hk_liquidity_closing_balance"] = liquidity_closing.get(str(row["date"]))
+            row["hk_liquidity_twi"] = liquidity_twi.get(str(row["date"]))
         rows.extend(object_rows)
+    hsi_status = source_quality(source_by_id(sources, hsi_source_id), cache, hsi)
+    hstech_status = source_quality(source_by_id(sources, hstech_source_id), cache, hstech)
+    hibor_endpoint = source_by_id(sources, "hkma_hibor_fixing_chunked") or source_by_id(sources, "hkma_hibor_fixing")
+    liquidity_status = source_quality(source_by_id(sources, liquidity_source_id), cache, liquidity_overnight)
+    macro_status = "ready" if all((hibor_endpoint and payload_path(cache, str(hibor_endpoint["id"])), liquidity_status == "ready", usd_hkd, us2y, us10y)) else "partial"
+    dataset_status = "ready" if hsi_status == "ready" and hstech_status == "ready" and macro_status == "ready" else "partial" if hsi or hstech else "unavailable"
     statuses = {
-        "hsi": "ready" if any(row["objectId"] == "hsi" for row in rows) else "unavailable",
-        "hstech": "ready" if any(row["objectId"] == "hstech" for row in rows) else "unavailable",
+        "hsi": hsi_status,
+        "hstech": hstech_status,
         "hk_innovative_drug": "unavailable",
         "hk_tech_internet": "unavailable",
     }
     return rows, {
         "market": "HK",
         "objects": statuses,
+        "datasetStatus": dataset_status,
+        "macroStatus": macro_status,
+        "hstechHistoryFilter": {"launchDate": hstech_launch, "rawRows": len(hstech), "droppedPreLaunchRows": hstech_prelaunch_rows, "rule": "retain actual observations on or after launch date only"},
+        "macroResolution": {
+            "hiborEndpointStatus": source_quality(hibor_endpoint, cache, load_series(hibor_endpoint, cache, field_keys=("ir_overnight", "hibor_overnight"))) if hibor_endpoint else "unavailable",
+            "hiborFeatureSource": hibor_source_id,
+            "hibor1mFeatureSource": hibor_1m_source_id,
+            "liquiditySource": liquidity_source_id,
+            "usdHkdSource": usd_hkd_source_id,
+            "us2ySource": us2y_source_id,
+            "us10ySource": us10y_source_id,
+        },
+        "crossChecks": {
+            "us2y": crosscheck_series(us2y, us2y_source_id, source_by_id(sources, "fred_dgs2"), cache, ("us2y",)),
+            "us10y": crosscheck_series(us10y, us10y_source_id, source_by_id(sources, "fred_dgs10"), cache, ("us10y",)),
+            "usdHkd": crosscheck_series(usd_hkd, usd_hkd_source_id, source_by_id(sources, "fred_dexhkus"), cache),
+        },
         "themeUnavailableReason": "合法、稳定、可追溯的主题历史未包含在冻结来源清单中；不静默替换为代理。",
-        "featureSources": ["yahoo_hsi", "yahoo_hstech", "hkma_hibor_fixing", "hkma_interbank_liquidity", "fred_dexhkus", "fred_dgs2", "fred_dgs10"],
+        "featureSources": sorted({source_id for source_id in (hsi_source_id, hstech_source_id, hibor_source_id, hibor_1m_source_id, liquidity_source_id, usd_hkd_source_id, us2y_source_id, us10y_source_id) if source_id}),
+        "crossCheckSources": [source_id for source_id in ("fred_dgs2", "fred_dgs10", "fred_dexhkus") if source_id in sources],
     }
 
 
 def build_us_panels(sources: dict[str, dict[str, Any]], cache: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    nasdaq = load_series(sources["fred_nasdaqcom"], cache)
-    sox = load_series(sources["yahoo_sox"], cache)
-    us2y = load_series(sources["fred_dgs2"], cache)
-    us10y = load_series(sources["fred_dgs10"], cache)
-    vix = load_series(sources["cboe_vix"], cache, field_keys=("close", "vix", "value"))
+    nasdaq, nasdaq_source_id = resolved_series(sources, cache, ids=("yahoo_nasdaq_composite", "fred_nasdaqcom"), role_prefixes=("nasdaq_composite",), field_keys=())
+    sox, sox_source_id = resolved_series(sources, cache, ids=("yahoo_sox",), role_prefixes=("sox_ohlcv",), field_keys=())
+    us2y, us2y_source_id = resolved_series(sources, cache, ids=("treasury_yield_curve", "fred_dgs2"), role_prefixes=("us_2y_yield",), field_keys=("us2y",))
+    us10y, us10y_source_id = resolved_series(sources, cache, ids=("treasury_yield_curve", "fred_dgs10"), role_prefixes=("us_10y_yield",), field_keys=("us10y",))
+    vix, vix_source_id = resolved_series(sources, cache, ids=("cboe_vix",), role_prefixes=("vix_close",), field_keys=("close", "vix", "value"))
     rows = derive_price_rows("US_NASDAQ", "nasdaq_composite", "index", nasdaq)
     for row in rows:
         add_exact_macro(row, "us2y", us2y)
@@ -549,10 +707,20 @@ def build_us_panels(sources: dict[str, dict[str, Any]], cache: Path) -> tuple[li
             if sox_current is not None and sox_previous and nasdaq_return is not None
             else None
         )
+    nasdaq_status = source_quality(source_by_id(sources, nasdaq_source_id), cache, nasdaq)
+    macro_status = "ready" if all((us2y, us10y, vix, sox)) else "partial"
+    dataset_status = "ready" if nasdaq_status == "ready" and macro_status == "ready" else "partial" if rows else "unavailable"
     return rows, {
         "market": "US_NASDAQ",
-        "objects": {"nasdaq_composite": "ready" if rows else "unavailable"},
-        "featureSources": ["fred_nasdaqcom", "fred_dgs2", "fred_dgs10", "cboe_vix", "yahoo_sox"],
+        "objects": {"nasdaq_composite": nasdaq_status},
+        "datasetStatus": dataset_status,
+        "macroStatus": macro_status,
+        "crossChecks": {
+            "us2y": crosscheck_series(us2y, us2y_source_id, source_by_id(sources, "fred_dgs2"), cache, ("us2y",)),
+            "us10y": crosscheck_series(us10y, us10y_source_id, source_by_id(sources, "fred_dgs10"), cache, ("us10y",)),
+        },
+        "featureSources": sorted({source_id for source_id in (nasdaq_source_id, us2y_source_id, us10y_source_id, vix_source_id, sox_source_id) if source_id}),
+        "crossCheckSources": [source_id for source_id in ("fred_dgs2", "fred_dgs10") if source_id in sources],
     }
 
 
@@ -639,6 +807,7 @@ def build_manifest(
     panel_path: Path,
     object_status: dict[str, str],
     notes: list[str],
+    dataset_status: str | None = None,
 ) -> dict[str, Any]:
     panel_csv = serialize_panel(rows, market)
     panel_gzip = gzip_bytes(panel_csv)
@@ -663,10 +832,11 @@ def build_manifest(
     }
     normalized_identity_sha = sha256_bytes(canonical_json(normalized_identity))
     dataset_id = f"{market.lower().replace('_', '-')}-panel-{normalized_identity_sha[:12]}" if rows else None
+    resolved_status = dataset_status or ("ready" if rows else "unavailable")
     return {
         "schemaVersion": MANIFEST_SCHEMA,
         "market": market,
-        "status": "ready" if rows else "unavailable",
+        "status": resolved_status,
         "datasetId": dataset_id,
         "rawSnapshotIdentitySha256": raw_identity_sha,
         "rawSnapshotIdentity": raw_lineage_value,
@@ -867,15 +1037,34 @@ def usable_features(rows: list[dict[str, Any]], requested: tuple[str, ...]) -> t
     return tuple(available), excluded
 
 
-def model_card(market: str, object_id: str, object_status: str, dataset: dict[str, Any], evaluation: dict[str, Any] | None, features: tuple[str, ...], reason: str | None = None) -> dict[str, Any]:
+def model_card(
+    market: str,
+    object_id: str,
+    object_status: str,
+    dataset: dict[str, Any],
+    evaluation: dict[str, Any] | None,
+    features: tuple[str, ...],
+    reason: str | None = None,
+    horizon: int | None = None,
+) -> dict[str, Any]:
     metrics = evaluation.get("metrics", {}) if evaluation else {}
     trained = bool(evaluation and evaluation.get("oosWindowCount", 0) >= 3 and evaluation.get("oosSampleCount", 0) >= 100)
+    availability = "trained" if trained else "insufficient_data" if evaluation else "not_trained"
+    default_reason = (
+        "US Nasdaq object has no sufficient legal panel; remain unavailable without theme-object substitution."
+        if market == "US_NASDAQ"
+        else "HK object has no sufficient legal panel; remain unavailable without theme-object substitution."
+        if market == "HK"
+        else "不足以形成三个有效 OOS fold；保持 abstained。"
+    )
     return {
         "schemaVersion": "three-market-model-card-v1",
         "market": market,
         "objectId": object_id,
         "datasetId": dataset.get("datasetId"),
         "datasetStatus": dataset.get("status"),
+        "objectDatasetStatus": object_status,
+        "horizon": horizon,
         "featureSetId": f"{market.lower()}-prior-only-v1",
         "featureSchemaVersion": FEATURE_SCHEMA,
         "modelVersion": f"{market.lower()}-regularized-logistic-shadow-v1",
@@ -896,7 +1085,7 @@ def model_card(market: str, object_id: str, object_status: str, dataset: dict[st
         "excludedAllNullFeatures": evaluation.get("excludedAllNullFeatures", []) if evaluation else list(features),
         "featureMissingRates": evaluation.get("featureMissingRates", {}) if evaluation else {},
         "labelHorizons": list(HORIZONS),
-        "modelAvailability": "trained" if trained else "not_trained",
+        "modelAvailability": availability,
         "publicationStatus": "abstained" if trained else "insufficient_data",
         "outputMode": "none",
         "calibrationStatus": "disabled" if evaluation else "not_applicable",
@@ -904,7 +1093,7 @@ def model_card(market: str, object_id: str, object_status: str, dataset: dict[st
         "probabilityTarget": "none",
         "candidateStatus": "shadow",
         "promotionRecommendation": "keep-shadow",
-        "reason": reason or ("OOS model trained for research only; no public probability." if trained else "不足以形成三个有效 OOS fold；保持 abstained。"),
+        "reason": reason or ("OOS model trained for research only; no public probability." if trained else default_reason),
         "productionBoundary": {"contentWritten": False, "predictionLedgerWritten": False, "productionModelWritten": False, "probabilityPublished": False, "championReplaced": False},
     }
 
@@ -1001,10 +1190,130 @@ def a_share_manifest(dataset: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def metric_snapshot(value: dict[str, Any] | None) -> dict[str, Any]:
+    value = value or {}
+    return {
+        "sampleCount": value.get("observations"),
+        "dates": value.get("dates"),
+        "brier": value.get("brier"),
+        "baselineBrier": value.get("baselineBrier"),
+        "brierSkill": value.get("brierSkill"),
+        "logLoss": value.get("logLoss"),
+        "auc": value.get("rocAuc"),
+        "probabilityDispersion": value.get("crossSectionProbabilityStd"),
+    }
+
+
+def a_share_research_summary(research_output: Path | None) -> dict[str, Any]:
+    if research_output is None or not (research_output / "TRAINING_RUN.json").is_file():
+        return {
+            "status": "not_run",
+            "championModelVersion": None,
+            "challengerModelVersion": None,
+            "horizonMetrics": {},
+            "gateResults": {},
+            "reason": "A 股 challenger 研究输出未完成。",
+        }
+    training_run = read_json(research_output / "TRAINING_RUN.json")
+    decision = read_json(research_output / "PROMOTION_DECISION.json") if (research_output / "PROMOTION_DECISION.json").is_file() else {}
+    candidate_table = read_json(research_output / "CANDIDATE_TABLE.json") if (research_output / "CANDIDATE_TABLE.json").is_file() else {}
+    if training_run.get("trainingExecuted") is not True:
+        return {
+            "status": "not_run",
+            "championModelVersion": None,
+            "challengerModelVersion": None,
+            "horizonMetrics": {},
+            "gateResults": decision.get("horizonGates", {}),
+            "reason": "A 股 challenger 训练未执行。",
+        }
+    champion_id = str(candidate_table.get("championCandidateId") or training_run.get("championReplay", {}).get("championCandidateId") or "")
+    challenger_id = str(candidate_table.get("recommendedCandidateId") or training_run.get("recommendedCandidateId") or decision.get("recommendedChallengerId") or "")
+    candidate_metrics: dict[str, dict[str, Any]] = {}
+    for label, candidate_id in (("champion", champion_id), ("challenger", challenger_id)):
+        path = research_output / "metrics" / f"{candidate_id}.json"
+        candidate_metrics[label] = read_json(path) if candidate_id and path.is_file() else {}
+    horizon_metrics: dict[str, Any] = {}
+    for horizon in HORIZONS:
+        horizon_key = str(horizon)
+        target_metrics: dict[str, Any] = {}
+        for target in ("absoluteUp", "outperformance", "topQuartile"):
+            target_entry: dict[str, Any] = {}
+            for label in ("champion", "challenger"):
+                entry = candidate_metrics[label].get("horizons", {}).get(horizon_key, {})
+                selection = entry.get("selectionEvaluation", {})
+                holdout = entry.get("holdoutEvaluation", {})
+                target_entry[label] = {
+                    "selection": metric_snapshot(selection.get("probabilityMetrics", {}).get(target)),
+                    "holdout": metric_snapshot(holdout.get("probabilityMetrics", {}).get(target)),
+                }
+            target_metrics[target] = target_entry
+        champion_entry = candidate_metrics["champion"].get("horizons", {}).get(horizon_key, {})
+        challenger_entry = candidate_metrics["challenger"].get("horizons", {}).get(horizon_key, {})
+        champion_selection = champion_entry.get("selectionEvaluation", {})
+        challenger_selection = challenger_entry.get("selectionEvaluation", {})
+        champion_holdout = champion_entry.get("holdoutEvaluation", {})
+        challenger_holdout = challenger_entry.get("holdoutEvaluation", {})
+        horizon_metrics[horizon_key] = {
+            "targets": target_metrics,
+            "oosSampleCount": {
+                "champion": {
+                    "selection": champion_selection.get("observations"),
+                    "holdout": champion_holdout.get("observations"),
+                },
+                "challenger": {
+                    "selection": challenger_selection.get("observations"),
+                    "holdout": challenger_holdout.get("observations"),
+                },
+            },
+            "foldCount": {
+                "selection": len(champion_selection.get("rankingReturnMetrics", {}).get("blocks", [])),
+                "holdout": len(champion_holdout.get("rankingReturnMetrics", {}).get("blocks", [])),
+            },
+            "gate": decision.get("horizonGates", {}).get(horizon_key, {}),
+            "comparison": {
+                "championAfterCostSpread": champion_selection.get("rankingReturnMetrics", {}).get("afterCostSpread"),
+                "challengerAfterCostSpread": challenger_selection.get("rankingReturnMetrics", {}).get("afterCostSpread"),
+                "championRankIc": champion_selection.get("rankingReturnMetrics", {}).get("rankIc"),
+                "challengerRankIc": challenger_selection.get("rankingReturnMetrics", {}).get("rankIc"),
+                "championTopQuartileBrier": metric_snapshot(champion_selection.get("probabilityMetrics", {}).get("topQuartile")).get("brier"),
+                "challengerTopQuartileBrier": metric_snapshot(challenger_selection.get("probabilityMetrics", {}).get("topQuartile")).get("brier"),
+            },
+        }
+    gate_failures = []
+    for horizon, gates in decision.get("horizonGates", {}).items():
+        for gate, passed in gates.items():
+            if passed is False:
+                gate_failures.append(f"h{horizon}:{gate}")
+    champion_versions = {
+        "a-share-up-probability-v1": "2026-07-20-probability-v1",
+        "a-share-relative-probability-v2": "2026-07-21-relative-v2",
+    }
+    return {
+        "status": "compared",
+        "championCandidateId": champion_id,
+        "challengerCandidateId": challenger_id,
+        "championModelVersion": champion_versions,
+        "challengerModelVersion": f"a-share-research-candidate-{challenger_id}" if challenger_id else None,
+        "horizonMetrics": horizon_metrics,
+        "gateResults": decision.get("horizonGates", {}),
+        "foldCount": {horizon: item["foldCount"] for horizon, item in horizon_metrics.items()},
+        "promotionDecision": decision.get("decision", training_run.get("promotionDecision", "keep-champion")),
+        "exactChampionReplayPassed": decision.get("exactChampionReplayPassed"),
+        "statisticalNonInferiorityPassed": decision.get("statisticalNonInferiorityPassed"),
+        "gateFailures": gate_failures,
+        "reason": (
+            f"keep-champion: exactChampionReplayPassed={decision.get('exactChampionReplayPassed')}; "
+            f"statisticalNonInferiorityPassed={decision.get('statisticalNonInferiorityPassed')}; "
+            f"failedGates={','.join(gate_failures) or 'none'}; challenger remains shadow and production champion is preserved."
+        ),
+    }
+
+
 def a_share_model_card(research_output: Path | None, dataset: dict[str, Any]) -> dict[str, Any]:
     training_run = read_json(research_output / "TRAINING_RUN.json") if research_output and (research_output / "TRAINING_RUN.json").is_file() else {}
     decision = read_json(research_output / "PROMOTION_DECISION.json") if research_output and (research_output / "PROMOTION_DECISION.json").is_file() else {}
     trained = training_run.get("trainingExecuted") is True
+    comparison = a_share_research_summary(research_output)
     return {
         "schemaVersion": "three-market-model-card-v1",
         "market": "A_SHARE",
@@ -1012,18 +1321,23 @@ def a_share_model_card(research_output: Path | None, dataset: dict[str, Any]) ->
         "datasetId": dataset.get("datasetId"),
         "datasetStatus": dataset.get("status"),
         "featureSetId": "a-share-existing-contract-v2",
-        "modelVersion": "a-share-challenger-research-v1" if trained else "a-share-challenger-not-run",
+        "modelVersion": comparison.get("challengerModelVersion") or ("a-share-challenger-not-run" if not trained else "a-share-challenger-research-v1"),
+        "championModelVersion": comparison.get("championModelVersion"),
+        "challengerModelVersion": comparison.get("challengerModelVersion"),
         "modelAvailability": "trained" if trained else "not_trained",
         "publicationStatus": "abstained",
         "outputMode": "none",
         "candidateStatus": "shadow",
         "promotionRecommendation": decision.get("decision", "keep-champion"),
         "candidateCount": training_run.get("candidateCount", 0),
-        "oosWindowCount": 3 if trained else 0,
+        "oosWindowCount": max((item.get("foldCount", {}).get("holdout", 0) for item in comparison.get("horizonMetrics", {}).values()), default=0),
+        "horizonMetrics": comparison.get("horizonMetrics", {}),
+        "gateResults": comparison.get("gateResults", decision.get("horizonGates", {})),
+        "oosComparison": comparison,
         "productionChampionPreserved": True,
         "productionBoundary": {"contentWritten": False, "predictionLedgerWritten": False, "productionModelWritten": False, "probabilityPublished": False, "championReplaced": False},
         "researchOutputPath": str(research_output) if research_output else None,
-        "reason": "A 股 challenger 只生成 promotion recommendation；当前 champion 不自动替换。" if trained else "A 股 challenger 研究输出未完成。",
+        "reason": comparison.get("reason") if trained else "A 股 challenger 研究输出未完成。",
     }
 
 
@@ -1060,9 +1374,23 @@ def run_pipeline(cache: Path, source_manifest_path: Path, output: Path, private_
             notes.append("no non-null price rows were available from the frozen sources")
         if market == "HK":
             notes.append("theme objects remain unavailable because no legal stable history was in the frozen source manifest")
-        dataset_manifest = build_manifest(market, rows, source_ids, sources, cache, panel_path, object_status, notes)
+            if market_meta[market].get("macroStatus") != "ready":
+                notes.append("HK macro coverage is partial; unavailable direct HIBOR remains null and no zero-fill is applied")
+        if market == "US_NASDAQ" and market_meta[market].get("macroStatus") != "ready":
+            notes.append("US required macro feature coverage is partial; missing values remain null")
+        dataset_manifest = build_manifest(
+            market,
+            rows,
+            source_ids,
+            sources,
+            cache,
+            panel_path,
+            object_status,
+            notes,
+            market_meta[market].get("datasetStatus"),
+        )
         dataset_manifests[market] = dataset_manifest
-        datasets[market] = {"market": market, "status": dataset_manifest["status"], "datasetId": dataset_manifest["datasetId"], "panelSha256": dataset_manifest["panel"]["sha256"], **panel_statistics(rows), "objects": object_status}
+        datasets[market] = {"market": market, "status": dataset_manifest["status"], "datasetId": dataset_manifest["datasetId"], "panelSha256": dataset_manifest["panel"]["sha256"], **panel_statistics(rows), "objects": object_status, "macroStatus": market_meta[market].get("macroStatus")}
         requested_features = tuple(HK_FEATURES if market == "HK" else US_FEATURES)
         for object_id, status in sorted(object_status.items()):
             object_rows = [row for row in rows if row["objectId"] == object_id]
@@ -1070,18 +1398,36 @@ def run_pipeline(cache: Path, source_manifest_path: Path, output: Path, private_
             for horizon in HORIZONS:
                 key = f"{market}/{object_id}/{horizon}"
                 if status != "ready" or not object_rows:
-                    evaluations[key] = {"market": market, "objectId": object_id, "horizon": horizon, "status": "unavailable", "reason": "object has no legal non-empty panel", "oosWindowCount": 0, "oosSampleCount": 0, "metrics": {}, "featuresUsed": list(features), "excludedAllNullFeatures": excluded_features}
-                    cards[f"{market}_{object_id}_{horizon}"] = model_card(market, object_id, status, dataset_manifest, None, features, "主题对象没有合法稳定的历史 panel；保持 unavailable，不静默替代。")
+                    reason = (
+                        "US Nasdaq object panel is partial or unavailable; keep shadow without publishing a probability."
+                        if market == "US_NASDAQ"
+                        else "HK object panel is partial or unavailable; keep shadow without substituting an unmarked proxy."
+                    )
+                    blocked_status = "insufficient-data" if object_rows else "unavailable"
+                    blocked_evaluation = {"market": market, "objectId": object_id, "horizon": horizon, "status": blocked_status, "reason": reason, "oosWindowCount": 0, "oosSampleCount": 0, "metrics": {}, "featuresUsed": list(features), "excludedAllNullFeatures": excluded_features}
+                    evaluations[key] = blocked_evaluation
+                    cards[f"{market}_{object_id}_{horizon}"] = model_card(market, object_id, status, dataset_manifest, blocked_evaluation if object_rows else None, features, reason, horizon)
                     continue
                 evaluation = oos_evaluate(object_rows, features, horizon) if features else {"oosWindowCount": 0, "oosSampleCount": 0, "metrics": {}, "coverage": 0.0, "abstentionRate": 1.0, "folds": [], "featureMissingRates": {}, "zeroVarianceFeatures": [], "strictOos": True, "calibrationStatus": "not_applicable"}
                 evaluation["featuresUsed"] = list(features)
                 evaluation["excludedAllNullFeatures"] = excluded_features
                 evaluation.update({"market": market, "objectId": object_id, "horizon": horizon, "status": "trained" if evaluation["oosWindowCount"] >= 3 and evaluation["oosSampleCount"] >= 100 else "insufficient-data"})
                 evaluations[key] = evaluation
-                cards[f"{market}_{object_id}_{horizon}"] = model_card(market, object_id, status, dataset_manifest, evaluation, features)
+                cards[f"{market}_{object_id}_{horizon}"] = model_card(market, object_id, status, dataset_manifest, evaluation, features, horizon=horizon)
     datasets["A_SHARE"] = a_share_dataset()
     dataset_manifests["A_SHARE"] = a_share_manifest(datasets["A_SHARE"])
     cards["A_SHARE_a-share-sector-rotation"] = a_share_model_card(a_research_output, datasets["A_SHARE"])
+    evaluations["A_SHARE/a-share-sector-rotation"] = {
+        "market": "A_SHARE",
+        "objectId": "a-share-sector-rotation",
+        "status": cards["A_SHARE_a-share-sector-rotation"].get("oosComparison", {}).get("status", "not_run"),
+        "modelVersion": cards["A_SHARE_a-share-sector-rotation"].get("modelVersion"),
+        "championModelVersion": cards["A_SHARE_a-share-sector-rotation"].get("championModelVersion"),
+        "challengerModelVersion": cards["A_SHARE_a-share-sector-rotation"].get("challengerModelVersion"),
+        "horizonMetrics": cards["A_SHARE_a-share-sector-rotation"].get("horizonMetrics", {}),
+        "gateResults": cards["A_SHARE_a-share-sector-rotation"].get("gateResults", {}),
+        "reason": cards["A_SHARE_a-share-sector-rotation"].get("reason"),
+    }
     before = production_boundary()
     output.mkdir(parents=True, exist_ok=True)
     write_json(output / "DATA_INVENTORY.json", {
@@ -1096,11 +1442,12 @@ def run_pipeline(cache: Path, source_manifest_path: Path, output: Path, private_
     write_json(output / "SOURCE_AUDIT.json", source_audit_payload)
     write_json(output / "FEATURE_SETS.json", feature_sets)
     write_json(output / "OOS_METRICS.json", {"schemaVersion": "three-market-oos-metrics-v1", "strictOos": True, "markets": evaluations})
+    a_share_card = cards["A_SHARE_a-share-sector-rotation"]
     write_json(output / "GATE_RESULTS.json", {
         "schemaVersion": "three-market-gate-results-v1",
-        "A_SHARE": {"decision": cards["A_SHARE_a-share-sector-rotation"]["promotionRecommendation"], "productionReplacement": False, "productionChampionPreserved": True},
-        "HK": {"decision": "keep-shadow", "publicationStatus": "abstained", "objectStatuses": hk_meta["objects"]},
-        "US_NASDAQ": {"decision": "keep-shadow", "publicationStatus": "abstained", "objectStatuses": us_meta["objects"]},
+        "A_SHARE": {"decision": a_share_card["promotionRecommendation"], "productionReplacement": False, "productionChampionPreserved": True, "championModelVersion": a_share_card.get("championModelVersion"), "challengerModelVersion": a_share_card.get("challengerModelVersion"), "horizonGates": a_share_card.get("gateResults", {}), "comparison": a_share_card.get("oosComparison", {})},
+        "HK": {"decision": "keep-shadow", "publicationStatus": "abstained", "datasetStatus": hk_meta.get("datasetStatus"), "macroStatus": hk_meta.get("macroStatus"), "objectStatuses": hk_meta["objects"]},
+        "US_NASDAQ": {"decision": "keep-shadow", "publicationStatus": "abstained", "datasetStatus": us_meta.get("datasetStatus"), "macroStatus": us_meta.get("macroStatus"), "objectStatuses": us_meta["objects"]},
         "global": {"probabilitiesPublished": False, "predictionLedgerAppended": False, "contentWritten": False, "uiChanged": False, "automationChanged": False},
     })
     write_json(output / "LEDGER_DRY_RUN.json", {
@@ -1163,9 +1510,21 @@ def validate_output(output: Path) -> dict[str, Any]:
         if normalized_sha and sha256_bytes(canonical_json(manifest.get("normalizedPanelIdentity"))) != normalized_sha:
             raise ThreeMarketError(f"dataset manifest identity mismatch: {path}")
         private_path = Path(manifest.get("panel", {}).get("privatePath", ""))
-        if manifest.get("status") == "ready":
+        objects = manifest.get("objects", [])
+        object_ids = [item.get("objectId") for item in objects if isinstance(item, dict)]
+        if len(object_ids) != len(set(object_ids)):
+            raise ThreeMarketError(f"dataset manifest duplicate object: {path}")
+        if manifest.get("status") == "ready" and any(item.get("status") != "ready" for item in objects if isinstance(item, dict)):
+            raise ThreeMarketError(f"dataset manifest ready/object status contradiction: {path}")
+        if manifest.get("status") in {"ready", "partial"} and manifest.get("panel", {}).get("rows", 0) > 0:
             if not private_path.is_file() or sha256_path(private_path) != manifest.get("panel", {}).get("sha256"):
                 raise ThreeMarketError(f"private panel hash mismatch: {path}")
+    for item in source_audit.get("sources", []):
+        if item.get("status") == "ready" and item.get("packageValidationStatus") in {"failed", "partial"}:
+            raise ThreeMarketError(f"source validation contradiction: {item.get('sourceId')}")
+    for card in cards.get("cardData", {}).values():
+        if card.get("objectDatasetStatus") == "unavailable" and card.get("modelAvailability") == "trained":
+            raise ThreeMarketError(f"unavailable object marked trained: {card.get('market')}/{card.get('objectId')}")
     return {"status": "valid", "output": str(output), "markets": list(inventory.get("markets", {})), "sourceCount": len(source_audit.get("sources", [])), "metricCount": len(metrics.get("markets", {})), "modelCardCount": len(cards.get("cards", []))}
 
 

@@ -83,7 +83,6 @@ def git_output(worktree: Path, *args: str) -> str:
 
 
 def build_result(run: dict[str, Any], source_audit: dict[str, Any], cards: dict[str, Any], branch: str, head: str, pr_url: str, tests: dict[str, str]) -> str:
-    ready = [item for item in source_audit.get("sources", []) if item.get("status") == "ready"]
     lines = [
         "# 阶段二综合 Review 结果",
         "",
@@ -95,15 +94,26 @@ def build_result(run: dict[str, Any], source_audit: dict[str, Any], cards: dict[
         "",
         "## 实际成功下载的数据源",
         "",
-        "| sourceId | rows | date range | raw SHA-256 |",
-        "| --- | ---: | --- | --- |",
+        "| status | sourceId | rows | date range | raw SHA-256 |",
+        "| --- | --- | ---: | --- | --- |",
     ]
-    for item in ready:
-        lines.append(f"| {item['sourceId']} | {item.get('rows', 0)} | {item.get('firstDate') or '-'} → {item.get('lastDate') or '-'} | `{item.get('rawSha256') or '-'}` |")
-    lines.extend(["", "## 市场与模型状态", "", "| market/object | dataset/model status | publication |", "| --- | --- | --- |"])
-    for key in sorted(cards):
-        card = cards[key]
-        lines.append(f"| {card.get('market')}/{card.get('objectId')} | {card.get('datasetStatus')} / {card.get('modelAvailability')} | {card.get('publicationStatus')} |")
+    for item in sorted(source_audit.get("sources", []), key=lambda value: str(value.get("sourceId"))):
+        lines.append(f"| {item.get('status') or '-'} | {item['sourceId']} | {item.get('rows', 0)} | {item.get('firstDate') or '-'} → {item.get('lastDate') or '-'} | `{item.get('rawSha256') or '-'}` |")
+    lines.extend(["", f"- requiredFailures: `{', '.join(source_audit.get('requiredFailures', [])) or 'none'}`", "", "## 市场与模型状态", "", "| market/object | horizon status | dataset status | publication |", "| --- | --- | --- | --- |"])
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+    for key, card in sorted(cards.items()):
+        grouped.setdefault((str(card.get("market")), str(card.get("objectId"))), []).append(card)
+    for (market, object_id), object_cards in sorted(grouped.items()):
+        horizon_statuses = []
+        for card in sorted(object_cards, key=lambda value: (value.get("horizon") is None, value.get("horizon") or 0)):
+            horizon = card.get("horizon")
+            if horizon is None and card.get("horizonMetrics"):
+                horizon_statuses.extend(f"h{h}:comparison" for h in sorted(card.get("horizonMetrics", {}), key=str))
+            else:
+                horizon_statuses.append(f"h{horizon or '-'}:{card.get('modelAvailability')}" )
+        dataset_statuses = sorted({str(card.get("datasetStatus")) for card in object_cards})
+        publication_statuses = sorted({str(card.get("publicationStatus")) for card in object_cards})
+        lines.append(f"| {market}/{object_id} | {'; '.join(horizon_statuses)} | {' / '.join(dataset_statuses)} | {' / '.join(publication_statuses)} |")
     lines.extend(["", "## 验证结论", ""])
     for name, status in tests.items():
         lines.append(f"- `{name}`：{status}")
@@ -163,6 +173,16 @@ def main() -> int:
         copy_file(source, args.review_dir / "DATASET_MANIFESTS" / source.name)
     for key, card in sorted(cards.items()):
         write(args.review_dir / "MODEL_CARDS" / f"{key}.json", pretty(card))
+    if args.a_research_output.is_dir():
+        for name in ("TRAINING_RUN.json", "PROMOTION_DECISION.json", "CANDIDATE_TABLE.json", "CHAMPION_VS_CHALLENGER.md"):
+            source = args.a_research_output / name
+            if source.is_file():
+                copy_file(source, args.review_dir / "A_SHARE_RESEARCH" / name)
+        candidates = cards.get("A_SHARE_a-share-sector-rotation", {}).get("oosComparison", {})
+        for label, candidate_id in (("CHAMPION", candidates.get("championCandidateId")), ("CHALLENGER", candidates.get("challengerCandidateId"))):
+            source = args.a_research_output / "metrics" / f"{candidate_id}.json" if candidate_id else None
+            if source and source.is_file():
+                copy_file(source, args.review_dir / "A_SHARE_RESEARCH" / f"{label}_METRICS.json")
     changed = git_output(args.worktree, "diff", "--name-status", BASELINE, "HEAD")
     diff = git_output(args.worktree, "diff", "--binary", BASELINE, "HEAD")
     write(args.review_dir / "CHANGED_FILES.txt", changed.encode("utf-8"))
@@ -170,6 +190,11 @@ def main() -> int:
     write(args.review_dir / "AUDIT.md", (Path(args.worktree) / "AUDIT.md").read_bytes())
     tests = {"targeted three-market tests": "passed", "A-share model-research train/evaluate": "passed (keep-champion, production boundary invariant)", "three-market artifact validation": "passed", "pnpm typecheck": args.typecheck_status, "pnpm check": args.check_status, "pnpm build": args.build_status}
     write(args.review_dir / "TESTS.txt", ("\n".join(f"{name}: {status}" for name, status in tests.items()) + "\n").encode("utf-8"))
+    all_cards = list(cards.values())
+    all_evaluations = json.loads((args.run_output / "OOS_METRICS.json").read_text(encoding="utf-8")).get("markets", {})
+    all_trained = bool(all_cards) and all(card.get("modelAvailability") == "trained" for card in all_cards if card.get("market") != "A_SHARE")
+    oos_complete = bool(all_evaluations) and all(item.get("status") == "trained" or item.get("market") == "A_SHARE" for item in all_evaluations.values())
+    market_statuses = {market: item.get("status") for market, item in inventory.get("markets", {}).items()}
     todo = {
         "schemaVersion": "guanchao-stage2-todo-status-v1",
         "baseline": BASELINE,
@@ -178,11 +203,11 @@ def main() -> int:
         "status": "partial-data-gated",
         "steps": [
             {"id": 1, "status": "completed", "note": "frozen baseline, isolated worktree, audit"},
-            {"id": 2, "status": "completed", "note": "A-share projection plus HK/US unified manifest; HK HSI non-empty, unavailable objects explicit"},
+            {"id": 2, "status": "completed", "note": f"A-share projection plus HK/US unified manifest; dataset statuses={market_statuses}"},
             {"id": 3, "status": "completed", "note": "private cache consumed; source failures retained"},
-            {"id": 4, "status": "partial", "note": "price features and labels derived; unavailable macro groups remain null"},
-            {"id": 5, "status": "partial", "note": "A-share challenger trained; HK HSI shadow trained; US/NASDAQ blocked by unavailable required history"},
-            {"id": 6, "status": "partial", "note": "HK HSI strict OOS completed; unavailable objects have no OOS metrics"},
+            {"id": 4, "status": "completed" if all(value in {"ready", "unavailable"} for value in market_statuses.values()) else "partial", "note": "prior-only features and independent 1/5/20 labels derived; missing macro values remain null"},
+            {"id": 5, "status": "completed" if all_trained else "partial", "note": "A-share comparison and available HK/US shadow objects evaluated; insufficient objects remain abstained"},
+            {"id": 6, "status": "completed" if oos_complete else "partial", "note": "purged expanding walk-forward with horizon embargo recorded per fold"},
             {"id": 7, "status": "completed", "note": "model cards and publication abstention boundaries generated"},
             {"id": 8, "status": "completed", "note": "targeted validation and requested repository checks recorded in TESTS.txt"},
             {"id": 9, "status": "completed", "note": "docs updated; no article/UI/Writer/automation changes"},

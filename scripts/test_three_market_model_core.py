@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import csv
+import json
 import tempfile
 import unittest
 from datetime import date, timedelta
@@ -20,6 +22,7 @@ from three_market_model_core import (
     sha256_bytes,
     write_immutable,
 )
+from validate_three_market_sources import validate_source
 
 
 class ThreeMarketCoreTests(unittest.TestCase):
@@ -67,6 +70,24 @@ class ThreeMarketCoreTests(unittest.TestCase):
 
     def test_deterministic_gzip(self) -> None:
         self.assertEqual(gzip_bytes(b"abc"), gzip_bytes(b"abc"))
+
+    def test_source_validator_ignores_meta_and_normalizes_cboe_dates(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            folder = root / "raw" / "cboe_vix"
+            folder.mkdir(parents=True)
+            (folder / "meta.json").write_text(json.dumps({"sourceId": "cboe_vix", "rows": 0}), encoding="utf-8")
+            with (folder / "payload.csv").open("w", encoding="utf-8", newline="") as handle:
+                writer = csv.DictWriter(handle, fieldnames=["DATE", "CLOSE"])
+                writer.writeheader()
+                writer.writerow({"DATE": "12/31/2025", "CLOSE": "14.55"})
+                writer.writerow({"DATE": "01/02/2026", "CLOSE": "13.93"})
+            result = validate_source({"id": "cboe_vix", "required": True, "expectedMinRows": 2}, root)
+            self.assertEqual(result["status"], "ready")
+            self.assertEqual(result["rows"], 2)
+            self.assertEqual(result["firstDate"], "2025-12-31")
+            self.assertEqual(result["lastDate"], "2026-01-02")
+            self.assertEqual(result["duplicateDates"], 0)
 
 
 if __name__ == "__main__":

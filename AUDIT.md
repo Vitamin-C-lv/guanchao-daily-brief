@@ -3,8 +3,9 @@
 - 冻结基线：`main@9c8869fc3193a57e83ce46bde40c96c3aba8af41`
 - 隔离 worktree：`D:\Guanchao-Workspace\worktrees\active\stage2-three-market-model-core`
 - 分支：`feature/stage2-three-market-model-core`
-- 附件 ZIP SHA-256：`be72983b1684ae53417faf578ceab82099f95ed6703353431ac6e5736afb96d0`
-- 数据来源清单 SHA-256：`8a84b10878f603e697b368d6c9f36ff0507675f30525f97cc03397fc5015f0ed`；未重新搜索或替换供应商。
+- 原阶段包 ZIP SHA-256：`be72983b1684ae53417faf578ceab82099f95ed6703353431ac6e5736afb96d0`
+- 集中修复包 ZIP SHA-256：`11d114d1cacd3d31bd5ed36323abe2221e90d986c41c729ab4000f2ce64c942`
+- 修复后 source resolution SHA-256：`f2d82bb63ecd923ce3f7a2a56c190af253b8982b9950903c19251e0c509ecf15`；未重新搜索或替换供应商。
 
 ## 实施边界
 
@@ -14,6 +15,6 @@ A 股复用现有 dataset contract 和 model-research 入口，仅生成 challen
 
 ## 当前采集事实
 
-本次冻结清单中 FRED 与 HKMA required endpoints 分别出现 read-timeout/502，Yahoo HSTECH 返回 404；这些失败保留为真实 `unavailable`。Cboe VIX、Yahoo HSI、Yahoo SOX 及 A 股交叉验证源成功落盘；附件自带 validation 脚本对 JSON 的 `meta.json` 选择和 Cboe `MM/DD/YYYY` 日期存在误报，实际行数/日期范围由离线 parser 复核并在 Review ZIP 的 `SOURCE_AUDIT.json` 中同时保留。
+集中修复包的 `fetch_fallbacks.py` 已写入既有私有 cache：`^IXIC`、Treasury 官方 yearly XML、`HKD=X`、HKMA liquidity 成功；`HSTECH.HK` 只返回 1 条真实 2026-08-06 观测，HKMA HIBOR chunked 首年度请求仍为 502。FRED 2Y/10Y/HKD cross-check 未成功时不阻塞 Treasury/HKD fallback。修复后的 payload-only validator 忽略 `meta.json`，支持 ISO、`YYYY/MM/DD`、`MM/DD/YYYY`，Cboe 不再误报日期无序。
 
-本次运行态：A 股 dataset `ready`；HK dataset `ready`（仅 HSI 非空，HSTECH/两个主题 `unavailable`）；US Nasdaq dataset `unavailable`。A 股 challenger 与 HK HSI 研究模型只保留 shadow/abstained，US 不训练。
+本次运行态：A 股 dataset `ready`，champion/challenger 真实数值 OOS 比较完成并 `keep-champion`；HK dataset `partial`（HSI 1/5/20 strict OOS 完成，HSTECH 仅 1 条真实观测、1/5/20 `insufficient_data`，两个主题 `unavailable`，HIBOR direct endpoint unavailable，liquidity 已保留）；US Nasdaq dataset `ready`，Nasdaq 1/5/20 strict OOS 完成。HK/US 仍为 shadow/abstained，未发布概率。
