@@ -14,9 +14,10 @@
       "properties": {
         "recordCount": {"type": "integer", "minimum": 0}, "markets": {"type": "array", "items": {"type": "string"}},
         "modelVersions": {"type": "array", "items": {"type": "string"}},
-        "statusSummary": {"type": "object", "additionalProperties": false, "required": ["published", "abstained", "insufficient_data", "not_applicable"], "properties": {
+        "statusSummary": {"type": "object", "additionalProperties": false, "required": ["published", "abstained", "insufficient_data", "not_applicable", "unavailable"], "properties": {
           "published": {"type": "integer", "minimum": 0}, "abstained": {"type": "integer", "minimum": 0},
-          "insufficient_data": {"type": "integer", "minimum": 0}, "not_applicable": {"type": "integer", "minimum": 0}
+          "insufficient_data": {"type": "integer", "minimum": 0}, "not_applicable": {"type": "integer", "minimum": 0},
+          "unavailable": {"type": "integer", "minimum": 0}
         }},
         "legacyRecordCount": {"type": "integer", "minimum": 0}, "currentRecordCount": {"type": "integer", "minimum": 0},
         "evaluatedRecordCount": {"type": "integer", "minimum": 0}, "pendingRecordCount": {"type": "integer", "minimum": 0}

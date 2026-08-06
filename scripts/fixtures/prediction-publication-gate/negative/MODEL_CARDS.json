@@ -1,0 +1,1422 @@
+{
+  "schemaVersion": "three-market-model-cards-index-v1",
+  "cardData": {
+    "HK_hsi_1": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "disabled",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-01-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.22,
+            "brierSkill": 0.05,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-02-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.259,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-03-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.26,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-04-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.261,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-05-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.262,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        }
+      ],
+      "horizon": 1,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": 0.526,
+        "brier": 0.238,
+        "brierSkill": 0.0037,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 260,
+        "oosWindowCount": 5,
+        "predictionDispersion": 0.026
+      },
+      "modelAvailability": "trained",
+      "modelVersion": "hk-regularized-logistic-shadow-v1",
+      "objectDatasetStatus": "partial",
+      "objectId": "hsi",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hsi_5": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "disabled",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-01-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.22,
+            "brierSkill": 0.05,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-02-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.259,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-03-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.26,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-04-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.261,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-05-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.262,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        }
+      ],
+      "horizon": 5,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": 0.49,
+        "brier": 0.238,
+        "brierSkill": -0.01,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 134,
+        "oosWindowCount": 5,
+        "predictionDispersion": 0.02
+      },
+      "modelAvailability": "trained",
+      "modelVersion": "hk-regularized-logistic-shadow-v1",
+      "objectDatasetStatus": "partial",
+      "objectId": "hsi",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hsi_20": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "disabled",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-01-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.22,
+            "brierSkill": 0.05,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-02-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.259,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-03-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.26,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-04-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.261,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-05-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.262,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        }
+      ],
+      "horizon": 20,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": 0.49,
+        "brier": 0.238,
+        "brierSkill": -0.01,
+        "coverage": 0.79,
+        "logLoss": 0.66,
+        "oosSampleCount": 71,
+        "oosWindowCount": 5,
+        "predictionDispersion": 0.02
+      },
+      "modelAvailability": "trained",
+      "modelVersion": "hk-regularized-logistic-shadow-v1",
+      "objectDatasetStatus": "partial",
+      "objectId": "hsi",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hstech_1": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "not_applicable",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [],
+      "horizon": 1,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": null,
+        "brier": 0.238,
+        "brierSkill": null,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 0,
+        "oosWindowCount": 0,
+        "predictionDispersion": null
+      },
+      "modelAvailability": "not_trained",
+      "modelVersion": "not-trained-v1",
+      "objectDatasetStatus": "partial",
+      "objectId": "hstech",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "required source unavailable; keep shadow.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hstech_5": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "not_applicable",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [],
+      "horizon": 5,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": null,
+        "brier": 0.238,
+        "brierSkill": null,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 0,
+        "oosWindowCount": 0,
+        "predictionDispersion": null
+      },
+      "modelAvailability": "not_trained",
+      "modelVersion": "not-trained-v1",
+      "objectDatasetStatus": "partial",
+      "objectId": "hstech",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "required source unavailable; keep shadow.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hstech_20": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "not_applicable",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [],
+      "horizon": 20,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": null,
+        "brier": 0.238,
+        "brierSkill": null,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 0,
+        "oosWindowCount": 0,
+        "predictionDispersion": null
+      },
+      "modelAvailability": "not_trained",
+      "modelVersion": "not-trained-v1",
+      "objectDatasetStatus": "partial",
+      "objectId": "hstech",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "required source unavailable; keep shadow.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hk_innovative_drug_1": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "not_applicable",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [],
+      "horizon": 1,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": null,
+        "brier": 0.238,
+        "brierSkill": null,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 0,
+        "oosWindowCount": 0,
+        "predictionDispersion": null
+      },
+      "modelAvailability": "not_trained",
+      "modelVersion": "not-trained-v1",
+      "objectDatasetStatus": "unavailable",
+      "objectId": "hk_innovative_drug",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hk_innovative_drug_5": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "not_applicable",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [],
+      "horizon": 5,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": null,
+        "brier": 0.238,
+        "brierSkill": null,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 0,
+        "oosWindowCount": 0,
+        "predictionDispersion": null
+      },
+      "modelAvailability": "not_trained",
+      "modelVersion": "not-trained-v1",
+      "objectDatasetStatus": "unavailable",
+      "objectId": "hk_innovative_drug",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hk_innovative_drug_20": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "not_applicable",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [],
+      "horizon": 20,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": null,
+        "brier": 0.238,
+        "brierSkill": null,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 0,
+        "oosWindowCount": 0,
+        "predictionDispersion": null
+      },
+      "modelAvailability": "not_trained",
+      "modelVersion": "not-trained-v1",
+      "objectDatasetStatus": "unavailable",
+      "objectId": "hk_innovative_drug",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hk_tech_internet_1": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "not_applicable",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [],
+      "horizon": 1,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": null,
+        "brier": 0.238,
+        "brierSkill": null,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 0,
+        "oosWindowCount": 0,
+        "predictionDispersion": null
+      },
+      "modelAvailability": "not_trained",
+      "modelVersion": "not-trained-v1",
+      "objectDatasetStatus": "unavailable",
+      "objectId": "hk_tech_internet",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hk_tech_internet_5": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "not_applicable",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [],
+      "horizon": 5,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": null,
+        "brier": 0.238,
+        "brierSkill": null,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 0,
+        "oosWindowCount": 0,
+        "predictionDispersion": null
+      },
+      "modelAvailability": "not_trained",
+      "modelVersion": "not-trained-v1",
+      "objectDatasetStatus": "unavailable",
+      "objectId": "hk_tech_internet",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "HK_hk_tech_internet_20": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "not_applicable",
+      "candidateStatus": "shadow",
+      "datasetId": "hk-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [],
+      "horizon": 20,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "HK",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": null,
+        "brier": 0.238,
+        "brierSkill": null,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 0,
+        "oosWindowCount": 0,
+        "predictionDispersion": null
+      },
+      "modelAvailability": "not_trained",
+      "modelVersion": "not-trained-v1",
+      "objectDatasetStatus": "unavailable",
+      "objectId": "hk_tech_internet",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "US_NASDAQ_nasdaq_composite_1": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "disabled",
+      "candidateStatus": "shadow",
+      "datasetId": "us-nasdaq-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-01-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.22,
+            "brierSkill": 0.05,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-02-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.259,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-03-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.26,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-04-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.261,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-05-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.262,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        }
+      ],
+      "horizon": 1,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "US_NASDAQ",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": 0.49,
+        "brier": 0.238,
+        "brierSkill": -0.01,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 260,
+        "oosWindowCount": 5,
+        "predictionDispersion": 0.02
+      },
+      "modelAvailability": "trained",
+      "modelVersion": "us_nasdaq-regularized-logistic-shadow-v1",
+      "objectDatasetStatus": "partial",
+      "objectId": "nasdaq_composite",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "US_NASDAQ_nasdaq_composite_5": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "disabled",
+      "candidateStatus": "shadow",
+      "datasetId": "us-nasdaq-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-01-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.22,
+            "brierSkill": 0.05,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-02-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.259,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-03-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.26,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-04-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.261,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-05-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.262,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        }
+      ],
+      "horizon": 5,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "US_NASDAQ",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": 0.49,
+        "brier": 0.238,
+        "brierSkill": -0.01,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 134,
+        "oosWindowCount": 5,
+        "predictionDispersion": 0.02
+      },
+      "modelAvailability": "trained",
+      "modelVersion": "us_nasdaq-regularized-logistic-shadow-v1",
+      "objectDatasetStatus": "partial",
+      "objectId": "nasdaq_composite",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    },
+    "US_NASDAQ_nasdaq_composite_20": {
+      "abstentionRate": 0.05,
+      "calibrationStatus": "disabled",
+      "candidateStatus": "shadow",
+      "datasetId": "us-nasdaq-panel-fixture-0000",
+      "datasetStatus": "partial",
+      "excludedAllNullFeatures": [],
+      "featureMissingRates": {},
+      "featureSchemaVersion": "three-market-features-v1",
+      "featureSetId": "fixture-prior-only-v1",
+      "features": [],
+      "folds": [
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-01-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.22,
+            "brierSkill": 0.05,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-02-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.259,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-03-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.26,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-04-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.261,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        },
+        {
+          "embargoSessions": 1,
+          "evaluationEnd": "2026-05-28",
+          "evaluationRows": 63,
+          "evaluationStart": "2025-04-28",
+          "metrics": {
+            "auc": 0.49,
+            "baselineBrier": 0.25,
+            "brier": 0.262,
+            "brierSkill": -0.02,
+            "dispersion": 0.02,
+            "logLoss": 0.7,
+            "sampleCount": 63
+          },
+          "purgeRule": "training target session index < evaluation start index",
+          "trainingRows": 4000
+        }
+      ],
+      "horizon": 20,
+      "labelHorizons": [
+        1,
+        5,
+        20
+      ],
+      "market": "US_NASDAQ",
+      "metrics": {
+        "abstentionRate": 0.05,
+        "auc": 0.49,
+        "brier": 0.238,
+        "brierSkill": -0.01,
+        "coverage": 0.9,
+        "logLoss": 0.66,
+        "oosSampleCount": 71,
+        "oosWindowCount": 5,
+        "predictionDispersion": 0.02
+      },
+      "modelAvailability": "trained",
+      "modelVersion": "us_nasdaq-regularized-logistic-shadow-v1",
+      "objectDatasetStatus": "partial",
+      "objectId": "nasdaq_composite",
+      "outputMode": "none",
+      "probabilitySource": "none",
+      "probabilityTarget": "none",
+      "productionBoundary": {
+        "championReplaced": false,
+        "contentWritten": false,
+        "predictionLedgerWritten": false,
+        "probabilityPublished": false,
+        "productionModelWritten": false
+      },
+      "promotionRecommendation": "keep-shadow",
+      "publicationStatus": "abstained",
+      "reason": "OOS model trained for research only.",
+      "schemaVersion": "three-market-model-card-v1",
+      "trainingWindow": {
+        "embargoSessions": [
+          1,
+          5,
+          20
+        ],
+        "foldSizeSessions": 63,
+        "minimumTrainingSessions": 252,
+        "protocol": "expanding-walk-forward",
+        "purge": "targetDate before evaluation start"
+      }
+    }
+  },
+  "cards": []
+}

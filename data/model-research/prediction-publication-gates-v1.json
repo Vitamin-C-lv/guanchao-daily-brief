@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "prediction-publication-gate-v1",
+  "contractVersion": "hk-us-publication-gate-v1",
+  "generatedAt": "2026-08-06T00:00:00Z",
+  "policy": {
+    "aShareGateReference": "A股继续使用现有冻结生产 gate（content/sector-rotation.json 与 run-prediction-publisher.mjs 的概率质量门槛）；本 registry 不复制、不放宽 A 股门槛。",
+    "minValidFolds": 5,
+    "minOosSamples": {"1": 252, "5": 126, "20": 63},
+    "brierSkillMin": 0,
+    "logLossSkillMin": 0,
+    "foldBrierSkillPassShare": 0.6,
+    "aucMin": 0.52,
+    "calibrationSlopeRange": [0.5, 1.5],
+    "calibrationInterceptAbsMax": 0.15,
+    "probabilityStdMin": 0.03,
+    "coverageMin": 0.8,
+    "maxSingleFoldImprovementShare": 0.6
+  },
+  "markets": [
+    {
+      "marketId": "hk",
+      "label": "港股",
+      "researchMarketKey": "HK",
+      "objects": [
+        {
+          "objectId": "hsi",
+          "label": "恒生指数",
+          "target": "absolute_up",
+          "modelVersion": "hk-regularized-logistic-shadow-v1",
+          "horizons": [1, 5, 20],
+          "requiredSourceRoles": ["hsi_ohlcv"],
+          "expectedStage2Status": "abstained"
+        },
+        {
+          "objectId": "hstech",
+          "label": "恒生科技指数",
+          "target": "absolute_up",
+          "modelVersion": null,
+          "horizons": [1, 5, 20],
+          "requiredSourceRoles": ["hstech_ohlcv"],
+          "expectedStage2Status": "insufficient_data"
+        },
+        {
+          "objectId": "hk_innovative_drug",
+          "label": "港股创新药",
+          "target": "relative_outperformance_vs_hsi",
+          "modelVersion": null,
+          "horizons": [1, 5, 20],
+          "requiredSourceRoles": [],
+          "expectedStage2Status": "unavailable"
+        },
+        {
+          "objectId": "hk_tech_internet",
+          "label": "科技互联网",
+          "target": "relative_outperformance_vs_hsi",
+          "modelVersion": null,
+          "horizons": [1, 5, 20],
+          "requiredSourceRoles": [],
+          "expectedStage2Status": "unavailable"
+        }
+      ]
+    },
+    {
+      "marketId": "us",
+      "label": "美股",
+      "researchMarketKey": "US_NASDAQ",
+      "objects": [
+        {
+          "objectId": "nasdaq_composite",
+          "label": "纳斯达克综合指数",
+          "target": "absolute_up",
+          "modelVersion": "us_nasdaq-regularized-logistic-shadow-v1",
+          "horizons": [1, 5, 20],
+          "requiredSourceRoles": ["nasdaq_composite_close_fallback", "sox_ohlcv", "vix_close"],
+          "expectedStage2Status": "abstained"
+        }
+      ]
+    }
+  ]
+}

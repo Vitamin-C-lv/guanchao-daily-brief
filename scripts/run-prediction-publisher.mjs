@@ -36,6 +36,7 @@ const ALLOWED_WRITE_PREFIXES = [
   "content/prediction-diagnostics.json",
   "content/prediction-review-latest.json",
   "content/prediction-review/",
+  "public/data/predictions/",
   "data/prediction-ledger/",
   "public/data/prediction-history/",
   "content/prediction-history.json",
@@ -44,6 +45,11 @@ const ALLOWED_WRITE_PREFIXES = [
   "data/market-evidence/",
   "content/writer-packets/"
 ];
+
+// Machine-local stage-2 private research outputs consumed by the HK/US
+// publication gate.  The path is machine-specific (like the automation
+// recovery root) and never enters the public DTO.
+const DEFAULT_RESEARCH_OUTPUT = "D:/Guanchao-Workspace/temp/stage2-run-fix-r3";
 
 export class PredictionPublisherError extends Error {
   constructor(code, message) {
@@ -189,6 +195,7 @@ export async function runPredictionPublisher({
   editionDate = null,
   dryRun = false,
   write = false,
+  researchOutput = null,
   root = repositoryRoot,
   runsRoot = null,
   lockFile = null,
@@ -242,15 +249,53 @@ export async function runPredictionPublisher({
       step("observation-board", { ok: true, note: "规则观察分，不是概率" });
     }
 
+    // 6b. HK/US publication gate (stage3).  The gate reads the frozen stage-2
+    // private research outputs; every HK/US horizon must remain blocked now.
+    const effectiveResearchOutput = researchOutput ?? process.env.GUANCHAO_STAGE2_RESEARCH_OUTPUT ?? DEFAULT_RESEARCH_OUTPUT;
+    if (!fs.existsSync(path.join(effectiveResearchOutput, "RUN_RESULT.json"))) {
+      fail("PRIVATE_OUTPUT_MISSING", `stage2 private research output is required: ${effectiveResearchOutput}`);
+    }
+    const gateFile = path.join(runDirectory, "publication-gate-results.json");
+    const statesFile = path.join(runDirectory, "ledger-states.json");
+    const gateRun = run("node", [
+      "scripts/prediction-publication-gate.mjs",
+      "--research-output", effectiveResearchOutput,
+      "--rotation", "content/sector-rotation.json",
+      "--states-output", statesFile,
+      "--output", gateFile,
+      "--forbid-published",
+    ], { cwd: root, allowFailure: true, env });
+    const gateReport = ledgerReportFromJson(gateRun.stdout);
+    if (!gateRun.ok || !gateReport?.summary) fail("GATE_FAILED", `publication gate failed: ${gateRun.detail.slice(0, 800)}`);
+    report.publicationGate = gateReport.summary;
+    step("publication-gate", { ok: true, summary: gateReport.summary });
+
+    // 6c. Build and validate the public current-prediction DTO.
+    const dtoRun = run("node", [
+      "scripts/build-public-prediction-view.mjs",
+      "--research-output", effectiveResearchOutput,
+      "--rotation", "content/sector-rotation.json",
+      "--history", "public/data/prediction-history/index.json",
+      "--output", "public/data/predictions/current.json",
+      "--now", `${effectiveEditionDate}T12:00:00+08:00`,
+    ], { cwd: root, allowFailure: true, env });
+    const dtoReport = ledgerReportFromJson(dtoRun.stdout);
+    if (!dtoRun.ok || !dtoReport) fail("DTO_BUILD_FAILED", `public DTO build failed: ${dtoRun.detail.slice(0, 800)}`);
+    report.publicDto = { ok: true, shouldWrite: dtoReport.shouldWrite ?? null };
+    step("public-dto", { ok: true, shouldWrite: dtoReport.shouldWrite ?? null });
+    const dtoValidate = run("node", ["scripts/validate-public-prediction-view.mjs"], { cwd: root, allowFailure: true, env });
+    if (!dtoValidate.ok) fail("DTO_INVALID", `public DTO validation failed: ${dtoValidate.detail.slice(0, 800)}`);
+    step("validate-public-dto", { ok: true });
+
     // 11-14. immutable ledger snapshot/evaluations/review/public export
     let ledgerReport = null;
     if (ledgerCommand) {
-      const ledgerResult = run(ledgerCommand[0], ledgerCommand.slice(1), { cwd: root, allowFailure: true, env });
+      const ledgerResult = run(ledgerCommand[0], [...ledgerCommand.slice(1), "--states", statesFile], { cwd: root, allowFailure: true, env });
       ledgerReport = ledgerReportFromJson(ledgerResult.stdout);
       step("ledger-automation", { ok: ledgerResult.ok, detail: ledgerResult.detail.slice(0, 1200), report: ledgerReport });
     } else {
       // Windows zoneinfo needs the tzdata package for Asia/Shanghai.
-      const uvLedger = run("uv", ["run", "--no-project", "--python", "3.12", "--with", "requests", "--with", "tzdata", "python", "scripts/prediction_ledger_automation.py", "--mode", "daily"], { cwd: root, allowFailure: true, env });
+      const uvLedger = run("uv", ["run", "--no-project", "--python", "3.12", "--with", "requests", "--with", "tzdata", "python", "scripts/prediction_ledger_automation.py", "--mode", "daily", "--states", statesFile], { cwd: root, allowFailure: true, env });
       ledgerReport = ledgerReportFromJson(uvLedger.stdout);
       step("ledger-automation", { ok: uvLedger.ok, detail: uvLedger.detail.slice(0, 1200), report: ledgerReport });
     }
@@ -351,6 +396,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
       dryRun: args["dry-run"] === true,
       write: args.write === true,
       root: args.root ? path.resolve(args.root) : repositoryRoot,
+      researchOutput: args["research-output"] ? path.resolve(args["research-output"]) : null,
       runsRoot: args["runs-root"] ? path.resolve(args["runs-root"]) : null,
       lockFile: args["lock-file"] ? path.resolve(args["lock-file"]) : null,
       marketRunner: args["market-runner"] ?? "scripts/run-market-evidence.mjs",

@@ -180,9 +180,14 @@ def _prediction_payload_hash(predictions: Sequence[dict[str, Any]]) -> str:
     return sha256_bytes(canonical_json_bytes(ordered))
 
 
+def _state_payload_hash(states: Sequence[dict[str, Any]]) -> str:
+    ordered = sorted((prediction_immutable_core(item) for item in states), key=lambda item: item["stateId"])
+    return sha256_bytes(canonical_json_bytes(ordered))
+
+
 def _snapshot_identity_components(document: dict[str, Any]) -> dict[str, Any]:
     predictions = document.get("predictions", [])
-    return {
+    identity = {
         "markets": sorted(str(item) for item in document.get("markets", [])),
         "dataAsOf": document.get("dataAsOf"),
         "publicationEdition": document.get("edition"),
@@ -191,6 +196,10 @@ def _snapshot_identity_components(document: dict[str, Any]) -> dict[str, Any]:
         "horizons": sorted({int(item["horizonSessions"]) for item in predictions}),
         "predictionPayloadSha256": _prediction_payload_hash(predictions),
     }
+    states = document.get("states", [])
+    if states:
+        identity["statePayloadSha256"] = _state_payload_hash(states)
+    return identity
 
 
 def _run_id(identity: dict[str, Any]) -> str:
@@ -227,7 +236,7 @@ def validate_prediction(record: dict[str, Any]) -> None:
         raise LedgerError("horizonSessions must be 1, 5 or 20")
     if record["modelAvailability"] not in {"trained", "not_trained", "not_implemented"}:
         raise LedgerError("invalid model availability")
-    if record["publicationStatus"] not in {"published", "abstained", "insufficient_data", "not_applicable"}:
+    if record["publicationStatus"] not in {"published", "abstained", "insufficient_data", "not_applicable", "unavailable"}:
         raise LedgerError("invalid publication status")
     if record["probabilityTarget"] not in {"absolute_up", "relative_outperformance", "top_quartile", "none"}:
         raise LedgerError("invalid probability target")
@@ -277,6 +286,17 @@ def validate_prediction(record: dict[str, Any]) -> None:
     elif status == "insufficient_data":
         if any(value is not None for value in probabilities):
             raise LedgerError("insufficient data cannot expose probabilities")
+    elif status == "unavailable":
+        if record["modelAvailability"] == "trained":
+            raise LedgerError("unavailable cannot carry a trained model")
+        if record["outputMode"] != "none":
+            raise LedgerError("unavailable must use outputMode none")
+        if record["probabilitySource"] != "none" or record["probabilityTarget"] != "none":
+            raise LedgerError("unavailable cannot expose probability lineage")
+        if any(value is not None for value in probabilities):
+            raise LedgerError("unavailable cannot expose probabilities")
+        if record["calibrationStatus"] != "not_applicable":
+            raise LedgerError("unavailable must use not_applicable calibration")
     if record["legacy"]:
         if record["probabilityTarget"] != "absolute_up":
             raise LedgerError("legacy predictions must keep the absolute_up target")
@@ -324,6 +344,98 @@ def build_snapshot(
     }
     if migration is not None:
         document["migration"] = copy.deepcopy(migration)
+    identity = _snapshot_identity_components(document)
+    document["runId"] = _run_id(identity)
+    document["identity"] = identity
+    return finalize_document(document)
+
+
+STATE_REQUIRED = {
+    "stateId", "recordDate", "market", "objectId", "objectLabel", "horizonSessions", "target",
+    "modelVersion", "modelAvailability", "datasetId", "datasetStatus", "publicationStatus",
+    "outputMode", "probability", "expectedReturn", "probabilitySource", "probabilityTarget",
+    "calibrationStatus", "abstainReasons", "statusReason", "asOf", "dueDate", "sourceUrls", "legacy",
+}
+
+
+def validate_state_record(record: dict[str, Any]) -> None:
+    missing = sorted(STATE_REQUIRED - set(record))
+    if missing:
+        raise LedgerError(f"state record missing fields: {missing}")
+    extra = sorted(set(record) - STATE_REQUIRED)
+    if extra:
+        raise LedgerError(f"state record must NOT have additional properties: {extra}")
+    if not isinstance(record["stateId"], str) or len(record["stateId"]) < 8:
+        raise LedgerError("invalid stateId")
+    require_date(record["recordDate"], "recordDate")
+    require_date(record["asOf"], "asOf")
+    if record["dueDate"] is not None:
+        require_date(record["dueDate"], "dueDate")
+    if record["horizonSessions"] not in HORIZONS:
+        raise LedgerError("state horizonSessions must be 1, 5 or 20")
+    if record["modelAvailability"] not in {"trained", "not_trained", "not_implemented"}:
+        raise LedgerError("invalid state model availability")
+    if record["publicationStatus"] not in {"abstained", "insufficient_data", "not_applicable", "unavailable"}:
+        raise LedgerError("state publicationStatus must be a non-published status")
+    if record["probability"] is not None or record["expectedReturn"] is not None:
+        raise LedgerError("state records never carry probability or expected return")
+    if record["probabilitySource"] != "none" or record["probabilityTarget"] != "none":
+        raise LedgerError("state records cannot expose probability lineage")
+    if record["outputMode"] != "none":
+        raise LedgerError("state records must use outputMode none")
+    if record["modelAvailability"] == "trained" and record["publicationStatus"] in {"unavailable", "not_applicable"}:
+        raise LedgerError("trained states cannot use unavailable/not_applicable")
+    if record["publicationStatus"] == "unavailable" and record["calibrationStatus"] != "not_applicable":
+        raise LedgerError("unavailable state must use not_applicable calibration")
+    if record["publicationStatus"] == "abstained":
+        if record["modelAvailability"] != "trained":
+            raise LedgerError("abstained state must be trained")
+        if not record["abstainReasons"]:
+            raise LedgerError("abstained state must preserve gate reasons")
+    if not isinstance(record["abstainReasons"], list) or not isinstance(record["sourceUrls"], list):
+        raise LedgerError("state abstainReasons/sourceUrls must be arrays")
+    if any(not isinstance(url, str) or not url.startswith("https://") for url in record["sourceUrls"]):
+        raise LedgerError("state sourceUrls must contain direct HTTPS URLs")
+    if record["legacy"] is not False:
+        raise LedgerError("state records must be current, never legacy")
+
+
+def build_state_snapshot(
+    *,
+    states: Sequence[dict[str, Any]],
+    created_at: str,
+    data_as_of: str,
+    edition: str,
+    code_commit: str,
+    models: Sequence[dict[str, Any]],
+) -> dict[str, Any]:
+    require_datetime(created_at, "createdAt")
+    require_date(data_as_of, "dataAsOf")
+    if edition not in {"daily", "closing", "manual", "migration"}:
+        raise LedgerError("edition must be daily, closing, manual or migration")
+    if not re.fullmatch(r"[a-f0-9]{40}", code_commit):
+        raise LedgerError("codeCommit must be a 40-character Git SHA")
+    ordered = sorted((copy.deepcopy(item) for item in states), key=lambda item: item["stateId"])
+    if not ordered:
+        raise LedgerError("state snapshot requires at least one state record")
+    ids: set[str] = set()
+    for item in ordered:
+        validate_state_record(item)
+        if item["stateId"] in ids:
+            raise LedgerError(f"duplicate stateId in snapshot: {item['stateId']}")
+        ids.add(item["stateId"])
+    document: dict[str, Any] = {
+        "schemaVersion": SCHEMA_VERSION,
+        "runId": "",
+        "createdAt": created_at,
+        "dataAsOf": data_as_of,
+        "edition": edition,
+        "codeCommit": code_commit,
+        "markets": sorted({str(item["market"]) for item in ordered}),
+        "models": _sort_models(models),
+        "predictions": [],
+        "states": ordered,
+    }
     identity = _snapshot_identity_components(document)
     document["runId"] = _run_id(identity)
     document["identity"] = identity
@@ -565,7 +677,7 @@ def collect_evaluation_documents(root: Path) -> list[dict[str, Any]]:
 
 
 def validate_snapshot_document(document: dict[str, Any]) -> None:
-    allowed = {"schemaVersion", "runId", "createdAt", "dataAsOf", "edition", "codeCommit", "markets", "models", "predictions", "migration", "identity", "integrity"}
+    allowed = {"schemaVersion", "runId", "createdAt", "dataAsOf", "edition", "codeCommit", "markets", "models", "predictions", "states", "migration", "identity", "integrity"}
     extra = sorted(set(document) - allowed)
     if extra:
         raise LedgerError(f"snapshot must NOT have additional properties: {extra}")
@@ -578,14 +690,23 @@ def validate_snapshot_document(document: dict[str, Any]) -> None:
     if document.get("runId") != _run_id(document["identity"]):
         raise LedgerError("snapshot runId mismatch")
     predictions = document.get("predictions")
-    if not isinstance(predictions, list) or not predictions:
-        raise LedgerError("snapshot predictions must be non-empty")
+    states = document.get("states", [])
+    if not isinstance(predictions, list) or not isinstance(states, list):
+        raise LedgerError("snapshot predictions/states must be arrays")
+    if not predictions and not states:
+        raise LedgerError("snapshot requires at least one prediction or state record")
     ids: set[str] = set()
     for record in predictions:
         validate_prediction(record)
         if record["predictionId"] in ids:
             raise LedgerError("snapshot contains duplicate predictionId")
         ids.add(record["predictionId"])
+    state_ids: set[str] = set()
+    for record in states:
+        validate_state_record(record)
+        if record["stateId"] in state_ids:
+            raise LedgerError("snapshot contains duplicate stateId")
+        state_ids.add(record["stateId"])
 
 
 def validate_evaluation_document(document: dict[str, Any]) -> None:
@@ -623,8 +744,24 @@ def unique_predictions_from_snapshots(documents: Sequence[dict[str, Any]]) -> li
     return sorted(by_id.values(), key=lambda item: (item["predictionDate"], item["market"], item["horizonSessions"], item["sectorId"], item["predictionId"]))
 
 
+def unique_states_from_snapshots(documents: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    by_id: dict[str, dict[str, Any]] = {}
+    for document in documents:
+        for record in document.get("states", []):
+            previous = by_id.get(record["stateId"])
+            if previous is None:
+                by_id[record["stateId"]] = copy.deepcopy(record)
+            elif prediction_immutable_core(previous) != prediction_immutable_core(record):
+                raise LedgerError(f"immutable state conflict: {record['stateId']}")
+    return sorted(by_id.values(), key=lambda item: (item["recordDate"], item["market"], item["horizonSessions"], item["objectId"], item["stateId"]))
+
+
 def collect_predictions(root: Path) -> list[dict[str, Any]]:
     return unique_predictions_from_snapshots(collect_snapshot_documents(root))
+
+
+def collect_states(root: Path) -> list[dict[str, Any]]:
+    return unique_states_from_snapshots(collect_snapshot_documents(root))
 
 
 def collect_evaluations(root: Path) -> list[dict[str, Any]]:
@@ -638,6 +775,16 @@ def append_snapshot(root: Path, document: dict[str, Any]) -> bool:
         return _write_immutable_gzip(path, document, kind="snapshot")
     existing = collect_snapshot_documents(root)
     unique_predictions_from_snapshots([*existing, document])
+    return _write_immutable_gzip(path, document, kind="snapshot")
+
+
+def append_state_snapshot(root: Path, document: dict[str, Any]) -> bool:
+    validate_snapshot_document(document)
+    path = root / snapshot_relative_path(document)
+    if path.exists():
+        return _write_immutable_gzip(path, document, kind="snapshot")
+    existing = collect_snapshot_documents(root)
+    unique_states_from_snapshots([*existing, document])
     return _write_immutable_gzip(path, document, kind="snapshot")
 
 
@@ -709,7 +856,7 @@ def require_restored_ledger(root: Path, *, expected_snapshot_count: int) -> None
 
 def _month_entry(root: Path, path: Path, document: dict[str, Any], kind: str) -> dict[str, Any]:
     data_as_of = document["dataAsOf"] if kind == "snapshot" else document["evaluationDataAsOf"]
-    models = sorted({item["modelVersion"] for item in document.get("predictions", [])})
+    models = sorted({item["modelVersion"] for item in [*document.get("predictions", []), *document.get("states", [])]})
     return {
         "path": path.relative_to(root).as_posix(),
         "kind": kind,
@@ -727,6 +874,7 @@ def _derive_manifests_and_index(root: Path) -> tuple[dict[str, dict[str, Any]], 
     snapshots = collect_snapshot_documents(root)
     evaluations = collect_evaluation_documents(root)
     predictions = unique_predictions_from_snapshots(snapshots)
+    states = unique_states_from_snapshots(snapshots)
     _validate_evaluation_links(predictions, evaluations)
     entries_by_month: dict[str, list[dict[str, Any]]] = defaultdict(list)
     snapshot_by_id = {item["runId"]: item for item in snapshots}
@@ -753,12 +901,14 @@ def _derive_manifests_and_index(root: Path) -> tuple[dict[str, dict[str, Any]], 
         relative = f"manifests/{month[:4]}/{month[5:7]}.json"
         manifests[relative] = manifest
         month_predictions = [item for item in predictions if item["predictionDate"].startswith(month)]
+        month_states = [item for item in states if item["recordDate"].startswith(month)]
         month_evaluations = [item for item in evaluations if item["evaluationDataAsOf"].startswith(month)]
         months.append({
             "month": month,
             "snapshotCount": sum(item["kind"] == "snapshot" for item in entries),
             "evaluationCount": sum(item["kind"] == "evaluation" for item in entries),
             "recordCount": len(month_predictions),
+            "stateCount": len(month_states),
             "evaluationEventCount": len(month_evaluations),
             "manifestPath": relative,
             "manifestSha256": sha256_bytes(json_bytes(manifest)),
@@ -772,18 +922,19 @@ def _derive_manifests_and_index(root: Path) -> tuple[dict[str, dict[str, Any]], 
             "path": path.relative_to(root).as_posix(),
             "sha256": sha256_canonical_text(path, artifact=str(path)),
         })
-    status_summary = Counter(item["publicationStatus"] for item in predictions)
+    status_summary = Counter(item["publicationStatus"] for item in [*predictions, *states])
     index = {
         "schemaVersion": SCHEMA_VERSION,
         "contractVersion": CONTRACT_VERSION,
         "snapshotCount": len(snapshots),
         "predictionRecordCount": len(predictions),
+        "stateRecordCount": len(states),
         "evaluationEventCount": len(evaluations),
         "firstPredictionDate": dates[0] if dates else None,
         "lastPredictionDate": dates[-1] if dates else None,
-        "markets": sorted({item["market"] for item in predictions}),
-        "modelVersions": sorted({item["modelVersion"] for item in predictions}),
-        "statusSummary": {key: status_summary.get(key, 0) for key in ("published", "abstained", "insufficient_data", "not_applicable")},
+        "markets": sorted({item["market"] for item in [*predictions, *states]}),
+        "modelVersions": sorted({item["modelVersion"] for item in [*predictions, *states]}),
+        "statusSummary": {key: status_summary.get(key, 0) for key in ("published", "abstained", "insufficient_data", "not_applicable", "unavailable")},
         "legacyRecordCount": sum(bool(item["legacy"]) for item in predictions),
         "currentRecordCount": sum(not bool(item["legacy"]) for item in predictions),
         "months": months,
@@ -1296,6 +1447,57 @@ def public_record(record: dict[str, Any], evaluation: dict[str, Any] | None) -> 
     return result
 
 
+def public_state_record(state: dict[str, Any]) -> dict[str, Any]:
+    result = {
+        "predictionId": state["stateId"],
+        "predictionDate": state["recordDate"],
+        "market": state["market"],
+        "sectorId": state["objectId"],
+        "sectorName": state["objectLabel"],
+        "horizonSessions": state["horizonSessions"],
+        "dueDate": None,
+        "modelVersion": state["modelVersion"],
+        "modelAvailability": state["modelAvailability"],
+        "publicationStatus": state["publicationStatus"],
+        "outputMode": "none",
+        "calibrationStatus": state["calibrationStatus"],
+        "probabilitySource": "none",
+        "probabilityTarget": "none",
+        "rawScore": None,
+        "rawProbability": None,
+        "calibratedProbability": None,
+        "absoluteUpProbability": None,
+        "outperformanceProbability": None,
+        "topQuartileProbability": None,
+        "expectedExcessReturn": None,
+        "historicalBaseRate": None,
+        "effectiveEdge": None,
+        "observationScore": None,
+        "abstainReasons": list(state["abstainReasons"]),
+        "dataAsOf": state["asOf"],
+        "createdAt": f"{state['recordDate']}T00:00:00+08:00",
+        "modelInputCompleteness": None,
+        "productionFeatureCoverage": None,
+        "claim": state["statusReason"],
+        "evidence": [],
+        "counterEvidence": [],
+        "trigger": "not_applicable",
+        "invalidation": "not_applicable",
+        "sourceUrls": sorted(set(state["sourceUrls"])),
+        "legacy": False,
+        "benchmark": None,
+        "universe": {"id": "stage3-state", "sectorIds": [], "topQuartileFraction": None, "tieBreak": []},
+        "evaluation": None,
+        "objectId": state["objectId"],
+        "datasetId": state.get("datasetId"),
+    }
+    serialized = json.dumps(result, ensure_ascii=False)
+    for forbidden in ("codeCommit", "integrity", "localPath", "sourceHashes"):
+        if forbidden in serialized:
+            raise LedgerError(f"public export leaks internal field: {forbidden}")
+    return result
+
+
 def export_public(
     root: Path,
     public_root: Path,
@@ -1304,8 +1506,9 @@ def export_public(
     review_path: Path | None = None,
 ) -> dict[str, Any]:
     predictions = collect_predictions(root)
+    states = collect_states(root)
     latest = _latest_evaluations(collect_evaluations(root))
-    records = [public_record(record, latest.get(record["predictionId"])) for record in predictions]
+    records = [*[public_record(record, latest.get(record["predictionId"])) for record in predictions], *[public_state_record(state) for state in states]]
     by_month: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
         by_month[record["predictionDate"][:7]].append(record)
@@ -1323,7 +1526,7 @@ def export_public(
                 "recordCount": len(month_records),
                 "markets": sorted({item["market"] for item in month_records}),
                 "modelVersions": sorted({item["modelVersion"] for item in month_records}),
-                "statusSummary": {key: month_statuses.get(key, 0) for key in ("published", "abstained", "insufficient_data", "not_applicable")},
+                "statusSummary": {key: month_statuses.get(key, 0) for key in ("published", "abstained", "insufficient_data", "not_applicable", "unavailable")},
                 "legacyRecordCount": sum(bool(item["legacy"]) for item in month_records),
                 "currentRecordCount": sum(not bool(item["legacy"]) for item in month_records),
                 "evaluatedRecordCount": sum(item["evaluation"] is not None for item in month_records),
@@ -1354,21 +1557,22 @@ def export_public(
             "sha256": sha256_canonical_text(public_root / review_relative, artifact=review_relative),
         }
     statuses = Counter(item["publicationStatus"] for item in records)
-    generation_candidates = [record["createdAt"] for record in records]
+    generation_candidates = [record["createdAt"] for record in records if record["createdAt"] is not None]
     generation_candidates.extend(item["evaluation"]["evaluatedAt"] for item in records if item["evaluation"] is not None)
     generated_at = max(generation_candidates) if generation_candidates else "1970-01-01T00:00:00Z"
+    record_dates = sorted(item["predictionDate"] for item in records)
     index = {
         "schemaVersion": SCHEMA_VERSION,
         "contractVersion": CONTRACT_VERSION,
         "generatedAt": generated_at,
         "recordCount": len(records),
-        "firstDate": records[0]["predictionDate"] if records else None,
-        "lastDate": records[-1]["predictionDate"] if records else None,
+        "firstDate": record_dates[0] if record_dates else None,
+        "lastDate": record_dates[-1] if record_dates else None,
         "files": files,
         "availableMonths": sorted(by_month),
         "markets": sorted({item["market"] for item in records}),
         "modelVersions": sorted({item["modelVersion"] for item in records}),
-        "statusSummary": {key: statuses.get(key, 0) for key in ("published", "abstained", "insufficient_data", "not_applicable")},
+        "statusSummary": {key: statuses.get(key, 0) for key in ("published", "abstained", "insufficient_data", "not_applicable", "unavailable")},
         "legacyRecordCount": sum(bool(item["legacy"]) for item in records),
         "currentRecordCount": sum(not bool(item["legacy"]) for item in records),
         "evaluatedRecordCount": sum(item["evaluation"] is not None for item in records),
@@ -1469,11 +1673,14 @@ def verify_ledger(root: Path, *, public_root: Path | None = None) -> dict[str, A
         validate_weekly_review_semantics(review, predictions, evaluations)
     if public_root is not None and (public_root / "index.json").exists():
         public_index = json.loads(canonical_text_bytes(public_root / "index.json", artifact="public index"))
-        if public_index.get("recordCount") != len(predictions):
+        states = collect_states(root)
+        if public_index.get("recordCount") != len(predictions) + len(states):
             raise LedgerError("public index count mismatch or history truncation")
-        if public_index.get("availableMonths") != sorted({item["predictionDate"][:7] for item in predictions}):
+        state_months = {item["recordDate"][:7] for item in states}
+        prediction_months = {item["predictionDate"][:7] for item in predictions}
+        if public_index.get("availableMonths") != sorted(prediction_months | state_months):
             raise LedgerError("public index month mismatch")
-        if public_index.get("modelVersions") != sorted({item["modelVersion"] for item in predictions}):
+        if public_index.get("modelVersions") != sorted({item["modelVersion"] for item in [*predictions, *states]}):
             raise LedgerError("public index model-version mismatch")
         for entry in public_index.get("files", []):
             path = public_root / entry["path"]
@@ -1672,6 +1879,12 @@ def _build_parser() -> argparse.ArgumentParser:
     append.add_argument("--rotation", type=Path)
     append.add_argument("--edition", choices=("daily", "closing", "manual"), default="manual")
     append.add_argument("--code-commit", default=None)
+    append_state = subparsers.add_parser("append-state")
+    append_state.add_argument("--states", type=Path, required=True)
+    append_state.add_argument("--data-as-of", default=None)
+    append_state.add_argument("--edition", choices=("daily", "closing", "manual"), default="manual")
+    append_state.add_argument("--code-commit", default=None)
+    append_state.add_argument("--created-at", default=None)
     evaluate = subparsers.add_parser("append-evaluations")
     evaluate.add_argument("--input", type=Path, required=True)
     evaluate.add_argument("--code-commit", default=None)
@@ -1720,6 +1933,42 @@ def main(argv: Sequence[str] | None = None) -> int:
                 payload = json.loads(canonical_text_bytes(arguments.rotation, artifact=str(arguments.rotation)))
                 document = snapshot_from_rotation_payload(payload, edition=arguments.edition, code_commit=arguments.code_commit or _git_head())
             output = {"written": append_snapshot(root, document), "runId": document["runId"], "path": snapshot_relative_path(document)}
+            rebuild_index(root)
+        elif arguments.command == "append-state":
+            initialize_ledger(root)
+            payload = json.loads(canonical_text_bytes(arguments.states, artifact=str(arguments.states)))
+            states = payload.get("states") if isinstance(payload, dict) else payload
+            if not isinstance(states, list) or not states:
+                raise LedgerError("states file must contain a non-empty states array")
+            models: list[dict[str, Any]] = []
+            seen_models: set[tuple[str, str]] = set()
+            for state in states:
+                key = (str(state["market"]), str(state["modelVersion"]))
+                if key in seen_models:
+                    continue
+                seen_models.add(key)
+                models.append({
+                    "market": state["market"],
+                    "modelVersion": state["modelVersion"],
+                    "artifactSha256": None,
+                    "availability": state["modelAvailability"],
+                })
+            data_as_of = arguments.data_as_of or max(str(state["recordDate"]) for state in states)
+            created_at = arguments.created_at or f"{data_as_of}T20:00:00+08:00"
+            document = build_state_snapshot(
+                states=states,
+                created_at=created_at,
+                data_as_of=data_as_of,
+                edition=arguments.edition,
+                code_commit=arguments.code_commit or _git_head(),
+                models=models,
+            )
+            output = {
+                "written": append_state_snapshot(root, document),
+                "runId": document["runId"],
+                "path": snapshot_relative_path(document),
+                "stateCount": len(states),
+            }
             rebuild_index(root)
         elif arguments.command == "append-evaluations":
             initialize_ledger(root)

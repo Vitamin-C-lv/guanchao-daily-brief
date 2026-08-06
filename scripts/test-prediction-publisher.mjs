@@ -93,19 +93,94 @@ console.log("market ok");
 `;
 }
 
+function gateStub() {
+  return `import fs from "node:fs";
+import path from "node:path";
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.CALL_LOG || "call-log.jsonl", JSON.stringify({ cmd: "publication-gate", args }) + "\\n");
+const statesOut = args[args.indexOf("--states-output") + 1];
+const out = args[args.indexOf("--output") + 1];
+fs.mkdirSync(path.dirname(statesOut), { recursive: true });
+const report = {
+  schemaVersion: "prediction-publication-gate-results-v1",
+  summary: {
+    evaluated: 15,
+    published: process.env.GATE_PUBLISHED === "1" ? 6 : 0,
+    abstained: 6,
+    insufficient_data: 3,
+    unavailable: 6,
+    probabilitiesPublished: process.env.GATE_PUBLISHED === "1"
+  }
+};
+if (out) fs.writeFileSync(out, JSON.stringify(report, null, 2) + "\\n", "utf8");
+fs.writeFileSync(statesOut, JSON.stringify({ schemaVersion: "ledger-state-records-v1", states: [] }, null, 2) + "\\n", "utf8");
+console.log(JSON.stringify(report));
+if (process.env.GATE_FAIL === "1") { console.error("gate failed"); process.exit(1); }
+if (process.env.GATE_PUBLISHED === "1") { console.error("HK/US probabilities published"); process.exit(1); }
+`;
+}
+
+function builderStub() {
+  return `import fs from "node:fs";
+import path from "node:path";
+const args = process.argv.slice(2);
+fs.appendFileSync(process.env.CALL_LOG || "call-log.jsonl", JSON.stringify({ cmd: "dto-builder", args }) + "\\n");
+if (process.env.BUILDER_TOUCH_FORBIDDEN === "1") fs.writeFileSync("content/daily-brief.json", "changed", "utf8");
+const out = args[args.indexOf("--output") + 1];
+fs.mkdirSync(path.dirname(out), { recursive: true });
+const payload = {
+  schemaVersion: "public-prediction-view-v1",
+  contractVersion: "public-prediction-view-v1",
+  generatedAt: new Date().toISOString(),
+  asOf: "2026-08-03",
+  historyUrl: "/predictions/history/",
+  latestReview: null,
+  markets: []
+};
+fs.writeFileSync(out, JSON.stringify(payload, null, 2) + "\\n", "utf8");
+console.log(JSON.stringify({ schemaVersion: "public-prediction-view-build-report-v1", shouldWrite: true, outputPath: out }));
+`;
+}
+
+function dtoValidatorStub() {
+  return `import fs from "node:fs";
+fs.appendFileSync(process.env.CALL_LOG || "call-log.jsonl", JSON.stringify({ cmd: "dto-validator", args: process.argv.slice(2) }) + "\\n");
+console.log(JSON.stringify({ ok: true, schemaVersion: "public-prediction-view-v1", probabilityCount: 0 }));
+`;
+}
+
+function fixtureDto() {
+  return {
+    schemaVersion: "public-prediction-view-v1",
+    contractVersion: "public-prediction-view-v1",
+    generatedAt: "2026-08-06T12:00:00+08:00",
+    asOf: "2026-08-03",
+    historyUrl: "/predictions/history/",
+    latestReview: null,
+    markets: [],
+  };
+}
+
 function fixture({ rotationStatus = "published", rotationMode = "probability", asOf = "2026-08-04", ledgerNoWrite = false, ledgerWritten = true, touchModel = false, touchForbidden = false } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "prediction-publisher-"));
   fs.mkdirSync(path.join(root, "content"), { recursive: true });
   fs.mkdirSync(path.join(root, "content", "writer-packets"), { recursive: true });
   fs.mkdirSync(path.join(root, "models", "sector-rotation"), { recursive: true });
   fs.mkdirSync(path.join(root, "scripts"), { recursive: true });
+  fs.mkdirSync(path.join(root, "research-output"), { recursive: true });
+  fs.mkdirSync(path.join(root, "public", "data", "predictions"), { recursive: true });
   write(root, "content/sector-rotation.json", rotationPayload("2026-08-03", rotationStatus, rotationMode));
   write(root, "fixture-rotation.json", rotationPayload("2026-08-03", rotationStatus, rotationMode));
+  write(root, "research-output/RUN_RESULT.json", { schemaVersion: "three-market-run-result-v1", generatedAt: "2026-08-06T00:00:00Z", datasets: {}, sourceAudit: { requiredFailures: [], sources: [] }, status: "completed" });
+  write(root, "public/data/predictions/current.json", fixtureDto());
   write(root, "content/writer-packets/daily-latest.json", JSON.stringify({ edition: "daily", asOf: "2026-08-03", generatedAt: "2026-08-03T20:00:00+08:00" }));
   write(root, "models/sector-rotation/a-share-v1.json", { frozen: true });
   write(root, "scripts/stub-rotation.mjs", rotationStub());
   write(root, "scripts/stub-ledger.mjs", ledgerStub());
   write(root, "scripts/stub-market.mjs", marketStub());
+  write(root, "scripts/prediction-publication-gate.mjs", gateStub());
+  write(root, "scripts/build-public-prediction-view.mjs", builderStub());
+  write(root, "scripts/validate-public-prediction-view.mjs", dtoValidatorStub());
   write(root, "scripts/validate-sector-rotation.mjs", `console.log("fixture rotation validation ok");`);
   write(root, "scripts/validate-prediction-ledger.mjs", `console.log("fixture ledger validation ok");`);
   git(root, "init");
@@ -118,7 +193,10 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
   spawnSync("git", ["init", "--bare", bare], { encoding: "utf8" });
   git(root, "remote", "add", "origin", bare);
   git(root, "push", "-u", "origin", "HEAD:main");
-  const runs = path.join(root, "runs");
+  // Runs live outside the Git repository root, exactly like production
+  // (C:/Codex-Recovery/GuanchaoWriter/runs), so gate/state artifacts never
+  // enter the write-boundary check.
+  const runs = path.join(root, "..", `${path.basename(root)}-runs`);
   const lock = path.join(root, "..", `${path.basename(root)}-lock`);
   const env = {
     ...process.env,
@@ -132,6 +210,9 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
   };
   if (touchModel) env.ROTATION_TOUCH_MODEL = "1";
   if (touchForbidden) env.ROTATION_TOUCH_FORBIDDEN = "1";
+  if (process.env.GATE_FAIL === "1") env.GATE_FAIL = "1";
+  if (process.env.GATE_PUBLISHED === "1") env.GATE_PUBLISHED = "1";
+  if (process.env.BUILDER_TOUCH_FORBIDDEN === "1") env.BUILDER_TOUCH_FORBIDDEN = "1";
   return {
     root,
     runs,
@@ -140,6 +221,7 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
     env,
     options: {
       root,
+      researchOutput: path.join(root, "research-output"),
       runsRoot: runs,
       lockFile: lock,
       marketRunner: "scripts/stub-market.mjs",
@@ -232,6 +314,60 @@ test("writes outside the allowed scope fail the run", async () => {
     const report = await runPredictionPublisher({ ...value.options, write: true, env: value.env });
     assert.equal(report.status, "failed");
     assert.match(report.error, /WRITE_BOUNDARY/);
+  } finally {
+    value.cleanup();
+  }
+});
+
+test("publisher runs the gate, builds the public DTO and validates it before the ledger", async () => {
+  const value = fixture();
+  try {
+    const report = await runPredictionPublisher({ ...value.options, write: true, env: value.env });
+    assert.equal(report.status, "published");
+    assert.deepEqual(report.publicationGate, {
+      evaluated: 15,
+      published: 0,
+      abstained: 6,
+      insufficient_data: 3,
+      unavailable: 6,
+      probabilitiesPublished: false,
+    });
+    assert.equal(report.publicDto.ok, true);
+    assert.ok(report.steps.some((step) => step.name === "publication-gate" && step.ok));
+    assert.ok(report.steps.some((step) => step.name === "public-dto" && step.ok));
+    assert.ok(report.steps.some((step) => step.name === "validate-public-dto" && step.ok));
+    assert.ok(fs.existsSync(path.join(value.root, "public", "data", "predictions", "current.json")));
+    const calls = fs.readFileSync(value.env.CALL_LOG, "utf8").trim().split(/\r?\n/).map((line) => JSON.parse(line));
+    assert.ok(calls.some((call) => call.cmd === "publication-gate"));
+    assert.ok(calls.some((call) => call.cmd === "dto-builder"));
+    assert.ok(calls.some((call) => call.cmd === "dto-validator"));
+    const ledgerCall = calls.find((call) => call.cmd === "stub-ledger" || call.cmd === "ledger");
+    assert.ok(!ledgerCall || ledgerCall.args.some((arg) => arg === "--states"), "ledger must receive the states file");
+  } finally {
+    value.cleanup();
+  }
+});
+
+test("publication gate failure aborts the run", async () => {
+  const previous = process.env.GATE_FAIL;
+  process.env.GATE_FAIL = "1";
+  const value = fixture();
+  try {
+    const report = await runPredictionPublisher({ ...value.options, write: true, env: value.env });
+    assert.equal(report.status, "failed");
+    assert.match(report.error, /GATE_FAILED/);
+  } finally {
+    if (previous === undefined) delete process.env.GATE_FAIL; else process.env.GATE_FAIL = previous;
+    value.cleanup();
+  }
+});
+
+test("missing stage2 research output fails closed", async () => {
+  const value = fixture();
+  try {
+    const report = await runPredictionPublisher({ ...value.options, write: true, researchOutput: path.join(value.root, "missing-research"), env: value.env });
+    assert.equal(report.status, "failed");
+    assert.match(report.error, /PRIVATE_OUTPUT_MISSING/);
   } finally {
     value.cleanup();
   }

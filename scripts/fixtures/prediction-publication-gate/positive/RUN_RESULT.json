@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "three-market-run-result-v1",
+  "generatedAt": "2026-08-06T00:00:00Z",
+  "datasets": {
+    "HK": {
+      "datasetId": "hk-panel-fixture-0000",
+      "lastDate": "2026-08-06",
+      "market": "HK",
+      "objects": {
+        "hsi": "ready",
+        "hstech": "partial",
+        "hk_innovative_drug": "unavailable",
+        "hk_tech_internet": "unavailable"
+      },
+      "rows": 9772,
+      "status": "partial"
+    },
+    "US_NASDAQ": {
+      "datasetId": "us-nasdaq-panel-fixture-0000",
+      "lastDate": "2026-08-05",
+      "market": "US_NASDAQ",
+      "objects": {
+        "nasdaq_composite": "ready"
+      },
+      "rows": 13991,
+      "status": "ready"
+    }
+  },
+  "sourceAudit": {
+    "requiredFailures": [],
+    "schemaVersion": "three-market-source-audit-v1",
+    "sources": [
+      {
+        "market": "HK",
+        "role": "hsi_ohlcv",
+        "sourceId": "yahoo_hsi",
+        "status": "ready"
+      },
+      {
+        "market": "HK",
+        "role": "hstech_ohlcv",
+        "sourceId": "yahoo_hstech",
+        "status": "ready"
+      },
+      {
+        "market": "US_NASDAQ",
+        "role": "nasdaq_composite_close_fallback",
+        "sourceId": "yahoo_nasdaq_composite",
+        "status": "ready"
+      },
+      {
+        "market": "US_NASDAQ",
+        "role": "sox_ohlcv",
+        "sourceId": "yahoo_sox",
+        "status": "ready"
+      },
+      {
+        "market": "US_NASDAQ",
+        "role": "vix_close",
+        "sourceId": "cboe_vix",
+        "status": "ready"
+      }
+    ]
+  },
+  "status": "completed"
+}

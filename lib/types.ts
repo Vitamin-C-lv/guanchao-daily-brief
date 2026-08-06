@@ -224,7 +224,7 @@ export type SectorRotationConfidence = "low" | "medium" | "medium-high";
 export type SectorRotationObservedDirection = "leading" | "strengthening" | "neutral" | "weakening" | "lagging";
 export type SectorRotationForecastDirection = "strong-up" | "up" | "range" | "down" | "strong-down";
 export type ModelAvailability = "trained" | "not_trained" | "not_implemented";
-export type PublicationStatus = "published" | "abstained" | "insufficient_data" | "not_applicable";
+export type PublicationStatus = "published" | "abstained" | "insufficient_data" | "not_applicable" | "unavailable";
 export type PredictionOutputMode = "probability" | "evidence_observation" | "current_observation" | "none";
 export type CalibrationStatus = "enabled" | "disabled" | "collapsed" | "not_applicable" | "legacy_unknown";
 export type ProbabilitySource = "raw_model" | "calibrated_model" | "historical_base_rate" | "legacy_unknown" | "none";
@@ -629,7 +629,7 @@ export interface PredictionHistoryFilter {
   month: string;
   market: "a-share" | "hk" | "us";
   horizon: 1 | 5 | 20;
-  status: "all" | "published" | "abstained" | "unavailable" | "evaluated" | "pending";
+  status: "all" | "published" | "abstained" | "insufficient" | "unavailable" | "evaluated" | "pending";
   modelVersion: string;
   probabilityTarget: ProbabilityTarget | "all";
   lineage: "all" | "current" | "legacy";

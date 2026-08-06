@@ -25996,7 +25996,8 @@
       "abstained": 144,
       "insufficient_data": 0,
       "not_applicable": 144,
-      "published": 36
+      "published": 36,
+      "unavailable": 0
     }
   },
   "yearMonth": "2026-07"
