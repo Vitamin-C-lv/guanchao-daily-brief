@@ -92,6 +92,7 @@ const TOP_KEYS = [
 ];
 const ARTICLE_KEYS = [
   "articleUrl",
+  "analysisSections",
   "conclusion",
   "contentKind",
   "crossMarketTransmission",
@@ -125,6 +126,7 @@ const OUTLOOK_KEYS = ["nextSession", "oneWeek"];
 const OUTLOOK_ITEM_KEYS = ["invalidationConditionIds", "statement", "supportingSourceIds"];
 const CONDITION_KEYS = ["affectedClaims", "condition", "id"];
 const WATCH_ITEM_KEYS = ["expectedAt", "item", "sourceIds", "whyItMatters"];
+const ANALYSIS_SECTION_KEYS = ["heading", "paragraphs", "sourceIds"];
 const SOURCE_KEYS = ["asOf", "id", "publisher", "title", "url"];
 const TRIGGER_KEYS = ["eligible", "id", "reason", "triggerEvidenceIds", "triggerType"];
 const EVENT_KEYS = [
@@ -212,6 +214,19 @@ function stringArray(value, articleId, errorPath, { min = 0, max = 50, itemMax =
   return value;
 }
 
+function canonicalSourceUrl(value) {
+  const url = new URL(value);
+  url.hash = "";
+  return url.toString();
+}
+
+function officialPublisherDomainPass(publisher, url) {
+  const hostname = new URL(url).hostname.toLowerCase();
+  if (publisher === "Federal Reserve") return hostname === "federalreserve.gov" || hostname.endsWith(".federalreserve.gov");
+  if (publisher === "U.S. Department of the Treasury") return hostname === "treasury.gov" || hostname.endsWith(".treasury.gov");
+  return true;
+}
+
 function scanForbiddenKeys(value, articleId, errorPath = "$") {
   if (Array.isArray(value)) {
     value.forEach((item, index) => scanForbiddenKeys(item, articleId, `${errorPath}[${index}]`));
@@ -229,6 +244,7 @@ function scanForbiddenKeys(value, articleId, errorPath = "$") {
 function validateSourceIndex(value, articleId) {
   if (!Array.isArray(value) || value.length < 1) fail("INVALID_ARRAY", articleId, "sourceIndex", "at least one source is required");
   const ids = new Set();
+  const canonicalUrls = new Map();
   for (let index = 0; index < value.length; index += 1) {
     const source = value[index];
     const pathName = `sourceIndex[${index}]`;
@@ -239,15 +255,36 @@ function validateSourceIndex(value, articleId) {
     stringValue(source.title, articleId, `${pathName}.title`, { max: 200 });
     stringValue(source.publisher, articleId, `${pathName}.publisher`, { max: 120 });
     stringValue(source.url, articleId, `${pathName}.url`, { max: 500 });
+    let url;
     try {
-      const url = new URL(source.url);
-      if (url.protocol !== "https:") fail("INVALID_URL", articleId, `${pathName}.url`, "HTTPS source URL required");
+      url = new URL(source.url);
     } catch {
       fail("INVALID_URL", articleId, `${pathName}.url`, "valid HTTPS source URL required");
     }
+    if (url.protocol !== "https:") fail("INVALID_URL", articleId, `${pathName}.url`, "HTTPS source URL required");
+    const canonical = canonicalSourceUrl(source.url);
+    const previous = canonicalUrls.get(canonical);
+    if (previous) fail("DUPLICATE_CANONICAL_URL", articleId, `${pathName}.url`, `canonical URL already belongs to ${previous}`);
+    canonicalUrls.set(canonical, source.id);
+    if (!officialPublisherDomainPass(source.publisher, source.url)) fail("OFFICIAL_PUBLISHER_DOMAIN", articleId, `${pathName}.publisher`, "official publisher must use its official domain or be downgraded to the real publisher");
     validDate(source.asOf, articleId, `${pathName}.asOf`, { nullable: true });
   }
   return ids;
+}
+
+function validateAnalysisSections(value, articleId, pathName, sourceIds, articleSourceIds) {
+  if (!Array.isArray(value) || value.length < 1 || value.length > 7) fail("INVALID_ARRAY", articleId, pathName, "one to seven analysis sections are required");
+  const headings = new Set();
+  for (let index = 0; index < value.length; index += 1) {
+    const item = value[index];
+    const itemPath = `${pathName}[${index}]`;
+    exactKeys(item, ANALYSIS_SECTION_KEYS, ANALYSIS_SECTION_KEYS, articleId, itemPath);
+    stringValue(item.heading, articleId, `${itemPath}.heading`, { max: 120 });
+    if (headings.has(item.heading)) fail("DUPLICATE_VALUE", articleId, `${itemPath}.heading`, "analysis section headings must be unique");
+    headings.add(item.heading);
+    stringArray(item.paragraphs, articleId, `${itemPath}.paragraphs`, { min: 1, max: 6, itemMax: 1200 });
+    validateSourceRefs(item.sourceIds, articleId, `${itemPath}.sourceIds`, sourceIds, articleSourceIds, { min: 1 });
+  }
 }
 
 function validateSourceRefs(value, articleId, errorPath, sourceIds, articleSourceIds, { min = 0 } = {}) {
@@ -285,7 +322,7 @@ function validateOutlook(value, articleId, pathName, sourceIds, articleSourceIds
 
 function validateArticle(value, articleId, sourceIds, { special = false, dataAsOf = null } = {}) {
   const keys = special ? SPECIAL_ARTICLE_KEYS : ARTICLE_KEYS;
-  exactKeys(value, keys, keys, articleId, articleId);
+  exactKeys(value, special ? keys.filter((key) => key !== "analysisSections") : keys, keys, articleId, articleId);
   slugValue(value.id, articleId, `${articleId}.id`);
   slugValue(value.slug, articleId, `${articleId}.slug`);
   if (value.id !== value.slug) fail("ARTICLE_ID", articleId, `${articleId}.slug`, "id and slug must match");
@@ -322,6 +359,8 @@ function validateArticle(value, articleId, sourceIds, { special = false, dataAsO
     if (fact.factStatus === "unavailable" && (fact.value !== null || !Object.hasOwn(fact, "value"))) fail("UNAVAILABLE_VALUE", articleId, `${factPath}.value`, "unavailable facts must preserve value as null");
     if (fact.factStatus === "unavailable" && /\b0+(?:\.0+)?\b/.test(fact.statement)) fail("UNAVAILABLE_VALUE", articleId, `${factPath}.statement`, "unavailable facts must not be represented as zero");
   }
+
+  if (!special || Object.hasOwn(value, "analysisSections")) validateAnalysisSections(value.analysisSections, articleId, `${articleId}.analysisSections`, sourceIds, articleSourceIds);
 
   if (!Array.isArray(value.logicChain) || value.logicChain.length < 1) fail("INVALID_ARRAY", articleId, `${articleId}.logicChain`, "at least one logic-chain edge is required");
   for (let index = 0; index < value.logicChain.length; index += 1) {

@@ -8,9 +8,12 @@ import { gunzipSync, gzipSync } from "node:zlib";
 
 import { canonicalize, canonicalJson, sha256Canonical } from "./research-contract.mjs";
 import { validateGlobalMarketBrief } from "./global-market-brief-contract.mjs";
+import { writeGlobalMarketBrief } from "./global-market-brief-storage.mjs";
 import {
   GLOBAL_MARKET_BRIEF_MODE,
+  formatPacketFactStatement,
   loadWriterContextRegistry,
+  validatePacketFactDirection,
   validateRepoRelativePath,
   validateWriterContext,
   validateWriterContextArtifacts
@@ -627,6 +630,10 @@ function globalArticles(payload) {
   return [payload.mainArticle, ...(payload.specialReports ?? [])];
 }
 
+function normalizedFactId(value) {
+  return String(value ?? "").replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
+}
+
 export function validateGlobalWriterPayload(request, inputs, payload) {
   try {
     validateGlobalMarketBrief(payload);
@@ -655,11 +662,19 @@ export function validateGlobalWriterPayload(request, inputs, payload) {
       const frozen = frozenFacts.get(fact.id);
       if (!frozen) error("GLOBAL_FACT_SCOPE", `payload.${article.id}.keyFacts.${fact.id}`, "writer introduced a key fact outside the frozen context");
       if (canonicalJson(fact) !== canonicalJson(frozen)) error("GLOBAL_FACT_MUTATION", `payload.${article.id}.keyFacts.${fact.id}`, "writer changed a frozen fact or number");
+      const packetFact = inputs.packet?.facts?.find((candidate) => normalizedFactId(candidate.factId) === fact.id);
+      if (packetFact) {
+        validatePacketFactDirection(packetFact, fact.statement);
+        if (fact.statement !== formatPacketFactStatement(packetFact) || fact.value !== (packetFact.value ?? null) || (fact.unit ?? null) !== (packetFact.unit ?? null)) {
+          error("GLOBAL_PACKET_FACT_MUTATION", `payload.${article.id}.keyFacts.${fact.id}`, "writer changed frozen packet value, unit, change direction, or change text");
+        }
+      }
     }
     for (const edge of article.logicChain) {
       for (const sourceId of [...edge.supportingSourceIds, ...edge.contradictorySourceIds]) if (!frozenSources.has(sourceId)) error("GLOBAL_LOGIC_SCOPE", `payload.${article.id}.logicChain`, "logic-chain evidence is outside the frozen source scope");
     }
     for (const transmission of article.crossMarketTransmission) for (const sourceId of transmission.supportingSourceIds) if (!frozenSources.has(sourceId)) error("GLOBAL_LOGIC_SCOPE", `payload.${article.id}.crossMarketTransmission`, "cross-market evidence is outside the frozen source scope");
+    for (const section of article.analysisSections ?? []) for (const sourceId of section.sourceIds ?? []) if (!frozenSources.has(sourceId)) error("GLOBAL_ANALYSIS_SCOPE", `payload.${article.id}.analysisSections`, "analysis evidence is outside the frozen source scope");
   }
   const numericValues = [];
   const collectNumbers = (value) => {
@@ -846,13 +861,32 @@ function validateWeeklyPublication(rootDir, target, payload, publication) {
   }
 }
 
-export function apply({ request, result, dryRun = false, write = false, rootDir = root, failAt = null } = {}) {
+export function apply({ request, result, dryRun = false, write = false, rootDir = root, failAt = null, replacement = null } = {}) {
   if (dryRun === write) error("APPLY_MODE", "mode", "exactly one of dryRun or write is required");
   validateResult(rootDir, request, result);
   const target = request.targetOutputs[0];
   validatePayload(rootDir, target, result.payload);
   if (request.mode === GLOBAL_MARKET_BRIEF_MODE) {
-    return { mode: GLOBAL_MARKET_BRIEF_MODE, noOp: false, applied: false, wrote: false, files: [], productionApply: { applied: false, reason: "global_market_brief is dry-run only in P2-B1" } };
+    const storage = writeGlobalMarketBrief({
+      rootDir,
+      brief: result.payload,
+      dryRun,
+      write,
+      failAt,
+      replaceExisting: replacement?.mode === "explicit-replace",
+      expectedExistingBusinessSha256: replacement?.expectedExistingBusinessSha256 ?? null,
+    });
+    return {
+      mode: GLOBAL_MARKET_BRIEF_MODE,
+      noOp: storage.noOp,
+      applied: Boolean(write && storage.wrote),
+      wrote: storage.wrote,
+      files: storage.files,
+      wouldWrite: storage.wouldWrite,
+      allowedFiles: storage.allowedFiles,
+      productionApply: { applied: false, reason: "feature-branch-content-only" },
+      storage,
+    };
   }
   const paths = createWriterJobPaths(rootDir);
   const accepted = paths.accepted(request.jobId, request.requestedAsOf);

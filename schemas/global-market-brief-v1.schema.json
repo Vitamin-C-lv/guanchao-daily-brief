@@ -101,6 +101,16 @@
         }
       ]
     },
+    "analysisSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["heading", "paragraphs", "sourceIds"],
+      "properties": {
+        "heading": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "paragraphs": { "type": "array", "minItems": 1, "maxItems": 6, "items": { "type": "string", "minLength": 1, "maxLength": 1200 } },
+        "sourceIds": { "$ref": "#/$defs/sourceIds" }
+      }
+    },
     "logicEdge": {
       "type": "object",
       "additionalProperties": false,
@@ -223,12 +233,13 @@
     "mainArticle": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["articleUrl", "conclusion", "contentKind", "crossMarketTransmission", "dek", "id", "invalidationConditions", "keyFacts", "logicChain", "marketTags", "outlook", "slug", "sourceIds", "title", "topicTags", "watchItems"],
+      "required": ["analysisSections", "articleUrl", "conclusion", "contentKind", "crossMarketTransmission", "dek", "id", "invalidationConditions", "keyFacts", "logicChain", "marketTags", "outlook", "slug", "sourceIds", "title", "topicTags", "watchItems"],
       "properties": {
         "id": { "$ref": "#/$defs/slug" },
         "slug": { "$ref": "#/$defs/slug" },
         "articleUrl": { "type": "string", "pattern": "^/articles/[a-z0-9][a-z0-9._-]{1,79}/$" },
         "contentKind": { "const": "global_main" },
+        "analysisSections": { "type": "array", "minItems": 1, "maxItems": 7, "items": { "$ref": "#/$defs/analysisSection" } },
         "title": { "type": "string", "minLength": 1, "maxLength": 200 },
         "dek": { "type": "string", "minLength": 1, "maxLength": 500 },
         "conclusion": { "type": "string", "minLength": 1, "maxLength": 1200 },

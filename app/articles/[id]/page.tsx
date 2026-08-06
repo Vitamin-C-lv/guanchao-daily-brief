@@ -4,22 +4,27 @@ import ArticleReport from "@/components/ArticleReport";
 import GlobalBriefArticleView from "@/components/GlobalBriefArticleView";
 import dailyBrief from "@/content/daily-brief.json";
 import { collectArticleRecords, findArticleRecord } from "@/lib/articles";
+import { collectGlobalMarketBriefArticleIds, findGlobalMarketBriefArticle, loadGlobalMarketBriefArticles } from "@/lib/global-market-brief-article";
 import { collectGlobalPublicArticleIds, findGlobalPublicArticle, loadGlobalMarketBriefPublic } from "@/lib/global-market-brief-public";
 import type { DailyBrief } from "@/lib/types";
 
 const data = dailyBrief as DailyBrief;
 const globalBrief = loadGlobalMarketBriefPublic(process.env.GUANCHAO_GLOBAL_PUBLIC_DTO_PATH);
+const globalArticles = loadGlobalMarketBriefArticles();
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
   const legacyIds = collectArticleRecords(data).map(({ article }) => article.id);
+  const fullGlobalIds = collectGlobalMarketBriefArticleIds(globalArticles);
   const globalIds = globalBrief ? collectGlobalPublicArticleIds(globalBrief) : [];
-  return [...new Set([...legacyIds, ...globalIds])].map((id) => ({ id }));
+  return [...new Set([...legacyIds, ...fullGlobalIds, ...globalIds])].map((id) => ({ id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const { id } = await params;
+  const fullArticle = findGlobalMarketBriefArticle(globalArticles, id);
+  if (fullArticle) return { title: `${fullArticle.title} · 观潮`, description: fullArticle.dek };
   const globalArticle = globalBrief ? findGlobalPublicArticle(globalBrief, id) : null;
   if (globalArticle) {
     return {
@@ -37,6 +42,11 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const fullArticle = findGlobalMarketBriefArticle(globalArticles, id);
+  if (fullArticle) {
+    const relatedSpecialReports = fullArticle.kind === "global_main" ? globalArticles.filter((article) => article.kind === "special_report") : [];
+    return <GlobalBriefArticleView article={fullArticle} relatedSpecialReports={relatedSpecialReports} />;
+  }
   const globalArticle = globalBrief ? findGlobalPublicArticle(globalBrief, id) : null;
   if (globalArticle && globalBrief) return <GlobalBriefArticleView article={globalArticle} data={globalBrief} />;
   const record = findArticleRecord(data, id);

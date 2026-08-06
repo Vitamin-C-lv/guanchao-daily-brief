@@ -4,7 +4,8 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { canonicalJson } from "./research-contract.mjs";
+import { canonicalJson, sha256Canonical } from "./research-contract.mjs";
+import { validateGlobalMarketBrief, validateGlobalMarketBriefPublicDto } from "./global-market-brief-contract.mjs";
 import { loadEditorialStyle, lintEditorial } from "./editorial-lint.mjs";
 import { validateCodexResearch } from "./codex-research.mjs";
 import { validateVisualBundle } from "./article-visuals.mjs";
@@ -58,6 +59,17 @@ function readJson(file) {
   } catch {
     fail("INPUT_JSON", file, "JSON input is missing or invalid");
   }
+}
+
+function explicitGlobalReplacement(root, payload) {
+  const historyFile = path.join(root, "content", "global-market-briefs", `${payload.editionDate}.json`);
+  if (!fs.existsSync(historyFile)) return null;
+  const existing = readJson(historyFile);
+  const { generatedAt, ...business } = existing;
+  return {
+    mode: "explicit-replace",
+    expectedExistingBusinessSha256: sha256Canonical(business),
+  };
 }
 
 function writeJsonOutside(file, value, root) {
@@ -165,6 +177,23 @@ function allowedApplyFile(file, request, root) {
   if (relative === "data/writer-jobs/index.json" || relative === "content/writer-jobs/daily-pending.json" || relative === "content/writer-jobs/weekly-pending.json") return true;
   if (request.edition === "weekly" && (relative === "content/weekly-reports/index.json" || relative === "public/update-notices.json")) return true;
   return false;
+}
+
+function validateGlobalPublication(root, storage) {
+  const historyPath = storage.allowedFiles.find((file) => file.startsWith("content/global-market-briefs/"));
+  const publicPath = "content/global-market-brief-public.json";
+  if (historyPath === undefined || !storage.allowedFiles.includes(publicPath)) fail("GLOBAL_PUBLICATION", "files", "global storage did not return the two approved content files");
+  const historyFile = path.join(root, ...historyPath.split("/"));
+  const publicFile = path.join(root, ...publicPath.split("/"));
+  const history = readJson(historyFile);
+  const publicDto = readJson(publicFile);
+  try {
+    validateGlobalMarketBrief(history);
+    validateGlobalMarketBriefPublicDto(publicDto);
+  } catch (cause) {
+    fail("GLOBAL_PUBLICATION", historyPath, cause instanceof Error ? cause.message : "global publication validation failed");
+  }
+  return { historyPath, publicPath, status: "valid" };
 }
 
 function validateTargetAfterApply(root, request) {
@@ -287,12 +316,21 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
   validateRequest(request, { rootDir: root });
   const result = readJson(path.resolve(resultFile));
   if (request.mode === "global_market_brief") {
-    if (write) fail("GLOBAL_PRODUCTION_DISABLED", "productionApply", "global_market_brief production apply is disabled in P2-B1");
     const beforeProtected = protectedFiles(root);
     validateResult(root, request, result);
     const lint = lintEditorial({ mode: "global_market_brief", value: result.payload, result, style: {} });
     if (!lint.passed) fail("EDITORIAL_LINT", "result.payload", lint.errors.join("; "));
-    const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root });
+    const replacement = explicitGlobalReplacement(root, result.payload);
+    const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root, replacement });
+    const approvedFiles = new Set(["content/global-market-brief-public.json", `content/global-market-briefs/${result.payload.editionDate}.json`]);
+    for (const file of [...simulation.files, ...(simulation.wouldWrite ?? [])]) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer may only write history and latest public DTO");
+    let applied = simulation;
+    let targetValidation = null;
+    if (write) {
+      applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root, replacement });
+      for (const file of applied.files) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer wrote an unapproved file");
+      targetValidation = validateGlobalPublication(root, applied);
+    }
     const afterProtected = protectedFiles(root);
     assertProtectedEqual(beforeProtected, afterProtected);
     const report = {
@@ -308,11 +346,12 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
       bundleId: null,
       editorialLint: lint,
       articleDepth: null,
-      productionApply: { ...simulation, applied: false, productionApply: { applied: false } },
+      featureBranchWrite: applied,
+      productionApply: { applied: false, reason: "feature-branch-content-only" },
       protectedBoundary: { checked: Object.keys(beforeProtected).length, unchanged: true },
-      targetValidation: null,
-      dryRun: true,
-      wrote: false,
+      targetValidation,
+      dryRun,
+      wrote: Boolean(write && applied.wrote),
       output: output ?? null
     };
     if (output) writeJsonOutside(path.resolve(output), report, root);

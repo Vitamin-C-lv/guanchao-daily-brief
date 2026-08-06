@@ -280,7 +280,7 @@ export async function prepareCodexWriter({
   const asOf = packet.marketDates?.aShare;
   if (typeof asOf !== "string" || !DATE.test(asOf)) fail("PACKET_DATE", "packet.marketDates.aShare", "packet market date is required");
   const packetPlan = packetArtifactPlan(packet, root);
-  const baseline = baselineSource ?? (mode === "global_market_brief" ? "content/writer-contexts/fixtures/p2-b1-global-baseline.json" : defaultBaselineSource(root, edition));
+  const baseline = baselineSource ?? (mode === "global_market_brief" ? "data/global-market-brief-baseline-v1.json" : defaultBaselineSource(root, edition));
   const baselineFile = resolveRootFile(root, baseline, "baselineSource");
   if (!fs.existsSync(baselineFile)) fail("BASELINE", baseline, "baseline source is missing");
   if (mode === "global_market_brief" && typeof globalInput !== "string") fail("GLOBAL_INPUT", "globalInput", "global seed path is required");

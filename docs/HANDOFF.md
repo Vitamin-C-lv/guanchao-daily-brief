@@ -135,3 +135,15 @@ or touches the prediction ledger.
 - 自动化仍暂停；本任务没有恢复、创建或修改日报/周报 automation。下一阶段允许从同一个最新 `main` 并行启动 P2-B1、P2-B2、P2-B3；三个 lane 的兼容性由 P2-B4 集成。
 - B1 负责研究包、Writer context、生成链、Validator、editorial lint；B2 负责本机 `guanchao-financial-writer` Skill 与质量规则且不提交私人 Skill 正文；B3 负责首页、简报列表、全球主文章卡和专项区。三 lane 不得互相修改热点文件。
 - 港股仍没有历史数据和训练；未训练港股模型、未发布港股概率。本阶段也没有美股模型、新数据源、知识图谱、向量数据库或自动化恢复。
+
+## P2-B4A：全球整合文章集成与真实预览（Draft）
+
+- 当前状态：`Draft`，只在分支 `feature/p2-b4-global-brief-integration-preview` 与独立工作树 `D:\Guanchao-Workspace\worktrees\active\p2-b4-global-brief-integration-preview`；不合并、不发布生产、不恢复 automation。
+- 前置合并已核对：B1 PR #49 merge SHA `ea0298a4bc75773d46f60becb43c4caf3cead600`；B3 PR #48 merge SHA `cc2a82fc717337c4eae9ed687d63e6930ae9851d`。
+- 本次真实冻结输入：research bundle `4c06451a13ac33985c4f8058247d3342e646608ba4cd2df62e4829157759c1d7`（asOf `2026-08-03`、7 documents、4 observations）；writer packet `b2d544c8fc01b1dae46ee0fe42a0215c43beb7ef2121555e67bd4883d838b752`（`partial`，market breadth 仍 unavailable，不回填、不零填）。
+- 真实结果：主文章 `global-market-brief-2026-08-04`，标题“海外风险偏好回暖，估值修复仍等本地确认”，`dataAsOf=2026-08-03`；无合格专项文章，唯一 routine volatility trigger 为 `eligible=false`，不将普通波动升级为专项报告。
+- 受限写入器只允许并已实际写入两份 feature-branch 内容：`content/global-market-briefs/2026-08-04.json` 与 `content/global-market-brief-public.json`。公开 DTO 为字段白名单投影，不暴露内部 diagnostics、Writer context、packet 或 ledger。
+- 隔离恢复实跑：contextId `1273b93110e875da32114fbc93e46c9daf04fd19dfc013c4fcc1378cc510a5e4`；job/requestId `babe97de39fe7f16fa4445b31cb5d689edf2f2623fa424f13a56bc2f512ad51a`；resultId `f1c4214480cf0e8b451d3053ce73f99543682c44045f129b12a34c9ef44daecc`。dry-run 报告 `wrote=false`、`productionApply.applied=false`；显式 write 报告 `wrote=true`、`targetValidation.status=valid`，但 `productionApply.applied=false`，保护边界 328 项 unchanged。
+- 初始实现提交为 `e534be1`，文章读取器/真实内容收尾提交为 `912560d`；B4A 不改变预测模型、概率、排名、发布门槛、prediction ledger 或生产内容。
+- Draft PR #50：<https://github.com/Vitamin-C-lv/guanchao-daily-brief/pull/50>；Dataset validation、Ledger contract、Vercel 与 Vercel Preview Comments 均通过；ledger publish job 按策略 `skipping`。Vercel deployment：<https://guanchao-daily-brief-git-f-2288a4-lxy13738164923-3443s-projects.vercel.app>。
+- 远端 Preview 已部署，但匿名访问被 Vercel protection 重定向到登录页，因此不把远端匿名页面冒充为已目视验收。使用同一 commit 的 `out/` 静态导出在本地 `http://127.0.0.1:3102` 做了真实 DOM/截图 QA：`/`、`/briefs/`、`/articles/global-market-brief-2026-08-04/` 在 1920/1440/390 宽度均无横向溢出；文章标题、跨市场传导、下一交易时段、未来一周、失效条件、来源实际渲染，无 404/Application error。截图证据保留在 `D:\Guanchao-Workspace\temp\p2-b4-global\screenshots\local-dismissed\`。

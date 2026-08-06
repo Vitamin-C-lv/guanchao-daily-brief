@@ -62,6 +62,17 @@
     "slug": "global-main-2026-08-05",
     "articleUrl": "/articles/global-main-2026-08-05/",
     "contentKind": "global_main",
+    "analysisSections": [
+      {
+        "heading": "主线",
+        "paragraphs": [
+          "全球风险偏好与利率、政策和跨市场确认共同决定下一步判断。"
+        ],
+        "sourceIds": [
+          "macro-fed"
+        ]
+      }
+    ],
     "title": "全球风险偏好重新定价，跨市场传导仍需验证",
     "dek": "政策、利率与市场表现形成一条可追踪但尚未闭合的全球逻辑链。",
     "conclusion": "今日重点不是把普通波动拆成三篇市场稿，而是判断政策与风险偏好能否通过美股、港股和 A 股之间的传导得到交叉确认。",
