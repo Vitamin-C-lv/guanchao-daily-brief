@@ -24,9 +24,9 @@
   "generatedAt": "2026-08-07T08:21:48+08:00",
   "lastDate": "2026-08-07",
   "latestReview": {
-    "isoWeek": "2026-W31",
-    "path": "reviews/2026-W31.json",
-    "sha256": "d015f145d471a8577ad13ff06a913f9db02d0c4b817e3397a0a94383c3b85582"
+    "isoWeek": "2026-W32",
+    "path": "reviews/2026-W32.json",
+    "sha256": "b81c17b23dd3c927097a6cb9d5ba749107f33b06158900e04b37971c21f94db8"
   },
   "legacyRecordCount": 36,
   "markets": [
