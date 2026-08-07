@@ -33,6 +33,7 @@
 | ADR-027 | 每日简报采用全球整合主文章，并以预授权触发候选控制重大专项；编辑市场展望与量化模型预测严格隔离。 | 普通波动进入一篇全球主文章，避免固定三市场凑稿；研究包先确定证据、专项资格和失效条件，Writer 只能读取冻结执行包并输出可追溯内容。 |
 | ADR-028 | 阶段二三市场研究使用统一不可变 panel manifest，但 raw snapshot identity 与 normalized panel identity 分离；训练只产生研究/shadow 产物。 | A/HK/US 需要共享 session/object/feature/label 审计和可重放 OOS 评价，同时必须保护受限 raw history、冻结 A 股 champion、生产页面和 prediction ledger。 |
 | ADR-029 | HK/US 生产发布必须通过独立、可复用的 publication gate，且本阶段真实结果全部 blocked；HK/US 账本记录采用 state-only snapshot。 | 未来可复用门禁按样本外证据放行，但阶段二结果不得伪造通过；状态记录不携带概率、不进入评价分母，只有状态变化才新增 snapshot。 |
+| ADR-030 | `/markets` 采用单市场切换 → 三核心指数 → 真实市场广度 → 观察/简报的长期页面层级。 | 将市场事实与预测观察分层，便于 A/HK/US 使用各自核心对象；不改变模型、发布门槛、账本、数据集或自动化架构。 |
 
 ## ADR-027 详细冻结（Accepted）
 

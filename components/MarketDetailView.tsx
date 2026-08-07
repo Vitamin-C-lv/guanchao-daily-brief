@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import DesktopSidebar from "./DesktopSidebar";
 import MobileBottomNav from "./MobileBottomNav";
-import { findMarketInstrument } from "@/lib/market-instruments";
+import { coreMarketInstruments, findMarketInstrument, marketInstrumentPath } from "@/lib/market-instruments";
 import { decodeMarketHistoryDocument, type MarketHistoryDocument } from "@/lib/market-history";
 
 const MarketHistoryChart = dynamic(() => import("./MarketHistoryChart"), { ssr: false, loading: () => <div className="market-chart-loading">正在加载图表引擎…</div> });
@@ -70,6 +70,7 @@ export default function MarketDetailView({ instrumentId }: { instrumentId: strin
   }, [error, history, loading]);
 
   if (!instrument) return null;
+  const coreInstruments = coreMarketInstruments(instrument.market);
   return (
     <div className="market-detail-shell">
       <DesktopSidebar />
@@ -87,6 +88,10 @@ export default function MarketDetailView({ instrumentId }: { instrumentId: strin
             <p className="eyebrow">{instrument.market.toUpperCase()} · DAILY HISTORY</p>
             <h1>{instrument.label}<small>{instrument.id}</small></h1>
             <p>轻量历史看盘：日 K、均线、成交量与 MACD。保留数据来源与真实降级状态，不提供实时分时、盘口或交易功能。</p>
+            <nav className="market-detail-quick-switch" aria-label="同市场核心指数快速切换">
+              <span>同市场核心</span>
+              {coreInstruments.map((core) => <Link key={core.id} className={core.id === instrument.id ? "active" : ""} href={marketInstrumentPath(core)} aria-current={core.id === instrument.id ? "page" : undefined}>{core.shortLabel}</Link>)}
+            </nav>
           </div>
           <span className={`market-data-status status-${history?.status ?? "loading"}`}><i />{history ? statusLabel(history.status) : "校验中"}</span>
         </section>

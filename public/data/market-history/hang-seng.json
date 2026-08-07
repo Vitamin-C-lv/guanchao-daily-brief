@@ -12,7 +12,7 @@
   "asOf": "2026-08-06",
   "source": {
     "provider": "Yahoo Finance chart API（研究缓存派生）",
-    "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EHSI?period1=1672531200&period2=1786153271&interval=1d&events=history",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EHSI?period1=1672531200&period2=1786163625&interval=1d&events=history",
     "delayed": true,
     "note": "原始 provider payload 仅留在 worktree 外私有研究缓存；Git 仅保留标准化派生行情面板。",
     "rawSha256": "a7ac75305457471d1d6b0b80d215c87c377ea10116d4af92fd22fd48f3feedf6"

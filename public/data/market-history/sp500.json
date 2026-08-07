@@ -12,10 +12,10 @@
   "asOf": "2026-08-06",
   "source": {
     "provider": "Yahoo Finance chart API（研究缓存派生）",
-    "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?period1=1672531200&period2=1786153271&interval=1d&events=history",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?period1=1672531200&period2=1786163625&interval=1d&events=history",
     "delayed": true,
     "note": "原始 provider payload 仅留在 worktree 外私有研究缓存；Git 仅保留标准化派生行情面板。",
-    "rawSha256": "98dd90383fa4e7a7be69bd82d7b826330329c859a70d8791b538b81429b75667"
+    "rawSha256": "65fb6087cbdba1ef7e488f4ee38d103c268c6fd1f3a56312c48efdd2bab914a4"
   },
   "bars": [
     {
@@ -7224,7 +7224,7 @@
       "high": 7742.85009765625,
       "low": 7698.14990234375,
       "close": 7709.9599609375,
-      "volume": 3047791000
+      "volume": 5330830000
     }
   ]
 }
