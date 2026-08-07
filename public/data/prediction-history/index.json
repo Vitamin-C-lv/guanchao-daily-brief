@@ -4,7 +4,7 @@
     "2026-08"
   ],
   "contractVersion": "prediction-ledger-v1",
-  "currentRecordCount": 330,
+  "currentRecordCount": 387,
   "evaluatedRecordCount": 300,
   "files": [
     {
@@ -15,14 +15,14 @@
     },
     {
       "path": "2026-08.json",
-      "recordCount": 42,
-      "sha256": "ebe2344a3c6b5480ade6b0ad78d2aafb7d9cf9858f96cd10f1c409a4f4107981",
+      "recordCount": 99,
+      "sha256": "b9092cbe470dcb8f92c9d070abdeb5433635de6bacb98dcbf95cd2bb9f3bb74c",
       "yearMonth": "2026-08"
     }
   ],
   "firstDate": "2026-07-21",
-  "generatedAt": "2026-08-04T15:36:13+08:00",
-  "lastDate": "2026-08-04",
+  "generatedAt": "2026-08-07T08:21:48+08:00",
+  "lastDate": "2026-08-07",
   "latestReview": {
     "isoWeek": "2026-W31",
     "path": "reviews/2026-W31.json",
@@ -38,8 +38,10 @@
     "2026-07-20-probability-v1",
     "2026-07-21-relative-v2",
     "hk-model-not-trained",
+    "hk-regularized-logistic-shadow-v1",
     "hk-relative-model-not-trained",
-    "us-model-not-implemented"
+    "us-model-not-implemented",
+    "us_nasdaq-regularized-logistic-shadow-v1"
   ],
   "pendingRecordCount": 24,
   "policy": {
@@ -47,13 +49,13 @@
     "internalFieldsExcluded": true,
     "recordLimit": null
   },
-  "recordCount": 366,
+  "recordCount": 423,
   "schemaVersion": 1,
   "statusSummary": {
-    "abstained": 180,
-    "insufficient_data": 0,
-    "not_applicable": 150,
+    "abstained": 222,
+    "insufficient_data": 3,
+    "not_applicable": 156,
     "published": 36,
-    "unavailable": 0
+    "unavailable": 6
   }
 }

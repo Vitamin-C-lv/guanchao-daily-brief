@@ -639,6 +639,35 @@
       "runId": "prun-20260804-3da6234ebe6fc0c1a556",
       "sha256": "f1ccfec9d87ca85330f15d21299218e032f5cef20ec237c157151cb04432d458",
       "size": 3921
+    },
+    {
+      "createdAt": "2026-08-06T20:00:00+08:00",
+      "dataAsOf": "2026-08-06",
+      "eventId": null,
+      "kind": "snapshot",
+      "modelVersions": [
+        "hk-regularized-logistic-shadow-v1",
+        "us_nasdaq-regularized-logistic-shadow-v1"
+      ],
+      "path": "snapshots/2026/08/prun-20260806-b192988837409df02f82.json.gz",
+      "runId": "prun-20260806-b192988837409df02f82",
+      "sha256": "1922939a01203a890eccd2d2e0b755de38f83970e4aae7039e0522e25ca3dde4",
+      "size": 1793
+    },
+    {
+      "createdAt": "2026-08-07T08:21:48+08:00",
+      "dataAsOf": "2026-08-07",
+      "eventId": null,
+      "kind": "snapshot",
+      "modelVersions": [
+        "2026-07-21-relative-v2",
+        "hk-model-not-trained",
+        "us-model-not-implemented"
+      ],
+      "path": "snapshots/2026/08/prun-20260807-b265e61b9da21e99717d.json.gz",
+      "runId": "prun-20260807-b265e61b9da21e99717d",
+      "sha256": "b6122ad29c7798fa4a7fe7efa7b0f4805fcfcd3586358af92157d0c03ed81b60",
+      "size": 3846
     }
   ],
   "schemaVersion": 1,
