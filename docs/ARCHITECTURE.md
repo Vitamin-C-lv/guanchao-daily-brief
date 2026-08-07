@@ -152,3 +152,21 @@ P2-B0 保留明确迁移窗口：旧 `daily-brief-v1`/三市场生产链只有�
 - `/predictions/history` 保留按月分片与哈希校验，新增当前三市场状态摘要与“数据不足”筛选；弃权、未训练、数据不可用不计为错误，legacy/current 与市场/目标/周期保持隔离。
 - 账本：HK/US 状态写入 state-only snapshot，`probability/expectedReturn=null`、evaluation 不适用、相同状态跨天幂等；公开分片保留状态记录，`statusSummary` 增加 `unavailable`；生产账本在 PR 审查阶段不写入。
 - 自动化：既有本机 `guanchao-prediction-publisher` 任务保持不变（Asia/Shanghai 06:45，无重复任务）；日报 07:30 与周报周六 10:00 自动化未改动；发布前必须 `pnpm automation:consistency` 通过，dry-run 不写、不 commit、不 push。
+
+## 阶段四：全站导航与轻量看盘详情（2026-08-07，Draft）
+
+本阶段只增加页面导航、标准化市场历史 DTO 与只读行情详情，不进入预测模型、发布门禁、概率、排名、文章、账本或自动化调度链：
+
+```text
+market-history source adapter
+  → private raw/cache（仓库外）
+  → normalized public-market-history-v1 DTO
+  → /markets 卡片与 /markets/[market]/[instrument] 详情页
+```
+
+- 导航只有一个 `DesktopSidebar` 实现；`lib/site-navigation.ts` 负责路径归一化与 active 状态，桌面侧栏统一使用 `/`、`/predictions`、`/markets` 入口，移动端仍由五项底部导航负责。
+- `lib/market-instruments.ts` 是 9 个指数的唯一 registry，集中维护 market、route、provider symbol、currency、timezone 和别名；卡片入口与详情路由不得各自散落 symbol 映射。
+- `public-market-history-v1` 每个标的独立 JSON，要求日期唯一递增、OHLC 不变量、无未来日期；`ready` 至少 252 条有效 sessions，`partial`/`stale`/`unavailable` 必须保留真实原因。`null` 保留为未知，不用零值或其他指数替代。
+- `MarketHistoryChart` 只通过官方 Lightweight Charts 5.x 直接 API 创建和清理 chart/series/listener；K 线方向为红涨绿跌，MA 使用中性颜色，MACD/成交量继承方向语义。图表为 client-only 动态加载，支持 ResizeObserver、触控缩放/拖动和 fullscreen。
+- 数据源审计元数据、source URL、asOf、延迟和 raw hash 只通过标准化 DTO 的白名单字段暴露；raw provider payload 与私有 cache 不进入 Git 或 Review ZIP。
+- `scripts/build-market-history.mjs` 的 `--dry-run` 不写文件；`--write` 只在非空且通过契约校验时原子更新，provider 失败或空结果保留旧数据并显式降级。本阶段不接入新 automation、不改变任何既有时间表，也不写 `data/prediction-ledger/`。

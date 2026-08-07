@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "public-market-history-v1",
+  "instrument": {
+    "id": "hang-seng-tech",
+    "market": "hk",
+    "slug": "hang-seng-tech",
+    "label": "恒生科技",
+    "currency": "点",
+    "timezone": "Asia/Hong_Kong"
+  },
+  "status": "partial",
+  "asOf": "2026-08-06",
+  "source": {
+    "provider": "Yahoo Finance chart API（研究缓存派生）",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/HSTECH.HK?period1=1672531200&period2=1786153271&interval=1d&events=history",
+    "delayed": true,
+    "note": "仅保留来源实际返回的 post-launch 观测；未做历史回填，少于一年时明确降级。",
+    "rawSha256": "5df1a7c2e447318c7d7ed6c571675092aca0bf7454f8912212cb977057a6fbc4"
+  },
+  "bars": [
+    {
+      "time": "2026-08-06",
+      "open": 4884.080078125,
+      "high": 4890.77978515625,
+      "low": 4809.740234375,
+      "close": 4813.830078125,
+      "volume": 0
+    }
+  ]
+}

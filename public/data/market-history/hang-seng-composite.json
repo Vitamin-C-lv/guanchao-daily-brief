@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "public-market-history-v1",
+  "instrument": {
+    "id": "hang-seng-composite",
+    "market": "hk",
+    "slug": "hang-seng-composite",
+    "label": "恒生综合",
+    "currency": "点",
+    "timezone": "Asia/Hong_Kong"
+  },
+  "status": "unavailable",
+  "asOf": null,
+  "source": {
+    "provider": "暂无可用来源",
+    "url": null,
+    "delayed": true,
+    "note": "恒生综合没有经过来源审计的可用历史接口；页面保留真实 unavailable 状态，不用其他指数替代。"
+  },
+  "bars": []
+}

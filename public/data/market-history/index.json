@@ -1,0 +1,214 @@
+{
+  "schemaVersion": "public-market-history-v1",
+  "generatedAt": "2026-08-07T00:00:00+08:00",
+  "targetYears": 3,
+  "minimumReadyRows": 252,
+  "instruments": [
+    {
+      "instrument": {
+        "id": "sse-composite",
+        "market": "a-share",
+        "slug": "sse-composite",
+        "label": "上证指数",
+        "currency": "点",
+        "timezone": "Asia/Shanghai"
+      },
+      "path": "sse-composite.json",
+      "status": "ready",
+      "asOf": "2026-08-07",
+      "source": {
+        "provider": "腾讯财经历史日K",
+        "url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sh000001,day,2023-01-01,2026-08-07,600,qfq",
+        "delayed": true,
+        "note": "公开收盘日K接口；页面只使用标准化派生数据，原始 provider payload 保留在 worktree 外私有缓存。",
+        "rawSha256": "59d26d4398183b7d45afce10e61b13b2308b189548b6a5bdbae6c03de7ede907"
+      },
+      "rowCount": 601,
+      "firstDate": "2024-02-19",
+      "lastDate": "2026-08-07"
+    },
+    {
+      "instrument": {
+        "id": "szse-component",
+        "market": "a-share",
+        "slug": "szse-component",
+        "label": "深证成指",
+        "currency": "点",
+        "timezone": "Asia/Shanghai"
+      },
+      "path": "szse-component.json",
+      "status": "ready",
+      "asOf": "2026-08-07",
+      "source": {
+        "provider": "腾讯财经历史日K",
+        "url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz399001,day,2023-01-01,2026-08-07,600,qfq",
+        "delayed": true,
+        "note": "公开收盘日K接口；页面只使用标准化派生数据，原始 provider payload 保留在 worktree 外私有缓存。",
+        "rawSha256": "ed2dcda29f310e8acf338145c8619d9aba888df5e2aaa6197227246d9abf4507"
+      },
+      "rowCount": 601,
+      "firstDate": "2024-02-19",
+      "lastDate": "2026-08-07"
+    },
+    {
+      "instrument": {
+        "id": "chinext",
+        "market": "a-share",
+        "slug": "chinext",
+        "label": "创业板指",
+        "currency": "点",
+        "timezone": "Asia/Shanghai"
+      },
+      "path": "chinext.json",
+      "status": "ready",
+      "asOf": "2026-08-07",
+      "source": {
+        "provider": "腾讯财经历史日K",
+        "url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz399006,day,2023-01-01,2026-08-07,600,qfq",
+        "delayed": true,
+        "note": "公开收盘日K接口；页面只使用标准化派生数据，原始 provider payload 保留在 worktree 外私有缓存。",
+        "rawSha256": "d47dffe2ef17dd1e7368c6493c85ae47f9905e8cea859b991715f7eac50c6ba6"
+      },
+      "rowCount": 601,
+      "firstDate": "2024-02-19",
+      "lastDate": "2026-08-07"
+    },
+    {
+      "instrument": {
+        "id": "hang-seng",
+        "market": "hk",
+        "slug": "hang-seng",
+        "label": "恒生指数",
+        "currency": "点",
+        "timezone": "Asia/Hong_Kong"
+      },
+      "path": "hang-seng.json",
+      "status": "ready",
+      "asOf": "2026-08-06",
+      "source": {
+        "provider": "Yahoo Finance chart API（研究缓存派生）",
+        "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EHSI?period1=1672531200&period2=1786153271&interval=1d&events=history",
+        "delayed": true,
+        "note": "原始 provider payload 仅留在 worktree 外私有研究缓存；Git 仅保留标准化派生行情面板。",
+        "rawSha256": "a7ac75305457471d1d6b0b80d215c87c377ea10116d4af92fd22fd48f3feedf6"
+      },
+      "rowCount": 9771,
+      "firstDate": "1986-12-31",
+      "lastDate": "2026-08-06"
+    },
+    {
+      "instrument": {
+        "id": "hang-seng-tech",
+        "market": "hk",
+        "slug": "hang-seng-tech",
+        "label": "恒生科技",
+        "currency": "点",
+        "timezone": "Asia/Hong_Kong"
+      },
+      "path": "hang-seng-tech.json",
+      "status": "partial",
+      "asOf": "2026-08-06",
+      "source": {
+        "provider": "Yahoo Finance chart API（研究缓存派生）",
+        "url": "https://query1.finance.yahoo.com/v8/finance/chart/HSTECH.HK?period1=1672531200&period2=1786153271&interval=1d&events=history",
+        "delayed": true,
+        "note": "仅保留来源实际返回的 post-launch 观测；未做历史回填，少于一年时明确降级。",
+        "rawSha256": "5df1a7c2e447318c7d7ed6c571675092aca0bf7454f8912212cb977057a6fbc4"
+      },
+      "rowCount": 1,
+      "firstDate": "2026-08-06",
+      "lastDate": "2026-08-06"
+    },
+    {
+      "instrument": {
+        "id": "hang-seng-composite",
+        "market": "hk",
+        "slug": "hang-seng-composite",
+        "label": "恒生综合",
+        "currency": "点",
+        "timezone": "Asia/Hong_Kong"
+      },
+      "path": "hang-seng-composite.json",
+      "status": "unavailable",
+      "asOf": null,
+      "source": {
+        "provider": "暂无可用来源",
+        "url": null,
+        "delayed": true,
+        "note": "恒生综合没有经过来源审计的可用历史接口；页面保留真实 unavailable 状态，不用其他指数替代。"
+      },
+      "rowCount": 0,
+      "firstDate": null,
+      "lastDate": null
+    },
+    {
+      "instrument": {
+        "id": "sp500",
+        "market": "us",
+        "slug": "sp500",
+        "label": "标普500",
+        "currency": "点",
+        "timezone": "America/New_York"
+      },
+      "path": "sp500.json",
+      "status": "ready",
+      "asOf": "2026-08-06",
+      "source": {
+        "provider": "Yahoo Finance chart API（研究缓存派生）",
+        "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?period1=1672531200&period2=1786153271&interval=1d&events=history",
+        "delayed": true,
+        "note": "原始 provider payload 仅留在 worktree 外私有研究缓存；Git 仅保留标准化派生行情面板。",
+        "rawSha256": "98dd90383fa4e7a7be69bd82d7b826330329c859a70d8791b538b81429b75667"
+      },
+      "rowCount": 901,
+      "firstDate": "2023-01-03",
+      "lastDate": "2026-08-06"
+    },
+    {
+      "instrument": {
+        "id": "nasdaq-composite",
+        "market": "us",
+        "slug": "nasdaq-composite",
+        "label": "纳斯达克综合",
+        "currency": "点",
+        "timezone": "America/New_York"
+      },
+      "path": "nasdaq-composite.json",
+      "status": "ready",
+      "asOf": "2026-08-05",
+      "source": {
+        "provider": "Yahoo Finance chart API（研究缓存派生）",
+        "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EIXIC?period1=1672531200&period2=1786153271&interval=1d&events=history",
+        "delayed": true,
+        "note": "原始 provider payload 仅留在 worktree 外私有研究缓存；Git 仅保留标准化派生行情面板。",
+        "rawSha256": "5e11281c444e80e51045578a0e07a3b84e0d49a48d58b7da083dc8096434d406"
+      },
+      "rowCount": 13991,
+      "firstDate": "1971-02-05",
+      "lastDate": "2026-08-05"
+    },
+    {
+      "instrument": {
+        "id": "dow-jones",
+        "market": "us",
+        "slug": "dow-jones",
+        "label": "道琼斯",
+        "currency": "点",
+        "timezone": "America/New_York"
+      },
+      "path": "dow-jones.json",
+      "status": "ready",
+      "asOf": "2026-08-06",
+      "source": {
+        "provider": "Yahoo Finance chart API（研究缓存派生）",
+        "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EDJI?period1=1672531200&period2=1786153271&interval=1d&events=history",
+        "delayed": true,
+        "note": "原始 provider payload 仅留在 worktree 外私有研究缓存；Git 仅保留标准化派生行情面板。",
+        "rawSha256": "ac894a0592f8f31b62817b22db6d1badde7c9c56f55604b25947bb51c39a8fbc"
+      },
+      "rowCount": 901,
+      "firstDate": "2023-01-03",
+      "lastDate": "2026-08-06"
+    }
+  ]
+}

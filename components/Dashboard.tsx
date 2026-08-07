@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Activity,
   Bell,
   Calendar,
   ChevronRight,
@@ -10,7 +9,6 @@ import {
   Flame,
   Globe2,
   History,
-  Home,
   Landmark,
   LayoutDashboard,
   Link as LinkIcon,
@@ -26,9 +24,9 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent, TouchEvent } from "react";
+import DesktopSidebar from "./DesktopSidebar";
 import MobileBottomNav from "./MobileBottomNav";
 import GlobalMainBriefCard from "./GlobalMainBriefCard";
 import MarketObserver from "./MarketObserver";
@@ -39,6 +37,9 @@ import SpecialReportSection from "./SpecialReportSection";
 import WeeklyTeaser from "./WeeklyTeaser";
 import { isGlobalBriefForEdition, shouldShowLegacyHomeNarrative } from "@/lib/dashboard-visibility";
 import type { GlobalMarketBriefPublic } from "@/lib/global-market-brief-public";
+import { findMarketInstrumentForIndex, marketInstrumentPath } from "@/lib/market-instruments";
+import { formatMarketChange, getMarketDirection, marketDirectionClass, type MarketDirection } from "@/lib/market-direction";
+import { desktopNavItems } from "@/lib/site-navigation";
 import { sourceEvidenceClassLabel, sourceMetaLabel, sourceTierLabel } from "./SourceLink";
 import type {
   BriefArticle,
@@ -52,19 +53,6 @@ import type {
 } from "@/lib/types";
 
 export type DashboardView = "overview" | "fed" | "predictions" | "markets" | "briefs" | "hotspots";
-
-const navItems = [
-  { href: "/", label: "总览", icon: Home, view: "overview" },
-  { href: "/predictions", label: "预测排行", icon: Target, view: "predictions" },
-  { href: "/markets", label: "三地市场", icon: Activity, view: "markets" },
-  { href: "/briefs", label: "简报", icon: Newspaper, view: "briefs" },
-  { href: "/hotspots", label: "热点", icon: Flame, view: "hotspots" },
-] as const;
-
-const sidebarNavItems = [
-  ...navItems,
-  { href: "/#sources", label: "来源", icon: LinkIcon, view: "sources" },
-] as const;
 
 const toneText: Record<Tone, string> = {
   positive: "偏积极",
@@ -91,7 +79,7 @@ function formatYield(value: number | null) {
   return value === null ? "—" : `${value.toFixed(2)}%`;
 }
 
-function Sparkline({ values, tone }: { values: number[]; tone: Tone }) {
+function Sparkline({ values, direction }: { values: number[]; direction: MarketDirection }) {
   const width = 280;
   const height = 92;
   const padding = 8;
@@ -105,17 +93,18 @@ function Sparkline({ values, tone }: { values: number[]; tone: Tone }) {
   });
   const line = points.map(([x, y], index) => `${index === 0 ? "M" : "L"}${x},${y}`).join(" ");
   const area = `${line} L${points.at(-1)?.[0]},${height - padding} L${points[0][0]},${height - padding} Z`;
-  const color = tone === "positive" ? "#e45252" : tone === "negative" ? "#25a467" : "#8a6bd0";
+  const color = direction === "up" ? "#df4d4d" : direction === "down" ? "#219b63" : "#8b8790";
+  const gradientId = `spark-${direction}`;
 
   return (
     <svg className="sparkline" viewBox={`0 0 ${width} ${height}`} role="img" aria-label="最近十个交易日趋势">
       <defs>
-        <linearGradient id={`spark-${tone}`} x1="0" x2="0" y1="0" y2="1">
+        <linearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
           <stop offset="0" stopColor={color} stopOpacity="0.23" />
           <stop offset="1" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <path d={area} fill={`url(#spark-${tone})`} />
+      <path d={area} fill={`url(#${gradientId})`} />
       <path d={line} fill="none" stroke={color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx={points.at(-1)?.[0]} cy={points.at(-1)?.[1]} r="4.5" fill="#fff" stroke={color} strokeWidth="3" />
     </svg>
@@ -204,9 +193,10 @@ function SectionHeading({ eyebrow, title, description, action }: { eyebrow: stri
 function MarketCard({ market, overviewOnly = false }: { market: MarketSection; overviewOnly?: boolean }) {
   const lead = market.indices[0];
   const detailArticle = market.articles[0];
-  const isUp = lead.change >= 0;
+  const leadDirection = getMarketDirection(lead?.change);
+  const leadInstrument = lead ? findMarketInstrumentForIndex(market.id, lead.name) : null;
   return (
-    <article className={`market-card tone-${market.tone} ${overviewOnly ? "market-card-overview" : ""}`}>
+    <article className={`market-card tone-${market.tone} direction-${leadDirection} ${overviewOnly ? "market-card-overview" : ""}`}>
       <div className="market-card-head">
         <div>
           <span className="market-name">{market.name}</span>
@@ -216,22 +206,17 @@ function MarketCard({ market, overviewOnly = false }: { market: MarketSection; o
       </div>
       <div className="market-lead">
         <div>
-          <span className="lead-label">{lead.name}</span>
-          <strong>{lead.value}</strong>
-          <span className={`change ${isUp ? "up" : "down"}`}>
-            {isUp ? <TrendingUp size={15} /> : <TrendingDown size={15} />}
-            {isUp ? "+" : ""}{lead.change.toFixed(2)}%
+          {leadInstrument ? <Link className="market-index-link" href={marketInstrumentPath(leadInstrument)}><span className="lead-label">{lead.name}</span><strong>{lead.value}</strong></Link> : <><span className="lead-label">{lead.name}</span><strong>{lead.value}</strong></>}
+          <span className={`change ${marketDirectionClass(lead?.change)}`}>
+            {leadDirection === "up" ? <TrendingUp size={15} /> : leadDirection === "down" ? <TrendingDown size={15} /> : <span className="flat-change-icon">—</span>}
+            {formatMarketChange(lead?.change)}
           </span>
         </div>
-        <Sparkline values={market.sparkline} tone={market.tone} />
+        {leadInstrument ? <Link className="market-sparkline-link" href={marketInstrumentPath(leadInstrument)} aria-label={`查看${lead.name}行情详情`}><Sparkline values={market.sparkline} direction={leadDirection} /></Link> : <Sparkline values={market.sparkline} direction={leadDirection} />}
       </div>
       <div className="sub-indices">
         {market.indices.slice(1).map((index) => (
-          <div key={index.name}>
-            <span>{index.name}</span>
-            <strong>{index.value}</strong>
-            <em className={index.change >= 0 ? "up" : "down"}>{index.change >= 0 ? "+" : ""}{index.change.toFixed(2)}%</em>
-          </div>
+          <div key={index.name}>{(() => { const instrument = findMarketInstrumentForIndex(market.id, index.name); return instrument ? <Link className="market-index-link market-index-link-secondary" href={marketInstrumentPath(instrument)}><span>{index.name}</span><strong>{index.value}</strong><em className={marketDirectionClass(index.change)}>{formatMarketChange(index.change)}</em></Link> : <><span>{index.name}</span><strong>{index.value}</strong><em className={marketDirectionClass(index.change)}>{formatMarketChange(index.change)}</em></>; })()}</div>
         ))}
       </div>
       {!overviewOnly ? <p className="market-summary">{market.summary}</p> : null}
@@ -311,8 +296,6 @@ export default function Dashboard({
   marketObserver?: MarketObserverSnapshot;
   globalBrief?: GlobalMarketBriefPublic | null;
 }) {
-  const pathname = usePathname();
-  const normalizedPathname = pathname === "/" ? pathname : pathname.replace(/\/+$/, "");
   const [query, setQuery] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("all");
   const [activeMarketCard, setActiveMarketCard] = useState(0);
@@ -457,16 +440,7 @@ export default function Dashboard({
     <>
       <div className="page-orb page-orb-one" />
       <div className="page-orb page-orb-two" />
-      <aside className="sidebar" aria-label="主导航">
-        <nav>
-          {sidebarNavItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = item.href === "/" ? normalizedPathname === "/" : normalizedPathname === item.href;
-            return <Link key={item.href} href={item.href} aria-label={item.label} aria-current={isActive ? "page" : undefined} data-tooltip={item.label}><Icon size={19} /></Link>;
-          })}
-        </nav>
-        <div className="sidebar-foot"><ShieldCheck size={18} /><span>来源可追溯</span></div>
-      </aside>
+      <DesktopSidebar />
 
       <main className="dashboard">
         <header className="topbar">
@@ -484,7 +458,7 @@ export default function Dashboard({
               <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索政策、市场或热点…" aria-label="搜索简报" />
               {query ? <button type="button" onClick={() => setQuery("")} aria-label="清空搜索">×</button> : <kbd>⌘ K</kbd>}
             </label>
-          ) : <div className="route-title">{navItems.find((item) => item.view === view)?.label ?? (view === "fed" ? "美联储政策" : "")}</div>}
+          ) : <div className="route-title">{desktopNavItems.find((item) => item.view === view)?.label ?? (view === "fed" ? "美联储政策" : "")}</div>}
           <div className="topbar-actions">
             <span className="verified-pill"><i />{data.meta.status}</span>
             <button type="button" className="icon-button" onClick={() => window.location.reload()} aria-label="刷新页面"><RefreshCw size={17} /></button>
