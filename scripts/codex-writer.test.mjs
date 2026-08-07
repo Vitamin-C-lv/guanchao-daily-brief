@@ -160,7 +160,7 @@ test("global_market_brief prepare is offline and always reports wrote=false", as
       "scripts/global-market-brief-contract.mjs",
       "content/writer-contexts/fixtures/p2-b1-global-baseline.json",
       "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json",
-      "data/research-bundles/bundles/2026/08/4c06451a13ac33985c4f8058247d3342e646608ba4cd2df62e4829157759c1d7.json.gz"
+      "data/research-bundles/bundles/2026/08/7e62a171f40ee80714ece6604e6288e552c2e41effb33ebe120eb6e2c3773789.json.gz"
     ]) copy(value.root, relative);
     const baselinePath = path.join(value.root, "content/writer-contexts/fixtures/p2-b1-global-baseline.json");
     const baseline = JSON.parse(fs.readFileSync(baselinePath, "utf8"));
@@ -174,7 +174,7 @@ test("global_market_brief prepare is offline and always reports wrote=false", as
       edition: "daily",
       mode: "global_market_brief",
       marketPacket: "content/writer-packets/daily-latest.json",
-      researchBundle: "data/research-bundles/bundles/2026/08/4c06451a13ac33985c4f8058247d3342e646608ba4cd2df62e4829157759c1d7.json.gz",
+      researchBundle: "data/research-bundles/bundles/2026/08/7e62a171f40ee80714ece6604e6288e552c2e41effb33ebe120eb6e2c3773789.json.gz",
       baselineSource: "content/writer-contexts/fixtures/p2-b1-global-baseline.json",
       globalInput: "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json",
       outputDirectory: output,

@@ -18,7 +18,7 @@ const dashboardSource = readFileSync(join(repoRoot, "components", "Dashboard.tsx
 test("authoritative ledger, manifests, schemas, review and public shards agree", () => {
   const report = validateLedger();
   assert.equal(report.ok, true);
-  assert.equal(report.predictionRecordCount, 366);
+  assert.equal(report.predictionRecordCount, 408);
   assert.equal(report.evaluationEventCount, 300);
 });
 
