@@ -1,1 +1,398 @@
-{"buildStatus":"partial","dataAsOf":"2026-08-03","editionDate":"2026-08-04","generatedAt":"2026-08-04T12:00:00.000Z","mainArticle":{"analysisSections":[{"heading":"全球主线","paragraphs":["截至8月3日，最强线索来自折现率压力暂缓与风险资产同步反应。美股走强，名义10年期与实际10年期收益率分别收于4.70%和2.43%，单日分别回落5bp和4bp；这让成长资产的估值约束暂时减轻。","但这还不是无条件的风险偏好回归。收益率较20日前仍分别高出22bp和19bp，说明长端利率只是从短期压力位回落，尚未回到更宽松的背景。当前更稳妥的表述是估值修复获得窗口，而不是折现率风险已经消失。"],"sourceIds":["ap-us-stocks-2026-08-03","us-treasury-nominal-xml","us-treasury-real-xml"]},{"heading":"折现率与风险偏好","paragraphs":["油价回落先缓解了市场对通胀的担忧，美股在这一背景下接近纪录；与此同时，2年期、10年期和30年期收益率分别为4.25%、4.70%和5.23%，较前一交易日回落3bp、5bp和4bp。价格与利率同日向有利于成长估值的一侧变化，因而风险偏好回暖有了可观察的价格证据。","反证也很清楚：2s10s利差收窄2bp至45bp，且名义10年期收益率较20日前仍上行22bp。曲线与长端位置并没有共同指向彻底宽松，市场更像是在等待下一组利率数据确认，而不是已经完成政策方向切换。"],"sourceIds":["ap-us-stocks-2026-08-03","us-treasury-nominal-xml"]},{"heading":"跨市场传导","paragraphs":["美国市场的第一站是港股科技：8月3日恒指上涨0.48%至26009.40点，恒生科技指数上涨约1.0%，科技股表现强于大盘。美股风险偏好改善与折现率压力暂缓，为港股成长资产提供了外部顺风，但单日同步仍不足以证明传导已经稳定。","传向A股时，链条出现断点。沪指、深证成指和创业板指分别下跌0.59%、0.96%和1.24%，成交额约1.9974万亿元，较前一日减少约5446亿元。外部线索已经在美股和港股得到价格回应，却尚未在本地成交中得到同方向确认。"],"sourceIds":["aastocks-hk-close-2026-08-03","ap-us-stocks-2026-08-03","eastmoney-a-share-close-2026-08-03"]},{"heading":"本地确认缺口","paragraphs":["A股的反向证据不是跌幅本身，而是下跌与成交收缩同时出现。若外部风险偏好正在形成跨市场扩散，本地市场至少需要看到成交不再继续收缩，或成长板块相对表现与港股科技同步；当前数据只支持‘尚未接力’，不支持更强的本地趋势判断。","本轮市场广度数据未取得，因此这里只把成交额收缩作为反向证据，不用缺失数据推断上涨家数、内部参与度或资金净流入。这个缺口会直接影响A股是否完成全球主线确认，也意味着下一步需要等待可复核的广度与成交数据同时闭合。"],"sourceIds":["eastmoney-a-share-close-2026-08-03"]},{"heading":"下一步验证","paragraphs":["下一交易时段先看10年期与实际10年期收益率能否继续回落，再看恒生科技相对恒指的强势是否延续。若利率回升、港股科技转弱且A股成交仍低于8月3日基线，当前的跨市场传导判断应当撤回；如果三项观察相反，估值修复线索才有机会从单日反应变成连续信号。","未来一周还要把政策分歧放回定价框架：7月会议有三票异议，9月15—16日是下一次FOMC会议。收益率回落、海外风险偏好延续，并得到A/H成交或广度接力时，修复线索才可能扩展；否则，本文只保留‘折现率压力暂缓’这一有限判断。"],"sourceIds":["aastocks-hk-close-2026-08-03","ap-us-stocks-2026-08-03","eastmoney-a-share-close-2026-08-03","fed-fomc-calendar-2026","fed-fomc-statement-2026-07-29","us-treasury-nominal-xml","us-treasury-real-xml"]}],"articleUrl":"/articles/global-market-brief-2026-08-04/","conclusion":"8月3日的核心线索不是单一市场上涨，而是折现率压力暂缓后风险偏好先在美股和港股得到价格确认；A股成交收缩说明本地资金尚未接力。下一步应先验证收益率回落能否延续，以及亚洲市场的相对强势能否扩散。","contentKind":"global_main","crossMarketTransmission":[{"direction":"positive","evidenceStatus":"partially_confirmed","explanation":"美股风险偏好与利率压力暂缓为港股科技提供外部顺风，但港股自身的相对表现仍需下一交易时段确认。","fromMarket":"US","horizon":"next_session","invalidationConditionIds":["invalidation-asia-no-confirm"],"supportingSourceIds":["aastocks-hk-close-2026-08-03","ap-us-stocks-2026-08-03"],"toMarket":"HK"},{"direction":"mixed","evidenceStatus":"pending","explanation":"海外折现率压力暂缓可能改善全球估值环境，但A股成交收缩与广度数据缺口意味着外部线索尚未转化为本地共振。","fromMarket":"US","horizon":"one_week","invalidationConditionIds":["invalidation-asia-no-confirm","invalidation-rates-rebound"],"supportingSourceIds":["eastmoney-a-share-close-2026-08-03","us-treasury-nominal-xml","us-treasury-real-xml"],"toMarket":"A_SHARE"}],"dek":"美股逼近纪录、美国长端收益率回落，港股科技同步走强；但A股缩量回调，外部风险偏好尚未完成跨市场确认。","id":"global-market-brief-2026-08-04","invalidationConditions":[{"affectedClaims":["折现率压力暂缓","估值修复空间"],"condition":"若10年期或实际10年期收益率重新连续上行，当前折现率压力暂缓与估值修复空间的判断失效。","id":"invalidation-rates-rebound"},{"affectedClaims":["海外风险偏好向亚洲传导","A股本地确认"],"condition":"若港股科技不能延续相对强势且A股成交继续低于8月3日基线，外部风险偏好向亚洲传导的判断失效。","id":"invalidation-asia-no-confirm"},{"affectedClaims":["未来一周估值修复扩散"],"condition":"若后续美联储沟通强化政策分歧并伴随收益率上行，未来一周估值修复判断失效。","id":"invalidation-fed-hawkish"}],"keyFacts":[{"asOf":"2026-08-03","factStatus":"confirmed","id":"observation-us-risk-appetite-20260803","sourceIds":["ap-us-stocks-2026-08-03","us-treasury-nominal-xml"],"statement":"2026年8月3日，油价回落缓解通胀担忧，美股走强；美国10年期国债收益率收于4.70%，较前一交易日回落5bp。"},{"asOf":"2026-08-03","factStatus":"estimated","id":"observation-hk-tech-strength-20260803","sourceIds":["aastocks-hk-close-2026-08-03"],"statement":"2026年8月3日，恒指收于26009.40点，上涨0.48%；恒生科技指数上涨约1.0%，科技股领涨。"},{"asOf":"2026-08-03","factStatus":"confirmed","id":"observation-fed-hold-20260803","sourceIds":["fed-fomc-calendar-2026","fed-fomc-statement-2026-07-29"],"statement":"7月29日，美联储将联邦基金目标利率维持在3.50%—3.75%，有三名委员提出异议；下一次会议安排在9月15—16日。"},{"asOf":"2026-08-03","factStatus":"estimated","id":"observation-a-share-turnover-20260803","sourceIds":["eastmoney-a-share-close-2026-08-03"],"statement":"2026年8月3日，A股主要指数收跌，沪指跌0.59%、深证成指跌0.96%、创业板指跌1.24%；成交额约1.9974万亿元，较前一日减少约5446亿元。"}],"logicChain":[{"contradictorySourceIds":[],"evidenceStatus":"confirmed","from":"油价回落与美股走强","relation":"先给风险偏好提供价格确认","supportingSourceIds":["ap-us-stocks-2026-08-03","us-treasury-nominal-xml"],"to":"海外风险偏好回暖"},{"contradictorySourceIds":[],"evidenceStatus":"partially_confirmed","from":"名义与实际10年期收益率回落","relation":"暂缓折现率压力","supportingSourceIds":["us-treasury-nominal-xml","us-treasury-real-xml"],"to":"成长资产估值获得修复空间"},{"contradictorySourceIds":[],"evidenceStatus":"partially_confirmed","from":"海外风险偏好改善","relation":"可能向亚洲风险资产传导","supportingSourceIds":["aastocks-hk-close-2026-08-03","ap-us-stocks-2026-08-03"],"to":"港股科技相对走强"},{"contradictorySourceIds":[],"evidenceStatus":"confirmed","from":"A股成交缩量","relation":"削弱本地资金确认","supportingSourceIds":["eastmoney-a-share-close-2026-08-03"],"to":"全球风险偏好尚未同步"}],"marketTags":["US","HK","A_SHARE","GLOBAL"],"outlook":{"nextSession":{"invalidationConditionIds":["invalidation-rates-rebound","invalidation-asia-no-confirm"],"statement":"下一交易时段先看10年期与实际10年期收益率是否继续回落，再看港股科技能否延续相对恒指的强势；若利率回升而本地成交仍弱，外部情绪传导暂不确认。","supportingSourceIds":["aastocks-hk-close-2026-08-03","eastmoney-a-share-close-2026-08-03","us-treasury-nominal-xml","us-treasury-real-xml"]},"oneWeek":{"invalidationConditionIds":["invalidation-fed-hawkish","invalidation-rates-rebound","invalidation-asia-no-confirm"],"statement":"未来一周，只有收益率回落、海外风险偏好延续并得到A/H成交或广度接力，估值修复才可能扩展；FOMC三票异议与9月会议日历提醒市场政策分歧仍在。","supportingSourceIds":["ap-us-stocks-2026-08-03","fed-fomc-calendar-2026","fed-fomc-statement-2026-07-29","us-treasury-nominal-xml","us-treasury-real-xml"]}},"slug":"global-market-brief-2026-08-04","sourceIds":["aastocks-hk-close-2026-08-03","ap-us-stocks-2026-08-03","eastmoney-a-share-close-2026-08-03","fed-fomc-calendar-2026","fed-fomc-statement-2026-07-29","us-treasury-nominal-xml","us-treasury-real-xml"],"title":"海外风险偏好回暖，估值修复仍等本地确认","topicTags":["cross-market","rates","risk-appetite","market-confirmation"],"watchItems":[{"expectedAt":null,"item":"美国10年期与实际10年期收益率","sourceIds":["us-treasury-nominal-xml","us-treasury-real-xml"],"whyItMatters":"它们决定折现率压力暂缓是否能从单日变化变成可延续线索。"},{"expectedAt":null,"item":"恒生科技相对恒指的表现","sourceIds":["aastocks-hk-close-2026-08-03"],"whyItMatters":"它检验海外风险偏好是否继续向亚洲成长资产传导。"},{"expectedAt":null,"item":"A股成交额与市场广度是否同日闭合","sourceIds":["eastmoney-a-share-close-2026-08-03"],"whyItMatters":"成交收缩与广度数据缺口尚未形成完整的本地确认，不能用缺失数据替代。"},{"expectedAt":"2026-09-15","item":"FOMC异议与9月15—16日会议前的政策措辞","sourceIds":["fed-fomc-calendar-2026","fed-fomc-statement-2026-07-29"],"whyItMatters":"政策分歧是否伴随收益率上行，将决定估值修复线索能否延续。"}]},"schemaVersion":"global-market-brief-v1","sourceIndex":[{"asOf":"2026-08-03","id":"aastocks-hk-close-2026-08-03","publisher":"阿斯达克财经","title":"恒指全日收報26009.40點 升 0.48% 成交2,551.79億元","url":"https://www.aastocks.com/tc/stocks/news/aafn-con/IC4960034/popular-news/INFOCAST"},{"asOf":"2026-08-03","id":"ap-us-stocks-2026-08-03","publisher":"Associated Press","title":"US stocks rally near a record as falling oil prices ease Wall Street's worries about inflation","url":"https://www.sun-sentinel.com/2026/08/03/us-stocks-rally-near-a-record-as-falling-oil-prices-ease-wall-streets-worries-about-inflation/"},{"asOf":"2026-08-03","id":"eastmoney-a-share-close-2026-08-03","publisher":"东方财富","title":"A股收评：沪指跌0.59%，创业板指跌1.24%，玻纤、电子化学品、半导体等概念走弱","url":"https://fund.eastmoney.com/a/202608033829745094.html"},{"asOf":"2026-07-08","id":"fed-fomc-calendar-2026","publisher":"Federal Reserve","title":"FOMC Meeting calendars and information","url":"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"},{"asOf":"2026-07-29","id":"fed-fomc-statement-2026-07-29","publisher":"Compliance Alliance","title":"Federal Reserve Issues FOMC Statement","url":"https://compliancealliance.com/news-events/entry/federal-reserve-issues-fomc-statement-25/"},{"asOf":"2026-08-03","id":"us-treasury-nominal-xml","publisher":"U.S. Department of the Treasury","title":"Daily Treasury Par Yield Curve Rates 2026","url":"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026"},{"asOf":"2026-08-03","id":"us-treasury-real-xml","publisher":"U.S. Department of the Treasury","title":"Daily Treasury Real Long-Term Rates 2026","url":"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_real_yield_curve&field_tdr_date_value=2026"}],"specialReports":[],"specialTriggerCandidates":[{"eligible":false,"id":"routine-market-volatility-20260803","reason":"冻结事件集合为空，普通市场波动由全球主文章承载，不生成专项文章。","triggerEvidenceIds":["aastocks-hk-close-2026-08-03","ap-us-stocks-2026-08-03","eastmoney-a-share-close-2026-08-03","fed-fomc-calendar-2026","fed-fomc-statement-2026-07-29","us-treasury-nominal-xml"],"triggerType":"abnormal_market_move"}]}
+{
+  "schemaVersion": "global-market-brief-v1",
+  "editionDate": "2026-08-07",
+  "generatedAt": "2026-08-07T12:00:00.000Z",
+  "dataAsOf": "2026-08-06",
+  "buildStatus": "partial",
+  "sourceIndex": [
+    {
+      "id": "ap-us-close-2026-08-06",
+      "title": "How major US stock indexes fared Thursday 8/6/2026",
+      "publisher": "Associated Press",
+      "url": "https://apnews.com/article/stock-market-dow-warner-dow-jones-b13b60e192e74e6dc6ab222dc296b5d2",
+      "asOf": "2026-08-06"
+    },
+    {
+      "id": "csi-coverage-status-2026-08-06",
+      "title": "CSI constituent-data coverage status — 2026-08-06",
+      "publisher": "Local Codex Researcher",
+      "url": "https://www.csindex.com.cn/csindex-home/indexInfo/index-details-data",
+      "asOf": null
+    },
+    {
+      "id": "eastmoney-a-share-close-2026-08-06",
+      "title": "沪指站上3900点 量能萎缩预示修复行情步入尾声？",
+      "publisher": "东方财富",
+      "url": "https://fund.eastmoney.com/a/202608063833897854.html",
+      "asOf": "2026-08-06"
+    },
+    {
+      "id": "fed-fomc-calendar-2026",
+      "title": "FOMC Meeting calendars and information",
+      "publisher": "Federal Reserve",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm",
+      "asOf": "2026-07-08"
+    },
+    {
+      "id": "fed-fomc-statement-2026-07-29",
+      "title": "Federal Reserve issues FOMC statement — July 29, 2026",
+      "publisher": "Federal Reserve",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm",
+      "asOf": "2026-07-29"
+    },
+    {
+      "id": "us-treasury-nominal-xml",
+      "title": "Daily Treasury Par Yield Curve Rates 2026",
+      "publisher": "U.S. Department of the Treasury",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026",
+      "asOf": "2026-08-06"
+    },
+    {
+      "id": "us-treasury-real-xml",
+      "title": "Daily Treasury Real Long-Term Rates 2026",
+      "publisher": "U.S. Department of the Treasury",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_real_yield_curve&field_tdr_date_value=2026",
+      "asOf": "2026-08-06"
+    },
+    {
+      "id": "xinhua-hk-close-2026-08-06",
+      "title": "港股6日跌1.49% 收报25530.28点",
+      "publisher": "新华网",
+      "url": "https://www2.xinhuanet.com/fortune/20260806/75f8a8dcaaa34738a68d14826eac95df/c.html",
+      "asOf": "2026-08-06"
+    }
+  ],
+  "specialTriggerCandidates": [
+    {
+      "id": "routine-market-volatility-20260806",
+      "eligible": false,
+      "triggerType": "abnormal_market_move",
+      "reason": "冻结事件集合为空，普通市场波动由全球主文章承载，不生成专项文章。",
+      "triggerEvidenceIds": [
+        "ap-us-close-2026-08-06",
+        "eastmoney-a-share-close-2026-08-06",
+        "fed-fomc-calendar-2026",
+        "fed-fomc-statement-2026-07-29",
+        "us-treasury-nominal-xml",
+        "xinhua-hk-close-2026-08-06"
+      ]
+    }
+  ],
+  "mainArticle": {
+    "id": "global-market-brief-2026-08-07",
+    "slug": "global-market-brief-2026-08-07",
+    "articleUrl": "/articles/global-market-brief-2026-08-07/",
+    "contentKind": "global_main",
+    "title": "美债收益率跳升，风险偏好自高位回吐",
+    "dek": "美股结束五连涨、长端收益率明显上行，港股科技领跌；A股权重护盘守住3900点，但成交缩量，外部波动尚未转化为本地确认。",
+    "conclusion": "8月6日的核心变化不是美股单日跌幅，而是长端收益率在油价反弹与非农数据公布前的谨慎中跳升，打断了此前累积的风险偏好；这条传导链首先在港股科技得到确认，而A股以权重护盘和缩量分化显示本地资金并未接力。下一步先看非农数据与收益率方向，若收益率延续上行而亚洲成长资产继续走弱，本次回吐将从高位整理升级为跨市场确认。",
+    "analysisSections": [
+      {
+        "heading": "全球主线",
+        "paragraphs": [
+          "截至8月6日，最强线索来自美国长端收益率重新上行。10年期名义收益率单日上行6bp至4.69%，2年期上行7bp至4.25%，实际10年期上行2bp至2.43%；同期布伦特原油上涨约4%，市场在周五非农数据公布前重新计价政策与通胀风险。收益率与油价同步走高，意味着美股此前的五连涨第一次遇到折现率层面的反向压力。",
+          "这不是全面避险的起点。道指虽下跌0.85%至53885.10点并结束五连涨，但标普500仅下跌0.18%至7709.96点、仍为历史第三高收盘，纳指下跌0.06%至26348.35点；指数跌幅温和、分布不均，当前更准确的表述是高位回吐与重新定价，而不是趋势反转。"
+        ],
+        "sourceIds": [
+          "ap-us-close-2026-08-06",
+          "us-treasury-nominal-xml",
+          "us-treasury-real-xml"
+        ]
+      },
+      {
+        "heading": "收益率跳升与风险偏好",
+        "paragraphs": [
+          "收益率的上行是本次回吐的定价源头：2年期、10年期、30年期收益率分别为4.25%、4.69%和5.22%，单日分别上行7bp、6bp和5bp；2s10s利差收窄1bp至44bp。短端上行更快，说明市场在就业数据前重新评估政策路径，而实际10年期上行则直接压缩成长资产的估值空间。",
+          "反证同样清楚：标普500仍在历史高位附近，纳指周内仍累计上涨约3.8%，说明风险偏好并未崩塌。收益率跳升更像是在高位重新定价，是否演变为趋势，取决于周五非农数据与后续利率方向。"
+        ],
+        "sourceIds": [
+          "ap-us-close-2026-08-06",
+          "us-treasury-nominal-xml"
+        ]
+      },
+      {
+        "heading": "跨市场传导",
+        "paragraphs": [
+          "收益率上行最先传导到香港成长资产：8月6日恒生指数下跌1.49%至25530.28点，恒生科技指数下跌2.28%至4820.78点，明显弱于大盘，科技股领跌；主板成交2552.27亿港元。外部折现率压力与亚太科技股调整同步出现，说明跨市场传导链条正在形成。",
+          "传向A股时出现断点。上证指数逆势上涨0.57%至3900.35点，靠权重板块护盘站上整数关口，但深证成指与创业板指分别下跌0.24%和0.55%，沪深两市成交约2.53万亿元、较前一交易日缩量约1300亿元。外部下跌没有在A股放大，本地成交也没有放大，显示资金处于观望而非接力。"
+        ],
+        "sourceIds": [
+          "ap-us-close-2026-08-06",
+          "eastmoney-a-share-close-2026-08-06",
+          "xinhua-hk-close-2026-08-06"
+        ]
+      },
+      {
+        "heading": "本地确认缺口",
+        "paragraphs": [
+          "A股的反向证据不是逆势上涨本身，而是上涨与缩量同时出现。若外部风险偏好回吐正在形成跨市场扩散，本地市场至少需要看到成长板块同步走弱或成交放大确认；当前数据只支持‘权重护盘、分化整理’，不支持更强的本地趋势判断。",
+          "本轮市场广度数据未取得，因此这里只把成交缩量与指数分化作为观察依据，不用缺失数据推断上涨家数、内部参与度或资金净流入。这个缺口会影响A股是否完成外部波动确认，下一步需要等待可复核的广度与成交数据同时闭合。"
+        ],
+        "sourceIds": [
+          "eastmoney-a-share-close-2026-08-06"
+        ]
+      },
+      {
+        "heading": "下一步验证",
+        "paragraphs": [
+          "下一交易时段先看周五美国非农数据对收益率的影响，再看港股科技相对恒指的强弱是否延续。若收益率回落、港股科技企稳且A股成交不再收缩，本次回吐大概率停留在高位整理；若收益率继续上行而亚洲成长资产同步走弱，跨市场确认将形成。",
+          "未来一周，收益率方向仍是核心变量：名义与实际10年期收益率较20日前仍分别高出约15bp和12bp，说明长端仍处于高位压力区。只有收益率回落、海外风险偏好企稳并得到A/H成交或广度接力，估值约束才有机会缓和；否则保留‘折现率压力重新上行’这一有限判断。"
+        ],
+        "sourceIds": [
+          "ap-us-close-2026-08-06",
+          "eastmoney-a-share-close-2026-08-06",
+          "fed-fomc-calendar-2026",
+          "fed-fomc-statement-2026-07-29",
+          "us-treasury-nominal-xml",
+          "us-treasury-real-xml",
+          "xinhua-hk-close-2026-08-06"
+        ]
+      }
+    ],
+    "keyFacts": [
+      {
+        "id": "observation-us-risk-reversal-20260806",
+        "statement": "2026年8月6日，美债收益率跳升叠加油价走高，美股自纪录高位回吐；道指下跌0.85%至53885.10点并结束五连涨，标普500下跌0.18%至7709.96点，纳指下跌0.06%至26348.35点。",
+        "asOf": "2026-08-06",
+        "sourceIds": [
+          "ap-us-close-2026-08-06",
+          "us-treasury-nominal-xml"
+        ],
+        "factStatus": "confirmed"
+      },
+      {
+        "id": "observation-hk-tech-lead-20260806",
+        "statement": "2026年8月6日，恒生指数下跌1.49%至25530.28点，恒生科技指数下跌2.28%至4820.78点，科技股领跌；主板成交2552.27亿港元。",
+        "asOf": "2026-08-06",
+        "sourceIds": [
+          "xinhua-hk-close-2026-08-06"
+        ],
+        "factStatus": "estimated"
+      },
+      {
+        "id": "observation-fed-hold-20260806",
+        "statement": "7月29日，美联储将联邦基金目标利率维持在3.50%—3.75%，有三名委员提出异议；下一次会议安排在9月15—16日。",
+        "asOf": "2026-07-29",
+        "sourceIds": [
+          "fed-fomc-calendar-2026",
+          "fed-fomc-statement-2026-07-29"
+        ],
+        "factStatus": "confirmed"
+      },
+      {
+        "id": "observation-a-share-divergence-20260806",
+        "statement": "2026年8月6日，A股走势分化：上证指数上涨0.57%至3900.35点，深证成指下跌0.24%至14110.12点，创业板指下跌0.55%至3515.56点；沪深两市成交约2.53万亿元，较前一交易日缩量约1300亿元。",
+        "asOf": "2026-08-06",
+        "sourceIds": [
+          "eastmoney-a-share-close-2026-08-06"
+        ],
+        "factStatus": "estimated"
+      }
+    ],
+    "logicChain": [
+      {
+        "from": "油价反弹与就业数据公布前的谨慎",
+        "relation": "推升美国长端收益率",
+        "to": "折现率压力重新上行",
+        "evidenceStatus": "confirmed",
+        "supportingSourceIds": [
+          "ap-us-close-2026-08-06",
+          "us-treasury-nominal-xml",
+          "us-treasury-real-xml"
+        ],
+        "contradictorySourceIds": []
+      },
+      {
+        "from": "长端收益率跳升",
+        "relation": "压制此前累积的风险偏好",
+        "to": "美股自高位回吐、五连涨终结",
+        "evidenceStatus": "confirmed",
+        "supportingSourceIds": [
+          "ap-us-close-2026-08-06",
+          "us-treasury-nominal-xml"
+        ],
+        "contradictorySourceIds": []
+      },
+      {
+        "from": "美股回吐与利率上行",
+        "relation": "率先传导至亚洲成长资产",
+        "to": "港股科技领跌",
+        "evidenceStatus": "partially_confirmed",
+        "supportingSourceIds": [
+          "ap-us-close-2026-08-06",
+          "xinhua-hk-close-2026-08-06"
+        ],
+        "contradictorySourceIds": []
+      },
+      {
+        "from": "A股权重护盘但成交缩量",
+        "relation": "显示本地资金尚未接力",
+        "to": "外部回吐尚未形成跨市场确认",
+        "evidenceStatus": "confirmed",
+        "supportingSourceIds": [
+          "eastmoney-a-share-close-2026-08-06"
+        ],
+        "contradictorySourceIds": []
+      }
+    ],
+    "crossMarketTransmission": [
+      {
+        "fromMarket": "US",
+        "toMarket": "HK",
+        "direction": "negative",
+        "horizon": "next_session",
+        "explanation": "美债收益率跳升先传导至香港成长资产，港股科技指数下跌2.28%、明显弱于恒指；但单日同步仍需下一交易时段确认其持续性。",
+        "evidenceStatus": "partially_confirmed",
+        "supportingSourceIds": [
+          "ap-us-close-2026-08-06",
+          "xinhua-hk-close-2026-08-06"
+        ],
+        "invalidationConditionIds": [
+          "invalidation-asia-no-confirm"
+        ]
+      },
+      {
+        "fromMarket": "US",
+        "toMarket": "A_SHARE",
+        "direction": "mixed",
+        "horizon": "one_week",
+        "explanation": "外部波动未在A股成交放大：沪指靠权重收涨，但两市缩量约1300亿元，成长指数收跌，本地资金仍在观望，需等成交与广度同日闭合。",
+        "evidenceStatus": "pending",
+        "supportingSourceIds": [
+          "eastmoney-a-share-close-2026-08-06",
+          "us-treasury-nominal-xml",
+          "us-treasury-real-xml"
+        ],
+        "invalidationConditionIds": [
+          "invalidation-asia-no-confirm",
+          "invalidation-rates-pause"
+        ]
+      }
+    ],
+    "invalidationConditions": [
+      {
+        "id": "invalidation-rates-pause",
+        "condition": "若非农数据公布后10年期或实际10年期收益率回落并连续下行，‘折现率压力重新上行压制风险偏好’的判断失效。",
+        "affectedClaims": [
+          "折现率压力重新上行",
+          "风险偏好自高位回吐"
+        ]
+      },
+      {
+        "id": "invalidation-asia-no-confirm",
+        "condition": "若港股科技止跌回升且A股成交重新放大、成长指数跟涨，‘外部回吐向亚洲传导’的判断失效。",
+        "affectedClaims": [
+          "外部回吐向亚洲传导",
+          "本地资金尚未接力"
+        ]
+      },
+      {
+        "id": "invalidation-nfp-surprise",
+        "condition": "若周五非农显著偏离预期并推动收益率大幅回落或进一步跳升，当前‘就业数据前谨慎、收益率上行’的组合判断需要重新校准。",
+        "affectedClaims": [
+          "就业数据前重新定价"
+        ]
+      }
+    ],
+    "outlook": {
+      "nextSession": {
+        "statement": "下一交易时段先看周五美国非农数据对收益率的方向影响：若数据温和且10年期收益率回落，美股回吐可能停留在高位整理；若收益率延续上行，港股科技与A股成长资产需要继续重新定价。",
+        "supportingSourceIds": [
+          "ap-us-close-2026-08-06",
+          "eastmoney-a-share-close-2026-08-06",
+          "us-treasury-nominal-xml",
+          "us-treasury-real-xml",
+          "xinhua-hk-close-2026-08-06"
+        ],
+        "invalidationConditionIds": [
+          "invalidation-rates-pause",
+          "invalidation-asia-no-confirm"
+        ]
+      },
+      "oneWeek": {
+        "statement": "未来一周，收益率方向是核心变量：若名义与实际收益率在数据落地后回落，估值约束暂缓的窗口仍在；若持续上行并伴随油价反弹，亚洲成长资产的相对弱势会延续。本轮市场广度数据未取得，A股本地确认需等成交与广度同日闭合。",
+        "supportingSourceIds": [
+          "ap-us-close-2026-08-06",
+          "eastmoney-a-share-close-2026-08-06",
+          "fed-fomc-calendar-2026",
+          "fed-fomc-statement-2026-07-29",
+          "us-treasury-nominal-xml",
+          "us-treasury-real-xml",
+          "xinhua-hk-close-2026-08-06"
+        ],
+        "invalidationConditionIds": [
+          "invalidation-rates-pause",
+          "invalidation-asia-no-confirm",
+          "invalidation-nfp-surprise"
+        ]
+      }
+    },
+    "watchItems": [
+      {
+        "item": "美国10年期与实际10年期收益率",
+        "whyItMatters": "它们决定折现率压力是重新上行还是高位企稳，直接检验美股回吐是否升级。",
+        "expectedAt": null,
+        "sourceIds": [
+          "us-treasury-nominal-xml",
+          "us-treasury-real-xml"
+        ]
+      },
+      {
+        "item": "周五美国非农就业数据",
+        "whyItMatters": "数据强弱将决定市场对政策与通胀的重新定价能否延续。",
+        "expectedAt": "2026-08-07",
+        "sourceIds": [
+          "ap-us-close-2026-08-06"
+        ]
+      },
+      {
+        "item": "港股科技相对恒指的强弱",
+        "whyItMatters": "它检验外部利率上行是否继续向亚洲成长资产传导。",
+        "expectedAt": null,
+        "sourceIds": [
+          "xinhua-hk-close-2026-08-06"
+        ]
+      },
+      {
+        "item": "A股成交额与市场广度是否同日闭合",
+        "whyItMatters": "成交缩量与广度数据缺口尚未形成完整的本地确认，不能用缺失数据替代。",
+        "expectedAt": null,
+        "sourceIds": [
+          "eastmoney-a-share-close-2026-08-06"
+        ]
+      },
+      {
+        "item": "FOMC异议与9月15—16日会议前的政策措辞",
+        "whyItMatters": "政策分歧是否伴随收益率上行，将决定估值约束的延续方向。",
+        "expectedAt": "2026-09-15",
+        "sourceIds": [
+          "fed-fomc-calendar-2026",
+          "fed-fomc-statement-2026-07-29"
+        ]
+      }
+    ],
+    "sourceIds": [
+      "ap-us-close-2026-08-06",
+      "csi-coverage-status-2026-08-06",
+      "eastmoney-a-share-close-2026-08-06",
+      "fed-fomc-calendar-2026",
+      "fed-fomc-statement-2026-07-29",
+      "us-treasury-nominal-xml",
+      "us-treasury-real-xml",
+      "xinhua-hk-close-2026-08-06"
+    ],
+    "marketTags": [
+      "US",
+      "HK",
+      "A_SHARE",
+      "GLOBAL"
+    ],
+    "topicTags": [
+      "cross-market",
+      "rates",
+      "risk-appetite",
+      "market-confirmation"
+    ]
+  },
+  "specialReports": []
+}
