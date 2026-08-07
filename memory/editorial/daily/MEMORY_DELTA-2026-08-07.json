@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "memory-delta-v1",
+  "editionDate": "2026-08-07",
+  "generatedAt": "2026-08-07T12:00:00.000Z",
+  "entries": [
+    {"id":"thread-hk-tech-confirmation-20260807","type":"open_thread","status":"open","summary":"跟踪港股科技弱势是否延续。","sourceIds":["global-market-brief-2026-08-07"],"updatedAt":"2026-08-07"},
+    {"id":"judgment-rates-not-trend-reversal-20260807","type":"judgment","status":"confirmed","summary":"证据支持高位回吐与重新定价，不直接支持趋势反转。","sourceIds":["global-market-brief-2026-08-07"],"updatedAt":"2026-08-07"}
+  ]
+}

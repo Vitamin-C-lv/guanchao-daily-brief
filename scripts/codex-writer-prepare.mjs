@@ -21,6 +21,7 @@ import {
   validateCodexResearch
 } from "./codex-research.mjs";
 import { generateArticleVisuals } from "./article-visuals.mjs";
+import { buildWriterMemoryContext } from "./build-writer-memory-context.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
@@ -38,7 +39,8 @@ const PACKAGE_FILES = [
   "RESEARCH_BUNDLE.json",
   "RESULT_TEMPLATE.json",
   "TARGET_SCHEMA.json",
-  "WRITER_CONTEXT.json"
+  "WRITER_CONTEXT.json",
+  "WRITER_MEMORY_CONTEXT.json"
 ];
 
 export class CodexWriterPrepareError extends Error {
@@ -209,7 +211,7 @@ function packageDirectoryIsValid(directory, requestId) {
   }
 }
 
-function writeExecutionPackage({ directory, request, context, packet, bundle, baseline, promptBytes, targetSchema, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes }) {
+function writeExecutionPackage({ directory, request, context, packet, bundle, baseline, promptBytes, targetSchema, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes, memoryContextBytes }) {
   fs.mkdirSync(directory, { recursive: true });
   const values = new Map([
     ["ARTICLE_DEPTH_RULES.json", depthRulesBytes],
@@ -223,7 +225,8 @@ function writeExecutionPackage({ directory, request, context, packet, bundle, ba
     ["TARGET_SCHEMA.json", jsonBytes(targetSchema)],
     ["RESULT_TEMPLATE.json", jsonBytes(resultTemplate)],
     ["CODEX_RESEARCH.json", jsonBytes(run)],
-    ["EDITORIAL_STYLE.json", styleBytes]
+    ["EDITORIAL_STYLE.json", styleBytes],
+    ["WRITER_MEMORY_CONTEXT.json", memoryContextBytes]
   ]);
   const files = [...values.entries()].map(([name, bytes]) => ({ name, bytes }));
   const manifest = packageManifest(request, context, packet, bundle, run, styleBytes, files);
@@ -384,7 +387,9 @@ export async function prepareCodexWriter({
   const targetSchemaBytes = fs.readFileSync(path.join(root, ...request.targetValidatorPath.split("/")));
   const targetSchemaReference = { schemaVersion: "writer-target-schema-reference-v1", targetSchemaVersion: request.targetSchemaVersion, targetPath: request.targetOutputs[0].targetPath, validator: { path: request.targetValidatorPath, sha256: request.targetValidatorSha256 }, validatorSourceBytes: targetSchemaBytes.length };
   const resultTemplate = readJson(path.join(output, "RESULT_TEMPLATE.json"));
-  writeExecutionPackage({ directory: output, request, context, packet: packetValue, bundle, baseline: baselineValue, promptBytes, targetSchema: targetSchemaReference, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes });
+  const memoryContext = buildWriterMemoryContext({ root, editionDate: asOf });
+  const memoryContextBytes = Buffer.from(`${canonicalJson(memoryContext)}\n`, "utf8");
+  writeExecutionPackage({ directory: output, request, context, packet: packetValue, bundle, baseline: baselineValue, promptBytes, targetSchema: targetSchemaReference, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes, memoryContextBytes });
   return {
     schemaVersion: "codex-writer-prepare-summary-v1",
     edition,

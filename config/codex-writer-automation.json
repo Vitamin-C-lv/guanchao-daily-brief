@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "codex-writer-automation-v1",
+  "schemaVersion": "codex-writer-automation-v2",
   "publicationEnabled": true,
   "productionApplyRequiresExplicitWrite": true,
   "runtime": {
@@ -12,25 +12,29 @@
     "writerPrepare": "scripts/codex-writer-prepare.mjs",
     "writerFinalize": "scripts/codex-writer-finalize.mjs",
     "predictionPublisher": "scripts/run-prediction-publisher.mjs",
+    "predictionTaskLauncher": "scripts/run-prediction-publisher-task.ps1",
     "consistencyCheck": "scripts/check-automation-consistency.mjs"
   },
   "writer": {
     "model": "gpt-5.6-luna",
     "researcherMayBrowse": true,
-    "writerMayBrowse": false,
+    "writerMayBrowse": true,
     "externalLlmApi": false,
     "apiKeyRequired": false,
-    "productionApplyRequiresExplicitWrite": true
+    "productionApplyRequiresExplicitWrite": true,
+    "memoryBootstrap": "scripts/build-writer-memory-context.mjs"
   },
   "freshness": {
     "timezone": "Asia/Shanghai",
     "requireSameDayPacket": true,
     "staleErrorCode": "STALE_WRITER_PACKET",
-    "explanation": "日报写作前必须刷新官方市场数据并生成当天 writer packet；packet.generatedAt 的 Asia/Shanghai 日期必须等于 editionDate，marketDates 必须是最新完整交易日且不晚于 editionDate。"
+    "explanation": "写作前必须刷新官方市场数据并生成当天 Packet；Packet 是已验证事实底座，不是 Writer 主动研究上限。"
   },
   "prediction": {
-    "model": "gpt-5.6-luna",
+    "model": null,
     "executorOnly": true,
+    "normalPathUsesLlm": false,
+    "normalPathLlmTokens": 0,
     "deterministicScript": "scripts/run-prediction-publisher.mjs",
     "trainingForbidden": true,
     "shadowActivationForbidden": true,
@@ -54,19 +58,22 @@
     {
       "key": "prediction",
       "label": "Guanchao Prediction Publisher",
-      "automationId": null,
+      "executor": "windows-task-scheduler",
+      "taskName": "Guanchao Prediction Publisher 18-20",
+      "legacyAutomationId": "guanchao-prediction-publisher",
       "enabled": true,
-      "rrule": "FREQ=DAILY;BYHOUR=6;BYMINUTE=45",
+      "rrule": "FREQ=DAILY;BYHOUR=18;BYMINUTE=20",
       "timezone": "Asia/Shanghai",
       "promptFile": "prompts/codex-prediction-publisher.md",
       "edition": "prediction"
     },
     {
       "key": "daily",
-      "label": "观潮本机 Codex 日报写手",
-      "automationId": null,
+      "label": "观潮每日晚报 Writer",
+      "executor": "codex-automation",
+      "automationId": "codex",
       "enabled": true,
-      "rrule": "FREQ=DAILY;BYHOUR=7;BYMINUTE=30",
+      "rrule": "FREQ=DAILY;BYHOUR=20;BYMINUTE=0",
       "timezone": "Asia/Shanghai",
       "promptFile": "prompts/codex-daily-writer.md",
       "edition": "daily"
@@ -74,7 +81,8 @@
     {
       "key": "weekly",
       "label": "观潮本机 Codex 周报写手",
-      "automationId": null,
+      "executor": "codex-automation",
+      "automationId": "codex-2",
       "enabled": true,
       "rrule": "FREQ=WEEKLY;BYDAY=SA;BYHOUR=10;BYMINUTE=0",
       "timezone": "Asia/Shanghai",

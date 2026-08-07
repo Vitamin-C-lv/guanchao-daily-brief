@@ -1,25 +1,19 @@
 {
-  "name": "观潮 · 每日与每周市场情报",
-  "short_name": "观潮简报",
-  "description": "每日精选与每周深度整理的美联储政策、三地股市与财经热点。",
+  "name": "观潮简报",
+  "short_name": "观潮",
+  "description": "观潮每日晚报与每周市场情报。",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#f1edf5",
   "theme_color": "#f1edf5",
   "lang": "zh-CN",
   "icons": [
-    {
-      "src": "/icon.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/apple-icon.png",
-      "sizes": "180x180",
-      "type": "image/png",
-      "purpose": "any"
-    },
+    {"src":"/icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any"},
+    {"src":"/icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any"},
+    {"src":"/icons/icon-maskable-192.png","sizes":"192x192","type":"image/png","purpose":"maskable"},
+    {"src":"/icons/icon-maskable-512.png","sizes":"512x512","type":"image/png","purpose":"maskable"},
+    {"src":"/icons/apple-touch-icon.png","sizes":"180x180","type":"image/png","purpose":"any"},
     {
       "src": "/favicon-32x32.png",
       "sizes": "32x32",

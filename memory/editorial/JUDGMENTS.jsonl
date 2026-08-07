@@ -1,0 +1,2 @@
+{"judgmentId":"judgment-rates-not-trend-reversal-20260807","status":"confirmed","summary":"当前证据支持高位回吐与重新定价，不支持直接写成趋势反转。","evidenceIds":["global-market-brief-2026-08-07","us-treasury-nominal-xml","ap-us-close-2026-08-06"],"updatedAt":"2026-08-07","reuse":"daily-and-weekly"}
+{"judgmentId":"judgment-hstech-observation-boundary","status":"confirmed","summary":"HSTECH 历史恢复只改变可复核行情底座，不自动恢复或发布新的港股概率。","evidenceIds":["hstech-recovery-v1","prediction-review-packet-v1"],"updatedAt":"2026-08-07","reuse":"research-only"}

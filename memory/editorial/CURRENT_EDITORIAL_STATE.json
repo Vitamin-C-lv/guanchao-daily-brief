@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "editorial-memory-state-v1",
+  "updatedAt": "2026-08-07T12:00:00.000Z",
+  "hotWindowDays": 14,
+  "warmWindowWeeks": 12,
+  "retrievalPolicy": {
+    "recentDailyFull": 3,
+    "priorDailySummary": 4,
+    "recentWeeklyFull": 2,
+    "ordinaryOpenThreads": "8-20",
+    "majorEventOpenThreads": "over-20-allowed"
+  },
+  "currentEdition": "观潮每日晚报",
+  "coverage": {
+    "dailyFullAvailable": 2,
+    "dailySummaryAvailable": 0,
+    "weeklyFullAvailable": 2,
+    "partial": true,
+    "note": "Bootstrap 只索引仓库中真实存在的文章/周报，不补造缺失日期。"
+  },
+  "operationsMemoryLoadedByDefault": false,
+  "policyStateCapitalInProductionModel": false
+}

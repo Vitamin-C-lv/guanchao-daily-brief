@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "daily-market-packet-v1",
+  "type": "object",
+  "required": ["schemaVersion", "packetId", "editionDate", "generatedAt", "writerProductName", "writerMayBrowse", "markets", "predictionState", "sourceIndex"],
+  "properties": {
+    "schemaVersion": { "const": "daily-market-packet-v1" },
+    "packetId": { "pattern": "^[a-f0-9]{64}$" },
+    "editionDate": { "format": "date" },
+    "generatedAt": { "format": "date-time" },
+    "writerProductName": { "const": "观潮每日晚报" },
+    "writerMayBrowse": { "const": true },
+    "markets": { "type": "object" },
+    "predictionState": { "type": "object" },
+    "sourceIndex": { "type": "array" }
+  },
+  "additionalProperties": true
+}

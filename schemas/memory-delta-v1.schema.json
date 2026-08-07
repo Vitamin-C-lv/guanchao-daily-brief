@@ -1,0 +1,8 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "memory-delta-v1",
+  "type": "object",
+  "required": ["schemaVersion", "editionDate", "generatedAt", "entries"],
+  "properties": {"schemaVersion":{"const":"memory-delta-v1"},"editionDate":{"format":"date"},"generatedAt":{"format":"date-time"},"entries":{"type":"array"}},
+  "additionalProperties": false
+}
