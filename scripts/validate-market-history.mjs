@@ -6,6 +6,11 @@ const root = path.resolve(process.cwd(), "public", "data", "market-history");
 const index = JSON.parse(await readFile(path.join(root, "index.json"), "utf8"));
 assert.equal(index.schemaVersion, "public-market-history-v1");
 assert.equal(index.instruments.length, 9);
+assert.deepEqual(
+  index.instruments.map((entry) => entry.instrument.id).sort(),
+  ["chinext", "dow-jones", "hang-seng", "hang-seng-china-enterprises", "hang-seng-tech", "nasdaq-composite", "sp500", "sse-composite", "szse-component"],
+);
+assert.equal(index.instruments.some((entry) => entry.instrument.id === "hang-seng-composite"), false);
 const today = "2026-08-07";
 
 for (const entry of index.instruments) {

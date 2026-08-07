@@ -19,6 +19,8 @@
     "test:market-observer": "node --test scripts/market-observer-domain.test.mjs",
     "test:market-direction": "node --experimental-strip-types --test scripts/market-direction.test.mjs",
     "test:market-indicators": "node --experimental-strip-types --test scripts/market-indicators.test.mjs",
+    "test:market-chart": "node --experimental-strip-types --test scripts/market-chart-behavior.test.mjs",
+    "test:market-page-dom": "node --test scripts/market-page-dom.test.mjs",
     "test:prediction-python": "uv run --no-project --python 3.12 --with requests python -m unittest scripts/test_prediction_contract_python.py scripts/test_market_breadth.py",
     "test:prediction-dataset": "uv run --no-project --python 3.12 --with requests --with numpy python scripts/test_prediction_dataset.py && node --test scripts/prediction-dataset.test.mjs",
     "test:prediction-ledger": "uv run --no-project --python 3.12 --with requests python -m unittest scripts/test_prediction_ledger.py scripts/test_prediction_ledger_fixtures.py scripts/test_prediction_ledger_automation.py && node --test scripts/prediction-ledger.test.mjs",

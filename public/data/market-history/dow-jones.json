@@ -12,10 +12,10 @@
   "asOf": "2026-08-06",
   "source": {
     "provider": "Yahoo Finance chart API（研究缓存派生）",
-    "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EDJI?period1=1672531200&period2=1786153271&interval=1d&events=history",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EDJI?period1=1672531200&period2=1786163626&interval=1d&events=history",
     "delayed": true,
     "note": "原始 provider payload 仅留在 worktree 外私有研究缓存；Git 仅保留标准化派生行情面板。",
-    "rawSha256": "ac894a0592f8f31b62817b22db6d1badde7c9c56f55604b25947bb51c39a8fbc"
+    "rawSha256": "0d7382b1855bb6a52209a6f538af78d7a99f62e3755749c0dcc092281bdee6b9"
   },
   "bars": [
     {
@@ -7224,7 +7224,7 @@
       "high": 54502.87109375,
       "low": 53835.01953125,
       "close": 53885.1015625,
-      "volume": 420031319
+      "volume": 416810000
     }
   ]
 }

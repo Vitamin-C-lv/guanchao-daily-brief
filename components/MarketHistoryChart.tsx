@@ -12,9 +12,18 @@ import type { IChartApi, ISeriesApi, MouseEventParams, Time } from "lightweight-
 import { Maximize2, Minus, Plus, RefreshCw, Scan, Shrink, ZoomIn, ZoomOut } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { MarketHistoryBar, MarketHistoryDocument } from "@/lib/market-history";
+import {
+  clampMarketLogicalRange,
+  FULLSCREEN_MARKET_CHART_MIN_HEIGHT,
+  NORMAL_MARKET_CHART_HEIGHT,
+  sameMarketLogicalRange,
+  visibleRangeForMarketRange,
+  type MarketLogicalRange,
+  type MarketRangeKey,
+} from "@/lib/market-chart-behavior";
 import { movingAverageConvergenceDivergence, simpleMovingAverage } from "@/lib/market-indicators";
 
-type RangeKey = "1M" | "3M" | "6M" | "1Y" | "ALL";
+type RangeKey = MarketRangeKey;
 type ChartMode = "candles" | "close";
 type HoverSnapshot = { date: string; open: number | null; high: number | null; low: number | null; close: number | null; volume: number | null };
 
@@ -34,17 +43,21 @@ function formatNumber(value: number | null, digits = 2) {
   return value === null || !Number.isFinite(value) ? "—" : value.toLocaleString("zh-CN", { maximumFractionDigits: digits, minimumFractionDigits: digits });
 }
 
-function rangeCount(range: RangeKey, length: number) {
-  if (range === "1M") return Math.min(21, length);
-  if (range === "3M") return Math.min(63, length);
-  if (range === "6M") return Math.min(126, length);
-  if (range === "1Y") return Math.min(252, length);
-  return length;
+function applyRange(chart: IChartApi, range: RangeKey, length: number) {
+  chart.timeScale().setVisibleLogicalRange(clampMarketLogicalRange(visibleRangeForMarketRange(range, length), length));
 }
 
-function applyRange(chart: IChartApi, range: RangeKey, length: number) {
-  const count = rangeCount(range, length);
-  chart.timeScale().setVisibleLogicalRange({ from: Math.max(0, length - count - 1), to: Math.max(0, length - 1) });
+function fullscreenChartHeight(shell: HTMLElement, container: HTMLElement) {
+  if (document.fullscreenElement !== shell) {
+    const configuredHeight = Number.parseFloat(getComputedStyle(shell).getPropertyValue("--market-chart-normal-height"));
+    return Number.isFinite(configuredHeight) ? configuredHeight : NORMAL_MARKET_CHART_HEIGHT;
+  }
+  const shellRect = shell.getBoundingClientRect();
+  const containerRect = container.getBoundingClientRect();
+  const hint = shell.querySelector<HTMLElement>(".market-history-chart-hint");
+  const paddingBottom = Number.parseFloat(getComputedStyle(shell).paddingBottom) || 0;
+  const hintHeight = hint?.getBoundingClientRect().height ?? 0;
+  return Math.max(FULLSCREEN_MARKET_CHART_MIN_HEIGHT, Math.floor(shellRect.bottom - containerRect.top - hintHeight - paddingBottom));
 }
 
 function chartData(bar: MarketHistoryBar[]) {
@@ -69,6 +82,11 @@ export default function MarketHistoryChart({ history }: { history: MarketHistory
   const [macdVisible, setMacdVisible] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [hover, setHover] = useState<HoverSnapshot | null>(null);
+  const savedFullscreenRangeRef = useRef<MarketLogicalRange | null>(null);
+  const resizeChartRef = useRef<(() => void) | null>(null);
+  const fullscreenFrameRef = useRef<number | null>(null);
+  const resizeFrameRef = useRef<number | null>(null);
+  const isClampingRangeRef = useRef(false);
   const bars = useMemo(() => validBars(history), [history]);
   const data = useMemo(() => chartData(bars), [bars]);
 
@@ -76,12 +94,12 @@ export default function MarketHistoryChart({ history }: { history: MarketHistory
     if (!containerRef.current || !bars.length) return;
     const chart = createChart(containerRef.current, {
       width: containerRef.current.clientWidth,
-      height: 520,
+      height: NORMAL_MARKET_CHART_HEIGHT,
       layout: { background: { type: ColorType.Solid, color: "#ffffff" }, textColor: "#746d78" },
       grid: { vertLines: { color: "#f0edf2" }, horzLines: { color: "#f0edf2" } },
       crosshair: { mode: CrosshairMode.Normal, vertLine: { color: "#9a8ca4", width: 1, style: 2, labelBackgroundColor: "#4a3f50" }, horzLine: { color: "#9a8ca4", width: 1, style: 2, labelBackgroundColor: "#4a3f50" } },
       rightPriceScale: { borderColor: "#e9e4eb", scaleMargins: { top: 0.08, bottom: 0.16 } },
-      timeScale: { borderColor: "#e9e4eb", timeVisible: false, rightOffset: 6, barSpacing: 7, minBarSpacing: 2 },
+      timeScale: { borderColor: "#e9e4eb", timeVisible: false, rightOffset: 0, fixRightEdge: true, barSpacing: 7, minBarSpacing: 2 },
       handleScroll: { mouseWheel: true, pressedMouseMove: true, horzTouchDrag: true, vertTouchDrag: false },
       handleScale: { axisPressedMouseMove: true, mouseWheel: true, pinch: true },
     });
@@ -123,6 +141,15 @@ export default function MarketHistoryChart({ history }: { history: MarketHistory
       setHover({ date: String(item.time ?? param.time ?? ""), open: item.open, high: item.high, low: item.low, close: item.close, volume: volumeItem?.value ?? null });
     };
     chart.subscribeCrosshairMove(handleCrosshairMove);
+    const clampVisibleRange = (visible: MarketLogicalRange | null) => {
+      if (!visible || isClampingRangeRef.current) return;
+      const clamped = clampMarketLogicalRange(visible, bars.length);
+      if (sameMarketLogicalRange(visible, clamped)) return;
+      isClampingRangeRef.current = true;
+      chart.timeScale().setVisibleLogicalRange(clamped);
+      queueMicrotask(() => { isClampingRangeRef.current = false; });
+    };
+    chart.timeScale().subscribeVisibleLogicalRangeChange(clampVisibleRange);
     chartRef.current = chart;
     candleSeriesRef.current = candle;
     closeSeriesRef.current = close;
@@ -131,16 +158,51 @@ export default function MarketHistoryChart({ history }: { history: MarketHistory
     macdSeriesRef.current = { line: macdLine, signal: signalLine, histogram: macdHistogram };
     applyRange(chart, range, bars.length);
 
-    const resizeObserver = new ResizeObserver(() => {
-      if (containerRef.current) chart.applyOptions({ width: containerRef.current.clientWidth, height: Math.max(520, containerRef.current.clientHeight) });
-    });
-    resizeObserver.observe(containerRef.current);
-    const fullscreenListener = () => setIsFullscreen(document.fullscreenElement === shellRef.current);
+    const resizeChart = () => {
+      const shell = shellRef.current;
+      const container = containerRef.current;
+      if (!shell || !container) return;
+      chart.applyOptions({ width: Math.max(1, Math.floor(container.getBoundingClientRect().width)), height: fullscreenChartHeight(shell, container) });
+    };
+    resizeChartRef.current = resizeChart;
+    const scheduleResize = () => {
+      if (resizeFrameRef.current !== null) window.cancelAnimationFrame(resizeFrameRef.current);
+      resizeFrameRef.current = window.requestAnimationFrame(() => {
+        resizeFrameRef.current = null;
+        resizeChart();
+      });
+    };
+    const scheduleFullscreenLayout = () => {
+      if (fullscreenFrameRef.current !== null) window.cancelAnimationFrame(fullscreenFrameRef.current);
+      fullscreenFrameRef.current = window.requestAnimationFrame(() => {
+        fullscreenFrameRef.current = window.requestAnimationFrame(() => {
+          fullscreenFrameRef.current = null;
+          resizeChart();
+          const shell = shellRef.current;
+          const saved = savedFullscreenRangeRef.current;
+          if (document.fullscreenElement === shell || !saved) return;
+          const restored = clampMarketLogicalRange(saved, bars.length);
+          isClampingRangeRef.current = true;
+          chart.timeScale().setVisibleLogicalRange(restored);
+          queueMicrotask(() => { isClampingRangeRef.current = false; });
+        });
+      });
+    };
+    const resizeObserver = new ResizeObserver(scheduleResize);
+    if (shellRef.current) resizeObserver.observe(shellRef.current);
+    const fullscreenListener = () => {
+      const active = document.fullscreenElement === shellRef.current;
+      setIsFullscreen(active);
+      scheduleFullscreenLayout();
+    };
     document.addEventListener("fullscreenchange", fullscreenListener);
     return () => {
       resizeObserver.disconnect();
+      if (resizeFrameRef.current !== null) window.cancelAnimationFrame(resizeFrameRef.current);
+      if (fullscreenFrameRef.current !== null) window.cancelAnimationFrame(fullscreenFrameRef.current);
       document.removeEventListener("fullscreenchange", fullscreenListener);
       chart.unsubscribeCrosshairMove(handleCrosshairMove);
+      chart.timeScale().unsubscribeVisibleLogicalRangeChange(clampVisibleRange);
       chart.remove();
       chartRef.current = null;
       candleSeriesRef.current = null;
@@ -148,6 +210,7 @@ export default function MarketHistoryChart({ history }: { history: MarketHistory
       volumeSeriesRef.current = null;
       maSeriesRef.current = {};
       macdSeriesRef.current = null;
+      resizeChartRef.current = null;
     };
     // The chart is intentionally recreated only when the normalized history changes.
     // Toolbar state is applied by the effects below so the canvas remains stable.
@@ -184,7 +247,7 @@ export default function MarketHistoryChart({ history }: { history: MarketHistory
     if (!chart || !visible) return;
     const center = (visible.from + visible.to) / 2;
     const span = Math.max(20, (visible.to - visible.from) * factor);
-    chart.timeScale().setVisibleLogicalRange({ from: Math.max(-1, center - span / 2), to: Math.min(bars.length - 1, center + span / 2) });
+    chart.timeScale().setVisibleLogicalRange(clampMarketLogicalRange({ from: Math.max(-1, center - span / 2), to: center + span / 2 }, bars.length));
   };
 
   const reset = () => {
@@ -192,12 +255,21 @@ export default function MarketHistoryChart({ history }: { history: MarketHistory
     if (chartRef.current) applyRange(chartRef.current, "1Y", bars.length);
   };
 
-  const fit = () => chartRef.current?.timeScale().fitContent();
+  const fit = () => {
+    const chart = chartRef.current;
+    if (!chart) return;
+    chart.timeScale().fitContent();
+    const visible = chart.timeScale().getVisibleLogicalRange();
+    if (visible) chart.timeScale().setVisibleLogicalRange(clampMarketLogicalRange(visible, bars.length));
+  };
 
   const toggleFullscreen = async () => {
     if (!shellRef.current) return;
     if (document.fullscreenElement) await document.exitFullscreen();
-    else await shellRef.current.requestFullscreen();
+    else {
+      savedFullscreenRangeRef.current = chartRef.current?.timeScale().getVisibleLogicalRange() ?? null;
+      await shellRef.current.requestFullscreen();
+    }
   };
 
   const latest = hover ?? (() => {

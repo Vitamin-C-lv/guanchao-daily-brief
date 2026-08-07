@@ -15,7 +15,7 @@
     "url": "https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=sz399001,day,2023-01-01,2026-08-07,600,qfq",
     "delayed": true,
     "note": "公开收盘日K接口；页面只使用标准化派生数据，原始 provider payload 保留在 worktree 外私有缓存。",
-    "rawSha256": "ed2dcda29f310e8acf338145c8619d9aba888df5e2aaa6197227246d9abf4507"
+    "rawSha256": "2aaa5fe88920f0f40efac1a594210888289ea36ab8c992ca3eb88b9d0205fd6a"
   },
   "bars": [
     {
@@ -4821,10 +4821,10 @@
     {
       "time": "2026-08-07",
       "open": 14152.78,
-      "high": 14213.14,
-      "low": 14152.78,
-      "close": 14180.14,
-      "volume": 125088171
+      "high": 14323.29,
+      "low": 14049.34,
+      "close": 14295.08,
+      "volume": 470128008
     }
   ]
 }

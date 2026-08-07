@@ -12,7 +12,7 @@
   "asOf": "2026-08-06",
   "source": {
     "provider": "Yahoo Finance chart API（研究缓存派生）",
-    "url": "https://query1.finance.yahoo.com/v8/finance/chart/HSTECH.HK?period1=1672531200&period2=1786153271&interval=1d&events=history",
+    "url": "https://query1.finance.yahoo.com/v8/finance/chart/HSTECH.HK?period1=1672531200&period2=1786163625&interval=1d&events=history",
     "delayed": true,
     "note": "仅保留来源实际返回的 post-launch 观测；未做历史回填，少于一年时明确降级。",
     "rawSha256": "5df1a7c2e447318c7d7ed6c571675092aca0bf7454f8912212cb977057a6fbc4"
