@@ -1,9 +1,12 @@
 # 本机自动化与 Writer 记忆
 
-`config/codex-writer-automation.json` 是仓库内契约，`publicationEnabled=true`。Prediction Publisher 已从 06:45 Codex
-automation 迁移到每天 18:20 Asia/Shanghai 的 Windows Task Scheduler；正常路径只调用确定性脚本，
-不启动 AI Agent，正常路径 LLM token 为 0。Daily Writer 从 07:30 迁移到 20:00，产品名为
-“观潮每日晚报”；Weekly Writer 周六 10:00 保持不变。
+`config/codex-writer-automation.json` 是仓库内契约，`publicationEnabled=true`。PR #56 合并前保持安全交接：
+06:45 Prediction、07:30 Daily 和周六 10:00 Weekly 的已合并 `origin/main` 回退自动化继续 ACTIVE；
+18:20 Prediction 与 20:00 Daily 候选均 disabled，18:20 Windows Task Scheduler 只保留 DryRun。
+合并后才按验证顺序切换：先确认 18:20 Write ACTIVE，再关闭 06:45；先确认 20:00 Write ACTIVE，再关闭
+07:30；Weekly 周六 10:00 不变。Prediction 正常路径只调用确定性脚本，不启动 AI Agent，正常路径 LLM token 为 0。
+Daily Writer 目标为 20:00，产品名为“观潮每日晚报”；生产路径只允许 `${GUANCHAO_HOME}` 下的 canonical
+repository/runtime，不得使用 `D:/周报个人网站`。
 
 ## 一致性门禁
 
@@ -13,7 +16,7 @@ automation 迁移到每天 18:20 Asia/Shanghai 的 Windows Task Scheduler；正�
 node scripts/check-automation-consistency.mjs
 ```
 
-配置、Prompt、Windows Task Scheduler、Codex automation、runtime 或 Skill 不一致时输出
+配置、Prompt、Windows Task Scheduler、Codex automation、runtime、CWD 或 Skill 不一致时输出
 `AUTOMATION_DRIFT` 并停止。Prediction 的 scheduler task 必须包含 `run-prediction-publisher-task.ps1`
 和 `run-prediction-publisher.mjs`，且不得包含模型调用。
 
@@ -30,6 +33,12 @@ OPEN_THREADS（普通日 8–20，重大事件可超过）、confirmed lessons�
 
 按需命令：`pnpm memory:search`、`pnpm memory:expand-thread`、`pnpm memory:open-article`、
 `pnpm memory:sanitize`。
+
+Policy/State Capital Writer research targets 记录官方 URL、priority、query、lastCheckedAt、candidateState
+和 related threads。重大 A股/港股判断前先检查 high priority targets；Policy Event 必须保存 issuer、
+authorityLevel、documentType、publishedAt、effectiveAt、implementationStage 和 official URL。国家资本
+证据必须区分 `official_confirmed`、`reliable_report`、`market_inference`；国家医保局/医保基金保持医疗
+支付政策边界，不进入 State Capital Watch。
 
 ## 浏览与写作边界
 

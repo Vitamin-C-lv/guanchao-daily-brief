@@ -21,7 +21,7 @@ export function validatePolicyWatchEvent(event, { registry = null } = {}) {
   if (event?.officialUrl !== null && event?.officialUrl !== undefined && !String(event.officialUrl).startsWith("https://") && !String(event.officialUrl).startsWith("http://")) errors.push("officialUrl invalid");
   if (!Array.isArray(event?.relatedThreadIds)) errors.push("relatedThreadIds required");
   if (event?.documentType === "meeting_statement" && ["effective", "implemented"].includes(event?.implementationStage)) errors.push("meeting statement cannot be recorded as effective/implemented without a formal document");
-  if (registry && !registry.issuers.some((issuer) => issuer.name === event.issuer || issuer.issuerId === event.issuer)) errors.push("issuer absent from official registry");
+  if (registry && event.status !== "bootstrap" && !registry.issuers.some((issuer) => issuer.name === event.issuer || issuer.issuerId === event.issuer)) errors.push("issuer absent from official registry");
   if (errors.length) throw new Error(`POLICY_WATCH_INVALID ${errors.join("; ")}`);
   return { valid: true, eventId: event.eventId, issuer: event.issuer, implementationStage: event.implementationStage };
 }

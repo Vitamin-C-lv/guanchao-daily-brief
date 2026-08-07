@@ -18,6 +18,7 @@ from three_market_model_core import (
     canonical_json,
     derive_price_rows,
     gzip_bytes,
+    load_hstech_normalized_override,
     oos_evaluate,
     sha256_bytes,
     write_immutable,
@@ -70,6 +71,40 @@ class ThreeMarketCoreTests(unittest.TestCase):
 
     def test_deterministic_gzip(self) -> None:
         self.assertEqual(gzip_bytes(b"abc"), gzip_bytes(b"abc"))
+
+    def test_hstech_normalized_adapter_accepts_post_launch_fixture_and_rejects_short_fixture(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            bars = [
+                {
+                    "date": (date(2020, 8, 17) + timedelta(days=index)).isoformat(),
+                    "open": 100.0 + index,
+                    "high": 101.0 + index,
+                    "low": 99.0 + index,
+                    "close": 100.5 + index,
+                    "volume": 1000,
+                }
+                for index in range(252)
+            ]
+            fixture = root / "hstech.json"
+            fixture.write_text(json.dumps({
+                "schemaVersion": "hstech-sina-normalized-v1",
+                "source": {"provider": "akshare.stock_hk_index_daily_sina", "url": "https://example.invalid"},
+                "bars": bars,
+            }), encoding="utf-8")
+            series, source = load_hstech_normalized_override(fixture)
+            self.assertEqual(len(series), 252)
+            self.assertEqual(min(series), "2020-08-17")
+            self.assertEqual(source["id"], "akshare_sina_hstech")
+
+            short_fixture = root / "hstech-short.json"
+            short_fixture.write_text(json.dumps({
+                "schemaVersion": "hstech-sina-normalized-v1",
+                "source": {"provider": "akshare.stock_hk_index_daily_sina"},
+                "bars": bars[:251],
+            }), encoding="utf-8")
+            with self.assertRaises(ThreeMarketError):
+                load_hstech_normalized_override(short_fixture)
 
     def test_source_validator_ignores_meta_and_normalizes_cboe_dates(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

@@ -77,7 +77,10 @@ export function decodeMarketHistoryDocument(raw: unknown, expected: MarketInstru
   if (!(raw.asOf === null || isDate(raw.asOf))) return null;
   if (!isRecord(raw.instrument) || raw.instrument.id !== expected.id || raw.instrument.market !== expected.market || raw.instrument.slug !== expected.slug || raw.instrument.label !== expected.label) return null;
   if (!hasExactKeys(raw.instrument, ["id", "market", "slug", "label", "currency", "timezone"])) return null;
-  if (!isRecord(raw.source) || !hasExactKeys(raw.source, ["provider", "url", "delayed", "note", ...(raw.source.rawSha256 === undefined ? [] : ["rawSha256"]) ])) return null;
+  // Public documents may carry extra lineage metadata (official identity,
+  // cross-checks, normalized-cache hashes). Decode only the UI-safe source
+  // fields so those additions cannot make a valid public page fail closed.
+  if (!isRecord(raw.source)) return null;
   if (typeof raw.source.provider !== "string" || !(raw.source.url === null || typeof raw.source.url === "string") || typeof raw.source.delayed !== "boolean" || typeof raw.source.note !== "string") return null;
   if (!Array.isArray(raw.bars)) return null;
   const bars = raw.bars.map(decodeBar);

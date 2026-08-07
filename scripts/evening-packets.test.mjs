@@ -8,6 +8,9 @@ test("daily market packet preserves writer browsing and observation boundary", (
   assert.equal(packet.schemaVersion, "daily-market-packet-v1");
   assert.equal(packet.writerProductName, "观潮每日晚报");
   assert.equal(packet.writerMayBrowse, true);
+  assert.equal(packet.coreIndices.aShare.sse.status, "ready");
+  assert.equal(packet.marketBreadth.status, "unavailable");
+  assert.equal(packet.aShareObservationBoard.every((item) => item.isProbability === false), true);
   assert.doesNotThrow(() => validateEveningPacket(packet, "DAILY_MARKET_PACKET.json"));
 });
 
@@ -17,6 +20,7 @@ test("prediction review keeps observation and abstention out of model denominato
   for (const horizon of Object.values(packet.horizons)) {
     assert.equal(horizon.evidenceObservation.notModelAccuracy, true);
     assert.equal(horizon.abstained.excludedFromModelDenominator, true);
+    assert.ok(horizon.publishedModelPrediction.brier === null || (horizon.publishedModelPrediction.brier >= 0 && horizon.publishedModelPrediction.brier <= 1));
   }
   assert.doesNotThrow(() => validateEveningPacket(packet, "PREDICTION_REVIEW_PACKET.json"));
 });

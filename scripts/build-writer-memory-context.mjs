@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { canonicalJson, sha256Canonical } from "./research-contract.mjs";
 import { validateMemoryTree } from "./memory-manager.mjs";
+import { buildPolicyStateResearchTargets } from "./build-policy-state-research-targets.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
@@ -10,6 +11,12 @@ export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
 function readJson(file, fallback = null) { try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return fallback; } }
 function readJsonl(file) { try { return fs.readFileSync(file, "utf8").split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line)); } catch { return []; } }
 function shanghaiDate(value = new Date()) { return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date(value)); }
+function articleValue(root, entry) { return entry?.path ? readJson(path.join(root, ...entry.path.split("/")), null) : null; }
+function fullArticle(root, entry) { return { ...entry, content: articleValue(root, entry) }; }
+function articleSummary(root, entry) {
+  const content = articleValue(root, entry);
+  return { ...entry, summary: content ? { title: content.title ?? entry.title ?? null, dek: content.dek ?? null, conclusion: content.conclusion ?? content.mainArticle?.conclusion ?? null, dataAsOf: content.dataAsOf ?? content.mainArticle?.dataAsOf ?? entry.dataAsOf ?? null, sourceIds: content.sourceIds ?? content.mainArticle?.sourceIds ?? [] } : null };
+}
 
 export function buildWriterMemoryContext({ root = repositoryRoot, editionDate = shanghaiDate(), dailyPacketPath = null, reviewPacketPath = null } = {}) {
   const memoryRoot = path.join(root, "memory", "editorial");
@@ -25,6 +32,10 @@ export function buildWriterMemoryContext({ root = repositoryRoot, editionDate = 
   const reviews = readJsonl(path.join(memoryRoot, "PREDICTION_REVIEWS.jsonl"));
   const dailyPacket = dailyPacketPath ? readJson(dailyPacketPath, null) : null;
   const reviewPacket = reviewPacketPath ? readJson(reviewPacketPath, null) : null;
+  const researchTargets = buildPolicyStateResearchTargets({ root, checkedAt: editionDate });
+  const recentDailyFull = dailies.slice(0, 3).map((entry) => fullArticle(root, entry));
+  const priorDailySummaries = dailies.slice(3, 7).map((entry) => articleSummary(root, entry));
+  const recentWeeklyFull = weeklies.slice(0, 2).map((entry) => fullArticle(root, entry));
   const body = {
     schemaVersion: "writer-memory-context-v1",
     editionDate,
@@ -32,23 +43,26 @@ export function buildWriterMemoryContext({ root = repositoryRoot, editionDate = 
     writerMayBrowse: true,
     operationsMemoryLoaded: false,
     bootstrap: {
-      recentDailyFull: dailies.slice(0, 3).map((entry) => entry.path),
-      priorDailySummaries: dailies.slice(3, 7).map((entry) => entry.path),
-      recentWeeklyFull: weeklies.slice(0, 2).map((entry) => entry.path),
+      recentDailyFull,
+      priorDailySummaries,
+      recentWeeklyFull,
       openThreads: openThreads.slice(0, 20),
       confirmedLessons: lessons,
       judgments,
       policyWatch: policy,
       stateCapitalWatch: stateCapital,
       predictionReviews: reviews,
-      dailyPacket: dailyPacket ? { schemaVersion: dailyPacket.schemaVersion, packetId: dailyPacket.packetId, status: dailyPacket.status } : { required: true, available: false },
-      predictionReviewPacket: reviewPacket ? { schemaVersion: reviewPacket.schemaVersion, packetId: reviewPacket.packetId, status: reviewPacket.status } : { required: true, available: false },
+      dailyPacket: dailyPacket ?? { required: true, available: false },
+      predictionReviewPacket: reviewPacket ?? { required: true, available: false },
       newsCandidates: dailyPacket?.newsCandidates ?? [],
+      policyResearchTargets: researchTargets.policyResearchTargets,
+      stateCapitalResearchTargets: researchTargets.stateCapitalResearchTargets,
+      researchTargetSummary: { highPriorityPolicyCount: researchTargets.highPriorityPolicyCount, highPriorityStateCapitalCount: researchTargets.highPriorityStateCapitalCount },
     },
     counts: {
-      recentDailyFull: Math.min(3, dailies.length),
+      recentDailyFull: recentDailyFull.length,
       priorDailySummaries: Math.max(0, Math.min(4, dailies.length - 3)),
-      recentWeeklyFull: Math.min(2, weeklies.length),
+      recentWeeklyFull: recentWeeklyFull.length,
       openThreads: openThreads.length,
       confirmedLessons: lessons.length,
       policyWatch: policy.length,
@@ -60,6 +74,7 @@ export function buildWriterMemoryContext({ root = repositoryRoot, editionDate = 
       commands: ["pnpm memory:search", "pnpm memory:expand-thread", "pnpm memory:open-article"],
       activeResearchTriggers: ["疑点", "缺失", "未更新", "数据和新闻冲突", "重大政策", "异常行情", "值得深入研究的话题", "18:20–20:00 新发生事件"],
       packetIsFactBaseNotInformationCeiling: true,
+      mustCheckHighPriorityPolicyStateTargetsBeforeMajorAHJudgment: true,
     },
     memoryDelta: { schemaVersion: "memory-delta-v1", path: "memory/editorial/daily/MEMORY_DELTA-YYYY-MM-DD.json", managerOrder: ["validate", "dedupe", "sanitize", "merge"] },
     boundaries: { noProductionLedgerWrite: true, noAutomaticHKProbabilityPromotion: true, noNullToZero: true, noOperationsMemoryInDefaultContext: true },

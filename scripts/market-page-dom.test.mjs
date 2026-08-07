@@ -100,7 +100,7 @@ test("desktop market overview keeps the shared sidebar and selected A/HK/US core
     assert.equal(dom.observationBelowCore, true);
     assert.equal(dom.cards.length, 3);
     assert.equal(dom.topbarText.includes("8月3日"), false);
-    assert.equal(dom.factStatus, market === "hk" ? "部分指数数据延迟" : "核心指数数据已校验");
+    assert.equal(dom.factStatus, "核心指数数据已校验");
     assert.equal(dom.sessionStatus.includes("8月3日"), false);
     assert.equal(dom.sessionStatus.includes("A股收盘"), false);
     assert.equal(dom.sessionStatus.includes("港股收盘"), false);
@@ -109,7 +109,7 @@ test("desktop market overview keeps the shared sidebar and selected A/HK/US core
     if (market === "hk") assert.equal(dom.freshness.includes("部分指数晚于/早于共同交易日"), true);
     const hstech = dom.cards.find((card) => card.id === "hang-seng-tech");
     if (hstech) {
-      assert.equal(hstech.text.includes("点差 —"), true);
+      assert.equal(hstech.text.includes("点差 —"), false);
       assert.equal(hstech.text.includes("+1.00%"), false);
     }
   }

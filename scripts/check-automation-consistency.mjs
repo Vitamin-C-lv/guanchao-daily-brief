@@ -9,11 +9,13 @@ import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import { isForbiddenProductionPath, resolveAutomationPaths, resolveConfiguredPath, toConfigPath } from "./automation-paths.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
-const DEFAULT_AUTOMATIONS_ROOT = "C:/Users/18442/.codex/automations";
-const DEFAULT_STATE = "C:/Codex-Recovery/GuanchaoWriter/automation-state.json";
+const DEFAULT_PATHS = resolveAutomationPaths();
+const DEFAULT_AUTOMATIONS_ROOT = DEFAULT_PATHS.automationsRoot;
+const DEFAULT_STATE = path.join(DEFAULT_PATHS.recoveryRoot, "automation-state.json");
 const DEFAULT_TASK_NAME = "Guanchao Prediction Publisher 18-20";
 const REQUIRED_PROMPT_FRAGMENTS = {
   prediction: ["run-prediction-publisher.mjs", "18:20", "禁止训练", "禁止激活 shadow candidate", "AUTOMATION_DRIFT"],
@@ -35,6 +37,9 @@ function fields(text) {
   return values;
 }
 function automationDirectory(root, id) { return path.join(root, ...String(id).split(/[\\/]/).filter(Boolean)); }
+function normalizedPath(value) { return toConfigPath(value).replace(/\\/g, "/").replace(/\/+$/, "").toLowerCase(); }
+function pathIsConfigured(value, expected) { return normalizedPath(value) === normalizedPath(expected); }
+function hasForbiddenPath(values) { return values.some((value) => isForbiddenProductionPath(value)); }
 
 export function readScheduledTask(taskName = DEFAULT_TASK_NAME) {
   try {
@@ -54,6 +59,18 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
   const config = readJson(configPath, "config");
   const docs = fs.existsSync(docsPath) ? fs.readFileSync(docsPath, "utf8") : null;
   const state = fs.existsSync(statePath) ? readJson(statePath, "automation state") : null;
+  const handover = config.handover?.status === "pre-merge-safe";
+  const runtimePaths = [config.runtime?.projectPath, config.runtime?.repositoryPath].filter(Boolean);
+  add("config.runtime uses canonical paths", runtimePaths.length === 2 && runtimePaths.every((value) => !isForbiddenProductionPath(value)), JSON.stringify(runtimePaths));
+  try {
+    const configuredPaths = ["projectPath", "repositoryPath", "recoveryRoot", "runsRoot", "automationStatePath", "nativeAutomationsRoot"]
+      .map((key) => [key, resolveConfiguredPath(config.runtime?.[key], { baseDirectory: path.dirname(configPath) })]);
+    add("config path templates resolve", configuredPaths.every(([, value]) => !String(value).includes("${") && !isForbiddenProductionPath(value)), JSON.stringify(configuredPaths));
+  } catch (error) {
+    add("config path templates resolve", false, error instanceof Error ? error.message : String(error));
+  }
+  add("config has no forbidden production path", !hasForbiddenPath([...(config.handover?.forbiddenProductionPaths ?? [])].filter((value) => value !== "D:/周报个人网站")), JSON.stringify(config.handover?.forbiddenProductionPaths ?? []));
+  add("handover pre-merge-safe", handover, String(config.handover?.status));
   add("config.publicationEnabled", config.publicationEnabled === true, String(config.publicationEnabled));
   add("config.productionApplyRequiresExplicitWrite", config.productionApplyRequiresExplicitWrite === true, String(config.productionApplyRequiresExplicitWrite));
   add("config.prediction.normalPathUsesLlm=false", config.prediction?.normalPathUsesLlm === false && config.prediction?.normalPathLlmTokens === 0, JSON.stringify({ usesLlm: config.prediction?.normalPathUsesLlm, tokens: config.prediction?.normalPathLlmTokens }));
@@ -77,12 +94,16 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
     if (key === "prediction" && schedule.executor === "windows-task-scheduler") {
       const task = scheduledTaskReader(schedule.taskName ?? DEFAULT_TASK_NAME);
       add("prediction.scheduler task exists", task.exists, task.taskName);
-      add("prediction.scheduler task enabled", task.status === "Ready" || task.status === "Running" || task.status === "就绪" || task.status === "正在运行", String(task.status));
+      const candidateDisabled = handover && schedule.enabled === false;
+      add("prediction.scheduler task state matches handover", candidateDisabled ? task.status === "Disabled" : task.status === "Ready" || task.status === "Running" || task.status === "就绪" || task.status === "正在运行", `${task.status} candidateDisabled=${candidateDisabled}`);
       add("prediction.scheduler task action is deterministic", /run-prediction-publisher-task\.ps1/i.test(task.taskToRun ?? "") && !/gpt-|codex/i.test(task.taskToRun ?? ""), String(task.taskToRun));
+      add("prediction.scheduler dry-run before merge", candidateDisabled ? /-Mode\s+DryRun/i.test(task.taskToRun ?? "") : true, String(task.taskToRun));
       add("prediction.scheduler schedule 18:20", /18:20|每天/i.test(`${task.schedule ?? ""} ${schedule.rrule}`), `${task.schedule ?? "missing"} vs ${schedule.rrule}`);
       continue;
     }
     const nativeId = schedule.automationId || state?.[`${key}AutomationId`];
+    const nativeSchedule = handover ? config.handover?.activeProduction?.[key] : schedule;
+    const nativeExpectedRrule = nativeSchedule?.rrule ?? schedule.rrule;
     const tomlFile = automationDirectory(automationsRoot, nativeId) + "\\automation.toml";
     const toml = readToml(tomlFile);
     add(`${key}.native automation exists`, toml !== null, tomlFile);
@@ -90,10 +111,11 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
     const actual = fields(toml);
     const nativePrompt = parsePrompt(toml);
     add(`${key}.status ACTIVE`, actual.status === "ACTIVE", String(actual.status));
-    add(`${key}.native rrule matches config`, normalizeRrule(actual.rrule) === normalizeRrule(schedule.rrule), `${actual.rrule} vs ${schedule.rrule}`);
+    add(`${key}.native rrule matches config`, normalizeRrule(actual.rrule) === normalizeRrule(nativeExpectedRrule), `${actual.rrule} vs ${nativeExpectedRrule}`);
     const expectedModel = config.writer?.model;
     add(`${key}.native model matches config`, actual.model === expectedModel, `${actual.model} vs ${expectedModel}`);
-    add(`${key}.native cwds include runtime/repo path`, actual.cwds.some((cwd) => [config.runtime.projectPath, config.runtime.repositoryPath].map((item) => String(item).replaceAll("\\", "/")).includes(String(cwd).replaceAll("\\", "/"))), JSON.stringify(actual.cwds));
+    add(`${key}.native cwds use canonical runtime/repo paths`, actual.cwds.length >= 2 && [config.runtime.projectPath, config.runtime.repositoryPath].every((expected) => actual.cwds.some((cwd) => pathIsConfigured(cwd, resolveConfiguredPath(expected)))), `${JSON.stringify(actual.cwds)} vs ${JSON.stringify(runtimePaths)}`);
+    add(`${key}.native cwds have no forbidden path`, !hasForbiddenPath(actual.cwds), JSON.stringify(actual.cwds));
     if (nativePrompt !== null) {
       const nativeMissing = (REQUIRED_PROMPT_FRAGMENTS[key] ?? []).filter((fragment) => !nativePrompt.includes(fragment));
       add(`${key}.native prompt markers`, nativeMissing.length === 0, nativeMissing.join(" | "));
@@ -106,6 +128,8 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
   if (state) {
     add("state.configSha256 matches config", state.configSha256 === sha256Bytes(fs.readFileSync(configPath)), `${state.configSha256} vs ${sha256Bytes(fs.readFileSync(configPath))}`);
     add("state.enabled", state.enabled === true, String(state.enabled));
+    add("state.runtime has no forbidden path", !hasForbiddenPath([state.runtime?.projectPath, state.runtime?.repositoryPath].filter(Boolean)), JSON.stringify(state.runtime));
+    add("state.handover matches config", state.review?.handoverStatus === (config.handover?.status ?? "unknown"), `${state.review?.handoverStatus} vs ${config.handover?.status}`);
   } else add("automation state exists", false, statePath);
   const skillFile = path.join(skillDirectory, "SKILL.md");
   const installed = fs.existsSync(skillFile) && fs.existsSync(path.join(skillDirectory, "references")) && fs.existsSync(path.join(skillDirectory, "scripts"));

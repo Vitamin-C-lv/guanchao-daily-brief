@@ -3,12 +3,12 @@
   "publicationEnabled": true,
   "productionApplyRequiresExplicitWrite": true,
   "runtime": {
-    "projectPath": "D:/周报个人网站-local-writer-runtime",
-    "repositoryPath": "D:/周报个人网站",
+    "projectPath": "D:/Guanchao-Workspace/runtime/local-writer-runtime",
+    "repositoryPath": "D:/Guanchao-Workspace/repo/guanchao-daily-brief",
     "recoveryRoot": "C:/Codex-Recovery/GuanchaoWriter",
     "runsRoot": "C:/Codex-Recovery/GuanchaoWriter/runs",
     "automationStatePath": "C:/Codex-Recovery/GuanchaoWriter/automation-state.json",
-    "nativeAutomationsRoot": "C:/Users/18442/.codex/automations",
+    "nativeAutomationsRoot": "${CODEX_HOME}/automations",
     "writerPrepare": "scripts/codex-writer-prepare.mjs",
     "writerFinalize": "scripts/codex-writer-finalize.mjs",
     "predictionPublisher": "scripts/run-prediction-publisher.mjs",
@@ -61,7 +61,7 @@
       "executor": "windows-task-scheduler",
       "taskName": "Guanchao Prediction Publisher 18-20",
       "legacyAutomationId": "guanchao-prediction-publisher",
-      "enabled": true,
+      "enabled": false,
       "rrule": "FREQ=DAILY;BYHOUR=18;BYMINUTE=20",
       "timezone": "Asia/Shanghai",
       "promptFile": "prompts/codex-prediction-publisher.md",
@@ -72,7 +72,7 @@
       "label": "观潮每日晚报 Writer",
       "executor": "codex-automation",
       "automationId": "codex",
-      "enabled": true,
+      "enabled": false,
       "rrule": "FREQ=DAILY;BYHOUR=20;BYMINUTE=0",
       "timezone": "Asia/Shanghai",
       "promptFile": "prompts/codex-daily-writer.md",
@@ -83,11 +83,28 @@
       "label": "观潮本机 Codex 周报写手",
       "executor": "codex-automation",
       "automationId": "codex-2",
-      "enabled": true,
+      "enabled": false,
       "rrule": "FREQ=WEEKLY;BYDAY=SA;BYHOUR=10;BYMINUTE=0",
       "timezone": "Asia/Shanghai",
       "promptFile": "prompts/codex-weekly-writer.md",
       "edition": "weekly"
     }
-  ]
+  ],
+  "handover": {
+    "status": "pre-merge-safe",
+    "candidateSchedulesAreNotProductionActive": true,
+    "activeProduction": {
+      "prediction": {"automationId":"guanchao-prediction-publisher","rrule":"FREQ=DAILY;BYHOUR=6;BYMINUTE=45","timezone":"Asia/Shanghai","mode":"write-capable","source":"merged origin/main runtime"},
+      "daily": {"automationId":"codex","rrule":"FREQ=DAILY;BYHOUR=7;BYMINUTE=30","timezone":"Asia/Shanghai","mode":"write-capable","source":"merged origin/main runtime"},
+      "weekly": {"automationId":"codex-2","rrule":"FREQ=WEEKLY;BYDAY=SA;BYHOUR=10;BYMINUTE=0","timezone":"Asia/Shanghai","mode":"write-capable","source":"merged origin/main runtime"}
+    },
+    "mergeSwitch": {
+      "prediction": "old 06:45 OFF only after new 18:20 Write ACTIVE is verified",
+      "daily": "old 07:30 OFF only after new 20:00 Write ACTIVE is verified",
+      "weekly": "Saturday 10:00 remains unchanged",
+      "candidateTask": "Guanchao Prediction Publisher 18-20",
+      "candidateMode": "Write after merge and final consistency check"
+    },
+    "forbiddenProductionPaths": ["D:/周报个人网站"]
+  }
 }

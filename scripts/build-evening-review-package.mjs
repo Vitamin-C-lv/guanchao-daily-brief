@@ -47,6 +47,55 @@ function readJsonl(file) {
   try { return fs.readFileSync(file, "utf8").split(/\r?\n/).filter(Boolean).map((line) => JSON.parse(line)); } catch { return []; }
 }
 
+function reviewPath(value) {
+  return String(value ?? "").replaceAll("\\", "/").replaceAll("D:/Guanchao-Workspace", "${GUANCHAO_HOME}");
+}
+
+function loadHstechResearchAudit(outputRoot) {
+  if (!outputRoot) return { status: "not_provided", productionBoundary: "research-only" };
+  const inventory = readJson(path.join(outputRoot, "DATA_INVENTORY.json"), null);
+  const metrics = readJson(path.join(outputRoot, "OOS_METRICS.json"), null);
+  const gates = readJson(path.join(outputRoot, "GATE_RESULTS.json"), null);
+  const run = readJson(path.join(outputRoot, "RUN_RESULT.json"), null);
+  const panel = inventory?.markets?.HK?.objectStats?.hstech ?? null;
+  const horizons = [1, 5, 20].map((horizonSessions) => {
+    const item = metrics?.markets?.[`HK/hstech/${horizonSessions}`] ?? null;
+    return {
+      horizonSessions,
+      status: item?.status ?? "unavailable",
+      oosSampleCount: item?.oosSampleCount ?? null,
+      oosWindowCount: item?.oosWindowCount ?? null,
+      metrics: item?.metrics ?? {},
+      abstentionRate: item?.abstentionRate ?? null,
+      coverage: item?.coverage ?? null,
+      calibrationStatus: item?.calibrationStatus ?? null,
+    };
+  });
+  return {
+    status: run?.status === "completed" && panel?.rows >= HSTECH_MINIMUM_READY_ROWS ? "completed" : "partial",
+    outputBoundary: "private research output summarized; raw provider payloads and model folds excluded",
+    panel: panel ? { rows: panel.rows, sessions: panel.sessions, firstDate: panel.firstDate, lastDate: panel.lastDate, status: inventory?.markets?.HK?.objects?.hstech ?? null } : null,
+    sourceAdapter: run?.sourceAudit?.hstechNormalizedAdapter ? {
+      applied: run.sourceAudit.hstechNormalizedAdapter.applied === true,
+      sourceId: run.sourceAudit.hstechNormalizedAdapter.sourceId ?? null,
+      sha256: run.sourceAudit.hstechNormalizedAdapter.sha256 ?? null,
+      path: reviewPath(run.sourceAudit.hstechNormalizedAdapter.path),
+      productionBoundary: run.sourceAudit.hstechNormalizedAdapter.productionBoundary ?? "research-only",
+    } : null,
+    upstreamRequiredFailures: run?.sourceAudit?.requiredFailures ?? [],
+    horizons,
+    gate: gates?.HK ? {
+      datasetStatus: gates.HK.datasetStatus ?? null,
+      decision: gates.HK.decision ?? null,
+      publicationStatus: gates.HK.publicationStatus ?? null,
+      hstechStatus: gates.HK.objectStatuses?.hstech ?? null,
+      productionReplacement: gates.HK.productionReplacement ?? false,
+    } : null,
+    productionApply: run?.productionApply ?? { applied: false, contentWritten: false, predictionLedgerWritten: false, productionModelWritten: false },
+    promotion: "forbidden; no new HK probability published",
+  };
+}
+
 function sha256File(file) {
   return createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 }
@@ -75,40 +124,14 @@ function escapeXml(value) {
   return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;");
 }
 
-function chartSvg(document, width, height) {
-  const bars = (document.bars ?? []).slice(-240);
-  const margin = { left: width > 500 ? 84 : 38, right: width > 500 ? 36 : 18, top: 76, bottom: 58 };
-  const plotWidth = width - margin.left - margin.right;
-  const plotHeight = height - margin.top - margin.bottom;
-  const values = bars.map((bar) => Number(bar.close)).filter(Number.isFinite);
-  const min = Math.min(...values);
-  const max = Math.max(...values);
-  const spread = Math.max(max - min, 1);
-  const y = (value) => margin.top + ((max - value) / spread) * plotHeight;
-  const x = (index) => margin.left + (bars.length <= 1 ? 0 : (index / (bars.length - 1)) * plotWidth);
-  const line = bars.map((bar, index) => `${index ? "L" : "M"}${x(index).toFixed(2)} ${y(Number(bar.close)).toFixed(2)}`).join(" ");
-  const last = bars.at(-1);
-  const grid = [0, 0.5, 1].map((ratio) => {
-    const gy = margin.top + ratio * plotHeight;
-    const value = max - ratio * spread;
-    return `<line x1="${margin.left}" y1="${gy.toFixed(2)}" x2="${width - margin.right}" y2="${gy.toFixed(2)}" stroke="#ded6e8" stroke-width="1"/><text x="${margin.left - 10}" y="${(gy + 5).toFixed(2)}" text-anchor="end" font-size="${width > 500 ? 14 : 9}" fill="#625a70">${value.toFixed(0)}</text>`;
-  }).join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
-  <rect width="100%" height="100%" fill="#f1edf5"/>
-  <text x="${margin.left}" y="30" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="${width > 500 ? 24 : 14}" font-weight="700" fill="#30283c">HSTECH 历史面板验证图</text>
-  <text x="${margin.left}" y="52" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="${width > 500 ? 13 : 9}" fill="#625a70">真实 post-launch OHLC · ${escapeXml(document.source?.provider ?? "bounded source")} · ${escapeXml(last?.time ?? "")}</text>
-  ${grid}
-  <path d="${line}" fill="none" stroke="#7660a8" stroke-width="${width > 500 ? 2.5 : 1.5}" stroke-linejoin="round" stroke-linecap="round"/>
-  <circle cx="${x(Math.max(0, bars.length - 1)).toFixed(2)}" cy="${y(Number(last?.close ?? 0)).toFixed(2)}" r="${width > 500 ? 4 : 2.5}" fill="#4a386e"/>
-  <text x="${margin.left}" y="${height - 20}" font-family="Segoe UI, Microsoft YaHei, sans-serif" font-size="${width > 500 ? 12 : 8}" fill="#625a70">${escapeXml(bars[0]?.time ?? "")} → ${escapeXml(last?.time ?? "")} · ${bars.length} recent bars shown · launch filter ${HSTECH_LAUNCH_DATE}</text>
-  </svg>`;
-}
-
-async function renderScreenshots(staging, document) {
+async function renderScreenshots(staging, actualScreenshots) {
   const screenshotRoot = path.join(staging, "screenshots");
   fs.mkdirSync(screenshotRoot, { recursive: true });
-  await sharp(Buffer.from(chartSvg(document, 1440, 760))).png().toFile(path.join(screenshotRoot, "hstech-history-1440.png"));
-  await sharp(Buffer.from(chartSvg(document, 390, 760))).png().toFile(path.join(screenshotRoot, "hstech-history-390.png"));
+  if (!actualScreenshots?.wide || !actualScreenshots?.mobile) throw new Error("REVIEW_REQUIRES_ACTUAL_HSTECH_PAGE_SCREENSHOTS");
+  for (const [source, target] of [[actualScreenshots.wide, "hstech-history-1440.png"], [actualScreenshots.mobile, "hstech-history-390.png"]]) {
+    if (!fs.existsSync(source)) throw new Error(`REVIEW_SCREENSHOT_MISSING ${source}`);
+    fs.copyFileSync(source, path.join(screenshotRoot, target));
+  }
 
   const iconNames = [
     ["apple-touch-icon.png", "apple 180"],
@@ -191,7 +214,7 @@ function testsText(status = {}) {
     "Memory Sanitizer positive/negative fixtures: PASS",
     "Weekly Compaction: PASS",
     "Policy Watch / State Capital Watch: PASS",
-    "HSTECH fixture / bounded live validation: PASS (Eastmoney cross-check explicitly unavailable)",
+    "HSTECH fixture / bounded live validation / actual page screenshots: PASS (Eastmoney cross-check explicitly unavailable)",
     "market-history / writer / publisher / automation consistency: PASS",
     "PWA opaque alpha validation: PASS",
     "",
@@ -209,6 +232,9 @@ export async function buildReviewPackage({
   draftPrUrl = null,
   testStatusPath = null,
   hstechCachePath = "D:\\Guanchao-Workspace\\runtime\\market-history-cache\\hstech\\sina-normalized.json",
+  hstechResearchOutputPath = "D:\\Guanchao-Workspace\\temp\\stage2-run-hstech-fixed-20260807-r2",
+  hstechScreenshot1440Path = null,
+  hstechScreenshot390Path = null,
 } = {}) {
   root = path.resolve(root);
   outputRoot = ensureExternalTarget(root, outputRoot);
@@ -248,6 +274,7 @@ export async function buildReviewPackage({
   const hstechDocument = readJson(path.join(root, "public", "data", "market-history", "hang-seng-tech.json"), {});
   const hstechValidation = buildHstechValidation({ root, cachePath: hstechCachePath });
   const hstechSource = buildHstechSource(hstechCache);
+  const hstechResearch = loadHstechResearchAudit(hstechResearchOutputPath);
   writeJson(path.join(staging, "HSTECH_RECOVERY_REPORT.json"), {
     schemaVersion: "hstech-recovery-report-v1",
     status: hstechCache.status,
@@ -256,7 +283,7 @@ export async function buildReviewPackage({
     cache: { rows: hstechCache.rows, firstDate: hstechCache.firstDate, lastDate: hstechCache.lastDate, counts: hstechCache.counts, rawPayloadStored: false },
     source: hstechSource,
     public: { status: hstechDocument.status, rows: hstechDocument.bars?.length ?? 0, firstDate: hstechDocument.bars?.[0]?.time ?? null, lastDate: hstechDocument.bars?.at(-1)?.time ?? null },
-    research: { status: "observation_only_rehearsal", horizons: [1, 5, 20], productionApply: false, newHKProbabilityPublished: false },
+    research: { status: "observation_only_rehearsal", horizons: [1, 5, 20], productionApply: false, newHKProbabilityPublished: false, rerun: hstechResearch },
   });
   writeJson(path.join(staging, "HSTECH_VALIDATION.json"), hstechValidation);
 
@@ -290,13 +317,17 @@ export async function buildReviewPackage({
   for (const icon of ["apple-touch-icon.png", "icon-192.png", "icon-512.png", "icon-maskable-192.png", "icon-maskable-512.png"]) iconMetadata[icon] = await alphaBounds(path.join(root, "public", "icons", icon));
   writeJson(path.join(staging, "PWA_MANIFEST.json"), { manifest, iconMetadata, requirements: { opaqueApple180: iconMetadata["apple-touch-icon.png"].opaque, opaqueAny192: iconMetadata["icon-192.png"].opaque, opaqueAny512: iconMetadata["icon-512.png"].opaque, opaqueMaskable192: iconMetadata["icon-maskable-192.png"].opaque, opaqueMaskable512: iconMetadata["icon-maskable-512.png"].opaque, reusedExistingLogo: true, backgroundColor: "#f1edf5" } });
 
-  const hstechChart = hstechDocument;
-  await renderScreenshots(staging, hstechChart);
+  await renderScreenshots(staging, { wide: hstechScreenshot1440Path, mobile: hstechScreenshot390Path });
 
   const status = readJson(testStatusPath, {});
   writeText(path.join(staging, "TESTS.txt"), testsText(status));
   const changedFiles = git(root, ["diff", "--name-status", "origin/main...HEAD"]);
-  const diffPatch = git(root, ["diff", "--binary", "origin/main...HEAD"]).replaceAll(/C:[\\/]Users[\\/]18442/gi, "${GUANCHAO_HOME}");
+  const diffPatch = git(root, ["diff", "--binary", "origin/main...HEAD"])
+    .replaceAll(/C:[\\/]Users[\\/]18442/gi, "${CODEX_HOME}")
+    .replaceAll(/D:[\\/]Guanchao-Workspace/gi, "${GUANCHAO_HOME}")
+    .replaceAll(/C:[\\/]Codex-Recovery[\\/]GuanchaoWriter/gi, "${GUANCHAO_RECOVERY_ROOT}")
+    .replaceAll(/D:[\\/]周报个人网站-local-writer-runtime/gi, "${GUANCHAO_HOME}/runtime/local-writer-runtime")
+    .replaceAll(/D:[\\/]周报个人网站/gi, "${PROTECTED_WORKSPACE}");
   writeText(path.join(staging, "CHANGED_FILES.txt"), `${changedFiles}\n`);
   writeText(path.join(staging, "DIFF.patch"), `${diffPatch}\n`);
   writeText(path.join(staging, "PR.txt"), `branch: ${branch}\nbase: main\nhead: ${head}\nstatus: Draft\nurl: ${draftPrUrl ?? "pending"}\nmerge: forbidden\n`);
@@ -331,6 +362,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
       draftPrUrl: argument("--pr-url"),
       testStatusPath: argument("--test-status"),
       hstechCachePath: argument("--hstech-cache", "D:\\Guanchao-Workspace\\runtime\\market-history-cache\\hstech\\sina-normalized.json"),
+      hstechResearchOutputPath: argument("--hstech-research-output", "D:\\Guanchao-Workspace\\temp\\stage2-run-hstech-fixed-20260807-r2"),
+      hstechScreenshot1440Path: argument("--hstech-screenshot-1440"),
+      hstechScreenshot390Path: argument("--hstech-screenshot-390"),
     });
     console.log(JSON.stringify(result, null, 2));
   } catch (error) {

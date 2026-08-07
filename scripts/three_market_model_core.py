@@ -572,9 +572,51 @@ def crosscheck_series(
     }
 
 
-def build_hk_panels(sources: dict[str, dict[str, Any]], cache: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+def load_hstech_normalized_override(path: Path) -> tuple[dict[str, float], dict[str, Any]]:
+    value = read_json(path)
+    if value.get("schemaVersion") != "hstech-sina-normalized-v1":
+        raise ThreeMarketError("HSTECH normalized adapter requires hstech-sina-normalized-v1")
+    if value.get("source", {}).get("provider") != "akshare.stock_hk_index_daily_sina":
+        raise ThreeMarketError("HSTECH normalized adapter requires bounded AKShare Sina source")
+    launch_date = "2020-07-27"
+    series: dict[str, float] = {}
+    for row in value.get("bars", []):
+        date_value = require_date(row.get("date") or row.get("time"), "HSTECH normalized adapter date")
+        if date_value < launch_date:
+            raise ThreeMarketError("HSTECH normalized adapter contains pre-launch row")
+        close = positive_number(row.get("close"))
+        if close is None:
+            raise ThreeMarketError(f"HSTECH normalized adapter close missing at {date_value}")
+        if date_value in series:
+            raise ThreeMarketError(f"HSTECH normalized adapter duplicate date: {date_value}")
+        series[date_value] = close
+    if len(series) < 252:
+        raise ThreeMarketError(f"HSTECH normalized adapter rows {len(series)} < 252")
+    source = {
+        "id": "akshare_sina_hstech",
+        "market": "HK",
+        "role": "hstech_ohlcv_normalized_adapter",
+        "provider": "AKShare stock_hk_index_daily_sina（稳定标准化缓存 adapter）",
+        "tier": "bounded_primary_market_data",
+        "required": True,
+        "expectedMinRows": 252,
+        "startDate": launch_date,
+        "url": value.get("source", {}).get("url"),
+        "licenseNote": "标准化私有研究缓存；不提交原始 provider payload。",
+        "normalizedCachePath": str(path),
+        "normalizedCacheSha256": sha256_path(path),
+    }
+    return series, source
+
+
+def build_hk_panels(sources: dict[str, dict[str, Any]], cache: Path, hstech_normalized_cache: Path | None = None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     hsi, hsi_source_id = resolved_series(sources, cache, ids=("yahoo_hsi",), role_prefixes=("hsi_ohlcv",))
-    hstech, hstech_source_id = resolved_series(sources, cache, ids=("yahoo_hstech",), role_prefixes=("hstech_ohlcv",))
+    if hstech_normalized_cache is not None:
+        hstech, hstech_source = load_hstech_normalized_override(hstech_normalized_cache)
+        hstech_source_id = str(hstech_source["id"])
+        sources[hstech_source_id] = hstech_source
+    else:
+        hstech, hstech_source_id = resolved_series(sources, cache, ids=("yahoo_hstech",), role_prefixes=("hstech_ohlcv",))
     hibor_overnight, hibor_source_id = resolved_series(
         sources,
         cache,
@@ -616,7 +658,7 @@ def build_hk_panels(sources: dict[str, dict[str, Any]], cache: Path) -> tuple[li
     us2y, us2y_source_id = resolved_series(sources, cache, ids=("treasury_yield_curve", "fred_dgs2"), role_prefixes=("us_2y_yield",), field_keys=("us2y",))
     us10y, us10y_source_id = resolved_series(sources, cache, ids=("treasury_yield_curve", "fred_dgs10"), role_prefixes=("us_10y_yield",), field_keys=("us10y",))
     rows: list[dict[str, Any]] = []
-    hstech_launch = require_date(sources.get("yahoo_hstech", {}).get("startDate", "2020-07-27"), "HSTECH launch date")
+    hstech_launch = require_date(sources.get(hstech_source_id, {}).get("startDate", "2020-07-27"), "HSTECH launch date")
     hstech_prelaunch_rows = sum(1 for date_value in hstech if date_value < hstech_launch)
     for object_id, object_kind, series in (("hsi", "index", hsi), ("hstech", "index", hstech)):
         if object_id == "hstech":
@@ -641,7 +683,7 @@ def build_hk_panels(sources: dict[str, dict[str, Any]], cache: Path) -> tuple[li
             row["hk_liquidity_twi"] = liquidity_twi.get(str(row["date"]))
         rows.extend(object_rows)
     hsi_status = source_quality(source_by_id(sources, hsi_source_id), cache, hsi)
-    hstech_status = source_quality(source_by_id(sources, hstech_source_id), cache, hstech)
+    hstech_status = "ready" if hstech_normalized_cache is not None and len(hstech) >= 252 else source_quality(source_by_id(sources, hstech_source_id), cache, hstech)
     hibor_endpoint = source_by_id(sources, "hkma_hibor_fixing_chunked") or source_by_id(sources, "hkma_hibor_fixing")
     liquidity_status = source_quality(source_by_id(sources, liquidity_source_id), cache, liquidity_overnight)
     macro_status = "ready" if all((hibor_endpoint and payload_path(cache, str(hibor_endpoint["id"])), liquidity_status == "ready", usd_hkd, us2y, us10y)) else "partial"
@@ -657,7 +699,7 @@ def build_hk_panels(sources: dict[str, dict[str, Any]], cache: Path) -> tuple[li
         "objects": statuses,
         "datasetStatus": dataset_status,
         "macroStatus": macro_status,
-        "hstechHistoryFilter": {"launchDate": hstech_launch, "rawRows": len(hstech), "droppedPreLaunchRows": hstech_prelaunch_rows, "rule": "retain actual observations on or after launch date only"},
+        "hstechHistoryFilter": {"launchDate": hstech_launch, "rawRows": len(hstech), "droppedPreLaunchRows": hstech_prelaunch_rows, "rule": "retain actual observations on or after launch date only", "adapter": hstech_normalized_cache is not None, "sourceId": hstech_source_id},
         "macroResolution": {
             "hiborEndpointStatus": source_quality(hibor_endpoint, cache, load_series(hibor_endpoint, cache, field_keys=("ir_overnight", "hibor_overnight"))) if hibor_endpoint else "unavailable",
             "hiborFeatureSource": hibor_source_id,
@@ -1341,14 +1383,16 @@ def a_share_model_card(research_output: Path | None, dataset: dict[str, Any]) ->
     }
 
 
-def run_pipeline(cache: Path, source_manifest_path: Path, output: Path, private_panel_root: Path, a_research_output: Path | None = None) -> dict[str, Any]:
+def run_pipeline(cache: Path, source_manifest_path: Path, output: Path, private_panel_root: Path, a_research_output: Path | None = None, hstech_normalized_cache: Path | None = None) -> dict[str, Any]:
     if not cache.is_dir():
         raise ThreeMarketError(f"private data cache missing: {cache}")
     manifest = read_json(source_manifest_path)
     sources = source_map(manifest)
     source_audit, source_audit_payload = build_source_audit(manifest, cache)
     source_audit_payload["sourceManifestSha256"] = sha256_path(source_manifest_path)
-    hk_rows, hk_meta = build_hk_panels(sources, cache)
+    hk_rows, hk_meta = build_hk_panels(sources, cache, hstech_normalized_cache)
+    if hstech_normalized_cache is not None:
+        source_audit_payload["hstechNormalizedAdapter"] = {"path": str(hstech_normalized_cache), "sha256": sha256_path(hstech_normalized_cache), "sourceId": "akshare_sina_hstech", "applied": True, "productionBoundary": "research-only"}
     us_rows, us_meta = build_us_panels(sources, cache)
     private_panel_root.mkdir(parents=True, exist_ok=True)
     datasets: dict[str, dict[str, Any]] = {"A_SHARE": a_share_dataset()}
@@ -1537,6 +1581,7 @@ def parser() -> argparse.ArgumentParser:
     run.add_argument("--output", type=Path, required=True)
     run.add_argument("--private-panel-root", type=Path, required=True)
     run.add_argument("--a-research-output", type=Path)
+    run.add_argument("--hstech-normalized-cache", type=Path)
     validate = commands.add_parser("validate")
     validate.add_argument("--output", type=Path, required=True)
     return root
@@ -1547,7 +1592,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     try:
         if args.command == "run":
-            result = run_pipeline(args.cache.resolve(), args.source_manifest.resolve(), args.output.resolve(), args.private_panel_root.resolve(), args.a_research_output.resolve() if args.a_research_output else None)
+            result = run_pipeline(args.cache.resolve(), args.source_manifest.resolve(), args.output.resolve(), args.private_panel_root.resolve(), args.a_research_output.resolve() if args.a_research_output else None, args.hstech_normalized_cache.resolve() if args.hstech_normalized_cache else None)
         else:
             result = validate_output(args.output.resolve())
     except ThreeMarketError as exc:

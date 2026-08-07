@@ -2,12 +2,17 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveAutomationPaths, resolveConfiguredPath, toConfigPath } from "./automation-paths.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(moduleFile), "..");
 const configPath = path.join(root, "config", "codex-writer-automation.json");
-const statePath = process.argv[2] ? path.resolve(process.argv[2]) : "C:\\Codex-Recovery\\GuanchaoWriter\\automation-state.json";
 const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+const paths = resolveAutomationPaths();
+const configuredStatePath = config.runtime?.automationStatePath
+  ? resolveConfiguredPath(config.runtime.automationStatePath)
+  : path.join(paths.recoveryRoot, "automation-state.json");
+const statePath = process.argv[2] ? path.resolve(process.argv[2]) : configuredStatePath;
 const hash = (bytes) => createHash("sha256").update(bytes).digest("hex");
 function tomlPrompt(file) {
   const text = fs.readFileSync(file, "utf8");
@@ -16,10 +21,15 @@ function tomlPrompt(file) {
   const quoted = text.match(/^prompt\s*=\s*("(?:[^"\\]|\\.)*")/m);
   return quoted ? JSON.parse(quoted[1]) : "";
 }
-const promptHash = (id) => hash(Buffer.from(tomlPrompt(`C:/Users/18442/.codex/automations/${id}/automation.toml`), "utf8"));
+const promptHash = (id) => {
+  const file = path.join(paths.automationsRoot, id, "automation.toml");
+  const prompt = tomlPrompt(file);
+  if (!prompt) throw new Error(`AUTOMATION_PROMPT_MISSING ${file}`);
+  return hash(Buffer.from(prompt, "utf8"));
+};
 const schedules = Object.fromEntries(config.schedules.map((schedule) => [schedule.key, { rrule: schedule.rrule, timezone: schedule.timezone, enabled: schedule.enabled }]));
 const state = {
-  schemaVersion: "guanchao-automation-state-v2",
+  schemaVersion: "guanchao-automation-state-v3",
   dailyAutomationId: "codex",
   weeklyAutomationId: "codex-2",
   predictionAutomationId: "guanchao-prediction-publisher",
@@ -37,8 +47,17 @@ const state = {
   model: config.writer.model,
   enabled: true,
   schedules,
-  runtime: { projectPath: "D:/Guanchao-Workspace/runtime/local-writer-runtime", repositoryPath: "D:/周报个人网站", recoveryRoot: "C:/Codex-Recovery/GuanchaoWriter" },
-  review: { predictionTaskAction: "DryRun", productionApplyRequiresExternalReview: true }
+  activeProduction: config.handover?.activeProduction ?? null,
+  runtime: {
+    projectPath: toConfigPath(resolveConfiguredPath(config.runtime.projectPath)),
+    repositoryPath: toConfigPath(resolveConfiguredPath(config.runtime.repositoryPath)),
+    recoveryRoot: toConfigPath(paths.recoveryRoot),
+  },
+  review: {
+    handoverStatus: config.handover?.status ?? "unknown",
+    predictionTaskAction: config.schedules.find((schedule) => schedule.key === "prediction")?.enabled === false ? "DisabledDryRun" : "Write",
+    productionApplyRequiresExternalReview: true,
+  }
 };
 fs.mkdirSync(path.dirname(statePath), { recursive: true });
 fs.writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
