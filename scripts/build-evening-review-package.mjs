@@ -315,7 +315,7 @@ export async function buildReviewPackage({
   walk(staging);
   const forbidden = handoffFiles.filter((file) => /node_modules|\.env|cookie|browser-profile|private-model|provider-payload/i.test(file));
   if (forbidden.length) throw new Error(`REVIEW_FORBIDDEN_FILE ${forbidden.join(",")}`);
-  const compressionCommand = `$source = ${JSON.stringify(path.join(staging, "*"))}; $destination = ${JSON.stringify(zip)}; Compress-Archive -Path $source -DestinationPath $destination -CompressionLevel Optimal`;
+  const compressionCommand = `Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::CreateFromDirectory(${JSON.stringify(staging)}, ${JSON.stringify(zip)}, [System.IO.Compression.CompressionLevel]::Optimal, $false)`;
   execFileSync("powershell.exe", ["-NoProfile", "-Command", compressionCommand], { stdio: "inherit" });
   return { staging, zip, zipSha256: sha256File(zip), files: handoffFiles.sort(), automationConsistent: automation.consistent, hstechRows: hstechValidation.public.rows, contextCounts: context.counts };
 }
