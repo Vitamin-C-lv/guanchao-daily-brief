@@ -53,6 +53,7 @@ async function inspect(call, market, width, mobile) {
       const core = document.querySelector('.market-core-section');
       const observation = document.querySelector('.market-observation-section');
       const sidebar = document.querySelector('.sidebar');
+      const statusCells = [...document.querySelectorAll('.market-status-strip > div')];
       return {
         scrollWidth: root.scrollWidth,
         clientWidth: root.clientWidth,
@@ -66,6 +67,11 @@ async function inspect(call, market, width, mobile) {
         observationBelowCore: Boolean(core && observation && observation.getBoundingClientRect().top > core.getBoundingClientRect().bottom),
         directionClasses: cards.map((card) => card.querySelector('.market-core-change')?.className ?? ''),
         detailLinks: cards.map((card) => card.getAttribute('href')),
+        topbarText: document.querySelector('.topbar')?.innerText ?? '',
+        factStatus: document.querySelector('.market-fact-status')?.innerText ?? '',
+        sessionStatus: statusCells[0]?.innerText ?? '',
+        commonDataThrough: statusCells[1]?.innerText ?? '',
+        freshness: statusCells[2]?.innerText ?? '',
       };
     })())`,
     returnByValue: true,
@@ -93,6 +99,19 @@ test("desktop market overview keeps the shared sidebar and selected A/HK/US core
     assert.equal(dom.breadth.includes("市场广度数据暂不可用"), true);
     assert.equal(dom.observationBelowCore, true);
     assert.equal(dom.cards.length, 3);
+    assert.equal(dom.topbarText.includes("8月3日"), false);
+    assert.equal(dom.factStatus, market === "hk" ? "部分指数数据延迟" : "核心指数数据已校验");
+    assert.equal(dom.sessionStatus.includes("8月3日"), false);
+    assert.equal(dom.sessionStatus.includes("A股收盘"), false);
+    assert.equal(dom.sessionStatus.includes("港股收盘"), false);
+    assert.equal(dom.sessionStatus.includes("美股收高"), false);
+    assert.equal(dom.commonDataThrough.includes(market === "a-share" ? "2026.08.07" : market === "hk" ? "2026.08.06" : "2026.08.05"), true);
+    if (market === "hk") assert.equal(dom.freshness.includes("部分指数晚于/早于共同交易日"), true);
+    const hstech = dom.cards.find((card) => card.id === "hang-seng-tech");
+    if (hstech) {
+      assert.equal(hstech.text.includes("点差 —"), true);
+      assert.equal(hstech.text.includes("+1.00%"), false);
+    }
   }
 });
 

@@ -9,7 +9,15 @@ import DesktopSidebar from "./DesktopSidebar";
 import MobileBottomNav from "./MobileBottomNav";
 import { formatMarketChange, getMarketDirection, marketDirectionClass, type MarketDirection } from "@/lib/market-direction";
 import { coreMarketInstruments, marketInstrumentPath, type MarketGroup } from "@/lib/market-instruments";
-import type { MarketOverviewSnapshot } from "@/lib/market-overview";
+import {
+  getCommonDataThrough,
+  getMarketCoreDisplay,
+  getMarketOverviewFactStatus,
+  getMarketOverviewFactStatusLabel,
+  getMarketOverviewFreshnessLabel,
+  getMarketOverviewSessionDetail,
+  type MarketOverviewSnapshot,
+} from "@/lib/market-overview";
 import type { DailyBrief, MarketSection, SectorRotationIndex } from "@/lib/types";
 
 const MARKET_ORDER: readonly MarketGroup[] = ["a-share", "hk", "us"];
@@ -30,9 +38,9 @@ function formatDate(value: string | null) {
   return value ? value.replaceAll("-", ".") : "—";
 }
 
-function formatClose(value: number | null, fallback: string | null) {
+function formatClose(value: number | null) {
   if (value !== null && Number.isFinite(value)) return value.toLocaleString("zh-CN", { maximumFractionDigits: 2 });
-  return fallback ?? "—";
+  return "—";
 }
 
 function statusLabel(status: MarketOverviewSnapshot["status"] | null) {
@@ -72,20 +80,16 @@ function SourceList({ market }: { market: MarketSection }) {
 }
 
 function MarketCoreCard({
-  market,
   instrument,
-  index,
   snapshot,
 }: {
-  market: MarketGroup;
   instrument: ReturnType<typeof coreMarketInstruments>[number];
-  index: MarketSection["indices"][number] | null;
   snapshot: MarketOverviewSnapshot | null;
 }) {
-  const hasHistoryClose = snapshot?.latestClose !== null && snapshot?.latestClose !== undefined;
-  const change = snapshot?.percentChange ?? index?.change ?? null;
+  const display = getMarketCoreDisplay(snapshot);
+  const change = display.percentChange;
   const direction = getMarketDirection(change);
-  const value = formatClose(snapshot?.latestClose ?? null, hasHistoryClose ? null : index?.value ?? null);
+  const value = formatClose(display.latestClose);
   const href = marketInstrumentPath(instrument);
   return (
     <Link className="market-core-card" href={href} data-market-instrument={instrument.id}>
@@ -95,12 +99,12 @@ function MarketCoreCard({
       </div>
       <div className="market-core-card-title"><strong>{instrument.label}</strong><ChevronRight size={16} /></div>
       <div className="market-core-value-row">
-        <div><strong>{value}</strong><span>最新收盘 · {formatDate(snapshot?.asOf ?? index?.date ?? null)}</span></div>
+        <div><strong>{value}</strong><span>最新收盘 · {formatDate(snapshot?.asOf ?? null)}</span></div>
         <MiniTrend values={snapshot?.trend ?? []} direction={direction} />
       </div>
       <div className={`market-core-change ${marketDirectionClass(change)}`}>
         {direction === "up" ? <TrendingUp size={15} /> : direction === "down" ? <TrendingDown size={15} /> : <span>—</span>}
-        <strong>{snapshot?.pointChange === null || snapshot?.pointChange === undefined ? "点差 —" : `点差 ${snapshot.pointChange > 0 ? "+" : ""}${snapshot.pointChange.toFixed(2)}`}</strong>
+        <strong>{display.pointChange === null ? "点差 —" : `点差 ${display.pointChange > 0 ? "+" : ""}${display.pointChange.toFixed(2)}`}</strong>
         <span>{formatMarketChange(change)}</span>
       </div>
       <small className="market-core-card-foot">进入行情详情 · 日 K 与指标</small>
@@ -122,8 +126,11 @@ export default function MarketOverview({
   const instruments = coreMarketInstruments(selectedMarket);
   const selectedRotation = useMemo(() => sectorRotation ? { ...sectorRotation, markets: sectorRotation.markets.filter((market) => market.id === selectedMarket) } : undefined, [sectorRotation, selectedMarket]);
   const selectedSnapshots = instruments.map((instrument) => historySnapshots[instrument.id] ?? null);
-  const lastDataDate = selectedSnapshots.map((snapshot) => snapshot?.asOf ?? null).filter((date): date is string => date !== null).sort().at(-1) ?? selected?.sessionDate ?? null;
-  const hasPartial = selectedSnapshots.some((snapshot) => snapshot?.status === "partial" || snapshot?.status === "stale");
+  const commonDataThrough = getCommonDataThrough(selectedSnapshots);
+  const factStatus = getMarketOverviewFactStatus(selectedSnapshots);
+  const factStatusLabel = getMarketOverviewFactStatusLabel(factStatus);
+  const freshnessLabel = getMarketOverviewFreshnessLabel(selectedSnapshots);
+  const sessionDetail = getMarketOverviewSessionDetail(selectedSnapshots);
   const selectedArticle = selected?.articles[0] ?? null;
 
   return (
@@ -134,7 +141,7 @@ export default function MarketOverview({
           <Link className="desktop-brand" href="/" aria-label="观潮首页"><Image src="/brand/guanchao-logo-horizontal.png" alt="观潮 Guanchao Daily Brief" width={180} height={90} priority unoptimized /><span className="sr-only">观潮 · 每日早报</span></Link>
           <Link className="mobile-brand" href="/" aria-label="观潮首页"><Image src="/brand/guanchao-logo-mark.png" alt="观潮 Guanchao Daily Brief" width={40} height={40} priority unoptimized /><b>观潮</b></Link>
           <div className="route-title">三地市场</div>
-          <div className="topbar-actions"><span className="verified-pill"><i />{data.meta.status}</span><span className="market-overview-updated"><RefreshCw size={13} />数据截至 {formatDate(lastDataDate)}</span></div>
+          <div className="topbar-actions"><span className={`verified-pill market-fact-status ${factStatus}`}><i />{factStatusLabel}</span><span className="market-overview-updated"><RefreshCw size={13} />共同数据截至 {formatDate(commonDataThrough)}</span></div>
         </header>
 
         <div className="dashboard-content market-overview-content">
@@ -148,17 +155,16 @@ export default function MarketOverview({
           </div>
 
           <section className="market-status-strip" aria-label={`${MARKET_LABELS[selectedMarket]}市场状态`}>
-            <div><span className="eyebrow">SESSION STATUS</span><strong>已收盘</strong><small>{selected?.status ?? "状态待确认"}</small></div>
-            <div><span className="eyebrow">DATA DATE</span><strong>{formatDate(lastDataDate)}</strong><small>最近一条有效日线</small></div>
-            <div><span className="eyebrow">FRESHNESS</span><strong>日线延迟</strong><small>{hasPartial ? "部分指数历史不足一年" : "收盘后更新，非实时"}</small></div>
+            <div><span className="eyebrow">SESSION STATUS</span><strong>已收盘</strong><small>{sessionDetail}</small></div>
+            <div><span className="eyebrow">COMMON DATA THROUGH</span><strong>{formatDate(commonDataThrough)}</strong><small>三个核心指数共同有效日期</small></div>
+            <div><span className="eyebrow">FRESHNESS</span><strong>日线延迟</strong><small>{freshnessLabel}</small></div>
           </section>
 
           <section className="market-core-section" aria-labelledby="market-core-title">
             <header className="market-overview-section-heading"><div><span className="eyebrow">THREE CORE INDICES</span><h2 id="market-core-title">{MARKET_LABELS[selectedMarket]}核心指数</h2><p>{MARKET_DESCRIPTIONS[selectedMarket]}</p></div><span className="market-core-count">3 个核心对象</span></header>
             <div className="market-core-grid">
               {instruments.map((instrument) => {
-                const index = selected?.indices.find((candidate) => instrument.aliases.some((alias) => alias === candidate.name)) ?? null;
-                return <MarketCoreCard key={instrument.id} market={selectedMarket} instrument={instrument} index={index} snapshot={historySnapshots[instrument.id] ?? null} />;
+                return <MarketCoreCard key={instrument.id} instrument={instrument} snapshot={historySnapshots[instrument.id] ?? null} />;
               })}
             </div>
           </section>
