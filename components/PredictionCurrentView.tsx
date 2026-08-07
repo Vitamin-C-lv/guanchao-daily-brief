@@ -3,6 +3,7 @@
 import { CalendarDays, Database, History, ShieldCheck, Target } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import DesktopSidebar from "./DesktopSidebar";
 import MobileBottomNav from "./MobileBottomNav";
 import PredictionHorizonCard from "./PredictionHorizonCard";
 import PredictionMarketTabs, { type PredictionMarketId } from "./PredictionMarketTabs";
@@ -102,6 +103,7 @@ export default function PredictionCurrentView() {
   if (loading) {
     return (
       <div className="prediction-current-shell">
+        <DesktopSidebar />
         <main className="prediction-current-main">
           <section className="prediction-current-hero">
             <p className="eyebrow">PREDICTION PRODUCT</p>
@@ -118,6 +120,7 @@ export default function PredictionCurrentView() {
   if (!dto) {
     return (
       <div className="prediction-current-shell">
+        <DesktopSidebar />
         <main className="prediction-current-main">
           <section className="prediction-current-hero">
             <p className="eyebrow">PREDICTION PRODUCT</p>
@@ -135,6 +138,7 @@ export default function PredictionCurrentView() {
   const effectiveMarketId = market.marketId === "hk" || market.marketId === "us" ? market.marketId : "a-share";
   return (
     <div className="prediction-current-shell">
+      <DesktopSidebar />
       <header className="prediction-current-header">
         <div className="prediction-current-header-inner">
           <Link className="prediction-current-home" href="/"><Target size={17} /> 观潮</Link>

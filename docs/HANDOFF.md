@@ -210,3 +210,13 @@ or touches the prediction ledger.
 - 日报 07:30 与周报周六 10:00 automation 保持原状态与时间表；daily/weekly 只读 consistency 与 writer-context validate 通过，不依赖被归档的 P1L 临时修改。
 - CSI 403 为可恢复 provider incident：早期 dry-run 曾因 CSI 403 阻断，已如实记录为 BLOCKED_PROVIDER_CSI_403（未绕过 WAF、未换供应商）；后续与正式 runtime dry-run 均完整通过。
 - 下一阶段不是继续扩页面，而是“生产稳定性观察与样本积累”。
+
+## 全站导航与轻量看盘详情（2026-08-07，Draft）
+
+- 本轮基线为最新 `origin/main@cad530e87dcbf64c591c447e2ee548035441f665`；已确认 PR #52 merge `4bdb2f550cb4b256d6822e933eef5abf2038aa80` 是该基线祖先。实现分支为 `feature/market-terminal-lite`，独立 worktree 为 `D:\\Guanchao-Workspace\\worktrees\\active\\market-terminal-lite`；原工作区 `D:\\周报个人网站` 未操作。
+- `/predictions` 与 `/predictions/history` 已接入唯一 `DesktopSidebar`；`/markets` 与 9 个 `/markets/[market]/[instrument]` 详情路由复用同一导航状态，移动端五项底部导航保持不变。
+- 市场方向语义集中在 `lib/market-direction.ts`：正数红、负数绿、零或未知灰；浅紫只保留品牌背景和非方向性装饰。市场卡主指数、二级指数、sparkline、K 线、成交量和 MACD 均遵循同一方向色规则。
+- `public/data/market-history/` 是公开标准化 DTO；原始 provider payload、私有 cache 和研究缓存均在仓库外。9 个标的独立保留 `ready`、`partial` 或 `unavailable`，少于 252 条有效交易记录不得标记 ready；失败或空结果不覆盖已有历史。
+- 详情图表使用官方 `lightweight-charts` 5.x 直接 API，提供最近一年日 K、1M/3M/6M/1Y/全部、K 线/收盘线、MA5/10/20/60、成交量、MACD 12/26/9、十字光标 OHLC、缩放/拖动/复位/适应全部/全屏，并在页面显示来源、截至日期、延迟和真实降级状态。
+- 数据刷新入口为 `scripts/build-market-history.mjs`，默认 dry-run；本轮不创建或修改 automation，不改变日报 07:30、周报周六 10:00 或预测 06:45 时间表，不训练/替换模型，不写 prediction ledger。
+- 本轮 Draft PR 只允许集中审查，不 Ready、不 merge；最终截图、验证和差异证据均绑定同一提交，raw/private/预测研究产物不进入 Review ZIP。

@@ -3,6 +3,7 @@
 import { ArrowLeft, CheckCircle2, Clock3, Database, ExternalLink, History, Search, ShieldCheck, XCircle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import DesktopSidebar from "./DesktopSidebar";
 import MobileBottomNav from "./MobileBottomNav";
 import { isPublicPredictionView } from "@/lib/public-prediction-view";
 import { calibrationStatusLabel, modelAvailabilityLabel, probabilitySourceLabel, targetLabel } from "@/lib/public-prediction-view";
@@ -204,6 +205,7 @@ export default function PredictionHistoryExplorer() {
   })) ?? [];
 
   return <div className="prediction-history-shell">
+    <DesktopSidebar />
     <header className="prediction-history-header"><div className="prediction-history-header-inner">
       <Link className="prediction-history-back" href="/predictions"><ArrowLeft size={17} /> 返回当前预测</Link>
       <div className="prediction-history-brand"><History size={18} /><span>观潮 · 预测历史</span></div>
