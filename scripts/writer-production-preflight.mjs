@@ -9,10 +9,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 import { validateEveningPacket } from "./validate-evening-packets.mjs";
 import { isForbiddenProductionPath, resolveAutomationPaths } from "./automation-paths.mjs";
 
+const moduleFile = fileURLToPath(import.meta.url);
 export const PRODUCTION_REPOSITORY_REMOTE = "https://github.com/Vitamin-C-lv/guanchao-daily-brief.git";
 export const PROTECTED_PRODUCTION_PATHS = Object.freeze([
   "D:/Guanchao-Workspace/repo/guanchao-daily-brief",
@@ -190,7 +192,7 @@ function parseArgs(values) {
   return result;
 }
 
-if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname.replace(/^\/(\w):/, "$1"))) {
+if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
   try {
     const args = parseArgs(process.argv.slice(2));
     const paths = resolveAutomationPaths();
