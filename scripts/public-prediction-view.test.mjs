@@ -14,6 +14,7 @@ const REPO = path.resolve(".");
 const ROTATION = path.join(REPO, "content", "sector-rotation.json");
 const HISTORY = path.join(REPO, "public", "data", "prediction-history", "index.json");
 const FIXTURES = path.join(REPO, "scripts", "fixtures", "prediction-publication-gate");
+const HISTORY_INDEX = JSON.parse(fs.readFileSync(HISTORY, "utf8"));
 
 function schemaValidator() {
   const schema = JSON.parse(fs.readFileSync(path.join(REPO, "schemas", "public-prediction-view-v1.schema.json"), "utf8"));
@@ -67,7 +68,7 @@ test("real A-share + blocked HK/US produces a valid public DTO without probabili
       assert.equal(horizon.probability, null);
       assert.ok(horizon.statusReason.includes("门槛"));
     }
-    assert.equal(view.latestReview?.isoWeek, "2026-W31");
+    assert.deepEqual(view.latestReview, HISTORY_INDEX.latestReview);
     assert.equal(us.sourceStatus.requiredSources.status, "ready");
     assert.ok(!us.sourceStatus.requiredSources.reason.includes("yahoo_hstech"));
     assert.ok(!us.sourceStatus.requiredSources.reason.includes("恒生科技"));
