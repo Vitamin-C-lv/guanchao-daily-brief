@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "editorial-daily-memory-v1",
+  "editionDate": "2026-08-08",
+  "articleIds": ["daily-brief-2026-08-08"],
+  "packetRefs": ["DAILY_MARKET_PACKET.json", "PREDICTION_REVIEW_PACKET.json"],
+  "memoryDeltaPath": "memory/editorial/daily/MEMORY_DELTA-2026-08-08.json",
+  "coverage": "partial",
+  "note": "仅登记正式 Writer apply 写入的 2026-08-08 日报；正文沿用既有基线，仅更新确定性日期与冻结视觉字段；缺失数据保留 partial/unavailable。"
+}
