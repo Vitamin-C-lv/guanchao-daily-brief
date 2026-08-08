@@ -511,7 +511,7 @@ function diffPaths(before, after, base = "$.payload") {
 }
 
 function allowedFormattingOrDatePath(edition, claimPath) {
-  const daily = new Set(["$.payload.meta.editionDate", "$.payload.meta.generatedAt", "$.payload.meta.dataThrough"]);
+  const daily = new Set(["$.payload.meta.editionDate", "$.payload.meta.generatedAt", "$.payload.meta.dataThrough", "$.payload.federalReserve.countdownDays"]);
   const weekly = new Set(["$.payload.report.weekStart", "$.payload.report.weekEnd", "$.payload.report.generatedAt", "$.payload.report.revision"]);
   return (edition === "daily" ? daily : weekly).has(claimPath);
 }
