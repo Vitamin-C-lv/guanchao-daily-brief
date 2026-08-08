@@ -8,7 +8,8 @@ import { gunzipSync, gzipSync } from "node:zlib";
 
 import { canonicalize, canonicalJson, sha256Canonical } from "./research-contract.mjs";
 import { validateGlobalMarketBrief } from "./global-market-brief-contract.mjs";
-import { writeGlobalMarketBrief } from "./global-market-brief-storage.mjs";
+import { listGlobalMarketBriefHistory, writeGlobalMarketBrief } from "./global-market-brief-storage.mjs";
+import { enforceFreshEditionContent } from "./editorial-freshness.mjs";
 import {
   GLOBAL_MARKET_BRIEF_MODE,
   formatPacketFactStatement,
@@ -469,6 +470,33 @@ function resultStableView(result) {
   return { ...resultBusinessView(result), resultId: result.resultId, integrity: { businessSha256: result.integrity.businessSha256 } };
 }
 
+function isShanghaiSunday(editionDate) {
+  return new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Shanghai", weekday: "short" }).format(new Date(`${editionDate}T12:00:00+08:00`)) === "Sun";
+}
+
+export function assessEditorialFreshness(rootDir, payload, { correction = false } = {}) {
+  if (isShanghaiSunday(payload.editionDate)) error("SUNDAY_NO_REPORT", "payload.editionDate", "Sunday Daily editions are not published");
+  const history = listGlobalMarketBriefHistory(rootDir).sort((left, right) => left.editionDate.localeCompare(right.editionDate));
+  const existing = history.find((item) => item.editionDate === payload.editionDate) ?? null;
+  if (existing && !correction) error("CORRECTION_MODE_REQUIRED", "payload.editionDate", "same-edition replacement requires explicit correction mode");
+  const later = history.find((item) => item.editionDate > payload.editionDate);
+  if (!existing && later) error("HISTORICAL_EDITION_CONFLICT", "payload.editionDate", `history already contains a later edition ${later.editionDate}`);
+  const previous = existing ?? history.filter((item) => item.editionDate < payload.editionDate).at(-1) ?? null;
+  let comparison;
+  try {
+    comparison = enforceFreshEditionContent(previous, payload, { sameEdition: Boolean(existing), correction });
+  } catch (cause) {
+    error(cause.code ?? "FRESH_EDITION_CONTENT_REQUIRED", "payload", cause instanceof Error ? cause.message : "new edition editorial content is unchanged");
+  }
+  return {
+    previousEdition: previous?.editionDate ?? null,
+    currentEdition: payload.editionDate,
+    canonicalEditionCreated: existing === null,
+    correction: Boolean(existing && correction),
+    ...comparison,
+  };
+}
+
 export function sealWriterResult(result) {
   const sealed = structuredClone(result);
   sealed.resultId = hash(resultBusinessView(sealed));
@@ -867,6 +895,7 @@ export function apply({ request, result, dryRun = false, write = false, rootDir 
   const target = request.targetOutputs[0];
   validatePayload(rootDir, target, result.payload);
   if (request.mode === GLOBAL_MARKET_BRIEF_MODE) {
+    const editorialFreshness = assessEditorialFreshness(rootDir, result.payload, { correction: replacement?.mode === "explicit-replace" });
     const storage = writeGlobalMarketBrief({
       rootDir,
       brief: result.payload,
@@ -884,7 +913,13 @@ export function apply({ request, result, dryRun = false, write = false, rootDir 
       files: storage.files,
       wouldWrite: storage.wouldWrite,
       allowedFiles: storage.allowedFiles,
-      productionApply: { applied: false, reason: "feature-branch-content-only" },
+      filesystemChanged: Boolean(write && storage.wrote),
+      editorialEditionPublished: Boolean(write && storage.wrote && editorialFreshness.contentChanged),
+      editorialFreshness,
+      productionApply: {
+        applied: Boolean(write && storage.wrote && editorialFreshness.contentChanged),
+        reason: write && storage.wrote && editorialFreshness.contentChanged ? "canonical-editorial-edition" : "filesystem-change-without-editorial-edition",
+      },
       storage,
     };
   }
