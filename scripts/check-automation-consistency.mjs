@@ -10,6 +10,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { isForbiddenProductionPath, resolveAutomationPaths, resolveConfiguredPath, toConfigPath } from "./automation-paths.mjs";
+import { PRODUCTION_REPOSITORY_REMOTE, runWriterProductionPreflight } from "./writer-production-preflight.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
@@ -58,7 +59,7 @@ export function readScheduledTask(taskName = DEFAULT_TASK_NAME) {
   } catch { return { exists: false, taskName, status: null, taskToRun: null, schedule: null, raw: null }; }
 }
 
-export function checkAutomationConsistency({ configPath = path.join(repositoryRoot, "config", "codex-writer-automation.json"), docsPath = path.join(repositoryRoot, "docs", "CODEX_WRITER_AUTOMATION.md"), automationsRoot = DEFAULT_AUTOMATIONS_ROOT, statePath = DEFAULT_STATE, skillDirectory = path.join(os.homedir(), ".codex", "skills", "guanchao-financial-writer"), scheduledTaskReader = readScheduledTask } = {}) {
+export function checkAutomationConsistency({ configPath = path.join(repositoryRoot, "config", "codex-writer-automation.json"), docsPath = path.join(repositoryRoot, "docs", "CODEX_WRITER_AUTOMATION.md"), automationsRoot = DEFAULT_AUTOMATIONS_ROOT, statePath = DEFAULT_STATE, skillDirectory = path.join(os.homedir(), ".codex", "skills", "guanchao-financial-writer"), scheduledTaskReader = readScheduledTask, productionPreflight = null, runProductionPreflight = true } = {}) {
   const checks = [];
   const add = (name, passed, detail = "") => checks.push({ name, passed: Boolean(passed), detail });
   const config = readJson(configPath, "config");
@@ -68,13 +69,28 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
   const handover = handoverStatus === "pre-merge-safe";
   const productionActive = handoverStatus === "production-cutover-active";
   const runtimePaths = [config.runtime?.projectPath, config.runtime?.repositoryPath].filter(Boolean);
+  let configuredPaths = null;
   add("config.runtime uses canonical paths", runtimePaths.length === 2 && runtimePaths.every((value) => !isForbiddenProductionPath(value)), JSON.stringify(runtimePaths));
   try {
-    const configuredPaths = ["projectPath", "repositoryPath", "recoveryRoot", "runsRoot", "automationStatePath", "nativeAutomationsRoot"]
+    const configuredPathPairs = ["projectPath", "repositoryPath", "recoveryRoot", "runsRoot", "automationStatePath", "nativeAutomationsRoot"]
       .map((key) => [key, resolveConfiguredPath(config.runtime?.[key], { baseDirectory: path.dirname(configPath) })]);
-    add("config path templates resolve", configuredPaths.every(([, value]) => !String(value).includes("${") && !isForbiddenProductionPath(value)), JSON.stringify(configuredPaths));
+    configuredPaths = Object.fromEntries(configuredPathPairs);
+    add("config path templates resolve", configuredPathPairs.every(([, value]) => !String(value).includes("${") && !isForbiddenProductionPath(value)), JSON.stringify(configuredPathPairs));
   } catch (error) {
     add("config path templates resolve", false, error instanceof Error ? error.message : String(error));
+  }
+  if (runProductionPreflight && configuredPaths?.projectPath && configuredPaths?.repositoryPath) {
+    let preflight;
+    try {
+      preflight = typeof productionPreflight === "function"
+        ? productionPreflight({ repositoryPath: configuredPaths.repositoryPath, runtimePath: configuredPaths.projectPath, expectedRemote: config.runtime?.repositoryRemote ?? PRODUCTION_REPOSITORY_REMOTE })
+        : runWriterProductionPreflight({ repositoryPath: configuredPaths.repositoryPath, runtimePath: configuredPaths.projectPath, expectedRemote: config.runtime?.repositoryRemote ?? PRODUCTION_REPOSITORY_REMOTE });
+    } catch (error) {
+      preflight = { status: "ERROR", errorCode: "PREFLIGHT_EXCEPTION", error: error instanceof Error ? error.message : String(error) };
+    }
+    add("writer production preflight", preflight.status === "READY", JSON.stringify({ status: preflight.status, errorCode: preflight.errorCode ?? null, productionHead: preflight.productionHead ?? null, repository: preflight.repository ?? null, runtime: preflight.runtime ?? null }));
+  } else if (runProductionPreflight) {
+    add("writer production preflight", false, "configured canonical paths are unavailable");
   }
   add("config has no forbidden production path", !hasForbiddenPath([...(config.handover?.forbiddenProductionPaths ?? [])].filter((value) => value !== "D:/周报个人网站")), JSON.stringify(config.handover?.forbiddenProductionPaths ?? []));
   add("handover status accepted", handover || productionActive, String(handoverStatus));

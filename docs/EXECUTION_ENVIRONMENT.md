@@ -16,3 +16,9 @@
 - Predictions: `pnpm prediction:publish -- --edition-date YYYY-MM-DD --write` runs only frozen-model infer, applies gates, appends immutable ledger snapshots, exports public shards, verifies model SHA, commits, pushes and checks Vercel; identical business bytes produce `status=no-op` without an empty commit.
 - Stage-2 private research outputs used by the HK/US publication gate live at the stable runtime path `D:\Guanchao-Workspace\runtime\model-research\stage2-three-market` (manifest.json carries per-file SHA-256; never commit these private artifacts). The publisher resolves the path via `--research-output`, `GUANCHAO_STAGE2_RESEARCH_OUTPUT`, or that stable default; dry-run and pre-commit failures restore the runtime exactly (`git status --porcelain` empty, HEAD unchanged).
 - Historical `writer-context-v1` artifacts validate their frozen prompt/validator references without re-imposing current file SHAs (`writer-context.mjs validate-context --legacy`, rebuild/scan); new prepare and current apply still require the currently approved validator.
+
+## Production preflight and cleanup protection
+
+- `scripts/writer-production-preflight.mjs` is the launcher-side guard. It returns `READY` only when the canonical repository and runtime exist, are clean, use the official remote, and both point to the supplied production SHA. A clean detached runtime is valid when its SHA is exact; a wrong SHA or dirty tree fails closed.
+- Cleanup callers must use `assertCleanupTargetAllowed`. Canonical repository/runtime, writer memory, recovery root, and the protected original workspace are refused with `PROTECTED_PRODUCTION_PATH`, including parent paths that would contain those roots.
+- The Writer consumes the structured preflight result; it does not perform repository discovery or cleanup decisions while drafting.
