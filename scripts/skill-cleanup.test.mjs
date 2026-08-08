@@ -115,7 +115,8 @@ test("05 missing writer skill fails the consistency gate", () => {
       docsPath: path.join(repo, "docs", "CODEX_WRITER_AUTOMATION.md"),
       automationsRoot: automations,
       statePath: path.join(root, "automation-state.json"),
-      skillDirectory: path.join(root, "missing-skill")
+      skillDirectory: path.join(root, "missing-skill"),
+      runProductionPreflight: false
     });
     assert.equal(report.consistent, false);
     const skillChecks = report.checks.filter((check) => check.name.startsWith("writer.skill"));
