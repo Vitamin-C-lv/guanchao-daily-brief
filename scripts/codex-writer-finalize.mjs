@@ -9,8 +9,10 @@ import { validateGlobalMarketBrief, validateGlobalMarketBriefPublicDto } from ".
 import { loadEditorialStyle, lintEditorial } from "./editorial-lint.mjs";
 import { validateCodexResearch } from "./codex-research.mjs";
 import { validateVisualBundle } from "./article-visuals.mjs";
+import { compareEditorialContent } from "./editorial-freshness.mjs";
 import {
   apply as applyWriterResult,
+  assessEditorialFreshness,
   validateRequest,
   validateResult
 } from "./writer-jobs.mjs";
@@ -61,14 +63,44 @@ function readJson(file) {
   }
 }
 
-function explicitGlobalReplacement(root, payload) {
+function explicitGlobalReplacement(root, payload, { correction = false } = {}) {
   const historyFile = path.join(root, "content", "global-market-briefs", `${payload.editionDate}.json`);
   if (!fs.existsSync(historyFile)) return null;
+  if (!correction) fail("CORRECTION_MODE_REQUIRED", "editionDate", "same-edition replacement requires explicit --correction");
   const existing = readJson(historyFile);
   const { generatedAt, ...business } = existing;
   return {
     mode: "explicit-replace",
     expectedExistingBusinessSha256: sha256Canonical(business),
+  };
+}
+
+function baselinePayload(packageValue) {
+  const baseline = JSON.parse(packageValue.files.get("BASELINE_CONTENT.json").toString("utf8"));
+  return baseline?.payload && typeof baseline.payload === "object" ? baseline.payload : baseline;
+}
+
+function assessLegacyFreshness(packageValue, request, payload, { maintenanceProjection = false } = {}) {
+  const baseline = baselinePayload(packageValue);
+  const comparison = compareEditorialContent(baseline, payload);
+  const previousEdition = baseline?.meta?.editionDate ?? baseline?.editionDate ?? baseline?.report?.weekEnd ?? null;
+  if (request.edition === "daily" && !comparison.contentChanged) {
+    fail("FRESH_EDITION_CONTENT_REQUIRED", "result.payload", "new edition editorial content is unchanged after runtime/date/visual normalization");
+  }
+  if (request.edition === "daily" && !maintenanceProjection) {
+    fail("CANONICAL_EDITION_REQUIRED", "result.payload", "formal Daily publication requires global_market_brief canonical output");
+  }
+  return {
+    previousEdition,
+    currentEdition: payload?.meta?.editionDate ?? payload?.editionDate ?? null,
+    previousEditorialDigest: comparison.previousEditorialDigest,
+    currentEditorialDigest: comparison.currentEditorialDigest,
+    contentChanged: comparison.contentChanged,
+    canonicalEditionCreated: false,
+    newSourcesCount: comparison.newSourcesCount,
+    reusedSourcesCount: comparison.reusedSourcesCount,
+    newJudgmentsCount: comparison.newJudgmentsCount,
+    maintenanceProjection,
   };
 }
 
@@ -308,7 +340,7 @@ function injectVisuals(targetFile, visuals, root) {
   return targetFile;
 }
 
-export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = false, write = false, root = repositoryRoot, output = null } = {}) {
+export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = false, write = false, root = repositoryRoot, output = null, correction = false, maintenanceProjection = false } = {}) {
   if (dryRun === write) fail("MODE", "mode", "exactly one of dryRun or write is required");
   if (typeof packageDirectory !== "string" || typeof resultFile !== "string") fail("ARGUMENT", "arguments", "packageDirectory and resultFile are required");
   const packageValue = readGlobalExecutionPackage(packageDirectory) ?? readPackage(packageDirectory);
@@ -320,7 +352,8 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
     validateResult(root, request, result);
     const lint = lintEditorial({ mode: "global_market_brief", value: result.payload, result, style: {} });
     if (!lint.passed) fail("EDITORIAL_LINT", "result.payload", lint.errors.join("; "));
-    const replacement = explicitGlobalReplacement(root, result.payload);
+    const editorialFreshness = assessEditorialFreshness(root, result.payload, { correction });
+    const replacement = explicitGlobalReplacement(root, result.payload, { correction });
     const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root, replacement });
     const approvedFiles = new Set(["content/global-market-brief-public.json", `content/global-market-briefs/${result.payload.editionDate}.json`]);
     for (const file of [...simulation.files, ...(simulation.wouldWrite ?? [])]) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer may only write history and latest public DTO");
@@ -333,6 +366,8 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
     }
     const afterProtected = protectedFiles(root);
     assertProtectedEqual(beforeProtected, afterProtected);
+    const filesystemChanged = Boolean(write && applied.filesystemChanged);
+    const editorialEditionPublished = Boolean(write && applied.editorialEditionPublished);
     const report = {
       schemaVersion: "codex-writer-finalize-report-v1",
       mode: "global_market_brief",
@@ -347,11 +382,17 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
       editorialLint: lint,
       articleDepth: null,
       featureBranchWrite: applied,
-      productionApply: { applied: false, reason: "feature-branch-content-only" },
+      productionApply: {
+        applied: editorialEditionPublished,
+        reason: editorialEditionPublished ? "canonical-editorial-edition" : "filesystem-change-without-editorial-edition",
+      },
+      editorialFreshness,
       protectedBoundary: { checked: Object.keys(beforeProtected).length, unchanged: true },
       targetValidation,
       dryRun,
-      wrote: Boolean(write && applied.wrote),
+      filesystemChanged,
+      editorialEditionPublished,
+      wrote: editorialEditionPublished,
       output: output ?? null
     };
     if (output) writeJsonOutside(path.resolve(output), report, root);
@@ -372,6 +413,7 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
   const visualBundle = JSON.parse(packageValue.files.get("ARTICLE_VISUAL_BUNDLE.json").toString("utf8"));
   const depthRules = JSON.parse(packageValue.files.get("ARTICLE_DEPTH_RULES.json").toString("utf8"));
   const depthAndVisuals = validateDepthAndVisuals({ edition: request.edition, payload: result.payload, result, visualBundle, depthRules });
+  const editorialFreshness = assessLegacyFreshness(packageValue, request, result.payload, { maintenanceProjection });
   const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root });
   for (const file of simulation.files) if (!allowedApplyFile(file, request, root)) fail("APPLY_BOUNDARY", file, "production apply proposed an unapproved file");
   let applied = simulation;
@@ -396,11 +438,14 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
     bundleId: codexResearch.bundleId,
     editorialLint: lint,
     articleDepth: depthAndVisuals,
+    editorialFreshness,
     productionApply: applied,
     protectedBoundary: { checked: Object.keys(beforeProtected).length, unchanged: true },
     targetValidation,
     dryRun,
-    wrote: write,
+    filesystemChanged: Boolean(write && applied.applied),
+    editorialEditionPublished: false,
+    wrote: false,
     output: output ?? null
   };
   if (output) writeJsonOutside(path.resolve(output), report, root);
@@ -424,7 +469,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
     const args = parseArgs(process.argv.slice(2));
     const root = args.root ? path.resolve(args.root) : repositoryRoot;
     if (args["dry-run"] !== true && args.write !== true || args["dry-run"] === true && args.write === true) fail("CLI_ARGUMENT", "mode", "exactly one of --dry-run or --write is required");
-    const report = finalizeCodexWriter({ packageDirectory: args.package, resultFile: args.result, dryRun: args["dry-run"] === true, write: args.write === true, root, output: args.output ? path.resolve(args.output) : null });
+    const report = finalizeCodexWriter({ packageDirectory: args.package, resultFile: args.result, dryRun: args["dry-run"] === true, write: args.write === true, root, output: args.output ? path.resolve(args.output) : null, correction: args.correction === true, maintenanceProjection: args["maintenance-projection"] === true });
     console.log(canonicalJson(report));
   } catch (cause) {
     console.error(cause instanceof Error ? `${cause.code ?? "CODEX_WRITER_FINALIZE_FAILURE"} ${cause.path ?? "finalize"} ${cause.message}` : "CODEX_WRITER_FINALIZE_FAILURE");
