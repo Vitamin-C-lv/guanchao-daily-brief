@@ -62,6 +62,16 @@ function shanghaiCalendarDate(value) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
 }
 
+function shanghaiWeekday(value) {
+  const date = value === undefined ? new Date() : new Date(value);
+  if (!Number.isFinite(date.valueOf())) fail("FRESHNESS", "editionDate", "edition date is not a valid time");
+  return new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Shanghai", weekday: "short" }).format(date);
+}
+
+export function isShanghaiSunday(value) {
+  return shanghaiWeekday(value) === "Sun";
+}
+
 function assertPacketFreshness(packet, { editionDate, baselineFile, now }) {
   const effectiveEditionDate = editionDate ?? shanghaiCalendarDate(now);
   if (!DATE.test(effectiveEditionDate)) fail("FRESHNESS", "editionDate", "edition date must be YYYY-MM-DD");
@@ -307,13 +317,30 @@ export async function prepareCodexWriter({
   if (mode !== null && mode !== "global_market_brief") fail("MODE", "mode", "unsupported writer mode");
   if (mode === "global_market_brief" && edition !== "daily") fail("MODE", "edition", "global_market_brief is daily only");
   if (mode === "global_market_brief" && codexResearch) fail("MODE", "codexResearch", "global_market_brief cannot consume an unfrozen Codex research run");
+  const requestedEditionDate = editionDate ?? shanghaiCalendarDate(now);
+  if (!DATE.test(requestedEditionDate)) fail("FRESHNESS", "editionDate", "edition date must be YYYY-MM-DD");
+  const guardTime = editionDate === null ? now : `${requestedEditionDate}T12:00:00+08:00`;
+  if (isShanghaiSunday(guardTime)) {
+    return {
+      schemaVersion: "codex-writer-prepare-summary-v1",
+      edition,
+      ...(mode ? { mode } : {}),
+      editionDate: requestedEditionDate,
+      status: "SUNDAY_NO_REPORT",
+      reason: "Sunday Asia/Shanghai has no Daily/Weekly report",
+      dryRun,
+      writeRequested: write,
+      wrote: false,
+      noOp: true,
+      contextReady: false,
+    };
+  }
   const packetFile = resolveRootFile(root, marketPacket ?? `content/writer-packets/${edition}-latest.json`, "marketPacket");
   const packet = loadPacket(packetFile);
   if (packet.edition !== edition) fail("PACKET_EDITION", "packet.edition", "packet edition differs from requested edition");
   const asOf = packet.marketDates?.aShare;
   if (typeof asOf !== "string" || !DATE.test(asOf)) fail("PACKET_DATE", "packet.marketDates.aShare", "packet market date is required");
   const packetPlan = packetArtifactPlan(packet, root);
-  const requestedEditionDate = editionDate ?? shanghaiCalendarDate(now);
   let dailyEveningFile;
   let reviewEveningFile;
   let dailyEveningPacket;

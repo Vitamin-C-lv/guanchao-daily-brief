@@ -99,10 +99,21 @@ def run(mode: str, root: Path, rotation_path: Path, *, code_commit: str, iso_wee
     index = json.loads(ledger.canonical_text_bytes(root / "index.json", artifact="ledger index"))
     snapshot_report: dict[str, Any]
     if index.get("lastPredictionDate") and payload_date <= index["lastPredictionDate"]:
-        snapshot_report = {"written": False, "reason": "publication date is already represented", "dataAsOf": payload_date}
+        snapshot_report = {
+            "written": False,
+            "result": "NO_OP",
+            "reason": "publication date is already represented",
+            "dataAsOf": payload_date,
+        }
     else:
         snapshot = ledger.snapshot_from_rotation_payload(payload, edition="closing" if mode == "closing" else "daily", code_commit=code_commit)
-        snapshot_report = {"written": ledger.append_snapshot(root, snapshot), "runId": snapshot["runId"], "path": ledger.snapshot_relative_path(snapshot)}
+        written = ledger.append_snapshot(root, snapshot)
+        snapshot_report = {
+            "written": written,
+            "result": "APPEND_ONLY" if written else "IDEMPOTENT_NO_OP",
+            "runId": snapshot["runId"],
+            "path": ledger.snapshot_relative_path(snapshot),
+        }
     states_report: dict[str, Any] | None = None
     if states_path is not None:
         states_payload = json.loads(ledger.canonical_text_bytes(states_path, artifact=str(states_path)))
@@ -134,8 +145,10 @@ def run(mode: str, root: Path, rotation_path: Path, *, code_commit: str, iso_wee
             code_commit=code_commit,
             models=models,
         )
+        written = ledger.append_state_snapshot(root, state_snapshot)
         states_report = {
-            "written": ledger.append_state_snapshot(root, state_snapshot),
+            "written": written,
+            "result": "APPEND_ONLY" if written else "IDEMPOTENT_NO_OP",
             "runId": state_snapshot["runId"],
             "path": ledger.snapshot_relative_path(state_snapshot),
             "dataAsOf": data_as_of,

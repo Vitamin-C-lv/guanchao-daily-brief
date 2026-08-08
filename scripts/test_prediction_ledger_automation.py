@@ -28,7 +28,7 @@ class LedgerAutomationTests(unittest.TestCase):
             verification = {"snapshotCount": 9, "predictionRecordCount": 324, "evaluationEventCount": 300}
             with patch.object(automation.ledger, "verify_ledger", side_effect=[verification, verification]), patch.object(automation.ledger, "require_restored_ledger"), patch.object(automation, "append_available_evaluations", return_value={"appended": 0}), patch.object(automation.ledger, "export_public", return_value={"recordCount": 324, "files": []}), patch.object(automation.ledger, "snapshot_from_rotation_payload") as create_snapshot:
                 result = automation.run("closing", root, rotation, code_commit="1" * 40, iso_week="2026-W30")
-            self.assertEqual(result["snapshot"], {"written": False, "reason": "publication date is already represented", "dataAsOf": "2026-07-24"})
+            self.assertEqual(result["snapshot"], {"written": False, "result": "NO_OP", "reason": "publication date is already represented", "dataAsOf": "2026-07-24"})
             create_snapshot.assert_not_called()
 
 

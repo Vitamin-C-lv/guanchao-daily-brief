@@ -105,13 +105,13 @@ def prediction(
     return result
 
 
-def snapshot(records: list[dict] | None = None, *, created_at: str = "2026-07-24T20:00:00+08:00") -> dict:
+def snapshot(records: list[dict] | None = None, *, created_at: str = "2026-07-24T20:00:00+08:00", code_commit: str = COMMIT) -> dict:
     return ledger.build_snapshot(
         predictions=records or [prediction()],
         created_at=created_at,
         data_as_of="2026-07-24",
         edition="closing",
-        code_commit=COMMIT,
+        code_commit=code_commit,
         models=[{
             "market": "a-share",
             "modelVersion": "2026-07-21-relative-v2",
@@ -159,6 +159,18 @@ class PredictionLedgerTests(unittest.TestCase):
             self.assertTrue(ledger.append_snapshot(root, item))
             self.assertFalse(ledger.append_snapshot(root, item))
             self.assertEqual(len(list(root.glob("snapshots/**/*.json.gz"))), 1)
+
+    def test_snapshot_same_business_identity_with_new_code_commit_is_idempotent(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.root(directory)
+            first = snapshot(code_commit="1" * 40)
+            self.assertTrue(ledger.append_snapshot(root, first))
+            path = root / ledger.snapshot_relative_path(first)
+            before = path.read_bytes()
+            second = snapshot(code_commit="3" * 40)
+            self.assertEqual(first["runId"], second["runId"])
+            self.assertFalse(ledger.append_snapshot(root, second))
+            self.assertEqual(path.read_bytes(), before)
 
     def test_same_prediction_id_same_content_is_not_duplicated(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -427,7 +439,7 @@ def state_record(
     }
 
 
-def state_snapshot(records: list[dict] | None = None, *, data_as_of: str = "2026-08-06", created_at: str = "2026-08-06T20:00:00+08:00") -> dict:
+def state_snapshot(records: list[dict] | None = None, *, data_as_of: str = "2026-08-06", created_at: str = "2026-08-06T20:00:00+08:00", code_commit: str = COMMIT) -> dict:
     items = records if records is not None else [state_record()]
     models: list[dict] = []
     seen: set[tuple[str, str]] = set()
@@ -447,7 +459,7 @@ def state_snapshot(records: list[dict] | None = None, *, data_as_of: str = "2026
         created_at=created_at,
         data_as_of=data_as_of,
         edition="daily",
-        code_commit=COMMIT,
+        code_commit=code_commit,
         models=models,
     )
 
@@ -466,6 +478,18 @@ class StateSnapshotLedgerTests(unittest.TestCase):
             self.assertFalse(ledger.append_state_snapshot(root, item))
             self.assertEqual(len(list(root.glob("snapshots/**/*.json.gz"))), 1)
             self.assertEqual(len(ledger.collect_states(root)), 1)
+
+    def test_state_same_business_identity_with_new_code_commit_is_idempotent(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = self.root(directory)
+            first = state_snapshot(code_commit="1" * 40)
+            self.assertTrue(ledger.append_state_snapshot(root, first))
+            path = root / ledger.snapshot_relative_path(first)
+            before = path.read_bytes()
+            second = state_snapshot(code_commit="3" * 40)
+            self.assertEqual(first["runId"], second["runId"])
+            self.assertFalse(ledger.append_state_snapshot(root, second))
+            self.assertEqual(path.read_bytes(), before)
 
     def test_same_state_is_not_duplicated_across_days(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

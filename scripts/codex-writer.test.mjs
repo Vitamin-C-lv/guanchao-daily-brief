@@ -6,7 +6,7 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { sealCodexResearch } from "./codex-research.mjs";
-import { CodexWriterPrepareError, packetArtifactPlan, prepareCodexWriter } from "./codex-writer-prepare.mjs";
+import { CodexWriterPrepareError, isShanghaiSunday, packetArtifactPlan, prepareCodexWriter } from "./codex-writer-prepare.mjs";
 import { refreshWriterPacket } from "./refresh-writer-packet.mjs";
 import { runGlobalMarketBriefDryRun } from "./writer-e2e-rehearsal.mjs";
 import { finalizeCodexWriter } from "./codex-writer-finalize.mjs";
@@ -164,6 +164,32 @@ test("dry-run does not create the package directory", async () => {
   try {
     const summary = await prepareCodexWriter(withEditionDate({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: value.researchFile, outputDirectory: output, write: false, dryRun: true, root: value.root, now: new Date("2026-08-01T02:00:00Z") }));
     assert.equal(summary.wrote, false);
+    assert.equal(fs.existsSync(output), false);
+  } finally {
+    fs.rmSync(output, { recursive: true, force: true });
+    cleanup(value);
+  }
+});
+
+test("Shanghai calendar allows Saturday and Monday, and Sunday is a no-report no-op", async () => {
+  assert.equal(isShanghaiSunday("2026-08-08T12:00:00+08:00"), false);
+  assert.equal(isShanghaiSunday("2026-08-09T12:00:00+08:00"), true);
+  assert.equal(isShanghaiSunday("2026-08-10T12:00:00+08:00"), false);
+  const value = fixture();
+  const output = path.join(value.root, "..", `${path.basename(value.root)}-sunday-package`);
+  try {
+    const summary = await prepareCodexWriter({
+      edition: "daily",
+      editionDate: "2026-08-09",
+      outputDirectory: output,
+      write: true,
+      dryRun: false,
+      root: value.root,
+      now: new Date("2026-08-09T12:00:00+08:00"),
+    });
+    assert.equal(summary.status, "SUNDAY_NO_REPORT");
+    assert.equal(summary.wrote, false);
+    assert.equal(summary.noOp, true);
     assert.equal(fs.existsSync(output), false);
   } finally {
     fs.rmSync(output, { recursive: true, force: true });

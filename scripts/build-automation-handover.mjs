@@ -97,7 +97,8 @@ export function buildAutomationHandover({
   };
   const nativeFile = (id) => path.join(automationsRoot, ...String(id).split(/[\\/]/).filter(Boolean), "automation.toml");
   const activeProduction = config.handover?.activeProduction ?? {};
-  const predictionLegacyId = activeProduction.prediction?.automationId ?? "guanchao-prediction-publisher";
+  const predictionLegacyId = schedules.prediction?.legacyAutomationId ?? activeProduction.prediction?.automationId ?? "guanchao-prediction-publisher";
+  const predictionActiveId = activeProduction.prediction?.automationId ?? taskName;
   const dailyLegacyId = activeProduction.daily?.automationId ?? "codex";
   const weeklyId = activeProduction.weekly?.automationId ?? "codex-2";
   const predictionLegacy = nativeRecord({ id: predictionLegacyId, file: nativeFile(predictionLegacyId), configSchedule: activeProduction.prediction, role: "predictionLegacy", replacements });
@@ -107,7 +108,7 @@ export function buildAutomationHandover({
   const candidateTaskWriteCapable = task.exists && ["Ready", "Running", "就绪", "正在运行"].includes(task.status) && !/-Mode\s+DryRun/i.test(task.taskToRun ?? "") && /run-prediction-publisher-task\.ps1/i.test(task.taskToRun ?? "");
   const predictionCandidate = {
     role: "predictionCandidate",
-    id: schedules.prediction?.legacyAutomationId ?? predictionLegacyId,
+    id: predictionActiveId,
     exists: task.exists,
     status: task.status ?? "not_installed",
     enabled: task.status === "Ready" || task.status === "Running" || task.status === "就绪" || task.status === "正在运行",
