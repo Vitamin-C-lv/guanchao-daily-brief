@@ -382,6 +382,21 @@ export async function runPredictionPublisher({
       if (!uvLedger.ok) fail("LEDGER_FAILED", `ledger automation failed: ${uvLedger.detail.slice(0, 800)}`);
     }
 
+    // A refresh can rewrite timestamped tracked projections even when the
+    // immutable ledger correctly reports that the business publication is
+    // already represented. Restore those projections before validators run;
+    // otherwise validate-prediction-ledger compares a fresh generatedAt with
+    // the existing immutable snapshot and rejects a legitimate no-op.
+    const ledgerNoOp = ledgerReport?.snapshot?.result === "NO_OP"
+      && ledgerReport?.states?.result === "IDEMPOTENT_NO_OP";
+    if (ledgerNoOp) {
+      const noOpCleanup = restoreWorkspace(root);
+      if (!noOpCleanup.cleanupSucceeded) {
+        fail("NO_OP_RESTORE_FAILED", "prediction projections", `could not restore no-op projections: ${noOpCleanup.remainingChanges.join(", ")}`);
+      }
+      step("ledger-no-op-restore", { ok: true, restoredTracked: noOpCleanup.restoredTracked });
+    }
+
     // 15. rotation and ledger validation
     const validateRotation = run("node", [path.join(root, "scripts", "validate-sector-rotation.mjs")], { cwd: root, allowFailure: true, env });
     const validateLedger = run("node", [path.join(root, "scripts", "validate-prediction-ledger.mjs")], { cwd: root, allowFailure: true, env });
