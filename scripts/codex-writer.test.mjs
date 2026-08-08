@@ -14,6 +14,8 @@ import { buildAllPackets } from "./build-market-packets.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PACKET_AS_OF = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content/writer-packets/daily-latest.json"), "utf8")).marketDates.aShare;
+const RESEARCH_BUNDLE_PATH = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "data/research-bundles/index.json"), "utf8")).bundles.find((item) => item.asOf === PACKET_AS_OF)?.artifactPath;
+if (!RESEARCH_BUNDLE_PATH) throw new Error(`missing research bundle for packet asOf ${PACKET_AS_OF}`);
 const CONTENT_HASH = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
 
 function copy(root, relativePath) {
@@ -151,7 +153,7 @@ test("prepare writes a complete package and re-running is a no-op", async () => 
     const preparedMemory = JSON.parse(fs.readFileSync(path.join(output, "WRITER_MEMORY_CONTEXT.json"), "utf8"));
     const manifest = JSON.parse(fs.readFileSync(path.join(output, "MANIFEST.json"), "utf8"));
     assert.equal(preparedDailyPacket.coreIndices.aShare.sse.status, "ready");
-    assert.equal(preparedDailyPacket.rates.tenYear.value, 4.69);
+    assert.equal(preparedDailyPacket.rates.tenYear.value, value.packet.treasuryFactor.nominal10y);
     assert.ok(preparedReviewPacket.horizons["1d"].publishedModelPrediction.brier >= 0);
     assert.equal(preparedMemory.bootstrap.dailyPacket.packetId, preparedDailyPacket.packetId);
     assert.ok(preparedMemory.bootstrap.policyResearchTargets.some((item) => item.issuer === "证监会"));
@@ -214,7 +216,7 @@ test("global_market_brief prepare is offline and always reports wrote=false", as
       "scripts/global-market-brief-contract.mjs",
       "content/writer-contexts/fixtures/p2-b1-global-baseline.json",
       "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json",
-      "data/research-bundles/bundles/2026/08/7e62a171f40ee80714ece6604e6288e552c2e41effb33ebe120eb6e2c3773789.json.gz"
+      RESEARCH_BUNDLE_PATH
     ]) copy(value.root, relative);
     const baselinePath = path.join(value.root, "content/writer-contexts/fixtures/p2-b1-global-baseline.json");
     const baseline = JSON.parse(fs.readFileSync(baselinePath, "utf8"));
@@ -228,7 +230,7 @@ test("global_market_brief prepare is offline and always reports wrote=false", as
       edition: "daily",
       mode: "global_market_brief",
       marketPacket: "content/writer-packets/daily-latest.json",
-      researchBundle: "data/research-bundles/bundles/2026/08/7e62a171f40ee80714ece6604e6288e552c2e41effb33ebe120eb6e2c3773789.json.gz",
+      researchBundle: RESEARCH_BUNDLE_PATH,
       baselineSource: "content/writer-contexts/fixtures/p2-b1-global-baseline.json",
       globalInput: "content/writer-contexts/fixtures/p2-b1-global-writer-two-special.json",
       outputDirectory: output,
