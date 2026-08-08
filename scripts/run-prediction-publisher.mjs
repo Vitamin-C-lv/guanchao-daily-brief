@@ -8,7 +8,8 @@
  * files are byte-identical, then explicitly commits and pushes main when there is a real
  * business change. No training, no candidate promotion, no shadow activation.
  *
- * No new trading day or identical business bytes => status=no-op with no empty commit.
+ * No new trading day or identical business bytes => no ledger append; a fresh
+ * derived writer packet may be committed once for the current edition date.
  */
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
@@ -47,6 +48,7 @@ const ALLOWED_WRITE_PREFIXES = [
   "data/market-evidence/",
   "content/writer-packets/"
 ];
+const DAILY_WRITER_PACKET_PATH = "content/writer-packets/daily-latest.json";
 
 // Machine-local stage-2 private research outputs consumed by the HK/US
 // publication gate.  The stable path lives under the automation runtime
@@ -159,6 +161,40 @@ function businessEquivalentFile(root, relative) {
   return businessEquivalence(fs.readFileSync(file, "utf8"), headBytes.toString("utf8"));
 }
 
+function packetGeneratedAtIsEditionDate(packet, editionDate) {
+  try {
+    return shanghaiCalendarDate(packet.generatedAt) === editionDate;
+  } catch {
+    return false;
+  }
+}
+
+function writerPacketIsFresh(root, editionDate) {
+  const file = path.join(root, ...DAILY_WRITER_PACKET_PATH.split("/"));
+  if (!fs.existsSync(file)) return false;
+  try {
+    return packetGeneratedAtIsEditionDate(JSON.parse(fs.readFileSync(file, "utf8")), editionDate);
+  } catch {
+    return false;
+  }
+}
+
+function headWriterPacketIsFresh(root, editionDate) {
+  const headBytes = gitHeadBytes(root, DAILY_WRITER_PACKET_PATH);
+  if (headBytes === null) return false;
+  try {
+    return packetGeneratedAtIsEditionDate(JSON.parse(headBytes.toString("utf8")), editionDate);
+  } catch {
+    return false;
+  }
+}
+
+function writerPacketFreshnessTransition(root, relative, editionDate) {
+  return relative === DAILY_WRITER_PACKET_PATH
+    && writerPacketIsFresh(root, editionDate)
+    && !headWriterPacketIsFresh(root, editionDate);
+}
+
 function modelSnapshot(root) {
   const snapshot = {};
   for (const relative of MODEL_FILES) {
@@ -209,13 +245,18 @@ function ledgerReportFromJson(text) {
  *   is verified clean before the run, so any untracked path is ours.
  * - Never touches paths outside the repository.
  */
-function restoreWorkspace(root) {
-  const cleanup = { cleanupAttempted: true, restoredTracked: [], removedUntracked: [], remainingChanges: [] };
+function restoreWorkspace(root, preserveRelative = []) {
+  const preserved = new Set(preserveRelative.map((value) => value.replaceAll("\\", "/")));
+  const cleanup = { cleanupAttempted: true, restoredTracked: [], preservedTracked: [], removedUntracked: [], remainingChanges: [] };
   const rootPath = path.resolve(root);
   const changes = gitStatusShort(root);
   for (const line of changes) {
     const status = line.slice(0, 2).trim();
     const relative = changedRelative(line);
+    if (preserved.has(relative)) {
+      cleanup.preservedTracked.push(relative);
+      continue;
+    }
     if (status === "??") {
       const file = path.join(rootPath, ...relative.split("/"));
       try {
@@ -242,7 +283,7 @@ function restoreWorkspace(root) {
       }
     }
   }
-  cleanup.remainingChanges = [...cleanup.remainingChanges, ...gitStatusShort(root)];
+  cleanup.remainingChanges = [...cleanup.remainingChanges, ...gitStatusShort(root).filter((line) => !preserved.has(changedRelative(line)))];
   cleanup.cleanupSucceeded = cleanup.remainingChanges.length === 0;
   return cleanup;
 }
@@ -253,6 +294,7 @@ function applyCleanupReport(report, cleanup, root, headBefore) {
   report.remainingChanges = cleanup.remainingChanges;
   report.restoredTracked = cleanup.restoredTracked;
   report.removedUntracked = cleanup.removedUntracked;
+  report.preservedTracked = cleanup.preservedTracked;
   report.workspaceRestored = cleanup.cleanupSucceeded;
   report.headUnchanged = headBefore === null || gitHead(root) === headBefore;
   return report;
@@ -390,11 +432,12 @@ export async function runPredictionPublisher({
     const ledgerNoOp = ledgerReport?.snapshot?.result === "NO_OP"
       && ledgerReport?.states?.result === "IDEMPOTENT_NO_OP";
     if (ledgerNoOp) {
-      const noOpCleanup = restoreWorkspace(root);
+      const preserve = writerPacketIsFresh(root, effectiveEditionDate) ? [DAILY_WRITER_PACKET_PATH] : [];
+      const noOpCleanup = restoreWorkspace(root, preserve);
       if (!noOpCleanup.cleanupSucceeded) {
         fail("NO_OP_RESTORE_FAILED", "prediction projections", `could not restore no-op projections: ${noOpCleanup.remainingChanges.join(", ")}`);
       }
-      step("ledger-no-op-restore", { ok: true, restoredTracked: noOpCleanup.restoredTracked });
+      step("ledger-no-op-restore", { ok: true, restoredTracked: noOpCleanup.restoredTracked, preservedTracked: noOpCleanup.preservedTracked });
     }
 
     // 15. rotation and ledger validation
@@ -417,7 +460,10 @@ export async function runPredictionPublisher({
     step("write-scope", { ok: true, changedFiles: changes.length });
 
     // no-op detection: every changed file is business-equivalent (only timestamps moved)
-    const realChanges = changes.filter((line) => !businessEquivalentFile(root, changedRelative(line)));
+    const realChanges = changes.filter((line) => {
+      const relative = changedRelative(line);
+      return !businessEquivalentFile(root, relative) || writerPacketFreshnessTransition(root, relative, effectiveEditionDate);
+    });
     const noOp = realChanges.length === 0;
     if (noOp) {
       // Precise restore keeps the stable runtime clean without git clean/reset/stash.

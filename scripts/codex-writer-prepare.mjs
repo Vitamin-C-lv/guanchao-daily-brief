@@ -213,6 +213,12 @@ export function packetArtifactPlan(packet, root) {
   const existingBytes = fs.readFileSync(file);
   if (Buffer.compare(existingBytes, bytes) === 0) return { file, bytes: existingBytes, created: false, reused: true, shouldWrite: false };
   if (existing.writerPacketId !== packet.writerPacketId) fail("PACKET_IMMUTABLE_CONFLICT", relative(root, file), "packet path identity differs");
+  if (existing.integrity?.businessSha256 === packet.integrity?.businessSha256 && existing.integrity?.sha256 === packet.integrity?.sha256) {
+    // generatedAt is intentionally excluded from writerPacketId and integrity.
+    // A fresh latest view must therefore reuse the existing immutable artifact
+    // when only its audit timestamp changed.
+    return { file, bytes: existingBytes, created: false, reused: true, shouldWrite: false };
+  }
   fail("PACKET_IMMUTABLE_CONFLICT", relative(root, file), "same writerPacketId has different bytes");
 }
 
