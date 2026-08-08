@@ -579,14 +579,26 @@ def load_hstech_normalized_override(path: Path) -> tuple[dict[str, float], dict[
     if value.get("source", {}).get("provider") != "akshare.stock_hk_index_daily_sina":
         raise ThreeMarketError("HSTECH normalized adapter requires bounded AKShare Sina source")
     launch_date = "2020-07-27"
+    raw_bars = value.get("bars", [])
+    if not isinstance(raw_bars, list):
+        raise ThreeMarketError("HSTECH normalized adapter bars must be a list")
     series: dict[str, float] = {}
-    for row in value.get("bars", []):
+    invalid_ohlc_rows = 0
+    for row in raw_bars:
         date_value = require_date(row.get("date") or row.get("time"), "HSTECH normalized adapter date")
         if date_value < launch_date:
             raise ThreeMarketError("HSTECH normalized adapter contains pre-launch row")
+        open_value = positive_number(row.get("open"))
+        high_value = positive_number(row.get("high"))
+        low_value = positive_number(row.get("low"))
         close = positive_number(row.get("close"))
-        if close is None:
-            raise ThreeMarketError(f"HSTECH normalized adapter close missing at {date_value}")
+        if (
+            any(value is None for value in (open_value, high_value, low_value, close))
+            or high_value < max(open_value, close, low_value)
+            or low_value > min(open_value, close, high_value)
+        ):
+            invalid_ohlc_rows += 1
+            continue
         if date_value in series:
             raise ThreeMarketError(f"HSTECH normalized adapter duplicate date: {date_value}")
         series[date_value] = close
@@ -605,16 +617,31 @@ def load_hstech_normalized_override(path: Path) -> tuple[dict[str, float], dict[
         "licenseNote": "标准化私有研究缓存；不提交原始 provider payload。",
         "normalizedCachePath": str(path),
         "normalizedCacheSha256": sha256_path(path),
+        "providerInputRows": len(raw_bars),
+        "invalidOhlcRows": invalid_ohlc_rows,
+        "validHstechRows": len(series),
+        "actualHstechObservationRows": len(series),
+        "firstDate": min(series) if series else None,
+        "lastDate": max(series) if series else None,
     }
     return series, source
 
 
 def build_hk_panels(sources: dict[str, dict[str, Any]], cache: Path, hstech_normalized_cache: Path | None = None) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     hsi, hsi_source_id = resolved_series(sources, cache, ids=("yahoo_hsi",), role_prefixes=("hsi_ohlcv",))
+    hstech_adapter = None
     if hstech_normalized_cache is not None:
         hstech, hstech_source = load_hstech_normalized_override(hstech_normalized_cache)
         hstech_source_id = str(hstech_source["id"])
         sources[hstech_source_id] = hstech_source
+        hstech_adapter = {
+            "providerInputRows": hstech_source["providerInputRows"],
+            "invalidOhlcRows": hstech_source["invalidOhlcRows"],
+            "validHstechRows": hstech_source["validHstechRows"],
+            "actualHstechObservationRows": hstech_source["actualHstechObservationRows"],
+            "firstDate": hstech_source["firstDate"],
+            "lastDate": hstech_source["lastDate"],
+        }
     else:
         hstech, hstech_source_id = resolved_series(sources, cache, ids=("yahoo_hstech",), role_prefixes=("hstech_ohlcv",))
     hibor_overnight, hibor_source_id = resolved_series(
@@ -699,7 +726,7 @@ def build_hk_panels(sources: dict[str, dict[str, Any]], cache: Path, hstech_norm
         "objects": statuses,
         "datasetStatus": dataset_status,
         "macroStatus": macro_status,
-        "hstechHistoryFilter": {"launchDate": hstech_launch, "rawRows": len(hstech), "droppedPreLaunchRows": hstech_prelaunch_rows, "rule": "retain actual observations on or after launch date only", "adapter": hstech_normalized_cache is not None, "sourceId": hstech_source_id},
+        "hstechHistoryFilter": {"launchDate": hstech_launch, "rawRows": len(hstech), "droppedPreLaunchRows": hstech_prelaunch_rows, "rule": "retain actual observations on or after launch date only", "adapter": hstech_normalized_cache is not None, "sourceId": hstech_source_id, "adapterAudit": hstech_adapter},
         "macroResolution": {
             "hiborEndpointStatus": source_quality(hibor_endpoint, cache, load_series(hibor_endpoint, cache, field_keys=("ir_overnight", "hibor_overnight"))) if hibor_endpoint else "unavailable",
             "hiborFeatureSource": hibor_source_id,
@@ -1040,6 +1067,8 @@ def oos_evaluate(rows: list[dict[str, Any]], features: tuple[str, ...], horizon:
         folds.append({
             "evaluationStart": str(test_rows[0]["date"]),
             "evaluationEnd": str(test_rows[-1]["date"]),
+            "trainingStart": str(train_window[0]["date"]) if train_window else None,
+            "trainingEnd": str(train_window[-1]["date"]) if train_window else None,
             "trainingRows": len(train_window),
             "evaluationRows": len(test_rows),
             "embargoSessions": horizon,
@@ -1392,7 +1421,8 @@ def run_pipeline(cache: Path, source_manifest_path: Path, output: Path, private_
     source_audit_payload["sourceManifestSha256"] = sha256_path(source_manifest_path)
     hk_rows, hk_meta = build_hk_panels(sources, cache, hstech_normalized_cache)
     if hstech_normalized_cache is not None:
-        source_audit_payload["hstechNormalizedAdapter"] = {"path": str(hstech_normalized_cache), "sha256": sha256_path(hstech_normalized_cache), "sourceId": "akshare_sina_hstech", "applied": True, "productionBoundary": "research-only"}
+        adapter_audit = hk_meta.get("hstechHistoryFilter", {}).get("adapterAudit") or {}
+        source_audit_payload["hstechNormalizedAdapter"] = {"path": str(hstech_normalized_cache), "sha256": sha256_path(hstech_normalized_cache), "sourceId": "akshare_sina_hstech", "applied": True, "productionBoundary": "research-only", **adapter_audit}
     us_rows, us_meta = build_us_panels(sources, cache)
     private_panel_root.mkdir(parents=True, exist_ok=True)
     datasets: dict[str, dict[str, Any]] = {"A_SHARE": a_share_dataset()}

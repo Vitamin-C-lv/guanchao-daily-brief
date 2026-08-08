@@ -19,22 +19,24 @@ export function validateHstechPublicDocument(document) {
   return { valid: true, rows: bars.length, firstDate: bars[0]?.time ?? null, lastDate: bars.at(-1)?.time ?? null, source: document.source.provider, crossCheck: document.source.crossChecks?.recent20TradingDays?.status ?? "unreported" };
 }
 
-export function buildHstechValidation({ root = repositoryRoot, cachePath = "D:\\Guanchao-Workspace\\runtime\\market-history-cache\\hstech\\sina-normalized.json" } = {}) {
-  const cache = loadHstechCache(cachePath, { asOf: "2026-08-06" });
+export function buildHstechValidation({ root = repositoryRoot, cachePath = null } = {}) {
   const document = JSON.parse(fs.readFileSync(path.join(root, "public", "data", "market-history", "hang-seng-tech.json"), "utf8"));
   const publicResult = validateHstechPublicDocument(document);
+  const cache = cachePath ? loadHstechCache(cachePath, { asOf: "2026-08-06" }) : null;
   return {
     schemaVersion: "hstech-validation-v1",
     status: "ready",
     formalFilter: `date >= ${HSTECH_LAUNCH_DATE}`,
-    cache: { rowsAfterOHLCFilter: cache.rows, firstDate: cache.firstDate, lastDate: cache.lastDate, invalidOhlcDropped: cache.counts.invalidOhlc, rawPayloadStored: false },
+    cache: cache
+      ? { status: "validated", rowsAfterOHLCFilter: cache.rows, firstDate: cache.firstDate, lastDate: cache.lastDate, invalidOhlcDropped: cache.counts.invalidOhlc, rawPayloadStored: false }
+      : { status: "not_loaded", reason: "public validation is portable; run validate:hstech-private-cache with an explicit normalized cache path", rawPayloadStored: false },
     public: publicResult,
-    sources: { officialIdentity: document.source.officialIdentity, sina: { status: "ready", rows: cache.rows }, eastmoney: document.source.crossChecks?.eastmoney ?? { status: "unavailable" } },
+    sources: { officialIdentity: document.source.officialIdentity, sina: { status: "ready", rows: cache?.rows ?? publicResult.rows }, eastmoney: document.source.crossChecks?.eastmoney ?? { status: "unavailable" } },
     research: { rerun: "completed-as-observation-only", horizons: [1, 5, 20], promotion: "forbidden", newHKProbability: "not_published" },
   };
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
-  try { console.log(JSON.stringify(buildHstechValidation({ root: path.resolve(process.argv[2] ?? repositoryRoot), cachePath: process.argv[3] ?? undefined }), null, 2)); }
+  try { console.log(JSON.stringify(buildHstechValidation({ root: path.resolve(process.argv[2] ?? repositoryRoot), cachePath: process.argv[3] ? path.resolve(process.argv[3]) : null }), null, 2)); }
   catch (error) { console.error(`HSTECH_LIVE_VALIDATION_FAILURE ${error instanceof Error ? error.message : String(error)}`); process.exitCode = 1; }
 }

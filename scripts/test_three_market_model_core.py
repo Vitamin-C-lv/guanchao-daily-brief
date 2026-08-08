@@ -96,6 +96,22 @@ class ThreeMarketCoreTests(unittest.TestCase):
             self.assertEqual(len(series), 252)
             self.assertEqual(min(series), "2020-08-17")
             self.assertEqual(source["id"], "akshare_sina_hstech")
+            self.assertEqual(source["providerInputRows"], 252)
+            self.assertEqual(source["invalidOhlcRows"], 0)
+            self.assertEqual(source["actualHstechObservationRows"], 252)
+
+            invalid_fixture = root / "hstech-invalid-ohlc.json"
+            invalid_bars = [*bars, {"date": "2026-08-07", "open": 10, "high": 9, "low": 8, "close": 10}]
+            invalid_fixture.write_text(json.dumps({
+                "schemaVersion": "hstech-sina-normalized-v1",
+                "source": {"provider": "akshare.stock_hk_index_daily_sina"},
+                "bars": invalid_bars,
+            }), encoding="utf-8")
+            filtered_series, filtered_source = load_hstech_normalized_override(invalid_fixture)
+            self.assertEqual(len(filtered_series), 252)
+            self.assertEqual(filtered_source["providerInputRows"], 253)
+            self.assertEqual(filtered_source["invalidOhlcRows"], 1)
+            self.assertEqual(filtered_source["validHstechRows"], 252)
 
             short_fixture = root / "hstech-short.json"
             short_fixture.write_text(json.dumps({
