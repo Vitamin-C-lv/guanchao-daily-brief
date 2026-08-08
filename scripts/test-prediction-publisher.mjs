@@ -176,6 +176,7 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
   fs.mkdirSync(path.join(root, "research-output"), { recursive: true });
   fs.mkdirSync(path.join(root, "public", "data", "predictions"), { recursive: true });
   write(root, "content/sector-rotation.json", rotationPayload("2026-08-03", rotationStatus, rotationMode));
+  write(root, "expected-sector-rotation.json", rotationPayload("2026-08-03", rotationStatus, rotationMode));
   write(root, "fixture-rotation.json", rotationPayload("2026-08-03", rotationStatus, rotationMode));
   write(root, "research-output/RUN_RESULT.json", { schemaVersion: "three-market-run-result-v1", generatedAt: "2026-08-06T00:00:00Z", datasets: {}, sourceAudit: { requiredFailures: [], sources: [] }, status: "completed" });
   write(root, "public/data/predictions/current.json", fixtureDto());
@@ -187,7 +188,7 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
   write(root, "scripts/prediction-publication-gate.mjs", gateStub());
   write(root, "scripts/build-public-prediction-view.mjs", builderStub());
   write(root, "scripts/validate-public-prediction-view.mjs", dtoValidatorStub());
-  write(root, "scripts/validate-sector-rotation.mjs", `if (process.env.VALIDATION_FAIL === "1") { console.error("fixture validation failed"); process.exit(1); }\nconsole.log("fixture rotation validation ok");`);
+  write(root, "scripts/validate-sector-rotation.mjs", `import fs from "node:fs";\nif (process.env.VALIDATION_FAIL === "1") { console.error("fixture validation failed"); process.exit(1); }\nif (process.env.VALIDATE_EXPECT_INITIAL === "1" && fs.readFileSync("content/sector-rotation.json", "utf8") !== fs.readFileSync("expected-sector-rotation.json", "utf8")) { console.error("refreshed projection was not restored"); process.exit(1); }\nconsole.log("fixture rotation validation ok");`);
   write(root, "scripts/validate-prediction-ledger.mjs", `if (process.env.VALIDATION_FAIL === "1") { console.error("fixture validation failed"); process.exit(1); }\nconsole.log("fixture ledger validation ok");`);
   git(root, "init");
   git(root, "branch", "-M", "main");
@@ -292,6 +293,29 @@ test("no new trading day yields no-op without an empty commit", async () => {
     assert.equal(git(value.root, "status", "--short").stdout.trim(), "");
     assert.ok(report.steps.some((step) => step.name === "writer-packets" && step.ok), "packet refresh must still complete before ledger no-op");
     assert.equal(report.steps.find((step) => step.name === "ledger-automation").report.snapshot.result, "IDEMPOTENT_NO_OP");
+  } finally {
+    value.cleanup();
+  }
+});
+
+test("ledger no-op restores refreshed projections before validation", async () => {
+  const value = fixture({ asOf: "2026-08-03", ledgerNoWrite: true, ledgerWritten: false, ledgerResult: "NO_OP" });
+  value.env.VALIDATE_EXPECT_INITIAL = "1";
+  value.env.LEDGER_REPORT = JSON.stringify({
+    ok: true,
+    mode: "daily",
+    snapshot: { written: false, result: "NO_OP" },
+    states: { written: false, result: "IDEMPOTENT_NO_OP" },
+    evaluations: { appended: 0 },
+    public: { recordCount: 324 },
+  });
+  try {
+    const report = await runPredictionPublisher({ ...value.options, write: true, env: value.env });
+    assert.equal(report.status, "no-op");
+    assert.equal(report.steps.find((step) => step.name === "ledger-no-op-restore").ok, true);
+    assert.equal(report.steps.find((step) => step.name === "validate-rotation").ok, true);
+    assert.equal(report.steps.find((step) => step.name === "validate-ledger").ok, true);
+    assert.equal(git(value.root, "status", "--short").stdout.trim(), "");
   } finally {
     value.cleanup();
   }
