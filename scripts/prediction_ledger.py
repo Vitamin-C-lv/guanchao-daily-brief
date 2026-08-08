@@ -544,6 +544,18 @@ def _write_immutable_gzip(path: Path, document: dict[str, Any], *, kind: str) ->
     if path.exists():
         if path.read_bytes() == payload:
             return False
+        # A rerun can carry a new execution commit while representing the same
+        # immutable business object.  Read and validate the stored object first;
+        # only the non-business provenance/integrity fields may differ.  A
+        # malformed or non-canonical existing object remains a hard conflict.
+        try:
+            existing = read_gzip_document(path)
+        except LedgerError as exc:
+            raise LedgerError(f"immutable {kind} path conflict: {path.name}") from exc
+        existing_business = {key: copy.deepcopy(value) for key, value in existing.items() if key not in {"codeCommit", "integrity"}}
+        candidate_business = {key: copy.deepcopy(value) for key, value in document.items() if key not in {"codeCommit", "integrity"}}
+        if existing_business == candidate_business:
+            return False
         raise LedgerError(f"immutable {kind} path conflict: {path.name}")
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile("wb", delete=False, dir=path.parent, suffix=".tmp") as handle:

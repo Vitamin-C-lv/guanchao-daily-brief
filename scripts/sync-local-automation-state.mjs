@@ -30,10 +30,10 @@ const promptHash = (id) => {
 const schedules = Object.fromEntries(config.schedules.map((schedule) => [schedule.key, { rrule: schedule.rrule, timezone: schedule.timezone, enabled: schedule.enabled }]));
 const state = {
   schemaVersion: "guanchao-automation-state-v3",
-  dailyAutomationId: "codex",
-  weeklyAutomationId: "codex-2",
-  predictionAutomationId: "guanchao-prediction-publisher",
-  predictionTaskName: "Guanchao Prediction Publisher 18-20",
+  dailyAutomationId: config.schedules.find((schedule) => schedule.key === "daily")?.automationId ?? "codex",
+  weeklyAutomationId: config.schedules.find((schedule) => schedule.key === "weekly")?.automationId ?? "codex-2",
+  predictionAutomationId: config.handover?.activeProduction?.prediction?.automationId ?? config.schedules.find((schedule) => schedule.key === "prediction")?.legacyAutomationId ?? "guanchao-prediction-publisher",
+  predictionTaskName: config.schedules.find((schedule) => schedule.key === "prediction")?.taskName ?? "Guanchao Prediction Publisher 18-20",
   predictionExecutor: "windows-task-scheduler",
   configSha256: hash(fs.readFileSync(configPath)),
   promptSha256: hash(fs.readFileSync(path.join(root, "prompts", "codex-daily-writer.md"))),

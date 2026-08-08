@@ -73,7 +73,7 @@ import path from "node:path";
 const root = process.cwd();
 fs.mkdirSync(path.join(root, "data", "prediction-ledger"), { recursive: true });
 const index = path.join(root, "data", "prediction-ledger", "index.json");
-const report = JSON.parse(process.env.LEDGER_REPORT || "{\\"ok\\":true,\\"mode\\":\\"daily\\",\\"snapshot\\":{\\"written\\":true},\\"evaluations\\":{\\"appended\\":0},\\"public\\":{\\"recordCount\\":324}}");
+  const report = JSON.parse(process.env.LEDGER_REPORT || "{\\"ok\\":true,\\"mode\\":\\"daily\\",\\"snapshot\\":{\\"written\\":true,\\"result\\":\\"APPEND_ONLY\\"},\\"evaluations\\":{\\"appended\\":0},\\"public\\":{\\"recordCount\\":324}}");
 if (process.env.LEDGER_FAIL === "1") { console.error("ledger failed"); process.exit(1); }
 if (process.env.LEDGER_NO_WRITE !== "1") {
   const before = fs.existsSync(index) ? fs.readFileSync(index, "utf8") : null;
@@ -167,7 +167,7 @@ function fixtureDto() {
   };
 }
 
-function fixture({ rotationStatus = "published", rotationMode = "probability", asOf = "2026-08-04", ledgerNoWrite = false, ledgerWritten = true, touchModel = false, touchForbidden = false } = {}) {
+function fixture({ rotationStatus = "published", rotationMode = "probability", asOf = "2026-08-04", ledgerNoWrite = false, ledgerWritten = true, ledgerResult = ledgerWritten ? "APPEND_ONLY" : "IDEMPOTENT_NO_OP", touchModel = false, touchForbidden = false } = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "prediction-publisher-"));
   fs.mkdirSync(path.join(root, "content"), { recursive: true });
   fs.mkdirSync(path.join(root, "content", "writer-packets"), { recursive: true });
@@ -213,7 +213,7 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
     ROTATION_MODE: rotationMode,
     ROTATION_SOURCE: path.join(root, "fixture-rotation.json"),
     LEDGER_NO_WRITE: ledgerNoWrite ? "1" : "0",
-    LEDGER_REPORT: JSON.stringify({ ok: true, mode: "daily", snapshot: { written: ledgerWritten }, evaluations: { appended: 0 }, public: { recordCount: 324 } })
+    LEDGER_REPORT: JSON.stringify({ ok: true, mode: "daily", snapshot: { written: ledgerWritten, result: ledgerResult }, evaluations: { appended: 0 }, public: { recordCount: 324 } })
   };
   if (touchModel) env.ROTATION_TOUCH_MODEL = "1";
   if (touchForbidden) env.ROTATION_TOUCH_FORBIDDEN = "1";
@@ -290,6 +290,8 @@ test("no new trading day yields no-op without an empty commit", async () => {
     const after = git(value.root, "rev-parse", "HEAD").stdout.trim();
     assert.equal(after, before);
     assert.equal(git(value.root, "status", "--short").stdout.trim(), "");
+    assert.ok(report.steps.some((step) => step.name === "writer-packets" && step.ok), "packet refresh must still complete before ledger no-op");
+    assert.equal(report.steps.find((step) => step.name === "ledger-automation").report.snapshot.result, "IDEMPOTENT_NO_OP");
   } finally {
     value.cleanup();
   }

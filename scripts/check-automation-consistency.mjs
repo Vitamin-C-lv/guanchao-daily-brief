@@ -18,8 +18,8 @@ const DEFAULT_AUTOMATIONS_ROOT = DEFAULT_PATHS.automationsRoot;
 const DEFAULT_STATE = path.join(DEFAULT_PATHS.recoveryRoot, "automation-state.json");
 const DEFAULT_TASK_NAME = "Guanchao Prediction Publisher 18-20";
 const REQUIRED_PROMPT_FRAGMENTS = {
-  prediction: ["run-prediction-publisher.mjs", "18:20", "禁止训练", "禁止激活 shadow candidate", "AUTOMATION_DRIFT"],
-  daily: ["publicationEnabled=true", "观潮每日晚报", "writerMayBrowse=true", "memory:search", "MEMORY_DELTA", "WRITER_SKILL_MISSING", "finalize", "--write", "STALE_WRITER_PACKET"],
+  prediction: ["run-prediction-publisher.mjs", "18:20", "禁止训练", "禁止激活 shadow candidate", "SUNDAY_NO_RUN", "AUTOMATION_DRIFT"],
+  daily: ["publicationEnabled=true", "观潮每日晚报", "writerMayBrowse=true", "memory:search", "MEMORY_DELTA", "WRITER_SKILL_MISSING", "finalize", "--write", "STALE_WRITER_PACKET", "SUNDAY_NO_REPORT"],
   weekly: ["publicationEnabled=true", "writerMayBrowse=true", "20D", "Brier", "calibration", "abstention", "MEMORY_DELTA", "WRITER_SKILL_MISSING", "finalize", "--write"]
 };
 const FORBIDDEN_PROMPT_FRAGMENTS = ["publicationEnabled=false", "仅 dry-run", "Writer 禁止浏览", "禁止浏览、搜索", "LUNA_API_KEY"];
@@ -49,7 +49,12 @@ export function readScheduledTask(taskName = DEFAULT_TASK_NAME) {
     const argumentsValue = text.match(/<Arguments>([\s\S]*?)<\/Arguments>/i)?.[1]?.trim() ?? "";
     const startBoundary = text.match(/<StartBoundary>([\s\S]*?)<\/StartBoundary>/i)?.[1]?.trim() ?? null;
     const enabled = text.match(/<Enabled>(true|false)<\/Enabled>/i)?.[1] !== "false";
-    return { exists: true, taskName, status: enabled ? "Ready" : "Disabled", taskToRun: command ? `${command} ${argumentsValue}`.trim() : null, schedule: startBoundary ? `Daily ${startBoundary.slice(11, 16)}` : null, raw: null };
+    const weekBody = text.match(/<ScheduleByWeek>[\s\S]*?<DaysOfWeek>([\s\S]*?)<\/DaysOfWeek>[\s\S]*?<\/ScheduleByWeek>/i)?.[1] ?? "";
+    const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+    const shortDays = dayNames.filter((day) => new RegExp(`<${day}\\s*/>`, "i").test(weekBody)).map((day) => day.slice(0, 3));
+    const time = startBoundary ? startBoundary.slice(11, 16) : null;
+    const schedule = shortDays.length ? `Weekly ${shortDays.join(",")} ${time ?? ""}`.trim() : time ? `Daily ${time}` : null;
+    return { exists: true, taskName, status: enabled ? "Ready" : "Disabled", taskToRun: command ? `${command} ${argumentsValue}`.trim() : null, schedule, raw: null };
   } catch { return { exists: false, taskName, status: null, taskToRun: null, schedule: null, raw: null }; }
 }
 
@@ -59,7 +64,9 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
   const config = readJson(configPath, "config");
   const docs = fs.existsSync(docsPath) ? fs.readFileSync(docsPath, "utf8") : null;
   const state = fs.existsSync(statePath) ? readJson(statePath, "automation state") : null;
-  const handover = config.handover?.status === "pre-merge-safe";
+  const handoverStatus = config.handover?.status;
+  const handover = handoverStatus === "pre-merge-safe";
+  const productionActive = handoverStatus === "production-cutover-active";
   const runtimePaths = [config.runtime?.projectPath, config.runtime?.repositoryPath].filter(Boolean);
   add("config.runtime uses canonical paths", runtimePaths.length === 2 && runtimePaths.every((value) => !isForbiddenProductionPath(value)), JSON.stringify(runtimePaths));
   try {
@@ -70,7 +77,8 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
     add("config path templates resolve", false, error instanceof Error ? error.message : String(error));
   }
   add("config has no forbidden production path", !hasForbiddenPath([...(config.handover?.forbiddenProductionPaths ?? [])].filter((value) => value !== "D:/周报个人网站")), JSON.stringify(config.handover?.forbiddenProductionPaths ?? []));
-  add("handover pre-merge-safe", handover, String(config.handover?.status));
+  add("handover status accepted", handover || productionActive, String(handoverStatus));
+  add("handover activation flag matches status", handover ? config.handover?.candidateSchedulesAreNotProductionActive === true : productionActive && config.handover?.candidateSchedulesAreNotProductionActive === false, JSON.stringify({ status: handoverStatus, candidateSchedulesAreNotProductionActive: config.handover?.candidateSchedulesAreNotProductionActive }));
   add("config.publicationEnabled", config.publicationEnabled === true, String(config.publicationEnabled));
   add("config.productionApplyRequiresExplicitWrite", config.productionApplyRequiresExplicitWrite === true, String(config.productionApplyRequiresExplicitWrite));
   add("config.prediction.normalPathUsesLlm=false", config.prediction?.normalPathUsesLlm === false && config.prediction?.normalPathLlmTokens === 0, JSON.stringify({ usesLlm: config.prediction?.normalPathUsesLlm, tokens: config.prediction?.normalPathLlmTokens }));
@@ -98,11 +106,13 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
       add("prediction.scheduler task state matches handover", candidateDisabled ? task.status === "Disabled" : task.status === "Ready" || task.status === "Running" || task.status === "就绪" || task.status === "正在运行", `${task.status} candidateDisabled=${candidateDisabled}`);
       add("prediction.scheduler task action is deterministic", /run-prediction-publisher-task\.ps1/i.test(task.taskToRun ?? "") && !/gpt-|codex/i.test(task.taskToRun ?? ""), String(task.taskToRun));
       add("prediction.scheduler dry-run before merge", candidateDisabled ? /-Mode\s+DryRun/i.test(task.taskToRun ?? "") : true, String(task.taskToRun));
-      add("prediction.scheduler schedule 18:20", /18:20|每天/i.test(`${task.schedule ?? ""} ${schedule.rrule}`), `${task.schedule ?? "missing"} vs ${schedule.rrule}`);
+      const expectedMonSat = /FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA;BYHOUR=18;BYMINUTE=20/i.test(schedule.rrule ?? "");
+      const actualMonSat = /weekly/i.test(task.schedule ?? "") && ["mon", "tue", "wed", "thu", "fri", "sat"].every((day) => String(task.schedule ?? "").toLowerCase().includes(day)) && !String(task.schedule ?? "").toLowerCase().includes("sun");
+      add("prediction.scheduler schedule Mon-Sat 18:20", /18:20/i.test(`${task.schedule ?? ""} ${schedule.rrule}`) && expectedMonSat && actualMonSat, `${task.schedule ?? "missing"} vs ${schedule.rrule}`);
       continue;
     }
     const nativeId = schedule.automationId || state?.[`${key}AutomationId`];
-    const nativeSchedule = handover ? config.handover?.activeProduction?.[key] : schedule;
+    const nativeSchedule = handover || productionActive ? config.handover?.activeProduction?.[key] : schedule;
     const nativeExpectedRrule = nativeSchedule?.rrule ?? schedule.rrule;
     const tomlFile = automationDirectory(automationsRoot, nativeId) + "\\automation.toml";
     const toml = readToml(tomlFile);
