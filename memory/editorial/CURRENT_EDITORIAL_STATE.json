@@ -1,6 +1,6 @@
 {
   "schemaVersion": "editorial-memory-state-v1",
-  "updatedAt": "2026-08-07T12:00:00.000Z",
+  "updatedAt": "2026-08-08T15:43:14.436Z",
   "hotWindowDays": 14,
   "warmWindowWeeks": 12,
   "retrievalPolicy": {
@@ -12,7 +12,7 @@
   },
   "currentEdition": "观潮每日晚报",
   "coverage": {
-    "dailyFullAvailable": 2,
+    "dailyFullAvailable": 3,
     "dailySummaryAvailable": 0,
     "weeklyFullAvailable": 2,
     "partial": true,
