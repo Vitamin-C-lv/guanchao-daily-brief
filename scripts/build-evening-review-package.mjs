@@ -55,7 +55,7 @@ function reviewPath(value) {
     .replaceAll(/C:\/Users\/18442(?:\/\.codex)?/gi, "${CODEX_HOME}")
     .replaceAll("D:/Guanchao-Workspace", "${GUANCHAO_HOME}")
     .replaceAll("C:/Codex-Recovery/GuanchaoWriter", "${GUANCHAO_RECOVERY_ROOT}")
-    .replaceAll("D:/gw-evening", "${FEATURE_WORKTREE}")
+    .replaceAll(/D:[\\/]gw-evening/gi, "${FEATURE_WORKTREE}")
     .replaceAll("D:/周报个人网站", "${PROTECTED_WORKSPACE}");
 }
 
