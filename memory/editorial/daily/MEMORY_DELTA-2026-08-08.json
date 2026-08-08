@@ -1,15 +1,34 @@
 {
   "schemaVersion": "memory-delta-v1",
   "editionDate": "2026-08-08",
-  "generatedAt": "2026-08-08T15:43:14.436Z",
-  "entries": [],
+  "generatedAt": "2026-08-08T18:27:32.374Z",
+  "entries": [
+    {"threadId":"thread-rates-risk-appetite-20260807","type":"open_thread","status":"open","priority":"high","summary":"8月7日收益率回落后的风险偏好修复已跨市场出现一天，但长端趋势仍待验证。","scope":["US","HK","A_SHARE"],"sourceIds":["global-market-brief-2026-08-08","ap-us-close-2026-08-07","us-treasury-nominal-xml","us-treasury-real-xml"],"updatedAt":"2026-08-08","retrieval":"hot"},
+    {"threadId":"thread-hk-tech-confirmation-20260807","type":"open_thread","status":"open","priority":"high","summary":"恒生科技8月7日暂时跑赢恒指；下一交易时段需验证相对强势能否保持。","scope":["HK"],"sourceIds":["global-market-brief-2026-08-08","tencent-market-quotes-2026-08-07"],"updatedAt":"2026-08-08","retrieval":"hot"},
+    {"threadId":"thread-a-share-local-confirmation-20260807","type":"open_thread","status":"open","priority":"high","summary":"A股三大指数与外部风险偏好同日修复，但成交派生观察与CSI广度尚未形成参与度确认。","scope":["A_SHARE"],"sourceIds":["global-market-brief-2026-08-08","tencent-market-quotes-2026-08-07","csi-coverage-status-2026-08-06"],"updatedAt":"2026-08-08","retrieval":"hot"},
+    {"threadId":"thread-nfp-rates-20260807","type":"open_thread","status":"open","priority":"high","summary":"就业偏弱后收益率压力暂时松动；需继续观察官方10年期与实际10年期是否重新上行。","scope":["US"],"sourceIds":["global-market-brief-2026-08-08","ap-us-close-2026-08-07","us-treasury-nominal-xml","us-treasury-real-xml"],"updatedAt":"2026-08-08","retrieval":"hot"},
+    {"threadId":"thread-csi-breadth-gap","type":"open_thread","status":"open","priority":"medium","summary":"CSI广度仍不可用；A股指数上涨和成交派生观察不得替代上涨家数或资金流。","scope":["A_SHARE"],"sourceIds":["global-market-brief-2026-08-08","csi-coverage-status-2026-08-06"],"updatedAt":"2026-08-08","retrieval":"hot"},
+    {"threadId":"thread-policy-watch-official-stage","type":"open_thread","status":"open","priority":"medium","summary":"本次截止点未核验到可把发行主体、正式文件、生效时间和实施阶段同时闭合的新增资本市场政策。","scope":["A_SHARE","HK"],"sourceIds":["global-market-brief-2026-08-08","policy-watch-official-2026-08-08","csrc-watch-official-2026-08-08"],"updatedAt":"2026-08-08","retrieval":"hot"},
+    {"threadId":"thread-state-capital-evidence","type":"open_thread","status":"open","priority":"medium","summary":"7月20日前后两家央企增持属于此前事件；ETF成交不能替代国家队买入证据。","scope":["A_SHARE","HK"],"sourceIds":["global-market-brief-2026-08-08","state-capital-watch-official-2026-08-08","state-capital-prior-2026-07-20"],"updatedAt":"2026-08-08","retrieval":"hot"},
+    {"judgmentId":"judgment-rate-relief-cross-market-one-day-20260808","type":"judgment","status":"confirmed","summary":"8月7日就业偏弱后的收益率压力暂时松动，风险偏好在美国、香港与A股价格上得到一日确认；趋势和本地参与度仍未确认。","evidenceIds":["global-market-brief-2026-08-08","ap-us-close-2026-08-07","tencent-market-quotes-2026-08-07","us-treasury-nominal-xml","us-treasury-real-xml"],"sourceIds":["global-market-brief-2026-08-08","ap-us-close-2026-08-07","tencent-market-quotes-2026-08-07","us-treasury-nominal-xml","us-treasury-real-xml"],"updatedAt":"2026-08-08","reuse":"daily-and-weekly"},
+    {"reviewId":"prediction-review-2026-08-08","type":"prediction_review","status":"partial_no_performance_conclusion","asOfDate":"2026-08-08","packetPath":"${GUANCHAO_HOME}/runs/2026-08-08/prediction/PREDICTION_REVIEW_PACKET.json","horizons":[1,5],"classification":["published_model_prediction","evidence_observation","abstained","not_applicable"],"sourceIds":["global-market-brief-2026-08-08","prediction-review-packet-2026-08-08"],"updatedAt":"2026-08-08","note":"1日：12 published_model_prediction、124 evidence_observation、72 abstained、52 not_applicable；5日：12 published_model_prediction、12已成熟、72 abstained、52 not_applicable；均无可用已实现字段，不形成准确率或命中率结论。"},
+    {"eventId":"policy-watch-2026-08-08-no-new-formal-release","type":"policy_event","status":"no_new_verified_formal_release_before_cutoff","issuer":"中国与香港相关官方机构页面逐项核验","authorityLevel":"official_home_checked","documentType":"no_new_formal_document_verified","publishedAt":null,"effectiveAt":null,"implementationStage":"not_applicable","officialUrl":"https://www.gov.cn/","relatedThreadIds":["thread-policy-watch-official-stage"],"evidenceStatus":"no_event_claimed","sourceIds":["global-market-brief-2026-08-08","policy-watch-official-2026-08-08","csrc-watch-official-2026-08-08","pboc-watch-official-2026-08-08","hk-gov-watch-official-2026-08-08","hkma-watch-official-2026-08-08"],"updatedAt":"2026-08-08","note":"会议表态未写成已落地政策；正式文件、生效和实施阶段未闭合的页面信息不升级为今日催化剂。"},
+    {"eventId":"state-capital-watch-2026-08-08-prior-event-not-new","type":"state_capital_event","status":"prior_event_not_new_at_cutoff","scope":["国新投资","中国诚通","央企增持/回购","宽基ETF"],"issuer":"国新投资/中国诚通（此前报道）","authorityLevel":"official_and_reliable_report_check","documentType":"prior_report_or_no_new_event","publishedAt":"2026-07-20","effectiveAt":null,"implementationStage":"prior_report_only","evidenceKind":"reliable_report_prior_event_not_new","officialUrl":"https://www.sasac.gov.cn/","relatedThreadIds":["thread-state-capital-evidence"],"sourceIds":["global-market-brief-2026-08-08","state-capital-watch-official-2026-08-08","state-capital-prior-2026-07-20"],"updatedAt":"2026-08-08","note":"7月20日前后报道不是8月8日新事件；ETF放量未被当作国家队买入证据。"},
+    {"lessonId":"lesson-policy-state-capital-boundary-20260808","type":"lesson","status":"confirmed","summary":"形成A/H重大判断时，政策必须核对发行主体、权威层级、正式文件、发布时间、生效时间和实施阶段；国家资本必须把官方确认、可靠报道和市场推断分开。","evidenceIds":["global-market-brief-2026-08-08","POLICY_STATE_VERIFICATION_2026-08-08","state-capital-prior-2026-07-20"],"sourceIds":["global-market-brief-2026-08-08","policy-watch-official-2026-08-08","state-capital-watch-official-2026-08-08","state-capital-prior-2026-07-20"],"updatedAt":"2026-08-08","importance":"high","retrieval":"hot"}
+  ],
   "newThreads": [],
-  "updatedThreads": [],
-  "judgmentsMade": [],
-  "predictionReviews": [],
-  "policyEvents": [],
-  "stateCapitalEvents": [],
-  "researchProblems": [],
-  "candidateLessons": [],
-  "followUpsForTomorrow": []
+  "updatedThreads": ["thread-rates-risk-appetite-20260807","thread-hk-tech-confirmation-20260807","thread-a-share-local-confirmation-20260807","thread-nfp-rates-20260807","thread-csi-breadth-gap","thread-policy-watch-official-stage","thread-state-capital-evidence"],
+  "judgmentsMade": ["judgment-rate-relief-cross-market-one-day-20260808"],
+  "predictionReviews": ["prediction-review-2026-08-08"],
+  "policyEvents": ["policy-watch-2026-08-08-no-new-formal-release"],
+  "stateCapitalEvents": ["state-capital-watch-2026-08-08-prior-event-not-new"],
+  "researchProblems": [{"id":"research-problem-csi-breadth-20260808","status":"open","summary":"CSI广度数据仍不可用，不能用成交额、上涨家数或资金流替代。","sourceIds":["csi-coverage-status-2026-08-06"],"updatedAt":"2026-08-08"}],
+  "candidateLessons": ["lesson-policy-state-capital-boundary-20260808"],
+  "followUpsForTomorrow": [
+    {"item":"官方10年期与实际10年期收益率是否重新上行","sourceIds":["us-treasury-nominal-xml","us-treasury-real-xml"]},
+    {"item":"恒生科技相对恒指能否保持强势","sourceIds":["tencent-market-quotes-2026-08-07"]},
+    {"item":"A股成交与CSI广度是否同日闭合","sourceIds":["tencent-market-quotes-2026-08-07","csi-coverage-status-2026-08-06"]},
+    {"item":"是否出现发布时间和实施阶段均可核验的正式政策或国家资本动作","sourceIds":["policy-watch-official-2026-08-08","state-capital-watch-official-2026-08-08"]},
+    {"item":"预测回看是否出现可用已实现字段","sourceIds":["prediction-review-packet-2026-08-08"]}
+  ]
 }

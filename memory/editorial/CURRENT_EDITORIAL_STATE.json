@@ -1,6 +1,6 @@
 {
   "schemaVersion": "editorial-memory-state-v1",
-  "updatedAt": "2026-08-08T15:43:14.436Z",
+  "updatedAt": "2026-08-08T18:27:32.374Z",
   "hotWindowDays": 14,
   "warmWindowWeeks": 12,
   "retrievalPolicy": {

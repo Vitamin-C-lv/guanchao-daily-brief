@@ -81,6 +81,7 @@ function sourceSet(value) {
 
 function normalize(value, key = "") {
   if (Array.isArray(value)) {
+    if (lowerKey(key) === "sourceindex") return { sourceSet: sourceSet(value) };
     if (SOURCE_ARRAY_KEYS.has(lowerKey(key))) return [...new Set(value.filter((item) => typeof item === "string"))].sort();
     return value.map((item) => normalize(item, key));
   }
@@ -109,6 +110,10 @@ function collectSources(value, key = "", output = new Set()) {
     return output;
   }
   if (Array.isArray(value)) {
+    if (lower === "sourceindex") {
+      for (const item of sourceSet(value)) output.add(item);
+      return output;
+    }
     if (SOURCE_ARRAY_KEYS.has(lowerKey(key))) {
       for (const item of value) if (typeof item === "string") output.add(item);
       return output;
