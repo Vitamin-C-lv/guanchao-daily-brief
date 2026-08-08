@@ -123,6 +123,13 @@ test("packet artifact plan is deterministic and immutable", () => {
   const second = packetArtifactPlan(packet, root);
   assert.equal(first.file, second.file);
   assert.deepEqual(first.bytes, second.bytes);
+  fs.mkdirSync(path.dirname(first.file), { recursive: true });
+  fs.writeFileSync(first.file, first.bytes);
+  const refreshed = { ...packet, generatedAt: "2099-01-01T12:00:00.000Z" };
+  const reused = packetArtifactPlan(refreshed, root);
+  assert.equal(reused.reused, true);
+  assert.equal(reused.shouldWrite, false);
+  assert.deepEqual(reused.bytes, first.bytes);
   fs.rmSync(root, { recursive: true, force: true });
 });
 

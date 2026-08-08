@@ -90,7 +90,8 @@ const args = process.argv.slice(2);
 const edition = args[args.indexOf("--edition") + 1];
 const asOf = args[args.indexOf("--as-of") + 1];
 fs.mkdirSync("content/writer-packets", { recursive: true });
-fs.writeFileSync("content/writer-packets/" + edition + "-latest.json", JSON.stringify({ edition, asOf, generatedAt: new Date().toISOString() }) + "\\n");
+const generatedAt = process.env.PACKET_GENERATED_AT || new Date().toISOString();
+fs.writeFileSync("content/writer-packets/" + edition + "-latest.json", JSON.stringify({ edition, asOf, generatedAt }) + "\\n");
 console.log("market ok");
 `;
 }
@@ -293,6 +294,31 @@ test("no new trading day yields no-op without an empty commit", async () => {
     assert.equal(git(value.root, "status", "--short").stdout.trim(), "");
     assert.ok(report.steps.some((step) => step.name === "writer-packets" && step.ok), "packet refresh must still complete before ledger no-op");
     assert.equal(report.steps.find((step) => step.name === "ledger-automation").report.snapshot.result, "IDEMPOTENT_NO_OP");
+  } finally {
+    value.cleanup();
+  }
+});
+
+test("ledger no-op keeps a fresh writer packet and commits it once per edition", async () => {
+  const value = fixture({ asOf: "2026-08-03", ledgerNoWrite: true, ledgerWritten: false, ledgerResult: "NO_OP" });
+  value.env.PACKET_GENERATED_AT = "2026-08-04T12:00:00+08:00";
+  value.env.LEDGER_REPORT = JSON.stringify({
+    ok: true,
+    mode: "daily",
+    snapshot: { written: false, result: "NO_OP" },
+    states: { written: false, result: "IDEMPOTENT_NO_OP" },
+    evaluations: { appended: 0 },
+    public: { recordCount: 324 },
+  });
+  try {
+    const report = await runPredictionPublisher({ ...value.options, write: true, env: value.env });
+    assert.equal(report.status, "published");
+    assert.equal(report.writeApplied, true);
+    assert.ok(report.steps.find((step) => step.name === "ledger-no-op-restore").preservedTracked.includes("content/writer-packets/daily-latest.json"));
+    assert.match(report.commit.message, /2026-08-04/);
+    const packet = JSON.parse(fs.readFileSync(path.join(value.root, "content", "writer-packets", "daily-latest.json"), "utf8"));
+    assert.equal(packet.generatedAt, "2026-08-04T12:00:00+08:00");
+    assert.equal(git(value.root, "status", "--short").stdout.trim(), "");
   } finally {
     value.cleanup();
   }
