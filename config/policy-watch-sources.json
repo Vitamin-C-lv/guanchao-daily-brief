@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "policy-watch-registry-v1",
+  "scope": "A股/港股政策与监管观察；仅供 Writer/研究记忆，不进入 production model feature",
+  "issuers": [
+    {"issuerId":"cpc","name":"中共中央","authorityLevel":"central","officialUrl":"https://www.gov.cn/"},
+    {"issuerId":"state-council","name":"国务院","authorityLevel":"central","officialUrl":"https://www.gov.cn/"},
+    {"issuerId":"npc","name":"全国人大","authorityLevel":"central","officialUrl":"http://www.npc.gov.cn/"},
+    {"issuerId":"cppcc","name":"全国政协","authorityLevel":"central","officialUrl":"http://www.cppcc.gov.cn/"},
+    {"issuerId":"pboc","name":"中国人民银行","authorityLevel":"ministry","officialUrl":"https://www.pbc.gov.cn/"},
+    {"issuerId":"mof","name":"财政部","authorityLevel":"ministry","officialUrl":"https://www.mof.gov.cn/"},
+    {"issuerId":"ndrc","name":"发改委","authorityLevel":"ministry","officialUrl":"https://www.ndrc.gov.cn/"},
+    {"issuerId":"csrc","name":"证监会","authorityLevel":"ministry","officialUrl":"http://www.csrc.gov.cn/"},
+    {"issuerId":"sasac","name":"国资委","authorityLevel":"ministry","officialUrl":"http://www.sasac.gov.cn/"},
+    {"issuerId":"nfra","name":"金融监管总局","authorityLevel":"ministry","officialUrl":"https://www.nfra.gov.cn/"},
+    {"issuerId":"sse","name":"上交所","authorityLevel":"exchange","officialUrl":"https://www.sse.com.cn/"},
+    {"issuerId":"szse","name":"深交所","authorityLevel":"exchange","officialUrl":"https://www.szse.cn/"},
+    {"issuerId":"bse","name":"北交所","authorityLevel":"exchange","officialUrl":"https://www.bse.cn/"},
+    {"issuerId":"miit","name":"工信部","authorityLevel":"ministry","officialUrl":"https://www.miit.gov.cn/"},
+    {"issuerId":"mofcom","name":"商务部","authorityLevel":"ministry","officialUrl":"http://www.mofcom.gov.cn/"},
+    {"issuerId":"samr","name":"市监总局","authorityLevel":"ministry","officialUrl":"https://www.samr.gov.cn/"},
+    {"issuerId":"nhsa","name":"国家医保局","authorityLevel":"ministry","officialUrl":"http://www.nhsa.gov.cn/"},
+    {"issuerId":"nhc","name":"卫健委","authorityLevel":"ministry","officialUrl":"http://www.nhc.gov.cn/"},
+    {"issuerId":"cac","name":"网信办","authorityLevel":"ministry","officialUrl":"http://www.cac.gov.cn/"},
+    {"issuerId":"hong-kong-government","name":"香港政府","authorityLevel":"hong-kong","officialUrl":"https://www.gov.hk/"},
+    {"issuerId":"hkma","name":"HKMA","authorityLevel":"hong-kong","officialUrl":"https://www.hkma.gov.hk/"},
+    {"issuerId":"sfc-hk","name":"SFC","authorityLevel":"hong-kong","officialUrl":"https://www.sfc.hk/"},
+    {"issuerId":"hkex","name":"HKEX","authorityLevel":"exchange","officialUrl":"https://www.hkex.com.hk/"}
+  ]
+}

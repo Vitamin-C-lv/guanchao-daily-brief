@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "daily-market-packet-v1",
+  "type": "object",
+  "required": ["schemaVersion", "packetId", "editionDate", "generatedAt", "dataAsOf", "writerProductName", "writerMayBrowse", "markets", "coreIndices", "rates", "volatility", "fx", "marketBreadth", "aShareObservationBoard", "predictionState", "sourceHealth", "knownGaps", "anomalies", "lineage", "sourceIndex"],
+  "properties": {
+    "schemaVersion": { "const": "daily-market-packet-v1" },
+    "packetId": { "pattern": "^[a-f0-9]{64}$" },
+    "editionDate": { "format": "date" },
+    "dataAsOf": { "format": "date" },
+    "generatedAt": { "format": "date-time" },
+    "writerProductName": { "const": "观潮每日晚报" },
+    "writerMayBrowse": { "const": true },
+    "markets": { "type": "object" },
+    "coreIndices": { "type": "object" },
+    "rates": { "type": "object" },
+    "volatility": { "type": "object" },
+    "fx": { "type": "object" },
+    "marketBreadth": { "type": "object" },
+    "aShareObservationBoard": { "type": "array" },
+    "predictionState": { "type": "object" },
+    "sourceHealth": { "type": "object" },
+    "knownGaps": { "type": "array" },
+    "anomalies": { "type": "array" },
+    "lineage": { "type": "object" },
+    "sourceIndex": { "type": "array" }
+  },
+  "additionalProperties": true
+}

@@ -4,8 +4,8 @@ import UpdateNotice from "@/components/UpdateNotice";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "观潮 · 每日早报与每周情报",
-  description: "每日与每周 AI 精选的美联储政策、A 股、港股、美股与财经热点。",
+  title: "观潮 · 观潮每日晚报与每周情报",
+  description: "观潮每日晚报与每周 AI 精选的美联储政策、A 股、港股、美股与财经热点。",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,

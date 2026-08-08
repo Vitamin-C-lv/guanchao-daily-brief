@@ -446,7 +446,7 @@ export default function Dashboard({
         <header className="topbar">
           <Link className="desktop-brand" href="/" aria-label="观潮首页">
             <Image src="/brand/guanchao-logo-horizontal.png" alt="观潮 Guanchao Daily Brief" width={180} height={90} priority unoptimized />
-            <span className="sr-only">观潮 · 每日早报</span>
+            <span className="sr-only">观潮 · 观潮每日晚报</span>
           </Link>
           <Link className="mobile-brand" href="/" aria-label="观潮首页">
             <Image src="/brand/guanchao-logo-mark.png" alt="观潮 Guanchao Daily Brief" width={40} height={40} priority unoptimized />

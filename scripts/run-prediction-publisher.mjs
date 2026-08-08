@@ -17,6 +17,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { latestATradingDay } from "./refresh-writer-packet.mjs";
+import { buildAllPackets, writePackets } from "./build-market-packets.mjs";
+import { checkAutomationConsistency } from "./check-automation-consistency.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
@@ -268,6 +270,7 @@ export async function runPredictionPublisher({
   rotationRunner = "scripts/run-sector-rotation.mjs",
   ledgerCommand = null,
   skipVercel = false,
+  consistencyCheck = root === repositoryRoot,
   env = process.env,
   now = new Date()
 } = {}) {
@@ -283,6 +286,12 @@ export async function runPredictionPublisher({
   let headBefore = null;
   let cleanup = null;
   try {
+    if (consistencyCheck) {
+      const consistency = checkAutomationConsistency({ configPath: path.join(root, "config", "codex-writer-automation.json"), docsPath: path.join(root, "docs", "CODEX_WRITER_AUTOMATION.md") });
+      if (!consistency.consistent) fail("AUTOMATION_DRIFT", "automation config/native task/prompt mismatch");
+      report.automationConsistency = { schemaVersion: consistency.schemaVersion, consistent: true };
+      step("automation-consistency", { ok: true });
+    }
     // 2. runtime pull --ff-only (runtime must be clean before pull)
     const dirtyBefore = gitStatusShort(root);
     if (dirtyBefore.length) fail("RUNTIME_DIRTY", `stable runtime is not clean before pull: ${dirtyBefore.join(", ")}`);
@@ -379,6 +388,13 @@ export async function runPredictionPublisher({
     step("validate-rotation", { ok: validateRotation.ok, detail: validateRotation.detail.slice(0, 500) });
     step("validate-ledger", { ok: validateLedger.ok, detail: validateLedger.detail.slice(0, 500) });
     if (!validateRotation.ok || !validateLedger.ok) fail("VALIDATION_FAILED", `rotation/ledger validation failed (rotation=${validateRotation.ok}, ledger=${validateLedger.ok})`);
+
+    // Packets are external run artifacts. They give Writer a verified fact base
+    // without adding an LLM step or changing the immutable production ledger.
+    const packets = buildAllPackets({ root, asOf: effectiveEditionDate, generatedAt: now.toISOString() });
+    writePackets(runDirectory, packets);
+    report.packets = { daily: { schemaVersion: packets.daily.schemaVersion, packetId: packets.daily.packetId, status: packets.daily.status }, review: { schemaVersion: packets.review.schemaVersion, packetId: packets.review.packetId, status: packets.review.status } };
+    step("writer-packets", { ok: true, externalOnly: true, llmTokens: 0 });
 
     // 17. explicit write scope
     const changes = gitStatusShort(root);

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "prediction-review-packet-v1",
+  "type": "object",
+  "required": ["schemaVersion", "packetId", "asOfDate", "classificationContract", "horizons", "source", "warnings"],
+  "properties": {
+    "schemaVersion": { "const": "prediction-review-packet-v1" },
+    "packetId": { "pattern": "^[a-f0-9]{64}$" },
+    "asOfDate": { "format": "date" },
+    "classificationContract": { "type": "object" },
+    "horizons": { "type": "object", "required": ["1d", "5d", "20d"] },
+    "source": { "type": "object" },
+    "warnings": { "type": "array" }
+  },
+  "additionalProperties": true
+}

@@ -21,6 +21,9 @@ import {
   validateCodexResearch
 } from "./codex-research.mjs";
 import { generateArticleVisuals } from "./article-visuals.mjs";
+import { buildWriterMemoryContext } from "./build-writer-memory-context.mjs";
+import { validateEveningPacket } from "./validate-evening-packets.mjs";
+import { resolveAutomationPaths } from "./automation-paths.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
@@ -30,6 +33,7 @@ const PACKAGE_FILES = [
   "ARTICLE_DEPTH_RULES.json",
   "ARTICLE_VISUAL_BUNDLE.json",
   "BASELINE_CONTENT.json",
+  "DAILY_MARKET_PACKET.json",
   "CODEX_RESEARCH.json",
   "EDITORIAL_STYLE.json",
   "PROMPT.md",
@@ -37,8 +41,10 @@ const PACKAGE_FILES = [
   "REQUEST.json",
   "RESEARCH_BUNDLE.json",
   "RESULT_TEMPLATE.json",
+  "PREDICTION_REVIEW_PACKET.json",
   "TARGET_SCHEMA.json",
-  "WRITER_CONTEXT.json"
+  "WRITER_CONTEXT.json",
+  "WRITER_MEMORY_CONTEXT.json"
 ];
 
 export class CodexWriterPrepareError extends Error {
@@ -160,6 +166,27 @@ function loadPacket(file) {
   return packet;
 }
 
+function resolveEveningPacketPath({ root, supplied, editionDate, name, errorPath }) {
+  const candidates = supplied
+    ? [path.isAbsolute(supplied) ? path.resolve(supplied) : path.resolve(root, ...supplied.split("/"))]
+    : [
+      path.join(root, "runtime", "packets", editionDate, name),
+      path.join(root, "packets", editionDate, name),
+      path.join(resolveAutomationPaths().guanchaoHome, "runtime", "packets", editionDate, name),
+    ];
+  const file = candidates.find((candidate) => fs.existsSync(candidate));
+  if (!file) fail("EVENING_PACKET_MISSING", errorPath, `${name} is missing; expected one of ${candidates.join(" | ")}`);
+  return file;
+}
+
+function loadEveningPacket(file, name, editionDate) {
+  const packet = readJson(file);
+  try { validateEveningPacket(packet, name); } catch (error) { fail("EVENING_PACKET_CONTRACT", name, error instanceof Error ? error.message : String(error)); }
+  if (name === "DAILY_MARKET_PACKET.json" && packet.editionDate !== editionDate) fail("EVENING_PACKET_DATE", `${name}.editionDate`, `${packet.editionDate} differs from requested ${editionDate}`);
+  if (name === "PREDICTION_REVIEW_PACKET.json" && (typeof packet.asOfDate !== "string" || packet.asOfDate > editionDate)) fail("EVENING_PACKET_DATE", `${name}.asOfDate`, `${packet.asOfDate} is later than requested ${editionDate}`);
+  return packet;
+}
+
 export function packetArtifactPlan(packet, root) {
   const date = packet.marketDates?.aShare;
   if (typeof date !== "string" || !DATE.test(date)) fail("PACKET_DATE", "packet.marketDates.aShare", "valid A-share market date required");
@@ -179,7 +206,7 @@ export function packetArtifactPlan(packet, root) {
   fail("PACKET_IMMUTABLE_CONFLICT", relative(root, file), "same writerPacketId has different bytes");
 }
 
-function packageManifest(request, context, packet, bundle, run, styleBytes, files) {
+function packageManifest(request, context, packet, bundle, run, styleBytes, files, eveningPackets) {
   return {
     schemaVersion: "codex-writer-execution-package-v1",
     requestId: request.requestId,
@@ -190,6 +217,7 @@ function packageManifest(request, context, packet, bundle, run, styleBytes, file
     bundleId: bundle.bundleId,
     codexResearchRunId: run.researchRunId,
     editorialStyleSha256: hashBytes(styleBytes),
+    eveningPackets: eveningPackets.map(({ name, packet: value, bytes }) => ({ name, schemaVersion: value.schemaVersion, packetId: value.packetId, sha256: hashBytes(bytes) })),
     files: files.map(({ name, bytes }) => ({ path: name, bytes: bytes.length, sha256: hashBytes(bytes) })).sort((left, right) => left.path.localeCompare(right.path))
   };
 }
@@ -209,7 +237,7 @@ function packageDirectoryIsValid(directory, requestId) {
   }
 }
 
-function writeExecutionPackage({ directory, request, context, packet, bundle, baseline, promptBytes, targetSchema, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes }) {
+function writeExecutionPackage({ directory, request, context, packet, bundle, baseline, promptBytes, targetSchema, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes, memoryContextBytes, eveningPackets }) {
   fs.mkdirSync(directory, { recursive: true });
   const values = new Map([
     ["ARTICLE_DEPTH_RULES.json", depthRulesBytes],
@@ -219,14 +247,17 @@ function writeExecutionPackage({ directory, request, context, packet, bundle, ba
     ["QUANTITATIVE_PACKET.json", jsonBytes(packet)],
     ["RESEARCH_BUNDLE.json", jsonBytes(bundle)],
     ["BASELINE_CONTENT.json", jsonBytes(baseline)],
+    ["DAILY_MARKET_PACKET.json", eveningPackets.daily.bytes],
     ["PROMPT.md", promptBytes],
     ["TARGET_SCHEMA.json", jsonBytes(targetSchema)],
     ["RESULT_TEMPLATE.json", jsonBytes(resultTemplate)],
+    ["PREDICTION_REVIEW_PACKET.json", eveningPackets.review.bytes],
     ["CODEX_RESEARCH.json", jsonBytes(run)],
-    ["EDITORIAL_STYLE.json", styleBytes]
+    ["EDITORIAL_STYLE.json", styleBytes],
+    ["WRITER_MEMORY_CONTEXT.json", memoryContextBytes]
   ]);
   const files = [...values.entries()].map(([name, bytes]) => ({ name, bytes }));
-  const manifest = packageManifest(request, context, packet, bundle, run, styleBytes, files);
+  const manifest = packageManifest(request, context, packet, bundle, run, styleBytes, files, [eveningPackets.daily, eveningPackets.review]);
   const manifestBytes = jsonBytes(manifest);
   const sumsBytes = Buffer.from(shaSums([...files, { name: "MANIFEST.json", bytes: manifestBytes }]), "utf8");
   for (const { name, bytes } of files) atomicBytes(path.join(directory, name), bytes);
@@ -260,6 +291,8 @@ export async function prepareCodexWriter({
   marketPacket,
   codexResearch = null,
   researchBundle = null,
+  dailyMarketPacketPath = null,
+  predictionReviewPacketPath = null,
   baselineSource = null,
   globalInput = null,
   editionDate = null,
@@ -280,12 +313,21 @@ export async function prepareCodexWriter({
   const asOf = packet.marketDates?.aShare;
   if (typeof asOf !== "string" || !DATE.test(asOf)) fail("PACKET_DATE", "packet.marketDates.aShare", "packet market date is required");
   const packetPlan = packetArtifactPlan(packet, root);
+  const requestedEditionDate = editionDate ?? shanghaiCalendarDate(now);
+  let dailyEveningFile;
+  let reviewEveningFile;
+  let dailyEveningPacket;
+  let reviewEveningPacket;
   const baseline = baselineSource ?? (mode === "global_market_brief" ? "data/global-market-brief-baseline-v1.json" : defaultBaselineSource(root, edition));
   const baselineFile = resolveRootFile(root, baseline, "baselineSource");
   if (!fs.existsSync(baselineFile)) fail("BASELINE", baseline, "baseline source is missing");
   if (mode === "global_market_brief" && typeof globalInput !== "string") fail("GLOBAL_INPUT", "globalInput", "global seed path is required");
   const globalInputPath = mode === "global_market_brief" ? relative(root, resolveRootFile(root, globalInput, "globalInput")) : null;
   const freshness = assertPacketFreshness(packet, { editionDate, baselineFile, now });
+  dailyEveningFile = resolveEveningPacketPath({ root, supplied: dailyMarketPacketPath, editionDate: requestedEditionDate, name: "DAILY_MARKET_PACKET.json", errorPath: "dailyMarketPacket" });
+  reviewEveningFile = resolveEveningPacketPath({ root, supplied: predictionReviewPacketPath, editionDate: requestedEditionDate, name: "PREDICTION_REVIEW_PACKET.json", errorPath: "predictionReviewPacket" });
+  dailyEveningPacket = loadEveningPacket(dailyEveningFile, "DAILY_MARKET_PACKET.json", requestedEditionDate);
+  reviewEveningPacket = loadEveningPacket(reviewEveningFile, "PREDICTION_REVIEW_PACKET.json", requestedEditionDate);
   if (typeof outputDirectory !== "string") fail("OUTPUT", "outputDirectory", "absolute execution package directory is required");
   const output = path.resolve(outputDirectory);
   ensureOutsideRoot(output, root, "outputDirectory");
@@ -327,6 +369,9 @@ export async function prepareCodexWriter({
       contextReady,
         contextSummary: contextSummary ?? null,
       outputDirectory: output,
+      dailyMarketPacketPath: dailyEveningFile,
+      predictionReviewPacketPath: reviewEveningFile,
+      eveningPacketIds: { daily: dailyEveningPacket.packetId, review: reviewEveningPacket.packetId },
       dryRun: true,
       wrote: false
     };
@@ -384,7 +429,13 @@ export async function prepareCodexWriter({
   const targetSchemaBytes = fs.readFileSync(path.join(root, ...request.targetValidatorPath.split("/")));
   const targetSchemaReference = { schemaVersion: "writer-target-schema-reference-v1", targetSchemaVersion: request.targetSchemaVersion, targetPath: request.targetOutputs[0].targetPath, validator: { path: request.targetValidatorPath, sha256: request.targetValidatorSha256 }, validatorSourceBytes: targetSchemaBytes.length };
   const resultTemplate = readJson(path.join(output, "RESULT_TEMPLATE.json"));
-  writeExecutionPackage({ directory: output, request, context, packet: packetValue, bundle, baseline: baselineValue, promptBytes, targetSchema: targetSchemaReference, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes });
+  const memoryContext = buildWriterMemoryContext({ root, editionDate: requestedEditionDate, dailyPacketPath: dailyEveningFile, reviewPacketPath: reviewEveningFile });
+  const memoryContextBytes = Buffer.from(`${canonicalJson(memoryContext)}\n`, "utf8");
+  const eveningPackets = {
+    daily: { name: "DAILY_MARKET_PACKET.json", packet: dailyEveningPacket, bytes: Buffer.from(`${canonicalJson(dailyEveningPacket)}\n`, "utf8") },
+    review: { name: "PREDICTION_REVIEW_PACKET.json", packet: reviewEveningPacket, bytes: Buffer.from(`${canonicalJson(reviewEveningPacket)}\n`, "utf8") },
+  };
+  writeExecutionPackage({ directory: output, request, context, packet: packetValue, bundle, baseline: baselineValue, promptBytes, targetSchema: targetSchemaReference, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes, memoryContextBytes, eveningPackets });
   return {
     schemaVersion: "codex-writer-prepare-summary-v1",
     edition,
@@ -395,6 +446,9 @@ export async function prepareCodexWriter({
     jobId: request.jobId,
     contextId: request.context.contextId,
     packetPath: relative(root, packetPlan.file),
+    dailyMarketPacketPath: dailyEveningFile,
+    predictionReviewPacketPath: reviewEveningFile,
+    eveningPacketIds: { daily: dailyEveningPacket.packetId, review: reviewEveningPacket.packetId },
     bundlePath,
     outputDirectory: output,
       contextSummary,
@@ -424,7 +478,7 @@ async function runCli() {
   const root = args.root ? path.resolve(args.root) : repositoryRoot;
   if (args["dry-run"] !== true && args.write !== true || args["dry-run"] === true && args.write === true) fail("CLI_ARGUMENT", "mode", "exactly one of --dry-run or --write is required");
   if (typeof args.edition !== "string" || typeof args.output !== "string") fail("CLI_ARGUMENT", "arguments", "--edition and --output are required");
-  const summary = await prepareCodexWriter({ edition: args.edition, mode: args.mode ?? null, marketPacket: args["market-packet"], codexResearch: args["codex-research"], researchBundle: args["research-bundle"], baselineSource: args["baseline-source"], globalInput: args["global-input"], editionDate: args["edition-date"], outputDirectory: path.resolve(args.output), dryRun: args["dry-run"] === true, write: args.write === true, root });
+  const summary = await prepareCodexWriter({ edition: args.edition, mode: args.mode ?? null, marketPacket: args["market-packet"], dailyMarketPacketPath: args["daily-market-packet"], predictionReviewPacketPath: args["prediction-review-packet"], codexResearch: args["codex-research"], researchBundle: args["research-bundle"], baselineSource: args["baseline-source"], globalInput: args["global-input"], editionDate: args["edition-date"], outputDirectory: path.resolve(args.output), dryRun: args["dry-run"] === true, write: args.write === true, root });
   console.log(canonicalJson(summary));
 }
 

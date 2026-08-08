@@ -3313,23 +3313,23 @@
       "id": "us",
       "label": "美股三大指数",
       "mode": "major-index",
-      "asOf": "2026-08-03",
+      "asOf": "2026-08-06",
       "status": "ready",
       "taxonomy": {
         "owner": "观潮日报引用的指数发布方/市场数据来源",
         "name": "纳斯达克、道琼斯、标普500三大指数（非行业分类）",
         "version": "daily-brief",
-        "effectiveDate": "2026-08-03"
+        "effectiveDate": "2026-08-06"
       },
       "note": "不扩建美股行业模型；只保留三大指数当前状态。",
       "reason": "本次没有经同口径历史回测的美股三大指数条件模型。",
       "sources": [
         {
           "evidenceClass": "major-media",
-          "name": "美国股市8月3日收盘",
+          "name": "美国股市8月6日收盘",
           "publisher": "Associated Press",
           "tier": "major-media",
-          "url": "https://www.sun-sentinel.com/2026/08/03/us-stocks-rally-near-a-record-as-falling-oil-prices-ease-wall-streets-worries-about-inflation/"
+          "url": "https://apnews.com/article/stock-market-dow-warner-dow-jones-b13b60e192e74e6dc6ab222dc296b5d2"
         },
         {
           "evidenceClass": "official-primary",
@@ -3343,7 +3343,7 @@
         "current": {
           "kind": "observed",
           "status": "ready",
-          "asOf": "2026-08-03",
+          "asOf": "2026-08-06",
           "note": "仅展示纳斯达克、道琼斯、标普500三大指数当前状态；不称为行业轮动。",
           "items": [
             {
@@ -3351,16 +3351,16 @@
               "rank": 1,
               "score": 100,
               "direction": "leading",
-              "signal": "2026-08-03完整交易日指数表现。",
+              "signal": "2026-08-06完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "25,913.90"
+                  "value": "26,348.35"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+2.10%",
-                  "tone": "positive"
+                  "value": "-0.06%",
+                  "tone": "negative"
                 }
               ],
               "sourceIndexes": [
@@ -3373,16 +3373,16 @@
               "rank": 2,
               "score": 50,
               "direction": "neutral",
-              "signal": "2026-08-03完整交易日指数表现。",
+              "signal": "2026-08-06完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "7,600.50"
+                  "value": "7,709.96"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+1.50%",
-                  "tone": "positive"
+                  "value": "-0.18%",
+                  "tone": "negative"
                 }
               ],
               "sourceIndexes": [
@@ -3395,16 +3395,16 @@
               "rank": 3,
               "score": 0,
               "direction": "lagging",
-              "signal": "2026-08-03完整交易日指数表现。",
+              "signal": "2026-08-06完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "53,178.41"
+                  "value": "53,885.10"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "+1.30%",
-                  "tone": "positive"
+                  "value": "-0.85%",
+                  "tone": "negative"
                 }
               ],
               "sourceIndexes": [
@@ -3433,7 +3433,7 @@
         "tomorrow": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-08-03",
+          "asOf": "2026-08-06",
           "sessions": 1,
           "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
           "modelAvailability": "not_implemented",
@@ -3458,7 +3458,7 @@
         "oneWeek": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-08-03",
+          "asOf": "2026-08-06",
           "sessions": 5,
           "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
           "modelAvailability": "not_implemented",
@@ -3483,7 +3483,7 @@
         "oneMonth": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-08-03",
+          "asOf": "2026-08-06",
           "sessions": 20,
           "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
           "modelAvailability": "not_implemented",

@@ -1,11 +1,13 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { buildHstechSource, HSTECH_LAUNCH_DATE, loadHstechCache } from "./hstech-recovery.mjs";
 
 const SCHEMA_VERSION = "public-market-history-v1";
 const MINIMUM_READY_ROWS = 252;
 const DEFAULT_SOURCE_CACHE = path.resolve(process.cwd(), "..", "..", "temp", "market-history-source-cache-20260807");
 const DEFAULT_RESEARCH_CACHE = "D:\\Guanchao-Workspace\\temp\\stage2-data-cache";
+const DEFAULT_HSTECH_CACHE = "D:\\Guanchao-Workspace\\runtime\\market-history-cache\\hstech\\sina-normalized.json";
 
 const instruments = [
   { id: "sse-composite", market: "a-share", slug: "sse-composite", label: "上证指数", currency: "点", timezone: "Asia/Shanghai", sourceType: "tencent", sourceId: "tencent_sse_composite", providerSymbol: "sh000001" },
@@ -13,7 +15,7 @@ const instruments = [
   { id: "chinext", market: "a-share", slug: "chinext", label: "创业板指", currency: "点", timezone: "Asia/Shanghai", sourceType: "tencent", sourceId: "tencent_chinext", providerSymbol: "sz399006" },
   { id: "hang-seng", market: "hk", slug: "hang-seng", label: "恒生指数", currency: "点", timezone: "Asia/Hong_Kong", sourceType: "yahoo", sourceId: "yahoo_hsi", providerSymbol: "^HSI" },
   { id: "hang-seng-china-enterprises", market: "hk", slug: "hang-seng-china-enterprises", label: "国企指数", currency: "点", timezone: "Asia/Hong_Kong", sourceType: "yahoo", sourceId: "yahoo_hscei", providerSymbol: "^HSCE" },
-  { id: "hang-seng-tech", market: "hk", slug: "hang-seng-tech", label: "恒生科技", currency: "点", timezone: "Asia/Hong_Kong", sourceType: "yahoo", sourceId: "yahoo_hstech", providerSymbol: "HSTECH.HK" },
+  { id: "hang-seng-tech", market: "hk", slug: "hang-seng-tech", label: "恒生科技", currency: "点", timezone: "Asia/Hong_Kong", sourceType: "hstech-sina-cache", sourceId: "akshare_sina_hstech", providerSymbol: "HSTECH" },
   { id: "sp500", market: "us", slug: "sp500", label: "标普500", currency: "点", timezone: "America/New_York", sourceType: "yahoo", sourceId: "yahoo_sp500", providerSymbol: "^GSPC" },
   { id: "nasdaq-composite", market: "us", slug: "nasdaq-composite", label: "纳斯达克综合", currency: "点", timezone: "America/New_York", sourceType: "yahoo", sourceId: "yahoo_nasdaq_composite", providerSymbol: "^IXIC" },
   { id: "dow-jones", market: "us", slug: "dow-jones", label: "道琼斯", currency: "点", timezone: "America/New_York", sourceType: "yahoo", sourceId: "yahoo_dow_jones", providerSymbol: "^DJI" },
@@ -26,9 +28,12 @@ function argument(name, fallback = null) {
 
 const sourceCache = path.resolve(argument("--source-cache", DEFAULT_SOURCE_CACHE));
 const researchCache = argument("--research-cache", DEFAULT_RESEARCH_CACHE);
+const hstechCache = path.resolve(argument("--hstech-cache", DEFAULT_HSTECH_CACHE));
 const outputRoot = path.resolve(argument("--output-root", path.resolve(process.cwd(), "public", "data", "market-history")));
 const shouldWrite = process.argv.includes("--write");
 const shouldFetch = process.argv.includes("--fetch");
+const only = argument("--only");
+const generatedAt = argument("--generated-at", "2026-08-07T00:00:00+08:00");
 
 function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
@@ -149,6 +154,18 @@ async function loadYahoo(instrument) {
   return { bars, rawSha256: sha256(cached.text), url, provider: "Yahoo Finance chart API（研究缓存派生）", note: instrument.id === "hang-seng-tech" ? "仅保留来源实际返回的 post-launch 观测；未做历史回填，少于一年时明确降级。" : "原始 provider payload 仅留在 worktree 外私有研究缓存；Git 仅保留标准化派生行情面板。" };
 }
 
+async function loadHstechSina(instrument) {
+  const cache = loadHstechCache(hstechCache, { asOf: generatedAt.slice(0, 10) });
+  return {
+    bars: cache.bars,
+    rawSha256: cache.source?.rawSha256 ?? cache.sourceFileSha256,
+    url: "https://finance.sina.com.cn/stock/hkstock/HSTECH/klc2_kl.js?d=2023_5_01",
+    provider: "AKShare stock_hk_index_daily_sina（标准化缓存）",
+    source: buildHstechSource(cache),
+    note: `真实 post-launch HSTECH 日K；正式过滤日期 >= ${HSTECH_LAUNCH_DATE}，生产路径不动态安装 AKShare。`,
+  };
+}
+
 function normalizeBars(bars) {
   const byDate = new Map();
   bars.forEach((bar) => {
@@ -180,10 +197,12 @@ function documentFor(instrument, source) {
 async function buildDocument(instrument) {
   if (instrument.sourceType === "unavailable") return documentFor(instrument, { source: { provider: "暂无可用来源", url: null, delayed: true, note: "恒生综合没有经过来源审计的可用历史接口；页面保留真实 unavailable 状态，不用其他指数替代。" }, status: "unavailable" });
   try {
-    const loaded = instrument.sourceType === "tencent" ? await loadTencent(instrument) : instrument.sourceType === "baidu" ? await loadBaidu(instrument) : await loadYahoo(instrument);
-    return documentFor(instrument, { bars: loaded.bars, source: { provider: loaded.provider, url: loaded.url, delayed: true, note: loaded.note, rawSha256: loaded.rawSha256 } });
+    const loaded = instrument.sourceType === "tencent" ? await loadTencent(instrument) : instrument.sourceType === "baidu" ? await loadBaidu(instrument) : instrument.sourceType === "hstech-sina-cache" ? await loadHstechSina(instrument) : await loadYahoo(instrument);
+    return documentFor(instrument, { bars: loaded.bars, source: loaded.source ?? { provider: loaded.provider, url: loaded.url, delayed: true, note: loaded.note, rawSha256: loaded.rawSha256 } });
   } catch (error) {
-    return documentFor(instrument, { source: { provider: instrument.sourceType === "tencent" ? "腾讯财经历史日K" : instrument.sourceType === "baidu" ? "百度股市通公开指数日K" : "Yahoo Finance chart API（研究源）", url: instrument.providerSymbol ? instrument.sourceType === "tencent" ? `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${instrument.providerSymbol},day` : `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(instrument.providerSymbol)}` : null, delayed: true, note: `来源失败，已真实降级为 unavailable：${error instanceof Error ? error.message : String(error)}` }, status: "unavailable" });
+    const provider = instrument.sourceType === "tencent" ? "腾讯财经历史日K" : instrument.sourceType === "baidu" ? "百度股市通公开指数日K" : instrument.sourceType === "hstech-sina-cache" ? "AKShare stock_hk_index_daily_sina（标准化缓存）" : "Yahoo Finance chart API（研究源）";
+    const url = instrument.sourceType === "hstech-sina-cache" ? "https://finance.sina.com.cn/stock/hkstock/HSTECH/klc2_kl.js?d=2023_5_01" : instrument.providerSymbol ? instrument.sourceType === "tencent" ? `https://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param=${instrument.providerSymbol},day` : `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(instrument.providerSymbol)}` : null;
+    return documentFor(instrument, { source: { provider, url, delayed: true, note: `来源失败，已真实降级为 unavailable：${error instanceof Error ? error.message : String(error)}` }, status: "unavailable" });
   }
 }
 
@@ -222,14 +241,22 @@ async function writeIfChanged(target, contents) {
 }
 
 async function main() {
-  const documents = [];
+  const selectedInstruments = only ? instruments.filter((instrument) => instrument.id === only || instrument.slug === only) : instruments;
+  if (only && selectedInstruments.length === 0) throw new Error(`unknown instrument for --only: ${only}`);
+  const documentById = new Map();
   for (const instrument of instruments) {
+    const previous = await readExistingDocument(instrument);
+    if (!selectedInstruments.includes(instrument)) {
+      if (previous) documentById.set(instrument.id, previous);
+      continue;
+    }
     const document = await buildDocument(instrument);
-    documents.push(retainPriorHistoryOnFailure(document, await readExistingDocument(instrument)));
+    documentById.set(instrument.id, retainPriorHistoryOnFailure(document, previous));
   }
+  const documents = instruments.map((instrument) => documentById.get(instrument.id)).filter(Boolean);
   const index = {
     schemaVersion: SCHEMA_VERSION,
-    generatedAt: "2026-08-07T00:00:00+08:00",
+    generatedAt,
     targetYears: 3,
     minimumReadyRows: MINIMUM_READY_ROWS,
     instruments: documents.map((document) => ({
@@ -243,11 +270,11 @@ async function main() {
       lastDate: document.bars.at(-1)?.time ?? null,
     })),
   };
-  console.log(JSON.stringify({ mode: shouldWrite ? "write" : "dry-run", sourceCache, researchCache, outputRoot, instruments: index.instruments.map((entry) => ({ id: entry.instrument.id, rows: entry.rowCount, firstDate: entry.firstDate, lastDate: entry.lastDate, status: entry.status })) }, null, 2));
+  console.log(JSON.stringify({ mode: shouldWrite ? "write" : "dry-run", only, sourceCache, researchCache, hstechCache, outputRoot, instruments: index.instruments.map((entry) => ({ id: entry.instrument.id, rows: entry.rowCount, firstDate: entry.firstDate, lastDate: entry.lastDate, status: entry.status })) }, null, 2));
   if (!shouldWrite) return;
   await mkdir(outputRoot, { recursive: true });
   await writeIfChanged(path.join(outputRoot, "index.json"), json(index));
-  await Promise.all(documents.map((document) => writeIfChanged(path.join(outputRoot, `${document.instrument.id}.json`), json(document))));
+  await Promise.all(selectedInstruments.map((instrument) => writeIfChanged(path.join(outputRoot, `${instrument.id}.json`), json(documentById.get(instrument.id)))));
 }
 
 await main();

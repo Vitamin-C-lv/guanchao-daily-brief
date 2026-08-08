@@ -10,6 +10,7 @@ import { CodexWriterPrepareError, packetArtifactPlan, prepareCodexWriter } from 
 import { refreshWriterPacket } from "./refresh-writer-packet.mjs";
 import { runGlobalMarketBriefDryRun } from "./writer-e2e-rehearsal.mjs";
 import { finalizeCodexWriter } from "./codex-writer-finalize.mjs";
+import { buildAllPackets } from "./build-market-packets.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PACKET_AS_OF = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content/writer-packets/daily-latest.json"), "utf8")).marketDates.aShare;
@@ -77,18 +78,28 @@ function fixture() {
     "data/codex-research/contract.json",
     "data/writer-jobs/contract.json",
     "config/editorial-style.json",
+    "config/policy-watch-sources.json",
+    "config/state-capital-watch-sources.json",
     "prompts/luna-daily-brief.md",
     "prompts/luna-weekly-brief.md",
     "scripts/validate-brief.mjs",
     "scripts/validate-weekly.mjs",
     "content/daily-brief.json",
-    "content/writer-packets/daily-latest.json"
+    "content/writer-packets/daily-latest.json",
+    "memory/editorial/OPEN_THREADS.jsonl",
+    "memory/editorial/POLICY_WATCH.jsonl",
+    "memory/editorial/STATE_CAPITAL_WATCH.jsonl"
   ]) copy(root, relative);
   const packet = JSON.parse(fs.readFileSync(path.join(root, "content/writer-packets/daily-latest.json"), "utf8"));
   // generatedAt is excluded from the packet identity, so a fixture packet can be
   // aligned to the edition date without breaking writerPacketId/integrity hashes.
   packet.generatedAt = `${PACKET_AS_OF}T12:00:00.000Z`;
   fs.writeFileSync(path.join(root, "content/writer-packets/daily-latest.json"), `${JSON.stringify(packet, null, 2)}\n`);
+  const eveningDirectory = path.join(root, "runtime", "packets", PACKET_AS_OF);
+  const evening = buildAllPackets({ root: repositoryRoot, asOf: PACKET_AS_OF, generatedAt: `${PACKET_AS_OF}T12:00:00.000Z` });
+  fs.mkdirSync(eveningDirectory, { recursive: true });
+  fs.writeFileSync(path.join(eveningDirectory, "DAILY_MARKET_PACKET.json"), `${JSON.stringify(evening.daily)}\n`);
+  fs.writeFileSync(path.join(eveningDirectory, "PREDICTION_REVIEW_PACKET.json"), `${JSON.stringify(evening.review)}\n`);
   // The checked-in brief may already be published after PACKET_AS_OF; a fixture
   // baseline must never be later than the edition date under test.
   const baselineFile = path.join(root, "content/daily-brief.json");
@@ -127,7 +138,17 @@ test("prepare writes a complete package and re-running is a no-op", async () => 
     assert.equal(first.wrote, true);
     assert.equal(first.freshness.passed, true);
     assert.equal(first.freshness.relations.requestedAsOf, PACKET_AS_OF);
-    for (const name of ["REQUEST.json", "WRITER_CONTEXT.json", "QUANTITATIVE_PACKET.json", "RESEARCH_BUNDLE.json", "BASELINE_CONTENT.json", "PROMPT.md", "TARGET_SCHEMA.json", "RESULT_TEMPLATE.json", "CODEX_RESEARCH.json", "EDITORIAL_STYLE.json", "MANIFEST.json", "SHA256SUMS.txt"]) assert.ok(fs.existsSync(path.join(output, name)), name);
+    for (const name of ["REQUEST.json", "WRITER_CONTEXT.json", "QUANTITATIVE_PACKET.json", "RESEARCH_BUNDLE.json", "BASELINE_CONTENT.json", "DAILY_MARKET_PACKET.json", "PREDICTION_REVIEW_PACKET.json", "WRITER_MEMORY_CONTEXT.json", "PROMPT.md", "TARGET_SCHEMA.json", "RESULT_TEMPLATE.json", "CODEX_RESEARCH.json", "EDITORIAL_STYLE.json", "MANIFEST.json", "SHA256SUMS.txt"]) assert.ok(fs.existsSync(path.join(output, name)), name);
+    const preparedDailyPacket = JSON.parse(fs.readFileSync(path.join(output, "DAILY_MARKET_PACKET.json"), "utf8"));
+    const preparedReviewPacket = JSON.parse(fs.readFileSync(path.join(output, "PREDICTION_REVIEW_PACKET.json"), "utf8"));
+    const preparedMemory = JSON.parse(fs.readFileSync(path.join(output, "WRITER_MEMORY_CONTEXT.json"), "utf8"));
+    const manifest = JSON.parse(fs.readFileSync(path.join(output, "MANIFEST.json"), "utf8"));
+    assert.equal(preparedDailyPacket.coreIndices.aShare.sse.status, "ready");
+    assert.equal(preparedDailyPacket.rates.tenYear.value, 4.69);
+    assert.ok(preparedReviewPacket.horizons["1d"].publishedModelPrediction.brier >= 0);
+    assert.equal(preparedMemory.bootstrap.dailyPacket.packetId, preparedDailyPacket.packetId);
+    assert.ok(preparedMemory.bootstrap.policyResearchTargets.some((item) => item.issuer === "证监会"));
+    assert.deepEqual(manifest.eveningPackets.map((item) => item.name).sort(), ["DAILY_MARKET_PACKET.json", "PREDICTION_REVIEW_PACKET.json"]);
     const second = await prepareCodexWriter(withEditionDate({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: value.researchFile, outputDirectory: output, write: true, dryRun: false, root: value.root, now: new Date("2026-08-02T02:00:00Z") }));
     assert.equal(second.noOp, true);
     assert.equal(second.requestId, first.requestId);

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "state-capital-watch-registry-v1",
+  "scope": "国家资本与宽基 ETF 观察；仅供 Writer/研究记忆，不进入 production model feature",
+  "subjects": [
+    {"subjectId":"central-huijin","name":"中央汇金"},
+    {"subjectId":"csf","name":"中国证券金融"},
+    {"subjectId":"guoxin-investment","name":"国新投资"},
+    {"subjectId":"chengtong","name":"诚通"},
+    {"subjectId":"national-social-security","name":"全国社保基金"},
+    {"subjectId":"basic-pension","name":"基本养老基金"},
+    {"subjectId":"state-owned-insurers","name":"国有险资"},
+    {"subjectId":"central-enterprise-buyback","name":"央企增持/回购"},
+    {"subjectId":"broad-etf-flow","name":"宽基 ETF 异常资金流"}
+  ],
+  "evidenceKinds": ["official_confirmed", "reliable_report", "market_inference"],
+  "excludedAsStateCapital": ["国家医保局支付政策", "医保基金支付体系", "医疗产业政策"]
+}

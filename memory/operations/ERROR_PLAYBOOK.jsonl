@@ -1,0 +1,5 @@
+{"id":"rg-access-denied","status":"confirmed","trigger":"rg.exe first execution returns access denied","action":"Do not retry repeatedly; use bounded PowerShell Get-ChildItem + Select-String.","visibility":"operations"}
+{"id":"build-out-ebusy","status":"confirmed","trigger":"build/check fails with EBUSY while removing out","action":"Stop the dedicated static server owning out, then rerun once.","visibility":"operations"}
+{"id":"windows-long-path-worktree","status":"confirmed","trigger":"worktree cleanup hits Filename too long","action":"Use short worktree paths and repository-local core.longpaths; remove only exact confirmed residuals.","visibility":"operations"}
+{"id":"python-alias-fallback","status":"confirmed","trigger":"python alias/executable unavailable or wrong","action":"Use uv run --no-project --python 3.12 python.","visibility":"operations"}
+{"id":"powershell-utf8-bom","status":"confirmed","trigger":"PowerShell 5.1 project script contains non-ASCII","action":"Write UTF-8 with BOM.","visibility":"operations"}

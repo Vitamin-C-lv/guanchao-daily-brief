@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "editorial-article-index-v1",
+  "entries": [
+    {"articleId":"global-market-brief-2026-08-07","type":"daily","editionDate":"2026-08-07","dataAsOf":"2026-08-06","path":"content/global-market-briefs/2026-08-07.json","url":"/articles/global-market-brief-2026-08-07/","title":"美债收益率跳升，风险偏好自高位回吐","retrieval":"hot"},
+    {"articleId":"global-market-brief-2026-08-04","type":"daily","editionDate":"2026-08-04","dataAsOf":"2026-08-03","path":"content/global-market-briefs/2026-08-04.json","url":"/articles/global-market-brief-2026-08-04/","title":"海外风险偏好回暖，估值修复仍等本地确认","retrieval":"hot"},
+    {"articleId":"weekly-2026-W31","type":"weekly","editionDate":"2026-W31","path":"content/weekly-reports/weekly-2026-W31.json","title":"观潮市场｜风险偏好回暖，利率约束仍在","retrieval":"warm"},
+    {"articleId":"weekly-2026-W29","type":"weekly","editionDate":"2026-W29","path":"content/weekly-reports/weekly-2026-W29.json","title":"观潮市场周报","retrieval":"warm"}
+  ]
+}

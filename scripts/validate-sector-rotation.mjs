@@ -3,6 +3,7 @@ import { readFile, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import process from "node:process";
+import { assertMarketDateContract, resolveMarketDateContract } from "./market-date-contract.mjs";
 
 const root = process.cwd();
 const fileArgument = process.argv.indexOf("--file");
@@ -15,7 +16,6 @@ const probabilityArtifactPath = path.resolve(root, "models", "sector-rotation", 
 const aShareTaxonomyPath = path.resolve(root, "models", "sector-rotation", "taxonomy.a-core12-v2.json");
 const featureSourceRegistryPath = path.resolve(root, "models", "sector-rotation", "feature-source-registry-v2.json");
 const datasetIndexPath = path.resolve(root, "models", "sector-rotation", "datasets", "index.json");
-const dailyBriefPath = path.resolve(root, "content", "daily-brief.json");
 const aShareCalendarPath = path.resolve(root, "models", "sector-rotation", "cn-market-calendar-2026.json");
 const MAX_ROTATION_BYTES = 384 * 1024;
 const errors = [];
@@ -741,11 +741,11 @@ let aShareCalendar;
 let modelArtifact;
 let probabilityArtifact;
 let aShareTaxonomy;
-let dailyBrief;
+let marketDateContract;
 let featureSourceRegistry;
 let datasetIndex;
 try {
-  const [info, raw, schemaRaw, calendarRaw, modelRaw, probabilityRaw, taxonomyRaw, dailyBriefRaw, registryRaw, datasetIndexRaw] = await Promise.all([
+  const [info, raw, schemaRaw, calendarRaw, modelRaw, probabilityRaw, taxonomyRaw, registryRaw, datasetIndexRaw] = await Promise.all([
     stat(rotationPath),
     readFile(rotationPath, "utf8"),
     readFile(schemaPath, "utf8"),
@@ -753,7 +753,6 @@ try {
     readFile(modelArtifactPath, "utf8"),
     readFile(probabilityArtifactPath, "utf8"),
     readFile(aShareTaxonomyPath, "utf8"),
-    readFile(dailyBriefPath, "utf8"),
     readFile(featureSourceRegistryPath, "utf8"),
     readFile(datasetIndexPath, "utf8"),
   ]);
@@ -763,10 +762,10 @@ try {
   modelArtifact = JSON.parse(modelRaw);
   probabilityArtifact = JSON.parse(probabilityRaw);
   aShareTaxonomy = JSON.parse(taxonomyRaw);
-  dailyBrief = JSON.parse(dailyBriefRaw);
   featureSourceRegistry = JSON.parse(registryRaw);
   datasetIndex = JSON.parse(datasetIndexRaw);
   data = JSON.parse(raw);
+  marketDateContract = assertMarketDateContract(resolveMarketDateContract({ root, requestedDate: data.generatedAt?.slice?.(0, 10) ?? null }));
 } catch (error) {
   console.error(`行业轮动数据无法读取或解析：${error.message}`);
   process.exit(1);
@@ -933,21 +932,16 @@ if (exactKeys(data, ["schemaVersion", "generatedAt", "model", "markets"], "rotat
     if (!artifactCoverageComplete && [aShareMarket?.horizons?.tomorrow, aShareMarket?.horizons?.oneWeek, aShareMarket?.horizons?.oneMonth].some((horizon) => horizon?.status === "ready")) {
       fail("A股冻结模型训练分类不完整时不得发布预测窗口");
     }
-    const dailyMarkets = new Map((dailyBrief?.markets ?? []).map((market) => [market.id, market]));
+    const authoritativeDates = marketDateContract.marketDates ?? {};
     const calendarASession = latestCompleteASession();
     data.markets.forEach((market) => {
       if (market.status !== "ready") return;
-      const expected = dailyMarkets.get(market.id)?.sessionDate;
-      if (market.id === "a-share" && calendarASession && market.asOf === calendarASession && market.horizons.current?.asOf === calendarASession) {
-        // The prediction publisher may run before the daily writer; the calendar-based
-        // latest complete session is accepted for A-share readiness.
-      } else {
-        if (!requireDate(expected, `daily-brief.markets.${market.id}.sessionDate`)) return;
-        if (market.asOf !== expected || market.horizons.current?.asOf !== expected) fail(`rotation.markets.${market.id} ready 数据必须与日报完整交易日 ${expected} 精确一致`);
-      }
+      const expected = authoritativeDates[market.id];
+      if (!requireDate(expected, `market-date-contract.${market.id}`)) return;
+      if (market.asOf !== expected || market.horizons.current?.asOf !== expected) fail(`rotation.markets.${market.id} ready 数据必须与权威市场日期 ${expected} 精确一致（authority=${marketDateContract.authority}）`);
       if (market.id === "us") {
-        const dates = new Set((dailyMarkets.get("us")?.indices ?? []).map((item) => item.date));
-        if (dates.size !== 1 || !dates.has(expected)) fail("美股三大指数必须全部使用同一个日报完整交易日");
+        const dates = new Set([market.asOf, market.horizons.current?.asOf]);
+        if (dates.size !== 1 || !dates.has(expected)) fail("美股三大指数必须全部使用同一个权威完整交易日");
       }
     });
     const generatedAtMs = Date.parse(data.generatedAt);

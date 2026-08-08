@@ -1,0 +1,1 @@
+{"reviewId":"prediction-review-2026-08-07","status":"packet_ready","asOfDate":"2026-08-07","packetPath":"${GUANCHAO_HOME}/runtime/packets/2026-08-07/PREDICTION_REVIEW_PACKET.json","horizons":[1,5,20],"classification":["published_model_prediction","evidence_observation","abstained","not_applicable"],"note":"Daily 只做昨日/5日轻量回看；20D、Brier、calibration、abstention 完整复盘留给 Weekly。"}

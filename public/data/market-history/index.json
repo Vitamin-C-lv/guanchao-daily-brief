@@ -129,17 +129,38 @@
         "timezone": "Asia/Hong_Kong"
       },
       "path": "hang-seng-tech.json",
-      "status": "partial",
+      "status": "ready",
       "asOf": "2026-08-06",
       "source": {
-        "provider": "Yahoo Finance chart API（研究缓存派生）",
-        "url": "https://query1.finance.yahoo.com/v8/finance/chart/HSTECH.HK?period1=1672531200&period2=1786163625&interval=1d&events=history",
+        "provider": "AKShare stock_hk_index_daily_sina（标准化缓存）",
+        "sourceId": "akshare_sina_hstech",
+        "url": "https://finance.sina.com.cn/stock/hkstock/HSTECH/klc2_kl.js?d=2023_5_01",
         "delayed": true,
-        "note": "仅保留来源实际返回的 post-launch 观测；未做历史回填，少于一年时明确降级。",
-        "rawSha256": "5df1a7c2e447318c7d7ed6c571675092aca0bf7454f8912212cb977057a6fbc4"
+        "rawSha256": "3596552d493c6f7a580e253bb1a173fcde1e53f50feb4ee5b1ba385e35b698a4",
+        "normalizedCacheSha256": "51b31281ecc9ae5cd52afa6322b5d454b08848eaf6cbaf864f3228f8569a9a31",
+        "officialIdentity": {
+          "provider": "Hang Seng Indexes",
+          "url": "https://www.hsi.com.hk/eng/indexes/all-indexes/hstech",
+          "factsheetUrl": "https://www.hsi.com.hk/static/uploads/contents/en/dl_centre/factsheets/hsteche.pdf",
+          "launchDate": "2020-07-27",
+          "preLaunchBacktestExcluded": true,
+          "latestCrossCheck": "official identity/launch reference; latest OHLC remains from bounded Sina source"
+        },
+        "crossChecks": {
+          "eastmoney": {
+            "status": "unavailable",
+            "sourceId": "eastmoney_124.HSTECH",
+            "note": "bounded probe exhausted after two RemoteDisconnected responses; no fallback payload was fabricated"
+          },
+          "recent20TradingDays": {
+            "status": "not_run_provider_unavailable",
+            "overlapRows": null
+          }
+        },
+        "note": "仅保留 >= 2020-07-27 的真实 post-launch OHLC；未使用 ETF 03032、插值、成分股重建或 launch 前回测。AKShare 仅用于有界获取，生产路径读取稳定私有标准化缓存，不每日动态安装。"
       },
-      "rowCount": 1,
-      "firstDate": "2026-08-06",
+      "rowCount": 1448,
+      "firstDate": "2020-08-17",
       "lastDate": "2026-08-06"
     },
     {
