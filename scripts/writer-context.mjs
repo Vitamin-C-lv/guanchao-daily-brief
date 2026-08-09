@@ -542,7 +542,7 @@ function packetAsOf(packet) {
   return packet.marketDates?.aShare ?? null;
 }
 
-function validateGlobalMarketBriefContext(global, context, registry, root) {
+function validateGlobalMarketBriefContext(global, context, registry, root, requireCurrentFrozen = true) {
   const field = "context.globalMarketBrief";
   assertObject(global, field);
   const keys = ["baselineArticle", "contradictoryEvidence", "crossMarketCandidates", "inputSchemas", "keyFacts", "logicChainCandidates", "mode", "qualitativeResearchBundle", "quantitativePacket", "sourceIndex", "specialTriggerCandidates", "watchItems"];
@@ -610,11 +610,13 @@ function validateGlobalMarketBriefContext(global, context, registry, root) {
   if (global.inputSchemas.quantitativePacket.artifactSha256 !== context.quantitativeWriterPacket.artifactSha256 || global.inputSchemas.qualitativeResearchBundle.artifactSha256 !== context.qualitativeResearchBundle.artifactSha256) fail("GLOBAL_CONTEXT", `${field}.inputSchemas`, "input schema hashes differ from immutable artifacts");
   if (global.inputSchemas.baselineContent.artifactSha256 !== context.baselineContent.artifactSha256) fail("GLOBAL_CONTEXT", `${field}.inputSchemas.baselineContent`, "baseline artifact hash differs from immutable artifact");
   const seedArtifact = artifactFromVirtualOrDisk(root, global.inputSchemas.globalSeed.path, new Map());
-  if (sha256Bytes(seedArtifact.bytes) !== global.inputSchemas.globalSeed.sha256) fail("GLOBAL_CONTEXT", `${field}.inputSchemas.globalSeed.sha256`, "global seed bytes changed");
-  try {
-    validateGlobalMarketBrief(readJsonBytes(seedArtifact.bytes, global.inputSchemas.globalSeed.path));
-  } catch (cause) {
-    fail("GLOBAL_CONTEXT", `${field}.inputSchemas.globalSeed`, cause instanceof Error ? cause.message : "global seed invalid");
+  if (requireCurrentFrozen) {
+    if (sha256Bytes(seedArtifact.bytes) !== global.inputSchemas.globalSeed.sha256) fail("GLOBAL_CONTEXT", `${field}.inputSchemas.globalSeed.sha256`, "global seed bytes changed");
+    try {
+      validateGlobalMarketBrief(readJsonBytes(seedArtifact.bytes, global.inputSchemas.globalSeed.path));
+    } catch (cause) {
+      fail("GLOBAL_CONTEXT", `${field}.inputSchemas.globalSeed`, cause instanceof Error ? cause.message : "global seed invalid");
+    }
   }
   return global;
 }
@@ -644,7 +646,7 @@ export function validateWriterContextArtifacts(context, { root = repositoryRoot,
   if (baselineArtifact.value.edition !== context.edition || baselineArtifact.value.asOf !== context.asOf || baselineArtifact.value.targetSchemaVersion !== context.targetSchemaVersion) fail("REFERENCE_COMPATIBILITY", "context.baselineContent", "baseline edition/asOf/schema mismatch");
 
   const policy = context.mode === GLOBAL_MARKET_BRIEF_MODE ? modePolicy(registry, context.mode, "context.mode") : editionPolicy(registry, context.edition);
-  if (context.mode === GLOBAL_MARKET_BRIEF_MODE) validateGlobalMarketBriefContext(context.globalMarketBrief, context, registry, root);
+  if (context.mode === GLOBAL_MARKET_BRIEF_MODE) validateGlobalMarketBriefContext(context.globalMarketBrief, context, registry, root, requireCurrentFrozen);
   for (const [label, reference, expectedPath] of [["context.writerPrompt", context.writerPrompt, policy.promptPath], ["context.targetValidator", context.targetValidator, policy.validatorPath]]) {
     if (reference.path !== expectedPath) fail("REFERENCE_PATH", `${label}.path`, "frozen file path mismatch");
     // Historical contexts keep representing the prompt/validator frozen at generation

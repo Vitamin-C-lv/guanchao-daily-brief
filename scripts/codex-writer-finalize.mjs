@@ -24,14 +24,17 @@ const PACKAGE_FILES = [
   "ARTICLE_VISUAL_BUNDLE.json",
   "BASELINE_CONTENT.json",
   "CODEX_RESEARCH.json",
+  "DAILY_MARKET_PACKET.json",
   "EDITORIAL_STYLE.json",
   "PROMPT.md",
   "QUANTITATIVE_PACKET.json",
   "REQUEST.json",
   "RESEARCH_BUNDLE.json",
   "RESULT_TEMPLATE.json",
+  "PREDICTION_REVIEW_PACKET.json",
   "TARGET_SCHEMA.json",
-  "WRITER_CONTEXT.json"
+  "WRITER_CONTEXT.json",
+  "WRITER_MEMORY_CONTEXT.json"
 ];
 
 export class CodexWriterFinalizeError extends Error {
@@ -258,6 +261,57 @@ export function collectBodyText(payload) {
   }
   push(payload?.pulse?.explanation);
   for (const item of payload?.watchlist ?? []) push(item?.note);
+  if (!parts.length && payload?.report?.id?.startsWith("weekly-")) {
+    push(payload.report.title);
+    push(payload.report.subtitle);
+    for (const item of payload.report.coverage ?? []) push(item.note);
+    push(payload.executiveSummary?.weekVerdict);
+    for (const item of payload.executiveSummary?.keyTakeaways ?? []) {
+      push(item.title);
+      push(item.summary);
+    }
+    for (const event of payload.majorEvents ?? []) {
+      push(event.title);
+      for (const fact of event.facts ?? []) push(fact.text);
+      push(event.whyItMatters);
+    }
+    for (const insight of payload.highValueInsights ?? []) {
+      push(insight.title);
+      push(insight.insight);
+      for (const item of insight.evidence ?? []) push(item.text);
+      push(insight.whyHighValue);
+      for (const item of insight.counterEvidence ?? []) push(item.text);
+      push(insight.watchNext);
+    }
+    for (const market of payload.markets ?? []) {
+      push(market.label);
+      push(market.summary);
+      push(market.weeklyPerformance);
+      push(market.rotation);
+      push(market.capitalFlow);
+      push(market.nextWeekScenario);
+      push(market.trigger);
+      push(market.invalidation);
+    }
+    for (const theme of payload.crossMarketThemes ?? []) {
+      push(theme.title);
+      push(theme.thesis);
+      for (const item of theme.causalChain ?? []) push(item);
+      push(theme.counterEvidence);
+      push(theme.nextSignal);
+    }
+    for (const item of payload.nextWeekCalendar ?? []) {
+      push(item.title);
+      push(item.whyWatch);
+    }
+    for (const item of payload.localSynthesis?.continuities ?? []) push(item);
+    for (const item of payload.localSynthesis?.coverageGaps ?? []) push(item);
+    push(payload.localSynthesis?.note);
+    push(payload.methodology?.selection);
+    push(payload.methodology?.deduplication);
+    push(payload.methodology?.sourcePolicy);
+    for (const item of payload.methodology?.limitations ?? []) push(item);
+  }
   return parts.join("\n");
 }
 
@@ -302,7 +356,14 @@ export function validateDepthAndVisuals({ edition, payload, result, visualBundle
     if (typeof selection.takeaway !== "string" || !selection.takeaway.trim()) fail("VISUAL_TAKEAWAY", `${label}.takeaway`, "图表要点不能为空");
     if (typeof selection.explanation !== "string" || !selection.explanation.trim()) fail("VISUAL_EXPLANATION", `${label}.explanation`, "图表解释不能为空");
     if (!bodyText.includes(selection.explanation)) fail("VISUAL_NOT_EXPLAINED", `${label}.explanation`, "图表解释必须出现在正文中");
-    if (visual.dataThrough !== payload?.meta?.dataThrough) fail("VISUAL_DATE_CONFLICT", `${label}.visualId`, `图表 dataThrough ${visual.dataThrough} 与文章 ${payload?.meta?.dataThrough} 不一致`);
+    const articleDataThrough = payload?.meta?.dataThrough
+      ?? payload?.report?.dataThrough
+      ?? (payload?.report?.coverage ?? []).map((item) => item.dataThrough).filter(Boolean).sort().at(-1)
+      ?? payload?.report?.weekEnd;
+    const visualDateConflict = edition === "weekly"
+      ? visual.dataThrough > articleDataThrough
+      : visual.dataThrough !== articleDataThrough;
+    if (visualDateConflict) fail("VISUAL_DATE_CONFLICT", `${label}.visualId`, `图表 dataThrough ${visual.dataThrough} 与文章 ${articleDataThrough} 不一致`);
   }
   return { chineseCharacterCount, bodyCharacters: countChinese(bodyText), visualsSelected: selections.map((item) => item.visualId) };
 }
@@ -440,12 +501,14 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
     articleDepth: depthAndVisuals,
     editorialFreshness,
     productionApply: applied,
+    publication: applied.weeklyPublication ?? null,
+    weeklyPublished: Boolean(applied.weeklyPublication?.weeklyPublished),
     protectedBoundary: { checked: Object.keys(beforeProtected).length, unchanged: true },
     targetValidation,
     dryRun,
     filesystemChanged: Boolean(write && applied.applied),
     editorialEditionPublished: false,
-    wrote: false,
+    wrote: Boolean(write && applied.applied),
     output: output ?? null
   };
   if (output) writeJsonOutside(path.resolve(output), report, root);

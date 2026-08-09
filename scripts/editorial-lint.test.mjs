@@ -79,6 +79,17 @@ test("weekly uses the same deterministic gates with a different threshold", () =
   assert.equal(report.evidenceBindingPass, true);
 });
 
+test("explicit unchanged writer result may omit claim bindings", () => {
+  const value = {
+    report: { title: "AI估值从需求交易转向回报验证", subtitle: "本周只看一个命题" },
+    executiveSummary: { weekVerdict: "AI估值从需求交易转向回报验证，强业绩没有自动换来强股价。", keyTakeaways: [{ title: "需求仍强", summary: "订单证据仍在。", sourceIds: ["s1"] }] },
+    sources: [{ id: "s1", publisher: "Source", url: "https://example.com/source" }],
+    majorEvents: [], highValueInsights: [], markets: [], crossMarketThemes: [], nextWeekCalendar: []
+  };
+  const report = lintEditorial({ edition: "weekly", result: { payload: value, warnings: ["no-editorial-change"], claimBindings: { quantitative: [], qualitative: [], sourceMetadata: [] } }, style });
+  assert.equal(report.evidenceBindingPass, true);
+});
+
 test("rejects reader-facing technical terms above the cap", () => {
   const value = daily();
   value.pulse.explanation = "provider WAF unavailable";

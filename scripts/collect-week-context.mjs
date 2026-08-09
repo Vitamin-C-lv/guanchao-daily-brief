@@ -3,6 +3,7 @@ import path from "node:path";
 import process from "node:process";
 import { gunzip as gunzipCallback } from "node:zlib";
 import { promisify } from "node:util";
+import { shouldIncludeDailyEdition } from "./weekly-schedule.mjs";
 
 const gunzip = promisify(gunzipCallback);
 const root = process.cwd();
@@ -82,7 +83,7 @@ for (const entry of [...candidates.values()].sort((a, b) => a.editionDate.locale
 }
 
 const current = JSON.parse(await readFile(path.join(root, "content", "daily-brief.json"), "utf8"));
-if (current.meta?.editionDate >= weekStart && current.meta?.editionDate <= weekEnd) {
+if (shouldIncludeDailyEdition({ weekStart, weekEnd, editionDate: current.meta?.editionDate ?? "" })) {
   const compact = compactBrief(current, { kind: "current-daily", file: "content/daily-brief.json" });
   const existing = editions.findIndex((item) => item.editionDate === compact.editionDate);
   if (existing >= 0) editions[existing] = compact;

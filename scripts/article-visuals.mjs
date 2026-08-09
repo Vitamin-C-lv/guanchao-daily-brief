@@ -330,6 +330,38 @@ export function generateArticleVisuals({
     visuals.push(visual);
   }
 
+  // ---- visual 5: weekly official-document publication timeline ----
+  // This remains useful when market-index facts are unavailable: it visualizes
+  // publication dates only, never inventing an approval/effective timestamp.
+  if (edition === "weekly") {
+    const documents = (researchRun?.documents ?? [])
+      .filter((document) => /federalregister\.gov/i.test(document.canonicalUrl ?? "")
+        && /CME|Nasdaq/i.test(document.title ?? ""))
+      .sort((left, right) => String(left.publishedDate ?? "").localeCompare(String(right.publishedDate ?? "")))
+      .slice(0, 4);
+    if (documents.length >= 2) {
+      const visual = {
+        id: "v-official-document-timeline",
+        kind: "timeline",
+        title: "正式文件发布时间线",
+        takeaway: "发布记录与实施阶段需要分开核验。",
+        unit: "date",
+        dataThrough,
+        sourceIndexes: [1, 2],
+        series: [{ id: "published", label: "正式发布记录", unit: "date" }],
+        points: documents.map((document) => ({
+          x: `${document.publishedDate ?? dataThrough} ${document.title.slice(0, 24)}`,
+          y: null,
+          seriesId: "published"
+        })),
+        notes: ["时间点仅表示文件发布或收录，不表示批准或生效", "后续阶段需回查原始文件"],
+        contentSha256: ""
+      };
+      visual.contentSha256 = hashVisual(visual);
+      visuals.push(visual);
+    }
+  }
+
   if (!visuals.length) fail("NO_VISUALS", "visuals", "no visual could be generated from frozen inputs");
   const bundle = {
     schemaVersion: "article-visual-bundle-v1",

@@ -1,6 +1,7 @@
 import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { isUsFridayCloseAllowed } from "./weekly-schedule.mjs";
 
 const root = process.cwd();
 const candidatePath = (flag) => { const index = process.argv.indexOf(flag); return index >= 0 ? path.resolve(process.argv[index + 1] ?? "") : null; };
@@ -155,7 +156,8 @@ function validateReport(data, entry, fileSize) {
     requireDate(item.dataThrough, `${itemLabel}.dataThrough`);
     if (!["complete", "partial-by-schedule", "insufficient"].includes(item.status)) fail(`${itemLabel}.status 非法`);
     requireString(item.note, `${itemLabel}.note`, 140);
-    if (item.scope === "us" && item.dataThrough >= report.weekEnd && item.status !== "insufficient") fail(`${itemLabel} 周五20:00生成时不得声称包含美股周五完整收盘`);
+    const usFridayClose = item.scope === "us" && isUsFridayCloseAllowed({ weekEnd: report.weekEnd, sessionEnd: item.dataThrough });
+    if (item.scope === "us" && item.dataThrough >= report.weekEnd && !usFridayClose && item.status !== "insufficient") fail(`${itemLabel} 当前周度时间边界不允许该美股收盘日`);
   });
 
   const sourceMap = new Map();
@@ -304,7 +306,8 @@ function validateReport(data, entry, fileSize) {
     ["label", "summary", "weeklyPerformance", "rotation", "capitalFlow", "nextWeekScenario", "trigger", "invalidation"].forEach((field) => requireString(market[field], `${marketLabel}.${field}`, field === "label" ? 20 : 500));
     if (!["low", "medium", "medium-high"].includes(market.confidence)) fail(`${marketLabel}.confidence 非法`);
     refs(market.sourceIds, `${marketLabel}.sourceIds`, 2);
-    if (market.id === "us" && market.sessionEnd >= report.weekEnd && market.coverageStatus !== "insufficient") fail(`${marketLabel} 不得包含未完成的周五美股收盘`);
+    const usFridayClose = market.id === "us" && isUsFridayCloseAllowed({ weekEnd: report.weekEnd, sessionEnd: market.sessionEnd });
+    if (market.id === "us" && market.sessionEnd >= report.weekEnd && !usFridayClose && market.coverageStatus !== "insufficient") fail(`${marketLabel} 当前周度时间边界不允许该美股收盘日`);
   });
 
   if (requireArray(data.crossMarketThemes, `${label}.crossMarketThemes`, 2, 5)) data.crossMarketThemes.forEach((item, position) => {
