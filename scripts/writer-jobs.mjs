@@ -852,8 +852,8 @@ function weeklyDerived(rootDir, target, payload) {
   const old = index.reports.find((item) => item.id === entry.id);
   if (old && old.revision > entry.revision) error("WEEKLY_REVISION_REGRESSION", entry.id, "weekly revision regressed");
   if (old && old.revision === entry.revision && canonicalJson(old) !== canonicalJson(entry)) error("WEEKLY_INDEX_CONFLICT", entry.id, "same revision differs");
-  const reports = [...index.reports.filter((item) => item.id !== entry.id), entry].sort((left, right) => left.weekEnd.localeCompare(right.weekEnd) || left.id.localeCompare(right.id));
-  const nextIndex = { schemaVersion: 1, latestReportId: reports.at(-1)?.id ?? null, reports };
+  const reports = [...index.reports.filter((item) => item.id !== entry.id), entry].sort((left, right) => right.weekEnd.localeCompare(left.weekEnd) || right.id.localeCompare(left.id));
+  const nextIndex = { schemaVersion: 1, latestReportId: reports[0]?.id ?? null, reports };
   const notices = readJson(path.join(rootDir, "public/update-notices.json"));
   if (report.id !== nextIndex.latestReportId) {
     if (!object(notices.weekly) || notices.weekly.href !== `/weekly/${nextIndex.latestReportId}/`) error("WEEKLY_NOTICE_INVALID", "weekly", "historical report requires a valid latest weekly notice");
@@ -870,7 +870,13 @@ function weeklyReportConflict(rootDir, target, payload) {
   const existing = readJson(file);
   if (existing.report?.id !== payload.report?.id) error("WEEKLY_REPORT_CONFLICT", target.targetPath, "existing report ID differs from candidate");
   if (existing.report?.revision > payload.report?.revision) error("WEEKLY_REVISION_REGRESSION", target.targetPath, "weekly revision regressed");
-  if (existing.report?.revision === payload.report?.revision && canonicalJson(existing) !== canonicalJson(payload)) error("WEEKLY_REPORT_CONFLICT", target.targetPath, "same report revision differs");
+  if (existing.report?.revision === payload.report?.revision) {
+    const existingComparable = { ...existing };
+    const candidateComparable = { ...payload };
+    delete existingComparable.visuals;
+    delete candidateComparable.visuals;
+    if (canonicalJson(existingComparable) !== canonicalJson(candidateComparable)) error("WEEKLY_REPORT_CONFLICT", target.targetPath, "same report revision differs");
+  }
 }
 
 function validateWeeklyPublication(rootDir, target, payload, publication) {
@@ -925,33 +931,47 @@ export function apply({ request, result, dryRun = false, write = false, rootDir 
   }
   const paths = createWriterJobPaths(rootDir);
   const accepted = paths.accepted(request.jobId, request.requestedAsOf);
+  let acceptedAlready = false;
+  let publicationResult = null;
+  let resultForPublication = result;
   if (fs.existsSync(accepted)) {
     const existing = gunzipJson(accepted);
     validateResult(rootDir, request, existing);
     if (canonicalJson(resultStableView(existing)) !== canonicalJson(resultStableView(result))) error("ACCEPTED_CONFLICT", relative(rootDir, accepted), "accepted result conflicts with stable result identity");
-    return { noOp: true, applied: false, files: [] };
+    acceptedAlready = true;
+    resultForPublication = existing;
+    if (target.contentType !== "weekly-report") return { noOp: true, applied: false, files: [] };
   }
   let publication = null;
   if (target.contentType === "weekly-report") {
-    if (path.basename(target.targetPath, ".json") !== result.payload.report?.id) error("WEEKLY_TARGET_ID_MISMATCH", target.targetPath, "weekly target and report ID differ");
-    weeklyReportConflict(rootDir, target, result.payload);
-    publication = weeklyDerived(rootDir, target, result.payload);
-    validateWeeklyPublication(rootDir, target, result.payload, publication);
+    if (path.basename(target.targetPath, ".json") !== resultForPublication.payload.report?.id) error("WEEKLY_TARGET_ID_MISMATCH", target.targetPath, "weekly target and report ID differ");
+    weeklyReportConflict(rootDir, target, resultForPublication.payload);
+    publication = weeklyDerived(rootDir, target, resultForPublication.payload);
+    validateWeeklyPublication(rootDir, target, resultForPublication.payload, publication);
+    const reportPresentAfterApply = fs.existsSync(path.join(rootDir, ...target.targetPath.split("/"))) || write;
+    const indexContainsReport = publication.index.reports.some((item) => item.id === resultForPublication.payload.report.id);
+    publicationResult = {
+      reportWritten: reportPresentAfterApply,
+      indexUpdated: indexContainsReport,
+      latestReportId: publication.index.latestReportId,
+      archiveUpdated: reportPresentAfterApply && indexContainsReport,
+      weeklyPublished: Boolean(write && reportPresentAfterApply && indexContainsReport),
+    };
   }
   const next = derived(rootDir, [], new Set([request.jobId]));
   const entries = [
-    { file: path.join(rootDir, ...target.targetPath.split("/")), bytes: jsonBytes(result.payload), kind: target.contentType === "weekly-report" ? "weekly-report" : "target" },
+    { file: path.join(rootDir, ...target.targetPath.split("/")), bytes: jsonBytes(resultForPublication.payload), kind: target.contentType === "weekly-report" ? "weekly-report" : "target" },
     ...(publication ? [
       { file: path.join(rootDir, "content", "weekly-reports", "index.json"), bytes: jsonBytes(publication.index), kind: "weekly-index" },
       { file: path.join(rootDir, "public", "update-notices.json"), bytes: jsonBytes(publication.notices), kind: "weekly-notice" }
     ] : []),
-    { file: accepted, bytes: gzip(result), kind: "accepted" },
+    ...(!acceptedAlready ? [{ file: accepted, bytes: gzip(result), kind: "accepted" }] : []),
     { file: paths.index, bytes: jsonBytes(next.index), kind: "writer-index" },
     { file: paths.pending("daily"), bytes: jsonBytes(next.pending.daily), kind: "daily-pending" },
     { file: paths.pending("weekly"), bytes: jsonBytes(next.pending.weekly), kind: "weekly-pending" }
   ];
   if (write) commit(entries, failAt, rootDir);
-  return { noOp: false, applied: write, files: entries.map((entry) => relative(rootDir, entry.file)) };
+  return { noOp: false, applied: write, files: entries.map((entry) => relative(rootDir, entry.file)), weeklyPublication: publicationResult };
 }
 
 export function createResultTemplate({ request, rootDir = root }) {

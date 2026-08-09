@@ -72,7 +72,7 @@ export function isShanghaiSunday(value) {
   return shanghaiWeekday(value) === "Sun";
 }
 
-function assertPacketFreshness(packet, { editionDate, baselineFile, now }) {
+function assertPacketFreshness(packet, { edition, editionDate, baselineFile, now }) {
   const effectiveEditionDate = editionDate ?? shanghaiCalendarDate(now);
   if (!DATE.test(effectiveEditionDate)) fail("FRESHNESS", "editionDate", "edition date must be YYYY-MM-DD");
   const generatedShanghai = shanghaiCalendarDate(packet.generatedAt);
@@ -83,7 +83,8 @@ function assertPacketFreshness(packet, { editionDate, baselineFile, now }) {
     marketDatesAShare: marketDates.aShare ?? null,
     marketDatesUs: marketDates.us ?? null
   };
-  if (generatedShanghai !== effectiveEditionDate) {
+  const weeklyRecoveryPacket = edition === "weekly" && generatedShanghai >= effectiveEditionDate;
+  if ((edition !== "weekly" && generatedShanghai !== effectiveEditionDate) || (edition === "weekly" && !weeklyRecoveryPacket)) {
     fail("STALE_WRITER_PACKET", "packet.generatedAt", `packet generatedAt (${generatedShanghai} Asia/Shanghai) is not the edition date ${effectiveEditionDate}; refresh market data before writing`);
   }
   for (const market of ["aShare", "us"]) {
@@ -195,6 +196,16 @@ function loadEveningPacket(file, name, editionDate) {
   if (name === "DAILY_MARKET_PACKET.json" && packet.editionDate !== editionDate) fail("EVENING_PACKET_DATE", `${name}.editionDate`, `${packet.editionDate} differs from requested ${editionDate}`);
   if (name === "PREDICTION_REVIEW_PACKET.json" && (typeof packet.asOfDate !== "string" || packet.asOfDate > editionDate)) fail("EVENING_PACKET_DATE", `${name}.asOfDate`, `${packet.asOfDate} is later than requested ${editionDate}`);
   return packet;
+}
+
+function weeklyNoEveningPacket(name, editionDate) {
+  return {
+    schemaVersion: "weekly-no-evening-packet-v1",
+    packetId: `weekly-${name.toLowerCase().replaceAll("_", "-")}-not-required`,
+    editionDate,
+    status: "not-required",
+    reason: "Saturday 10:00 Weekly uses the Monday-Saturday context boundary and does not require a Saturday 20:00 Daily packet."
+  };
 }
 
 export function packetArtifactPlan(packet, root) {
@@ -356,11 +367,18 @@ export async function prepareCodexWriter({
   if (!fs.existsSync(baselineFile)) fail("BASELINE", baseline, "baseline source is missing");
   if (mode === "global_market_brief" && typeof globalInput !== "string") fail("GLOBAL_INPUT", "globalInput", "global seed path is required");
   const globalInputPath = mode === "global_market_brief" ? relative(root, resolveRootFile(root, globalInput, "globalInput")) : null;
-  const freshness = assertPacketFreshness(packet, { editionDate, baselineFile, now });
-  dailyEveningFile = resolveEveningPacketPath({ root, supplied: dailyMarketPacketPath, editionDate: requestedEditionDate, name: "DAILY_MARKET_PACKET.json", errorPath: "dailyMarketPacket" });
-  reviewEveningFile = resolveEveningPacketPath({ root, supplied: predictionReviewPacketPath, editionDate: requestedEditionDate, name: "PREDICTION_REVIEW_PACKET.json", errorPath: "predictionReviewPacket" });
-  dailyEveningPacket = loadEveningPacket(dailyEveningFile, "DAILY_MARKET_PACKET.json", requestedEditionDate);
-  reviewEveningPacket = loadEveningPacket(reviewEveningFile, "PREDICTION_REVIEW_PACKET.json", requestedEditionDate);
+  const freshness = assertPacketFreshness(packet, { edition, editionDate, baselineFile, now });
+  if (edition === "weekly") {
+    dailyEveningPacket = weeklyNoEveningPacket("DAILY_MARKET_PACKET.json", requestedEditionDate);
+    reviewEveningPacket = weeklyNoEveningPacket("PREDICTION_REVIEW_PACKET.json", requestedEditionDate);
+    dailyEveningFile = null;
+    reviewEveningFile = null;
+  } else {
+    dailyEveningFile = resolveEveningPacketPath({ root, supplied: dailyMarketPacketPath, editionDate: requestedEditionDate, name: "DAILY_MARKET_PACKET.json", errorPath: "dailyMarketPacket" });
+    reviewEveningFile = resolveEveningPacketPath({ root, supplied: predictionReviewPacketPath, editionDate: requestedEditionDate, name: "PREDICTION_REVIEW_PACKET.json", errorPath: "predictionReviewPacket" });
+    dailyEveningPacket = loadEveningPacket(dailyEveningFile, "DAILY_MARKET_PACKET.json", requestedEditionDate);
+    reviewEveningPacket = loadEveningPacket(reviewEveningFile, "PREDICTION_REVIEW_PACKET.json", requestedEditionDate);
+  }
   if (typeof outputDirectory !== "string") fail("OUTPUT", "outputDirectory", "absolute execution package directory is required");
   const output = path.resolve(outputDirectory);
   ensureOutsideRoot(output, root, "outputDirectory");

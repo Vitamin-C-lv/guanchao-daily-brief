@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
+import { gunzipSync } from "node:zlib";
 
 import { sealCodexResearch } from "./codex-research.mjs";
 import { CodexWriterPrepareError, isShanghaiSunday, packetArtifactPlan, prepareCodexWriter } from "./codex-writer-prepare.mjs";
@@ -14,7 +15,10 @@ import { buildAllPackets } from "./build-market-packets.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PACKET_AS_OF = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content/writer-packets/daily-latest.json"), "utf8")).marketDates.aShare;
-const RESEARCH_BUNDLE_PATH = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "data/research-bundles/index.json"), "utf8")).bundles.find((item) => item.asOf === PACKET_AS_OF)?.artifactPath;
+const RESEARCH_BUNDLE_PATH = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "data/research-bundles/index.json"), "utf8")).bundles
+  .filter((item) => item.asOf === PACKET_AS_OF)
+  .map((item) => item.artifactPath)
+  .find((relativePath) => JSON.parse(gunzipSync(fs.readFileSync(path.join(repositoryRoot, relativePath))).toString("utf8")).edition === "daily");
 if (!RESEARCH_BUNDLE_PATH) throw new Error(`missing research bundle for packet asOf ${PACKET_AS_OF}`);
 const CONTENT_HASH = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
 

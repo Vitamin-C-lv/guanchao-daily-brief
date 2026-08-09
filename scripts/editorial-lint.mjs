@@ -162,7 +162,8 @@ function bindingPass(result, body) {
   const bindings = result.claimBindings;
   if (!object(bindings)) return false;
   const all = [...(bindings.quantitative ?? []), ...(bindings.qualitative ?? []), ...(bindings.sourceMetadata ?? [])];
-  if (!all.length || all.some((item) => !object(item) || typeof item.claimPath !== "string" || typeof item.claimText !== "string")) return false;
+  if (!all.length) return Array.isArray(result.warnings) && result.warnings.includes("no-editorial-change");
+  if (all.some((item) => !object(item) || typeof item.claimPath !== "string" || typeof item.claimText !== "string")) return false;
   const claimText = all.map((item) => item.claimText).join("\n");
   // writer-jobs already proves every changed primitive path and its numeric
   // binding.  The editorial lint only needs one numeric lineage witness here;
