@@ -20,6 +20,9 @@ import { fileURLToPath } from "node:url";
 import { latestATradingDay } from "./refresh-writer-packet.mjs";
 import { buildAllPackets, writePackets } from "./build-market-packets.mjs";
 import { checkAutomationConsistency } from "./check-automation-consistency.mjs";
+import { resolveAutomationPaths } from "./automation-paths.mjs";
+import { sealEveningPackets } from "./evening-packet-storage.mjs";
+import { validateEveningPacket } from "./validate-evening-packets.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
@@ -305,6 +308,7 @@ export async function runPredictionPublisher({
   dryRun = false,
   write = false,
   researchOutput = null,
+  eveningPacketsRoot = null,
   root = repositoryRoot,
   runsRoot = null,
   lockFile = null,
@@ -319,7 +323,9 @@ export async function runPredictionPublisher({
   if (dryRun === write) fail("MODE", "exactly one of dryRun or write is required");
   const effectiveEditionDate = editionDate ?? shanghaiCalendarDate(now);
   if (!DATE.test(effectiveEditionDate)) fail("FRESHNESS", `edition date must be YYYY-MM-DD: ${effectiveEditionDate}`);
-  const effectiveRunsRoot = runsRoot ?? "C:/Codex-Recovery/GuanchaoWriter/runs";
+  const automationPaths = resolveAutomationPaths({ env });
+  const effectiveRunsRoot = runsRoot ?? automationPaths.runsRoot;
+  const effectiveEveningPacketsRoot = eveningPacketsRoot ?? automationPaths.eveningPacketsRoot;
   const runDirectory = path.join(effectiveRunsRoot, effectiveEditionDate, "prediction");
   fs.mkdirSync(runDirectory, { recursive: true });
   const release = acquireLock(lockFile ?? path.join(effectiveRunsRoot, "..", ".guanchao-automation.lock"));
@@ -451,7 +457,15 @@ export async function runPredictionPublisher({
     // without adding an LLM step or changing the immutable production ledger.
     const packets = buildAllPackets({ root, asOf: effectiveEditionDate, generatedAt: now.toISOString() });
     writePackets(runDirectory, packets);
+    validateEveningPacket(packets.daily, "DAILY_MARKET_PACKET.json");
+    validateEveningPacket(packets.review, "PREDICTION_REVIEW_PACKET.json");
     report.packets = { daily: { schemaVersion: packets.daily.schemaVersion, packetId: packets.daily.packetId, status: packets.daily.status }, review: { schemaVersion: packets.review.schemaVersion, packetId: packets.review.packetId, status: packets.review.status } };
+    if (write) {
+      report.canonicalPackets = sealEveningPackets({ sourceDirectory: runDirectory, editionDate: effectiveEditionDate, eveningPacketsRoot: effectiveEveningPacketsRoot });
+      step("canonical-packet-seal", { ok: true, root: report.canonicalPackets.targetDirectory, packets: report.canonicalPackets.packets });
+    } else {
+      step("canonical-packet-seal", { ok: true, skipped: true, reason: "dry-run does not mutate canonical external inputs" });
+    }
     step("writer-packets", { ok: true, externalOnly: true, llmTokens: 0 });
 
     // 17. explicit write scope

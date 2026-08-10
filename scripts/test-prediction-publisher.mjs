@@ -206,6 +206,7 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
   // (C:/Codex-Recovery/GuanchaoWriter/runs), so gate/state artifacts never
   // enter the write-boundary check.
   const runs = path.join(root, "..", `${path.basename(root)}-runs`);
+  const eveningPacketsRoot = path.join(root, "..", `${path.basename(root)}-evening-packets`);
   const lock = path.join(root, "..", `${path.basename(root)}-lock`);
   const env = {
     ...process.env,
@@ -229,6 +230,7 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
   return {
     root,
     runs,
+    eveningPacketsRoot,
     lock,
     bare,
     env,
@@ -236,6 +238,7 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
       root,
       researchOutput: path.join(root, "research-output"),
       runsRoot: runs,
+      eveningPacketsRoot,
       lockFile: lock,
       marketRunner: "scripts/stub-market.mjs",
       rotationRunner: "scripts/stub-rotation.mjs",
@@ -247,6 +250,7 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
     cleanup: () => {
       fs.rmSync(root, { recursive: true, force: true });
       fs.rmSync(bare, { recursive: true, force: true });
+      fs.rmSync(eveningPacketsRoot, { recursive: true, force: true });
     }
   };
 }
@@ -259,6 +263,8 @@ test("prediction publisher publishes a probability ranking and pushes main", asy
     assert.match(report.commit.message, /chore\(predictions\): publish probability ranking 2026-08-04/);
     assert.equal(report.writeApplied, true);
     assert.equal(report.push.ok, true);
+    assert.equal(report.canonicalPackets.packets.daily.bytesEqual, true);
+    assert.equal(report.canonicalPackets.packets.review.bytesEqual, true);
     const remoteRef = git(value.bare, "show-ref", "--verify", "refs/heads/main");
     assert.match(remoteRef.stdout, /refs\/heads\/main/);
     const calls = fs.readFileSync(value.env.CALL_LOG, "utf8");
@@ -293,6 +299,8 @@ test("no new trading day yields no-op without an empty commit", async () => {
     assert.equal(after, before);
     assert.equal(git(value.root, "status", "--short").stdout.trim(), "");
     assert.ok(report.steps.some((step) => step.name === "writer-packets" && step.ok), "packet refresh must still complete before ledger no-op");
+    assert.equal(report.canonicalPackets.packets.daily.status, "sealed");
+    assert.equal(report.canonicalPackets.packets.review.status, "sealed");
     assert.equal(report.steps.find((step) => step.name === "ledger-automation").report.snapshot.result, "IDEMPOTENT_NO_OP");
   } finally {
     value.cleanup();
@@ -315,6 +323,8 @@ test("ledger no-op keeps a fresh writer packet and commits it once per edition",
     assert.equal(report.status, "published");
     assert.equal(report.writeApplied, true);
     assert.ok(report.steps.find((step) => step.name === "ledger-no-op-restore").preservedTracked.includes("content/writer-packets/daily-latest.json"));
+    assert.equal(report.canonicalPackets.packets.daily.status, "sealed");
+    assert.equal(report.canonicalPackets.packets.review.status, "sealed");
     assert.match(report.commit.message, /2026-08-04/);
     const packet = JSON.parse(fs.readFileSync(path.join(value.root, "content", "writer-packets", "daily-latest.json"), "utf8"));
     assert.equal(packet.generatedAt, "2026-08-04T12:00:00+08:00");
@@ -341,6 +351,8 @@ test("ledger no-op restores refreshed projections before validation", async () =
     assert.equal(report.steps.find((step) => step.name === "ledger-no-op-restore").ok, true);
     assert.equal(report.steps.find((step) => step.name === "validate-rotation").ok, true);
     assert.equal(report.steps.find((step) => step.name === "validate-ledger").ok, true);
+    assert.equal(report.canonicalPackets.packets.daily.status, "sealed");
+    assert.equal(report.canonicalPackets.packets.review.status, "sealed");
     assert.equal(git(value.root, "status", "--short").stdout.trim(), "");
   } finally {
     value.cleanup();

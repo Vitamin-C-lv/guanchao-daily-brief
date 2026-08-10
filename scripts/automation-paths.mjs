@@ -36,6 +36,7 @@ export function resolveAutomationPaths({ env = process.env, homeDirectory = os.h
   const codexHome = resolveConfiguredPath(env.CODEX_HOME || path.join(homeDirectory, ".codex"), { env });
   const repositoryPath = path.join(guanchaoHome, "repo", "guanchao-daily-brief");
   const runtimePath = path.join(guanchaoHome, "runtime", "local-writer-runtime");
+  const eveningPacketsRoot = path.join(path.dirname(runtimePath), "packets");
   const recoveryRoot = resolveConfiguredPath(env.GUANCHAO_RECOVERY_ROOT || DEFAULT_RECOVERY_ROOT, { env });
   return {
     guanchaoHome,
@@ -43,6 +44,7 @@ export function resolveAutomationPaths({ env = process.env, homeDirectory = os.h
     automationsRoot: path.join(codexHome, "automations"),
     repositoryPath,
     runtimePath,
+    eveningPacketsRoot,
     recoveryRoot,
     runsRoot: path.join(recoveryRoot, "runs"),
   };

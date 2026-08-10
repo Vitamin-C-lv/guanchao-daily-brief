@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { sha256Canonical } from "./research-contract.mjs";
 import { buildAllPackets } from "./build-market-packets.mjs";
+import { resolveAutomationPaths } from "./automation-paths.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(moduleFile), "..");
@@ -57,7 +58,7 @@ function read(file) { return JSON.parse(fs.readFileSync(file, "utf8")); }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
   try {
-    const directory = path.resolve(process.argv[2] ?? path.join("D:\\Guanchao-Workspace", "runtime", "packets", "2026-08-07"));
+    const directory = path.resolve(process.argv[2] ?? path.join(resolveAutomationPaths().eveningPacketsRoot, "2026-08-07"));
     const result = fs.existsSync(path.join(directory, "DAILY_MARKET_PACKET.json")) && fs.existsSync(path.join(directory, "PREDICTION_REVIEW_PACKET.json"))
       ? ["DAILY_MARKET_PACKET.json", "PREDICTION_REVIEW_PACKET.json"].map((name) => validateEveningPacket(read(path.join(directory, name)), name))
       : [validateEveningPacket(buildAllPackets({ root, asOf: "2026-08-07", generatedAt: "2026-08-07T12:00:00.000Z" }).daily, "DAILY_MARKET_PACKET.json"), validateEveningPacket(buildAllPackets({ root, asOf: "2026-08-07", generatedAt: "2026-08-07T12:00:00.000Z" }).review, "PREDICTION_REVIEW_PACKET.json")];
