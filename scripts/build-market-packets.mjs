@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { canonicalJson, sha256Canonical } from "./research-contract.mjs";
 import { resolveMarketDateContract } from "./market-date-contract.mjs";
+import { resolveAutomationPaths } from "./automation-paths.mjs";
 
 export const DAILY_PACKET_SCHEMA = "daily-market-packet-v1";
 export const REVIEW_PACKET_SCHEMA = "prediction-review-packet-v1";
@@ -472,7 +473,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
   try {
     const root = path.resolve(argument("--root", repositoryRoot));
     const asOf = argument("--date", shanghaiDate());
-    const output = path.resolve(argument("--output", path.join("D:\\Guanchao-Workspace", "runtime", "packets", asOf)));
+    const output = path.resolve(argument("--output", path.join(resolveAutomationPaths().eveningPacketsRoot, asOf)));
     const packets = buildAllPackets({ root, asOf, generatedAt: argument("--generated-at", utcTimestamp()) });
     writePackets(output, packets);
     console.log(JSON.stringify({ output, daily: { packetId: packets.daily.packetId, status: packets.daily.status }, review: { packetId: packets.review.packetId, status: packets.review.status } }, null, 2));

@@ -24,3 +24,11 @@ test("prediction review keeps observation and abstention out of model denominato
   }
   assert.doesNotThrow(() => validateEveningPacket(packet, "PREDICTION_REVIEW_PACKET.json"));
 });
+
+test("invalid evening schema remains rejected", () => {
+  const packet = buildDailyMarketPacket({ root: process.cwd(), asOf: "2026-08-07", generatedAt: "2026-08-07T12:00:00.000Z" });
+  assert.throws(
+    () => validateEveningPacket({ ...packet, schemaVersion: "writer-packet-v1" }, "DAILY_MARKET_PACKET.json"),
+    /business integrity mismatch|schema mismatch/
+  );
+});

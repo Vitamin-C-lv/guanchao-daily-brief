@@ -171,6 +171,75 @@ test("prepare writes a complete package and re-running is a no-op", async () => 
   }
 });
 
+test("prepare can read the canonical runtime evening packet root before legacy fallbacks", async () => {
+  const value = fixture();
+  const output = path.join(value.root, "..", `${path.basename(value.root)}-canonical-package`);
+  const canonicalRoot = path.join(value.root, "canonical-runtime", "packets");
+  try {
+    const legacyDirectory = path.join(value.root, "runtime", "packets", PACKET_AS_OF);
+    const canonicalDirectory = path.join(canonicalRoot, PACKET_AS_OF);
+    fs.mkdirSync(canonicalDirectory, { recursive: true });
+    for (const name of ["DAILY_MARKET_PACKET.json", "PREDICTION_REVIEW_PACKET.json"]) {
+      fs.copyFileSync(path.join(legacyDirectory, name), path.join(canonicalDirectory, name));
+    }
+    fs.writeFileSync(path.join(legacyDirectory, "DAILY_MARKET_PACKET.json"), JSON.stringify({ schemaVersion: "invalid" }) + "\n");
+    const summary = await prepareCodexWriter(withEditionDate({
+      edition: "daily",
+      marketPacket: "content/writer-packets/daily-latest.json",
+      codexResearch: value.researchFile,
+      outputDirectory: output,
+      write: true,
+      dryRun: false,
+      root: value.root,
+      automationPaths: { repositoryPath: value.root, eveningPacketsRoot: canonicalRoot },
+      now: new Date("2026-08-01T02:00:00Z")
+    }));
+    assert.equal(summary.wrote, true);
+    assert.equal(summary.eveningPacketIds.daily, JSON.parse(fs.readFileSync(path.join(canonicalDirectory, "DAILY_MARKET_PACKET.json"), "utf8")).packetId);
+  } finally {
+    fs.rmSync(output, { recursive: true, force: true });
+    cleanup(value);
+  }
+});
+
+test("previous-day evening packets are rejected even when placed under today's directory", async () => {
+  const value = fixture();
+  const output = path.join(value.root, "..", `${path.basename(value.root)}-stale-evening-package`);
+  const canonicalRoot = path.join(value.root, "canonical-runtime", "packets");
+  const previousDate = (() => {
+    const [year, month, day] = PACKET_AS_OF.split("-").map(Number);
+    return new Date(Date.UTC(year, month - 1, day - 1)).toISOString().slice(0, 10);
+  })();
+  try {
+    const source = path.join(value.root, "stale-source");
+    const stale = buildAllPackets({ root: repositoryRoot, asOf: previousDate, generatedAt: `${previousDate}T12:00:00.000Z` });
+    fs.mkdirSync(source, { recursive: true });
+    fs.writeFileSync(path.join(source, "DAILY_MARKET_PACKET.json"), `${JSON.stringify(stale.daily)}\n`);
+    fs.writeFileSync(path.join(source, "PREDICTION_REVIEW_PACKET.json"), `${JSON.stringify(stale.review)}\n`);
+    const canonicalDirectory = path.join(canonicalRoot, PACKET_AS_OF);
+    fs.mkdirSync(canonicalDirectory, { recursive: true });
+    fs.copyFileSync(path.join(source, "DAILY_MARKET_PACKET.json"), path.join(canonicalDirectory, "DAILY_MARKET_PACKET.json"));
+    fs.copyFileSync(path.join(source, "PREDICTION_REVIEW_PACKET.json"), path.join(canonicalDirectory, "PREDICTION_REVIEW_PACKET.json"));
+    await assert.rejects(
+      () => prepareCodexWriter(withEditionDate({
+        edition: "daily",
+        marketPacket: "content/writer-packets/daily-latest.json",
+        codexResearch: value.researchFile,
+        outputDirectory: output,
+        write: false,
+        dryRun: true,
+        root: value.root,
+        automationPaths: { repositoryPath: value.root, eveningPacketsRoot: canonicalRoot },
+        now: new Date("2026-08-01T02:00:00Z")
+      })),
+      (error) => error instanceof CodexWriterPrepareError && error.code === "EVENING_PACKET_DATE"
+    );
+  } finally {
+    fs.rmSync(output, { recursive: true, force: true });
+    cleanup(value);
+  }
+});
+
 test("dry-run does not create the package directory", async () => {
   const value = fixture();
   const output = path.join(value.root, "..", `${path.basename(value.root)}-dry-package`);

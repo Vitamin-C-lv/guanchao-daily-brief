@@ -76,7 +76,7 @@
   "test:automation-consistency": "node --test scripts/test-automation-consistency.mjs",
   "test:writer-production-preflight": "node --test scripts/writer-production-preflight.test.mjs",
     "test:automation-handover": "node --test scripts/automation-handover.test.mjs",
-    "test:evening-packets": "node --test scripts/evening-packets.test.mjs",
+    "test:evening-packets": "node --test scripts/evening-packets.test.mjs scripts/evening-packet-storage.test.mjs",
     "test:market-date-contract": "node --test scripts/market-date-contract.test.mjs",
     "test:prediction-review-math": "node --test scripts/prediction-review-math.test.mjs",
     "test:memory": "node --test scripts/memory-manager.test.mjs scripts/writer-memory-context.test.mjs",

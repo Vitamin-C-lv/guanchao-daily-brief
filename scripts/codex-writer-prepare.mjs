@@ -177,14 +177,18 @@ function loadPacket(file) {
   return packet;
 }
 
-function resolveEveningPacketPath({ root, supplied, editionDate, name, errorPath }) {
+function resolveEveningPacketPath({ root, supplied, editionDate, name, errorPath, automationPaths = resolveAutomationPaths() }) {
+  const canonicalRoot = automationPaths.eveningPacketsRoot ?? path.join(automationPaths.guanchaoHome, "runtime", "packets");
+  const rootIsCanonicalRepository = typeof automationPaths.repositoryPath === "string"
+    && path.resolve(automationPaths.repositoryPath).toLowerCase() === path.resolve(root).toLowerCase();
+  const canonicalCandidate = path.join(canonicalRoot, editionDate, name);
+  const legacyCandidates = [
+    path.join(root, "runtime", "packets", editionDate, name),
+    path.join(root, "packets", editionDate, name),
+  ];
   const candidates = supplied
     ? [path.isAbsolute(supplied) ? path.resolve(supplied) : path.resolve(root, ...supplied.split("/"))]
-    : [
-      path.join(root, "runtime", "packets", editionDate, name),
-      path.join(root, "packets", editionDate, name),
-      path.join(resolveAutomationPaths().guanchaoHome, "runtime", "packets", editionDate, name),
-    ];
+    : rootIsCanonicalRepository ? [canonicalCandidate, ...legacyCandidates] : [...legacyCandidates, canonicalCandidate];
   const file = candidates.find((candidate) => fs.existsSync(candidate));
   if (!file) fail("EVENING_PACKET_MISSING", errorPath, `${name} is missing; expected one of ${candidates.join(" | ")}`);
   return file;
@@ -327,6 +331,7 @@ export async function prepareCodexWriter({
   dryRun = false,
   write = false,
   root = repositoryRoot,
+  automationPaths = null,
   now = new Date()
 } = {}) {
   if (dryRun === write) fail("MODE", "mode", "exactly one of dryRun or write is required");
@@ -335,6 +340,7 @@ export async function prepareCodexWriter({
   if (mode === "global_market_brief" && edition !== "daily") fail("MODE", "edition", "global_market_brief is daily only");
   if (mode === "global_market_brief" && codexResearch) fail("MODE", "codexResearch", "global_market_brief cannot consume an unfrozen Codex research run");
   const requestedEditionDate = editionDate ?? shanghaiCalendarDate(now);
+  const resolvedAutomationPaths = automationPaths ?? resolveAutomationPaths();
   if (!DATE.test(requestedEditionDate)) fail("FRESHNESS", "editionDate", "edition date must be YYYY-MM-DD");
   const guardTime = editionDate === null ? now : `${requestedEditionDate}T12:00:00+08:00`;
   if (isShanghaiSunday(guardTime)) {
@@ -374,8 +380,8 @@ export async function prepareCodexWriter({
     dailyEveningFile = null;
     reviewEveningFile = null;
   } else {
-    dailyEveningFile = resolveEveningPacketPath({ root, supplied: dailyMarketPacketPath, editionDate: requestedEditionDate, name: "DAILY_MARKET_PACKET.json", errorPath: "dailyMarketPacket" });
-    reviewEveningFile = resolveEveningPacketPath({ root, supplied: predictionReviewPacketPath, editionDate: requestedEditionDate, name: "PREDICTION_REVIEW_PACKET.json", errorPath: "predictionReviewPacket" });
+    dailyEveningFile = resolveEveningPacketPath({ root, supplied: dailyMarketPacketPath, editionDate: requestedEditionDate, name: "DAILY_MARKET_PACKET.json", errorPath: "dailyMarketPacket", automationPaths: resolvedAutomationPaths });
+    reviewEveningFile = resolveEveningPacketPath({ root, supplied: predictionReviewPacketPath, editionDate: requestedEditionDate, name: "PREDICTION_REVIEW_PACKET.json", errorPath: "predictionReviewPacket", automationPaths: resolvedAutomationPaths });
     dailyEveningPacket = loadEveningPacket(dailyEveningFile, "DAILY_MARKET_PACKET.json", requestedEditionDate);
     reviewEveningPacket = loadEveningPacket(reviewEveningFile, "PREDICTION_REVIEW_PACKET.json", requestedEditionDate);
   }
