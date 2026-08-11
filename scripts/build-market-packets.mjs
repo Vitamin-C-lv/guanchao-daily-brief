@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { canonicalJson, sha256Canonical } from "./research-contract.mjs";
-import { resolveMarketDateContract } from "./market-date-contract.mjs";
+import { resolveMarketDateContract, validMarketDate } from "./market-date-contract.mjs";
 import { resolveAutomationPaths } from "./automation-paths.mjs";
 
 export const DAILY_PACKET_SCHEMA = "daily-market-packet-v1";
@@ -27,6 +27,10 @@ function shanghaiDate(value = new Date()) {
 
 function utcTimestamp(value = new Date()) {
   return new Date(value).toISOString();
+}
+
+function dateAtOrBefore(value, requestedDate) {
+  return validMarketDate(value) && validMarketDate(requestedDate) && value <= requestedDate ? value : null;
 }
 
 function businessPacket(value) {
@@ -396,6 +400,7 @@ export function buildDailyMarketPacket({ root = repositoryRoot, asOf = shanghaiD
   const rotation = sectorRotation ?? readJson(rotationPath, {});
   const hstech = readJson(historyPath, {});
   const aShare = rotation.markets?.find?.((market) => market.id === "a-share") ?? rotation.markets?.[0] ?? {};
+  const hkRotation = rotation.markets?.find?.((market) => market.id === "hk") ?? {};
   const brief = latestGlobalBrief(root, asOf);
   const dateContract = resolveMarketDateContract({ root, requestedDate: asOf });
   const contractDates = dateContract.marketDates ?? {};
@@ -405,6 +410,14 @@ export function buildDailyMarketPacket({ root = repositoryRoot, asOf = shanghaiD
     us: contractDates.us ?? null,
   };
   const dataAsOf = dateContract.dataAsOf ?? asOf;
+  const hkCoreIndexAsOf = marketDates.hk;
+  const rotationObservationAsOf = dateAtOrBefore(
+    hkRotation.horizons?.current?.sourceAsOf ?? hkRotation.sourceAsOf ?? hkRotation.horizons?.current?.asOf ?? null,
+    asOf,
+  );
+  const hkDateAnomaly = validMarketDate(hkCoreIndexAsOf) && validMarketDate(rotationObservationAsOf) && hkCoreIndexAsOf !== rotationObservationAsOf
+    ? "hk-core-index-lags-official-industry-observation"
+    : null;
   const coreIndices = buildCoreIndices(root, brief, marketDates);
   const allCoreIndices = Object.values(coreIndices).flatMap((group) => Object.values(group));
   const knownGaps = [...(packetSource.missingData ?? []), ...allCoreIndices.filter((item) => item.status === "unavailable").map((item) => `coreIndices.${item.key}`), ...(hstech.status !== "ready" ? ["HSTECH"] : [])].filter((value, index, array) => array.indexOf(value) === index).sort();
@@ -427,7 +440,7 @@ export function buildDailyMarketPacket({ root = repositoryRoot, asOf = shanghaiD
     browseTriggers: ["疑点", "缺失", "未更新", "数据和新闻冲突", "重大政策", "异常行情", "值得深入研究的话题", "18:20–20:00 新发生事件"],
     markets: {
       aShare: { status: aShare.status ?? packetSource.marketSummary?.status ?? "partial", asOf: marketDates.aShare, modelFeatureIncluded: true },
-      hk: { status: hstech.status ?? "unavailable", asOf: marketDates.hk, hstechRows: Array.isArray(hstech.bars) ? hstech.bars.length : 0, modelFeatureIncluded: false },
+      hk: { status: hstech.status ?? "unavailable", asOf: hkCoreIndexAsOf, coreIndexAsOf: hkCoreIndexAsOf, rotationObservationAsOf, anomalies: hkDateAnomaly ? [hkDateAnomaly] : [], hstechRows: Array.isArray(hstech.bars) ? hstech.bars.length : 0, modelFeatureIncluded: false },
       us: { status: allCoreIndices.filter((item) => item.key === "dow" || item.key === "nasdaq" || item.key === "sp500").every((item) => item.status === "ready") ? "ready" : "partial", asOf: marketDates.us, modelFeatureIncluded: false },
     },
     coreIndices,
@@ -451,6 +464,7 @@ export function buildDailyMarketPacket({ root = repositoryRoot, asOf = shanghaiD
     anomalies: [
       packetSource.providerHealth?.status === "partial" ? "writer-packet-provider-health-partial" : null,
       hstech.status !== "ready" ? "hstech-not-ready" : null,
+      hkDateAnomaly,
       ...allCoreIndices.filter((item) => item.anomaly).map((item) => `coreIndices.${item.key}:${item.anomaly}`),
     ].filter(Boolean),
     lineage: { authority: dateContract, sourceIndex },

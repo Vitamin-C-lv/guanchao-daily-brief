@@ -14,6 +14,16 @@ test("daily market packet preserves writer browsing and observation boundary", (
   assert.doesNotThrow(() => validateEveningPacket(packet, "DAILY_MARKET_PACKET.json"));
 });
 
+test("HK packet keeps core-index and official industry observation dates separate", () => {
+  const packet = buildDailyMarketPacket({ root: process.cwd(), asOf: "2026-08-11", generatedAt: "2026-08-11T20:00:00+08:00" });
+  assert.equal(packet.markets.hk.asOf, "2026-08-06");
+  assert.equal(packet.markets.hk.coreIndexAsOf, "2026-08-06");
+  assert.equal(packet.markets.hk.rotationObservationAsOf, "2026-08-11");
+  assert.deepEqual(packet.markets.hk.anomalies, ["hk-core-index-lags-official-industry-observation"]);
+  assert.ok(packet.anomalies.includes("hk-core-index-lags-official-industry-observation"));
+  assert.doesNotThrow(() => validateEveningPacket(packet, "DAILY_MARKET_PACKET.json"));
+});
+
 test("prediction review keeps observation and abstention out of model denominator", () => {
   const packet = buildPredictionReviewPacket({ root: process.cwd(), asOf: "2026-08-07", generatedAt: "2026-08-07T12:00:00.000Z" });
   assert.equal(packet.schemaVersion, "prediction-review-packet-v1");

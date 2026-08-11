@@ -10,6 +10,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { isForbiddenProductionPath, resolveAutomationPaths, resolveConfiguredPath, toConfigPath } from "./automation-paths.mjs";
+import { sha256AutomationConfigBytes } from "./automation-config-hash.mjs";
 import { PRODUCTION_REPOSITORY_REMOTE, runWriterProductionPreflight } from "./writer-production-preflight.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
@@ -152,7 +153,8 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
     }
   }
   if (state) {
-    add("state.configSha256 matches config", state.configSha256 === sha256Bytes(fs.readFileSync(configPath)), `${state.configSha256} vs ${sha256Bytes(fs.readFileSync(configPath))}`);
+    const configSha256 = sha256AutomationConfigBytes(fs.readFileSync(configPath));
+    add("state.configSha256 matches config", state.configSha256 === configSha256, `${state.configSha256} vs ${configSha256}`);
     add("state.enabled", state.enabled === true, String(state.enabled));
     add("state.runtime has no forbidden path", !hasForbiddenPath([state.runtime?.projectPath, state.runtime?.repositoryPath].filter(Boolean)), JSON.stringify(state.runtime));
     add("state.handover matches config", state.review?.handoverStatus === (config.handover?.status ?? "unknown"), `${state.review?.handoverStatus} vs ${config.handover?.status}`);
