@@ -51,7 +51,11 @@ export function latestATradingDay(editionDate, root = repositoryRoot, now = new 
     if (!WEEKDAY_CLOSED.has(weekday) && !closed.has(iso)) return iso;
     return null;
   };
-  const candidate = new Date(`${editionDate}T00:00:00.000Z`);
+  const observedNow = new Date(now);
+  if (!Number.isFinite(observedNow.valueOf())) throw new RefreshWriterPacketError("FRESHNESS", `invalid time: ${String(now)}`);
+  const observedDate = shanghaiCalendarDate(observedNow);
+  const baseDate = observedDate < editionDate ? observedDate : editionDate;
+  const candidate = new Date(`${baseDate}T00:00:00.000Z`);
   let trading = null;
   while (candidate.getUTCFullYear() >= 2020) {
     trading = isTradingDay(candidate);
@@ -62,7 +66,7 @@ export function latestATradingDay(editionDate, root = repositoryRoot, now = new 
   // A session is only complete after the Asia/Shanghai close plus a conservative data
   // publication buffer (17:00). Before that the latest complete trading day is the
   // previous trading day.
-  if (trading === editionDate) {
+  if (trading === editionDate && baseDate === editionDate) {
     const shanghai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", hour12: false }).format(now);
     const [hour, minute] = shanghai.split(":").map(Number);
     if (hour * 60 + minute < 17 * 60) {

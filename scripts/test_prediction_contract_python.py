@@ -121,6 +121,14 @@ class PredictionContractPythonTest(unittest.TestCase):
             if "indexCode=" in source["url"]:
                 self.assertIn(f"endDate={market['asOf'].replace('-', '')}", source["url"])
 
+    def test_us_session_uses_independent_histories_not_daily_brief(self) -> None:
+        market = rotation.us_market("2026-08-10")
+        self.assertEqual(market["status"], "ready")
+        self.assertEqual(market["asOf"], "2026-08-05")
+        self.assertEqual(market["horizons"]["current"]["asOf"], "2026-08-05")
+        self.assertEqual(market["taxonomy"]["version"], "public-market-history-v1")
+        self.assertNotIn("daily-brief", json.dumps(market, ensure_ascii=False))
+
 
 if __name__ == "__main__":
     unittest.main()

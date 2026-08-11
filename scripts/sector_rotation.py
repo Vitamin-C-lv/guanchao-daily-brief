@@ -63,7 +63,6 @@ CONTENT_PATH = ROOT / "content" / "sector-rotation.json"
 MANIFEST_PATH = DATA_DIR / "manifest.json"
 EVENT_PATH = EVENT_DIR / "events.jsonl.gz"
 EVENT_SEED_PATH = MODEL_DIR / "long-money-events.seed.jsonl"
-DAILY_BRIEF_PATH = ROOT / "content" / "daily-brief.json"
 PREDICTION_HISTORY_PATH = ROOT / "content" / "prediction-history.json"
 
 # The benchmark is deliberately separate from the ranked universe.  Focus
@@ -233,21 +232,6 @@ def now_iso() -> str:
 
 def read_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
-
-
-def daily_brief_session(market_id: str) -> str | None:
-    if not DAILY_BRIEF_PATH.exists():
-        return None
-    try:
-        brief = read_json(DAILY_BRIEF_PATH)
-    except (OSError, ValueError, TypeError):
-        return None
-    market = next(
-        (item for item in brief.get("markets", []) if item.get("id") == market_id),
-        None,
-    )
-    value = str(market.get("sessionDate", "")) if market else ""
-    return value if re.fullmatch(r"\d{4}-\d{2}-\d{2}", value) else None
 
 
 def latest_complete_a_share_session(now: datetime | None = None) -> str | None:
@@ -2226,17 +2210,10 @@ def fetch_hk_current() -> tuple[str, list[dict[str, Any]]]:
 
 
 def hk_market() -> dict[str, Any]:
-    expected_as_of = daily_brief_session("hk")
     source_as_of: str | None = None
-    alignment_mismatch = False
     try:
         as_of, items = fetch_hk_current()
         source_as_of = as_of
-        if expected_as_of is None:
-            raise RuntimeError("daily brief is missing the verified HK sessionDate")
-        if as_of != expected_as_of:
-            alignment_mismatch = True
-            raise RuntimeError(f"official snapshot date {as_of} does not match daily brief sessionDate {expected_as_of}")
         scores = percentile_scores([(item["code"], item["change"]) for item in items])
         items.sort(key=lambda item: scores[item["code"]], reverse=True)
         current = [
@@ -2279,7 +2256,7 @@ def hk_market() -> dict[str, Any]:
         market_status = "ready"
         reason = "官方实时行业快照可用；官方历史接口当前未稳定返回，因此一周/月预测保持insufficient。"
     except Exception as exc:
-        as_of = expected_as_of or datetime.now(SHANGHAI).date().isoformat()
+        as_of = source_as_of or datetime.now(SHANGHAI).date().isoformat()
         current_horizon = {
             "kind": "observed",
             "status": "insufficient",
@@ -2297,10 +2274,7 @@ def hk_market() -> dict[str, Any]:
                 feature_version=None,
                 model_input_completeness=None,
                 production_feature_coverage=None,
-                gate_failures=[
-                    "current_observation_unavailable",
-                    *(["source_session_date_mismatch"] if alignment_mismatch else []),
-                ],
+                gate_failures=["current_observation_unavailable"],
             ),
         }
         market_status = "insufficient"
@@ -2392,151 +2366,127 @@ def hk_market() -> dict[str, Any]:
     }
 
 
-def us_market() -> dict[str, Any]:
-    as_of = datetime.now(SHANGHAI).date().isoformat()
-    current: dict[str, Any] = {
-        "kind": "observed",
-        "status": "insufficient",
-        "asOf": as_of,
-        "reason": "本行业轮动模型不训练美股；当前三大指数等待日报完整交易日数据。",
-        **prediction_state_contract(
-            model_availability="not_implemented",
-            publication_status="not_applicable",
-            output_mode="none",
-            calibration_status="not_applicable",
-            probability_source="none",
-            probability_target="none",
-            model_version=None,
-            feature_version=None,
-            model_input_completeness=None,
-            production_feature_coverage=None,
-            gate_failures=["current_observation_unavailable"],
-        ),
-    }
-    sources: list[dict[str, Any]] = []
-    if DAILY_BRIEF_PATH.exists():
-        brief = read_json(DAILY_BRIEF_PATH)
-        market = next((item for item in brief.get("markets", []) if item.get("id") == "us"), None)
-        raw_expected_as_of = str(market.get("sessionDate", "")) if market else ""
-        expected_as_of = raw_expected_as_of if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw_expected_as_of) else ""
-        if market and len(market.get("indices", [])) == 3:
-            rows = market["indices"]
-            row_dates = {str(item.get("date", "")) for item in rows}
-            if len(row_dates) != 1 or expected_as_of not in row_dates:
-                return {
-                    "id": "us",
-                    "label": "美股三大指数",
-                    "mode": "major-index",
-                    "asOf": expected_as_of or as_of,
-                    "status": "insufficient",
-                    "taxonomy": {
-                        "owner": "观潮日报引用的指数发布方/市场数据来源",
-                        "name": "纳斯达克、道琼斯、标普500三大指数（非行业分类）",
-                        "version": "daily-brief",
-                        "effectiveDate": expected_as_of or as_of,
-                    },
-                    "note": "不扩建美股行业模型；只保留三大指数当前状态。",
-                    "reason": "三大指数日期未与日报完整交易日严格对齐。",
-                    "sources": [],
-                    "horizons": {
-                        "current": {"kind": "observed", "status": "insufficient", "asOf": expected_as_of or as_of, "reason": "三大指数日期不一致或sessionDate缺失。", **prediction_state_contract(model_availability="not_implemented", publication_status="not_applicable", output_mode="none", calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None, feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["current_observation_unavailable"])},
-                        "tomorrow": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 1, "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。", **prediction_state_contract(model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation", calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None, feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"])},
-                        "oneWeek": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 5, "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。", **prediction_state_contract(model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation", calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None, feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"])},
-                        "oneMonth": {"kind": "forecast", "status": "insufficient", "asOf": expected_as_of or as_of, "sessions": 20, "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。", **prediction_state_contract(model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation", calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None, feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"])},
-                    },
-                }
-            as_of = expected_as_of
-            scores = percentile_scores([(str(i), float(item["change"])) for i, item in enumerate(rows)])
-            ordered = sorted(enumerate(rows), key=lambda pair: scores[str(pair[0])], reverse=True)
+def us_market(as_of: str | None = None) -> dict[str, Any]:
+    """Build the US observation from independent index histories.
+
+    The daily brief is a downstream article input and is deliberately not read here.
+    Every index must contribute the same validated session; otherwise the market is
+    insufficient rather than being assigned the edition date.
+    """
+    target_date = as_of if isinstance(as_of, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", as_of) else datetime.now(SHANGHAI).date().isoformat()
+    specs = (
+        ("dow", "道琼斯", "dow-jones.json"),
+        ("nasdaq", "纳斯达克", "nasdaq-composite.json"),
+        ("sp500", "标普500", "sp500.json"),
+    )
+    records: dict[str, dict[str, Any]] = {}
+    errors: list[str] = []
+    for code, label, filename in specs:
+        path = ROOT / "public" / "data" / "market-history" / filename
+        try:
+            payload = read_json(path)
+            if payload.get("status") != "ready":
+                raise ValueError("history status is not ready")
+            declared = str(payload.get("asOf", ""))
+            if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", declared) or declared > target_date:
+                raise ValueError(f"declared asOf {declared or 'missing'} is not usable for {target_date}")
+            rows = [
+                row for row in payload.get("bars", [])
+                if re.fullmatch(r"\d{4}-\d{2}-\d{2}", str(row.get("time", "")))
+                and str(row["time"])[:10] <= target_date
+                and isinstance(row.get("close"), (int, float))
+            ]
+            if not rows or str(rows[-1]["time"])[:10] != declared:
+                raise ValueError(f"declared asOf {declared} differs from latest validated bar")
+            records[code] = {"label": label, "rows": rows, "source": payload.get("source") or {}, "path": path}
+        except (OSError, KeyError, TypeError, ValueError) as exc:
+            errors.append(f"{filename}: {exc}")
+
+    dates = [
+        {str(row["time"])[:10] for row in record["rows"]}
+        for record in records.values()
+    ]
+    common_dates = sorted(set.intersection(*dates), reverse=True) if len(dates) == len(specs) else []
+    selected_date = common_dates[0] if common_dates else max(
+        (str(record["rows"][-1]["time"])[:10] for record in records.values()),
+        default=target_date,
+    )
+    sources = [
+        {
+            "name": f"{record['label']} independent history",
+            "publisher": record["source"].get("provider", "market data provider"),
+            "url": record["source"].get("url", "https://query1.finance.yahoo.com/v8/finance/chart/"),
+            "tier": "authoritative",
+            "evidenceClass": "vendor-market-data",
+        }
+        for record in records.values()
+    ]
+    state = prediction_state_contract(
+        model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation",
+        calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None,
+        feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"],
+    )
+    if common_dates:
+        items: list[dict[str, Any]] = []
+        changes: list[tuple[str, float]] = []
+        for code, _, _ in specs:
+            rows = records[code]["rows"]
+            index = next(i for i, row in enumerate(rows) if str(row["time"])[:10] == selected_date)
+            if index == 0 or not rows[index - 1].get("close"):
+                errors.append(f"{code}: previous close missing for {selected_date}")
+                break
+            close = float(rows[index]["close"])
+            previous = float(rows[index - 1]["close"])
+            change = (close / previous - 1) * 100
+            items.append({"code": code, "sector": records[code]["label"], "value": round(close, 2), "change": change})
+            changes.append((code, change))
+        if len(items) == len(specs):
+            scores = percentile_scores(changes)
+            ordered = sorted(items, key=lambda item: scores[item["code"]], reverse=True)
             current = {
-                "kind": "observed",
-                "status": "ready",
-                "asOf": as_of,
-                "note": "仅展示纳斯达克、道琼斯、标普500三大指数当前状态；不称为行业轮动。",
+                "kind": "observed", "status": "ready", "asOf": selected_date, "sourceAsOf": selected_date,
+                "note": "仅展示三大指数同一完整交易日的独立市场状态；不称为行业轮动。",
                 "items": [
                     {
-                        "sector": item["name"],
-                        "rank": rank,
-                        "score": scores[str(original)],
-                        "direction": observed_direction(scores[str(original)]),
-                        "signal": f"{item['date']}完整交易日指数表现。",
-                        "metrics": [
-                            {"label": "点位", "value": item["value"]},
-                            {"label": "当日涨跌", "value": f"{float(item['change']):+.2f}%", "tone": tone_for_change(float(item["change"]))},
-                        ],
-                        "sourceIndexes": list(range(len(market.get("sources", [])))),
+                        "sector": item["sector"], "rank": rank, "score": scores[item["code"]],
+                        "direction": observed_direction(scores[item["code"]]),
+                        "signal": f"{selected_date}完整交易日指数表现。",
+                        "metrics": [{"label": "点位", "value": f"{item['value']:,.2f}"}, {"label": "当日涨跌", "value": f"{item['change']:+.2f}%", "tone": tone_for_change(item["change"])}],
+                        "sourceIndexes": list(range(len(sources))),
                     }
-                    for rank, (original, item) in enumerate(ordered, start=1)
+                    for rank, item in enumerate(ordered, start=1)
                 ],
-                **prediction_state_contract(
-                    model_availability="not_implemented",
-                    publication_status="not_applicable",
-                    output_mode="current_observation",
-                    calibration_status="not_applicable",
-                    probability_source="none",
-                    probability_target="none",
-                    model_version=None,
-                    feature_version=None,
-                    model_input_completeness=None,
-                    production_feature_coverage=None,
-                    gate_failures=[],
-                ),
+                **{**state, "gateFailures": []},
             }
-            sources = market.get("sources", [])
+        else:
+            errors.append("previous close missing for the common US session")
+    if "current" not in locals():
+        reason = "美股三大指数没有共同的已验证完整交易日；不得使用日报或editionDate冒充交易日。"
+        if errors:
+            reason += " " + "; ".join(errors[:3])
+        current = {
+            "kind": "observed", "status": "insufficient", "asOf": selected_date,
+            "sourceAsOf": selected_date, "reason": reason,
+            **prediction_state_contract(
+                model_availability="not_implemented", publication_status="not_applicable", output_mode="none",
+                calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None,
+                feature_version=None, model_input_completeness=None, production_feature_coverage=None,
+                gate_failures=["current_observation_unavailable"],
+            ),
+        }
+    forecasts = {
+        key: {"kind": "forecast", "status": "insufficient", "asOf": selected_date, "sessions": sessions,
+              "reason": "未训练并样本外校准三大指数条件模型。", **state}
+        for key, sessions in (("tomorrow", 1), ("oneWeek", 5), ("oneMonth", 20))
+    }
     return {
-        "id": "us",
-        "label": "美股三大指数",
-        "mode": "major-index",
-        "asOf": as_of,
-        "status": "ready" if current["status"] == "ready" else "insufficient",
-        "taxonomy": {
-            "owner": "观潮日报引用的指数发布方/市场数据来源",
-            "name": "纳斯达克、道琼斯、标普500三大指数（非行业分类）",
-            "version": "daily-brief",
-            "effectiveDate": as_of,
-        },
-        "note": "不扩建美股行业模型；只保留三大指数当前状态。",
-        "reason": "本次没有经同口径历史回测的美股三大指数条件模型。",
-        "sources": sources,
-        "horizons": {
-            "current": current,
-            "tomorrow": {
-                "kind": "forecast",
-                "status": "insufficient",
-                "asOf": as_of,
-                "sessions": 1,
-                "reason": "未训练并样本外校准三大指数明日上涨概率。",
-                **prediction_state_contract(
-                    model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation",
-                    calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None,
-                    feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"],
-                ),
-            },
-            "oneWeek": {
-                "kind": "forecast",
-                "status": "insufficient",
-                "asOf": as_of,
-                "sessions": 5,
-                "reason": "未训练并样本外验证三大指数条件模型，不发布一周方向排序。",
-                **prediction_state_contract(
-                    model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation",
-                    calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None,
-                    feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"],
-                ),
-            },
-            "oneMonth": {
-                "kind": "forecast",
-                "status": "insufficient",
-                "asOf": as_of,
-                "sessions": 20,
-                "reason": "未训练并样本外验证三大指数条件模型，不发布一月方向排序。",
-                **prediction_state_contract(
-                    model_availability="not_implemented", publication_status="not_applicable", output_mode="current_observation",
-                    calibration_status="not_applicable", probability_source="none", probability_target="none", model_version=None,
-                    feature_version=None, model_input_completeness=None, production_feature_coverage=None, gate_failures=["model_not_implemented"],
-                ),
-            },
-        },
+        "id": "us", "label": "美股三大指数", "mode": "major-index", "asOf": selected_date,
+        "status": "ready" if current["status"] == "ready" else "insufficient", "taxonomy": {
+            "owner": "独立指数市场数据来源", "name": "纳斯达克、道琼斯、标普500三大指数（非行业分类）",
+            "version": "public-market-history-v1", "effectiveDate": selected_date,
+        }, "note": "不扩建美股行业模型；只保留三大指数当前状态。",
+        "reason": "本次没有经同口径历史回测的美股三大指数条件模型。", "sources": sources,
+        "horizons": {"current": current, **forecasts},
     }
 
 
@@ -2581,7 +2531,7 @@ def infer(_: argparse.Namespace) -> dict[str, Any]:
                 "summary": "；".join(metrics) + "。未通过闸门的周期不会发布概率排名。",
             },
         },
-        "markets": [a_share_market(artifact, probability_artifact, model_lineage), hk_market(), us_market()],
+        "markets": [a_share_market(artifact, probability_artifact, model_lineage), hk_market(), us_market(getattr(_, "end", None))],
     }
     # Avoid serializing null reason fields when a market is ready.
     for market in payload["markets"]:

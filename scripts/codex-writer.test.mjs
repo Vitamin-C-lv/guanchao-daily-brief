@@ -404,7 +404,7 @@ fs.writeFileSync(path.join(root, "content", "writer-packets", edition + "-latest
 console.log(JSON.stringify({ ok: true, asOf }));
 `;
     fs.writeFileSync(runner, stub, "utf8");
-    const summary = refreshWriterPacket({ edition: "daily", editionDate: PACKET_AS_OF, runner: "stub-market-runner.mjs", root: value.root, now: new Date("2026-08-03T12:00:00.000Z") });
+    const summary = refreshWriterPacket({ edition: "daily", editionDate: PACKET_AS_OF, runner: "stub-market-runner.mjs", root: value.root, now: new Date(`${PACKET_AS_OF}T18:00:00+08:00`) });
     assert.equal(summary.writerPacketId.length, 64);
     // At the fixed refresh time the latest complete A-share trading day equals the packet edition date.
     assert.equal(summary.marketDates.aShare, PACKET_AS_OF);

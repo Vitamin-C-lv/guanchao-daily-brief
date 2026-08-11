@@ -160,11 +160,9 @@ class PublicContractTests(unittest.TestCase):
         for horizon in ("current", "tomorrow", "oneWeek", "oneMonth"):
             self.assertEqual(hk["horizons"][horizon]["outputMode"], "current_observation")
 
-    def test_date_mismatch_is_retained_and_untrained_forecasts_are_not_current_observations(self):
-        original_session = rotation.daily_brief_session
+    def test_source_date_is_retained_without_daily_brief_alignment(self):
         original_fetch = rotation.fetch_hk_current
         try:
-            rotation.daily_brief_session = lambda market_id: "2026-08-03"
             rotation.fetch_hk_current = lambda: (
                 "2026-08-04",
                 [
@@ -174,7 +172,6 @@ class PublicContractTests(unittest.TestCase):
             )
             result = rotation.hk_market()
         finally:
-            rotation.daily_brief_session = original_session
             rotation.fetch_hk_current = original_fetch
         self.assertEqual(result["sourceAsOf"], "2026-08-04")
         self.assertEqual([item["id"] for item in result["publicUniverse"]], ["hsi", "hstech", "hk_innovative_drug", "hk_tech_internet"])
