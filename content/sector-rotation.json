@@ -3313,103 +3313,114 @@
       "id": "us",
       "label": "美股三大指数",
       "mode": "major-index",
-      "asOf": "2026-08-06",
+      "asOf": "2026-08-05",
       "status": "ready",
       "taxonomy": {
-        "owner": "观潮日报引用的指数发布方/市场数据来源",
+        "owner": "独立指数市场数据来源",
         "name": "纳斯达克、道琼斯、标普500三大指数（非行业分类）",
-        "version": "daily-brief",
-        "effectiveDate": "2026-08-06"
+        "version": "public-market-history-v1",
+        "effectiveDate": "2026-08-05"
       },
       "note": "不扩建美股行业模型；只保留三大指数当前状态。",
       "reason": "本次没有经同口径历史回测的美股三大指数条件模型。",
       "sources": [
         {
-          "evidenceClass": "major-media",
-          "name": "美国股市8月6日收盘",
-          "publisher": "Associated Press",
-          "tier": "major-media",
-          "url": "https://apnews.com/article/stock-market-dow-warner-dow-jones-b13b60e192e74e6dc6ab222dc296b5d2"
+          "name": "道琼斯 independent history",
+          "publisher": "Yahoo Finance chart API（研究缓存派生）",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EDJI?period1=1672531200&period2=1786163626&interval=1d&events=history",
+          "tier": "authoritative",
+          "evidenceClass": "vendor-market-data"
         },
         {
-          "evidenceClass": "official-primary",
-          "name": "美国财政部日度国债曲线",
-          "publisher": "U.S. Department of the Treasury",
-          "tier": "official",
-          "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026"
+          "name": "纳斯达克 independent history",
+          "publisher": "Yahoo Finance chart API（研究缓存派生）",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EIXIC?period1=1672531200&period2=1786163626&interval=1d&events=history",
+          "tier": "authoritative",
+          "evidenceClass": "vendor-market-data"
+        },
+        {
+          "name": "标普500 independent history",
+          "publisher": "Yahoo Finance chart API（研究缓存派生）",
+          "url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?period1=1672531200&period2=1786163625&interval=1d&events=history",
+          "tier": "authoritative",
+          "evidenceClass": "vendor-market-data"
         }
       ],
       "horizons": {
         "current": {
           "kind": "observed",
           "status": "ready",
-          "asOf": "2026-08-06",
-          "note": "仅展示纳斯达克、道琼斯、标普500三大指数当前状态；不称为行业轮动。",
+          "asOf": "2026-08-05",
+          "sourceAsOf": "2026-08-05",
+          "note": "仅展示三大指数同一完整交易日的独立市场状态；不称为行业轮动。",
           "items": [
             {
-              "sector": "纳斯达克",
+              "sector": "道琼斯",
               "rank": 1,
-              "score": 100,
+              "score": 100.0,
               "direction": "leading",
-              "signal": "2026-08-06完整交易日指数表现。",
+              "signal": "2026-08-05完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "26,348.35"
+                  "value": "54,349.12"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.06%",
-                  "tone": "negative"
+                  "value": "+0.49%",
+                  "tone": "positive"
                 }
               ],
               "sourceIndexes": [
                 0,
-                1
+                1,
+                2
               ]
             },
             {
               "sector": "标普500",
               "rank": 2,
-              "score": 50,
+              "score": 50.0,
               "direction": "neutral",
-              "signal": "2026-08-06完整交易日指数表现。",
+              "signal": "2026-08-05完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "7,709.96"
+                  "value": "7,723.55"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.18%",
+                  "value": "-0.17%",
                   "tone": "negative"
                 }
               ],
               "sourceIndexes": [
                 0,
-                1
+                1,
+                2
               ]
             },
             {
-              "sector": "道琼斯",
+              "sector": "纳斯达克",
               "rank": 3,
-              "score": 0,
+              "score": 0.0,
               "direction": "lagging",
-              "signal": "2026-08-06完整交易日指数表现。",
+              "signal": "2026-08-05完整交易日指数表现。",
               "metrics": [
                 {
                   "label": "点位",
-                  "value": "53,885.10"
+                  "value": "26,363.44"
                 },
                 {
                   "label": "当日涨跌",
-                  "value": "-0.85%",
+                  "value": "-0.83%",
                   "tone": "negative"
                 }
               ],
               "sourceIndexes": [
                 0,
-                1
+                1,
+                2
               ]
             }
           ],
@@ -3433,9 +3444,9 @@
         "tomorrow": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-08-06",
+          "asOf": "2026-08-05",
           "sessions": 1,
-          "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
+          "reason": "未训练并样本外校准三大指数条件模型。",
           "modelAvailability": "not_implemented",
           "publicationStatus": "not_applicable",
           "outputMode": "current_observation",
@@ -3458,9 +3469,9 @@
         "oneWeek": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-08-06",
+          "asOf": "2026-08-05",
           "sessions": 5,
-          "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
+          "reason": "未训练并样本外校准三大指数条件模型。",
           "modelAvailability": "not_implemented",
           "publicationStatus": "not_applicable",
           "outputMode": "current_observation",
@@ -3483,9 +3494,9 @@
         "oneMonth": {
           "kind": "forecast",
           "status": "insufficient",
-          "asOf": "2026-08-06",
+          "asOf": "2026-08-05",
           "sessions": 20,
-          "reason": "美股预测模型尚未实现，当前仅展示三大指数市场状态。",
+          "reason": "未训练并样本外校准三大指数条件模型。",
           "modelAvailability": "not_implemented",
           "publicationStatus": "not_applicable",
           "outputMode": "current_observation",
