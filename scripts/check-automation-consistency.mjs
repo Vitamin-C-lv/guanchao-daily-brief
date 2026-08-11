@@ -21,8 +21,8 @@ const DEFAULT_STATE = path.join(DEFAULT_PATHS.recoveryRoot, "automation-state.js
 const DEFAULT_TASK_NAME = "Guanchao Prediction Publisher 18-20";
 const REQUIRED_PROMPT_FRAGMENTS = {
   prediction: ["run-prediction-publisher.mjs", "18:20", "禁止训练", "禁止激活 shadow candidate", "SUNDAY_NO_RUN", "AUTOMATION_DRIFT"],
-  daily: ["publicationEnabled=true", "观潮每日晚报", "writerMayBrowse=true", "memory:search", "MEMORY_DELTA", "WRITER_SKILL_MISSING", "finalize", "--write", "STALE_WRITER_PACKET", "SUNDAY_NO_REPORT"],
-  weekly: ["publicationEnabled=true", "writerMayBrowse=true", "20D", "Brier", "calibration", "abstention", "MEMORY_DELTA", "WRITER_SKILL_MISSING", "finalize", "--write"]
+  daily: ["publicationEnabled=true", "观潮每日晚报", "writerMayBrowse=true", "writer-ready.mjs", "investmentStrategy", "publish-writer-result.mjs", "--production"],
+  weekly: ["publicationEnabled=true", "观潮周报", "writerMayBrowse=true", "writer-ready.mjs", "investmentStrategy", "publish-writer-result.mjs", "--production"]
 };
 const FORBIDDEN_PROMPT_FRAGMENTS = ["publicationEnabled=false", "仅 dry-run", "Writer 禁止浏览", "禁止浏览、搜索", "LUNA_API_KEY"];
 

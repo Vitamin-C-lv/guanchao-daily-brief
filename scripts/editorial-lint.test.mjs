@@ -99,6 +99,20 @@ test("rejects reader-facing technical terms above the cap", () => {
   assert.equal(report.stylePass, false);
 });
 
+test("reader-facing machine-language fixture fails while natural Chinese copy passes", () => {
+  const strictStyle = { ...style, readerFacingTechnicalTerms: ["published model prediction", "evidence observation", "abstained", "insufficient", "authorityLevel", "schema", "artifact", "合法边界", "规则观察"], maxReaderFacingTechnicalTerms: 0 };
+  for (const phrase of strictStyle.readerFacingTechnicalTerms) {
+    const value = daily();
+    value.pulse.explanation = `这里出现 ${phrase}。`;
+    const report = lintEditorial({ edition: "daily", value, style: strictStyle });
+    assert.equal(report.readerFacingTechnicalTermPass, false, phrase);
+  }
+  const value = daily();
+  value.pulse.explanation = "模型本期没有给出概率，但成交和利率更支持大盘宽基。这里只是事实观察，不是模型预测。截至周六上午，美股周五完整收盘已经可以纳入本期。目前数据不足以支持板块轮动判断。";
+  const report = lintEditorial({ edition: "daily", value, style: strictStyle });
+  assert.equal(report.readerFacingTechnicalTermPass, true);
+});
+
 test("rejects forbidden title phrases", () => {
   const value = daily("采集状态决定风险偏好");
   const report = lintEditorial({ edition: "daily", value, style });

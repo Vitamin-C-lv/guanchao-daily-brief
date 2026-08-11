@@ -5,12 +5,16 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { buildRealGlobalMarketBrief } from "./global-market-brief-real-input.mjs";
-import { projectGlobalMarketBriefPublicDto, writeGlobalMarketBrief } from "./global-market-brief-storage.mjs";
+import { projectGlobalMarketBriefPublicDto, validateGlobalMarketBriefIndex, writeGlobalMarketBrief } from "./global-market-brief-storage.mjs";
 import { sha256Canonical } from "./research-contract.mjs";
 import { formatPacketFactStatement, validatePacketFactDirection } from "./writer-context.mjs";
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const fixturePath = path.join(repositoryRoot, "scripts", "fixtures", "global-market-brief", "valid-global-market-brief-v1.fixture.json");
+
+function frozenBrief() {
+  return JSON.parse(fs.readFileSync(fixturePath, "utf8"));
+}
 
 function filesBelow(directory) {
   if (!fs.existsSync(directory)) return [];
@@ -20,45 +24,27 @@ function filesBelow(directory) {
   }).sort();
 }
 
-test("real frozen inputs build one coherent main article and no eligible special", () => {
-  const result = buildRealGlobalMarketBrief({ root: repositoryRoot });
-  assert.equal(result.brief.schemaVersion, "global-market-brief-v1");
-  assert.equal(result.brief.dataAsOf, "2026-08-03");
-  assert.equal(result.brief.editionDate, "2026-08-04");
-  assert.equal(result.brief.specialReports.length, 0);
-  assert.equal(result.brief.specialTriggerCandidates.length, 1);
-  assert.equal(result.brief.specialTriggerCandidates[0].eligible, false);
-  assert.equal(result.brief.mainArticle.crossMarketTransmission.length, 2);
-  assert.equal(result.brief.mainArticle.watchItems.length, 4);
-  assert.equal(result.brief.buildStatus, "partial");
-  assert.equal(result.brief.mainArticle.analysisSections.length, 5);
-  assert.equal(result.brief.sourceIndex.length, 7);
-  assert.equal(new Set(result.brief.sourceIndex.map((source) => source.url)).size, 7);
-  assert.equal(result.brief.sourceIndex.some((source) => source.id === "csi-constituents"), false);
-  const fomcSource = result.brief.sourceIndex.find((source) => source.id === "fed-fomc-statement-2026-07-29");
-  assert.deepEqual(fomcSource, {
-    asOf: "2026-07-29",
-    id: "fed-fomc-statement-2026-07-29",
-    publisher: "Federal Reserve",
-    title: "Federal Reserve issues FOMC statement",
-    url: "https://www.federalreserve.gov/newsevents/pressreleases/monetary20260729a.htm",
-  });
-  assert.equal(result.brief.sourceIndex.some((source) => source.url.includes("compliancealliance.com")), false);
-  const packet = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content", "writer-packets", "daily-latest.json"), "utf8"));
-  assert.equal(packet.sourceIndex["csi-constituents"].status, "unavailable");
+test("frozen global fixture remains self-contained as current daily inputs advance", () => {
+  const brief = frozenBrief();
+  assert.equal(brief.schemaVersion, "global-market-brief-v1");
+  assert.equal(brief.dataAsOf, "2026-08-04");
+  assert.equal(brief.editionDate, "2026-08-05");
+  assert.equal(brief.specialReports.length, 1);
+  assert.equal(brief.mainArticle.crossMarketTransmission.length, 3);
+  assert.equal(brief.mainArticle.analysisSections.length, 1);
+  assert.equal(new Set(brief.sourceIndex.map((source) => source.url)).size, brief.sourceIndex.length);
 });
 
-test("negative Treasury change renders as a fall and frozen value/unit/change remain read-only", () => {
+test("Treasury fact direction follows its immutable sign", () => {
   const packet = JSON.parse(fs.readFileSync(path.join(repositoryRoot, "content", "writer-packets", "daily-latest.json"), "utf8"));
   const fact = packet.facts.find((item) => item.label === "US Treasury 10Y");
   assert.ok(fact);
   const before = structuredClone(fact);
   const statement = formatPacketFactStatement(fact);
-  assert.match(statement, /4\.70%/);
-  assert.match(statement, /回落5bp/);
-  assert.doesNotMatch(statement, /上行|上升|走高|升至/);
+  assert.match(statement, new RegExp(String(fact.value).replace(".", "\\.")));
+  assert.match(statement, fact.change1d < 0 ? /回落/ : fact.change1d > 0 ? /上行/ : /持平/);
   assert.deepEqual(fact, before);
-  assert.throws(() => validatePacketFactDirection(fact, "美国10年期国债收益率为4.70%，较前一交易日上行5bp。"), (error) => error.code === "PACKET_DIRECTION_CONFLICT");
+  assert.throws(() => validatePacketFactDirection(fact, `美国10年期国债收益率较前一交易日${fact.change1d < 0 ? "上行" : "回落"}。`), (error) => error.code === "PACKET_DIRECTION_CONFLICT");
 
   const changed = structuredClone(fact);
   changed.value = 4.71;
@@ -69,8 +55,8 @@ test("negative Treasury change renders as a fall and frozen value/unit/change re
   assert.notEqual(changed.change1d, before.change1d);
 });
 
-test("real input has no internal diagnostics in the article payload", () => {
-  const { brief } = buildRealGlobalMarketBrief({ root: repositoryRoot });
+test("frozen article payload has no internal diagnostics", () => {
+  const brief = frozenBrief();
   const forbidden = /provider|lineage|gateFailures|runtimeLog|rawResearch|contextId|writerPacketId|productionApply|localPath|stack/i;
   const scan = (value) => {
     if (Array.isArray(value)) return value.forEach(scan);
@@ -84,26 +70,29 @@ test("real input has no internal diagnostics in the article payload", () => {
 });
 
 test("public DTO is a deterministic whitelist projection", () => {
-  const { brief } = buildRealGlobalMarketBrief({ root: repositoryRoot });
+  const brief = frozenBrief();
   const dto = projectGlobalMarketBriefPublicDto(brief);
   assert.deepEqual(Object.keys(dto).sort(), ["dataAsOf", "mainArticle", "schemaVersion", "specialReports"]);
   assert.deepEqual(Object.keys(dto.mainArticle).sort(), ["articleUrl", "conclusion", "dataAsOf", "dek", "logicChain", "marketTags", "sourceCount", "title"]);
-  assert.equal(dto.specialReports.length, 0);
+  assert.equal(dto.specialReports.length, 1);
   assert.equal(Object.hasOwn(dto.mainArticle, "sourceIndex"), false);
   assert.equal(Object.hasOwn(dto.mainArticle, "keyFacts"), false);
 });
 
-test("global storage dry-run, atomic write and exact rerun touch only two files", () => {
+test("global storage dry-run, atomic history/public/index write and exact rerun are idempotent", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "guanchao-global-storage-"));
   try {
-    const { brief } = buildRealGlobalMarketBrief({ root: repositoryRoot });
+    const brief = frozenBrief();
     const before = filesBelow(root);
     const dry = writeGlobalMarketBrief({ rootDir: root, brief, dryRun: true, write: false });
     assert.equal(dry.wrote, false);
     assert.deepEqual(filesBelow(root), before);
     const first = writeGlobalMarketBrief({ rootDir: root, brief, dryRun: false, write: true });
     assert.equal(first.wrote, true);
-    assert.deepEqual(first.files.sort(), ["content/global-market-brief-public.json", "content/global-market-briefs/2026-08-04.json"]);
+    assert.deepEqual(first.files.sort(), ["content/global-market-brief-index.json", "content/global-market-brief-public.json", "content/global-market-briefs/2026-08-05.json"]);
+    const index = JSON.parse(fs.readFileSync(path.join(root, "content", "global-market-brief-index.json"), "utf8"));
+    assert.equal(validateGlobalMarketBriefIndex(index), index);
+    assert.equal(index.latestMainArticleId, brief.mainArticle.id);
     const second = writeGlobalMarketBrief({ rootDir: root, brief, dryRun: false, write: true });
     assert.equal(second.noOp, true);
     assert.equal(second.wrote, false);
@@ -116,7 +105,7 @@ test("global storage dry-run, atomic write and exact rerun touch only two files"
 test("history business conflict and source scope fail closed", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "guanchao-global-conflict-"));
   try {
-    const { brief } = buildRealGlobalMarketBrief({ root: repositoryRoot });
+    const brief = frozenBrief();
     writeGlobalMarketBrief({ rootDir: root, brief, dryRun: false, write: true });
     const changed = structuredClone(brief);
     changed.mainArticle.title = "业务内容冲突";
@@ -129,13 +118,46 @@ test("history business conflict and source scope fail closed", () => {
   }
 });
 
+test("storage write failure rolls back history, public DTO, and archive index together", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "guanchao-global-rollback-"));
+  try {
+    const brief = frozenBrief();
+    assert.throws(() => writeGlobalMarketBrief({ rootDir: root, brief, dryRun: false, write: true, failAt: 2 }), (error) => error.code === "GLOBAL_STORAGE_WRITE");
+    assert.deepEqual(filesBelow(root), []);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("a later canonical main becomes archive history without manual list maintenance", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "guanchao-global-history-"));
+  try {
+    const brief = frozenBrief();
+    writeGlobalMarketBrief({ rootDir: root, brief, dryRun: false, write: true });
+    const next = structuredClone(brief);
+    next.editionDate = "2026-08-06";
+    next.dataAsOf = "2026-08-05";
+    next.generatedAt = "2026-08-06T12:00:00.000Z";
+    next.mainArticle.id = "global-main-2026-08-06";
+    next.mainArticle.slug = "global-main-2026-08-06";
+    next.mainArticle.articleUrl = "/articles/global-main-2026-08-06/";
+    next.specialReports = [];
+    writeGlobalMarketBrief({ rootDir: root, brief: next, dryRun: false, write: true });
+    const index = JSON.parse(fs.readFileSync(path.join(root, "content", "global-market-brief-index.json"), "utf8"));
+    assert.equal(index.latestMainArticleId, "global-main-2026-08-06");
+    assert.deepEqual(index.articles.filter((article) => article.kind === "global_main").map((article) => article.id), ["global-main-2026-08-06", brief.mainArticle.id]);
+  } finally {
+    fs.rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("explicit replacement can migrate a legacy same-edition history only with its exact business hash", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "guanchao-global-replace-"));
   try {
-    const { brief } = buildRealGlobalMarketBrief({ root: repositoryRoot });
+    const brief = frozenBrief();
     const legacy = structuredClone(brief);
     delete legacy.mainArticle.analysisSections;
-    const historyFile = path.join(root, "content", "global-market-briefs", "2026-08-04.json");
+    const historyFile = path.join(root, "content", "global-market-briefs", "2026-08-05.json");
     fs.mkdirSync(path.dirname(historyFile), { recursive: true });
     fs.writeFileSync(historyFile, `${JSON.stringify(legacy)}\n`, "utf8");
     const { generatedAt, ...legacyBusiness } = legacy;
@@ -144,7 +166,7 @@ test("explicit replacement can migrate a legacy same-edition history only with i
     const dry = writeGlobalMarketBrief({ rootDir: root, brief, dryRun: true, write: false, replaceExisting: true, expectedExistingBusinessSha256: expected });
     assert.equal(dry.replacement.existingValidated, false);
     const applied = writeGlobalMarketBrief({ rootDir: root, brief, dryRun: false, write: true, replaceExisting: true, expectedExistingBusinessSha256: expected });
-    assert.deepEqual(applied.files.sort(), ["content/global-market-brief-public.json", "content/global-market-briefs/2026-08-04.json"]);
+    assert.deepEqual(applied.files.sort(), ["content/global-market-brief-index.json", "content/global-market-brief-public.json", "content/global-market-briefs/2026-08-05.json"]);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }

@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { canonicalJson, sha256Canonical } from "./research-contract.mjs";
 import { validateMemoryTree } from "./memory-manager.mjs";
-import { buildPolicyStateResearchTargets } from "./build-policy-state-research-targets.mjs";
+import { selectRelevantPolicyStateResearchTargets } from "./build-policy-state-research-targets.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
@@ -32,7 +32,14 @@ export function buildWriterMemoryContext({ root = repositoryRoot, editionDate = 
   const reviews = readJsonl(path.join(memoryRoot, "PREDICTION_REVIEWS.jsonl"));
   const dailyPacket = dailyPacketPath ? readJson(dailyPacketPath, null) : null;
   const reviewPacket = reviewPacketPath ? readJson(reviewPacketPath, null) : null;
-  const researchTargets = buildPolicyStateResearchTargets({ root, checkedAt: editionDate });
+  const researchTargets = selectRelevantPolicyStateResearchTargets({
+    root,
+    checkedAt: editionDate,
+    packet: dailyPacket,
+    articleTopics: dailyPacket?.topics ?? dailyPacket?.newsCandidates?.map((item) => item.title ?? item.topic) ?? [],
+    entities: dailyPacket?.entities ?? [],
+    strategyTargets: dailyPacket?.investmentStrategy?.recommendations?.map((item) => item.targetId) ?? []
+  });
   const recentDailyFull = dailies.slice(0, 3).map((entry) => fullArticle(root, entry));
   const priorDailySummaries = dailies.slice(3, 7).map((entry) => articleSummary(root, entry));
   const recentWeeklyFull = weeklies.slice(0, 2).map((entry) => fullArticle(root, entry));
@@ -55,9 +62,8 @@ export function buildWriterMemoryContext({ root = repositoryRoot, editionDate = 
       dailyPacket: dailyPacket ?? { required: true, available: false },
       predictionReviewPacket: reviewPacket ?? { required: true, available: false },
       newsCandidates: dailyPacket?.newsCandidates ?? [],
-      policyResearchTargets: researchTargets.policyResearchTargets,
-      stateCapitalResearchTargets: researchTargets.stateCapitalResearchTargets,
-      researchTargetSummary: { highPriorityPolicyCount: researchTargets.highPriorityPolicyCount, highPriorityStateCapitalCount: researchTargets.highPriorityStateCapitalCount },
+      relevantPolicyStateResearchTargets: researchTargets.selected,
+      researchTargetSummary: { selectedCount: researchTargets.selectedCount, maximumCount: researchTargets.maximumCount, selectionReason: researchTargets.selectionReason },
     },
     counts: {
       recentDailyFull: recentDailyFull.length,
@@ -74,7 +80,7 @@ export function buildWriterMemoryContext({ root = repositoryRoot, editionDate = 
       commands: ["pnpm memory:search", "pnpm memory:expand-thread", "pnpm memory:open-article"],
       activeResearchTriggers: ["疑点", "缺失", "未更新", "数据和新闻冲突", "重大政策", "异常行情", "值得深入研究的话题", "18:20–20:00 新发生事件"],
       packetIsFactBaseNotInformationCeiling: true,
-      mustCheckHighPriorityPolicyStateTargetsBeforeMajorAHJudgment: true,
+      policyStateResearchIsTargeted: true,
     },
     memoryDelta: { schemaVersion: "memory-delta-v1", path: "memory/editorial/daily/MEMORY_DELTA-YYYY-MM-DD.json", managerOrder: ["validate", "dedupe", "sanitize", "merge"] },
     boundaries: { noProductionLedgerWrite: true, noAutomaticHKProbabilityPromotion: true, noNullToZero: true, noOperationsMemoryInDefaultContext: true },

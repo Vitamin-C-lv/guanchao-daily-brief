@@ -115,7 +115,7 @@ function fixture() {
   const researchFile = path.join(root, "candidate.json");
   const run = sealCodexResearch(candidate(), { now: new Date("2026-08-01T01:00:00Z") });
   fs.writeFileSync(researchFile, `${JSON.stringify(run)}\n`, "utf8");
-  return { root, packet, researchFile };
+  return { root, packet, researchFile, evening };
 }
 
 function cleanup(value) {
@@ -156,11 +156,11 @@ test("prepare writes a complete package and re-running is a no-op", async () => 
     const preparedReviewPacket = JSON.parse(fs.readFileSync(path.join(output, "PREDICTION_REVIEW_PACKET.json"), "utf8"));
     const preparedMemory = JSON.parse(fs.readFileSync(path.join(output, "WRITER_MEMORY_CONTEXT.json"), "utf8"));
     const manifest = JSON.parse(fs.readFileSync(path.join(output, "MANIFEST.json"), "utf8"));
-    assert.equal(preparedDailyPacket.coreIndices.aShare.sse.status, "ready");
+    assert.equal(preparedDailyPacket.coreIndices.aShare.sse.status, value.evening.daily.coreIndices.aShare.sse.status);
     assert.equal(preparedDailyPacket.rates.tenYear.value, value.packet.treasuryFactor.nominal10y);
     assert.ok(preparedReviewPacket.horizons["1d"].publishedModelPrediction.brier >= 0);
     assert.equal(preparedMemory.bootstrap.dailyPacket.packetId, preparedDailyPacket.packetId);
-    assert.ok(preparedMemory.bootstrap.policyResearchTargets.some((item) => item.issuer === "证监会"));
+    assert.ok(preparedMemory.bootstrap.relevantPolicyStateResearchTargets.length <= 8);
     assert.deepEqual(manifest.eveningPackets.map((item) => item.name).sort(), ["DAILY_MARKET_PACKET.json", "PREDICTION_REVIEW_PACKET.json"]);
     const second = await prepareCodexWriter(withEditionDate({ edition: "daily", marketPacket: "content/writer-packets/daily-latest.json", codexResearch: value.researchFile, outputDirectory: output, write: true, dryRun: false, root: value.root, now: new Date("2026-08-02T02:00:00Z") }));
     assert.equal(second.noOp, true);

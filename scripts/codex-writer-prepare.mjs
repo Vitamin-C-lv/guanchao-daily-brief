@@ -17,6 +17,7 @@ import {
 } from "./writer-jobs.mjs";
 import {
   buildResearchBundleFromCodexRun,
+  sealNoResearchBundle,
   storeCodexResearchRun,
   validateCodexResearch
 } from "./codex-research.mjs";
@@ -401,6 +402,11 @@ export async function prepareCodexWriter({
     bundlePath = `data/research-bundles/bundles/${asOf.slice(0, 4)}/${asOf.slice(5, 7)}/${run.bundleId}.json.gz`;
   }
   if (!bundlePath) bundlePath = existingBundlePath(root, edition, asOf);
+  if (!bundlePath && mode !== "global_market_brief") {
+    run = sealNoResearchBundle({ edition, asOf, root, now });
+    researchStore = await storeCodexResearchRun({ run, root, dryRun, write });
+    bundlePath = `data/research-bundles/bundles/${asOf.slice(0, 4)}/${asOf.slice(5, 7)}/${run.bundleId}.json.gz`;
+  }
   if (typeof bundlePath !== "string") fail("RESEARCH_BUNDLE", "researchBundle", "an immutable research bundle or sealed Codex research run is required");
   const bundleFile = resolveRootFile(root, bundlePath, "researchBundle");
   const bundleExists = fs.existsSync(bundleFile);

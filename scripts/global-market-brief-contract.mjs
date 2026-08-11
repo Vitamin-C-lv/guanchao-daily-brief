@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { validateInvestmentStrategy } from "./investment-strategy-contract.mjs";
 
 import { canonicalJson } from "./research-contract.mjs";
 
@@ -98,6 +99,7 @@ const ARTICLE_KEYS = [
   "crossMarketTransmission",
   "dek",
   "id",
+  "investmentStrategy",
   "invalidationConditions",
   "keyFacts",
   "logicChain",
@@ -234,7 +236,8 @@ function scanForbiddenKeys(value, articleId, errorPath = "$") {
   }
   if (!isObject(value)) return;
   for (const [key, child] of Object.entries(value)) {
-    if (FORBIDDEN_KEYS.has(key) || NORMALIZED_FORBIDDEN_KEYS.has(key.toLowerCase().replaceAll("_", "").replaceAll("-", ""))) {
+    const strategyProbability = errorPath.endsWith(".investmentStrategy.modelContext") && key === "probability";
+    if (!strategyProbability && (FORBIDDEN_KEYS.has(key) || NORMALIZED_FORBIDDEN_KEYS.has(key.toLowerCase().replaceAll("_", "").replaceAll("-", "")))) {
       fail("FORBIDDEN_FIELD", articleId, `${errorPath}.${key}`, "provider/internal/model diagnostic or numeric probability field is forbidden");
     }
     scanForbiddenKeys(child, articleId, `${errorPath}.${key}`);
@@ -320,9 +323,12 @@ function validateOutlook(value, articleId, pathName, sourceIds, articleSourceIds
   }
 }
 
-function validateArticle(value, articleId, sourceIds, { special = false, dataAsOf = null } = {}) {
+function validateArticle(value, articleId, sourceIds, { special = false, dataAsOf = null, requireInvestmentStrategy = false } = {}) {
   const keys = special ? SPECIAL_ARTICLE_KEYS : ARTICLE_KEYS;
-  exactKeys(value, special ? keys.filter((key) => key !== "analysisSections") : keys, keys, articleId, articleId);
+  const expectedKeys = special
+    ? keys.filter((key) => key !== "analysisSections" && key !== "investmentStrategy")
+    : Object.hasOwn(value, "investmentStrategy") ? keys : keys.filter((key) => key !== "investmentStrategy");
+  exactKeys(value, expectedKeys, keys, articleId, articleId);
   slugValue(value.id, articleId, `${articleId}.id`);
   slugValue(value.slug, articleId, `${articleId}.slug`);
   if (value.id !== value.slug) fail("ARTICLE_ID", articleId, `${articleId}.slug`, "id and slug must match");
@@ -337,6 +343,7 @@ function validateArticle(value, articleId, sourceIds, { special = false, dataAsO
   stringArray(value.marketTags, articleId, `${articleId}.marketTags`, { min: 1, max: 4, itemMax: 20 });
   for (const tag of value.marketTags) if (!MARKETS.has(tag)) fail("INVALID_MARKET", articleId, `${articleId}.marketTags`, `market tag ${tag} is not supported`);
   stringArray(value.topicTags, articleId, `${articleId}.topicTags`, { min: 1, max: 20, itemMax: 80 });
+  if (!special) validateInvestmentStrategy(value.investmentStrategy, { sourceIds, requireStrategy: requireInvestmentStrategy, edition: "daily" });
 
   if (!Array.isArray(value.keyFacts) || value.keyFacts.length < 1) fail("INVALID_ARRAY", articleId, `${articleId}.keyFacts`, "at least one key fact is required");
   const factIds = new Set();
@@ -444,7 +451,7 @@ function validateTriggerCandidates(value, articleId, sourceIds) {
   return candidates;
 }
 
-export function validateGlobalMarketBrief(value) {
+export function validateGlobalMarketBrief(value, { requireInvestmentStrategy = false } = {}) {
   const documentId = "global-market-brief";
   scanForbiddenKeys(value, documentId);
   exactKeys(value, TOP_KEYS, TOP_KEYS, documentId, "$" );
@@ -458,7 +465,7 @@ export function validateGlobalMarketBrief(value) {
   const sourceIds = validateSourceIndex(value.sourceIndex, documentId);
   const candidates = validateTriggerCandidates(value.specialTriggerCandidates, documentId, sourceIds);
   if (!isObject(value.mainArticle)) fail("MAIN_ARTICLE_COUNT", "mainArticle", "mainArticle", "exactly one mainArticle object is required");
-  validateArticle(value.mainArticle, value.mainArticle.id ?? "mainArticle", sourceIds, { dataAsOf: value.dataAsOf });
+  validateArticle(value.mainArticle, value.mainArticle.id ?? "mainArticle", sourceIds, { dataAsOf: value.dataAsOf, requireInvestmentStrategy });
   if (value.mainArticle.contentKind !== "global_main") fail("CONTENT_KIND", value.mainArticle.id, "mainArticle.contentKind", "global_main required");
   if (!Array.isArray(value.specialReports) || value.specialReports.length > 2) fail("SPECIAL_REPORT_LIMIT", "global-market-brief", "specialReports", "zero to two special reports are allowed");
   const articleIds = new Set([value.mainArticle.id]);
@@ -489,7 +496,7 @@ export function validateGlobalMarketBrief(value) {
 }
 
 const PUBLIC_TOP_KEYS = ["dataAsOf", "mainArticle", "schemaVersion", "specialReports"];
-const PUBLIC_MAIN_KEYS = ["articleUrl", "conclusion", "dataAsOf", "dek", "logicChain", "marketTags", "sourceCount", "title"];
+const PUBLIC_MAIN_KEYS = ["articleUrl", "conclusion", "dataAsOf", "dek", "investmentStrategyPreview", "logicChain", "marketTags", "sourceCount", "title"];
 const PUBLIC_SPECIAL_KEYS = ["articleUrl", "conclusion", "marketTags", "title", "triggerType"];
 const PUBLIC_LOGIC_KEYS = ["evidenceStatus", "from", "relation", "to"];
 
@@ -510,7 +517,8 @@ export function validateGlobalMarketBriefPublicDto(value) {
   exactKeys(value, PUBLIC_TOP_KEYS, PUBLIC_TOP_KEYS, documentId, "$" );
   if (value.schemaVersion !== PUBLIC_DTO_SCHEMA_VERSION) fail("SCHEMA_VERSION", documentId, "schemaVersion", `${PUBLIC_DTO_SCHEMA_VERSION} required`);
   validDate(value.dataAsOf, documentId, "dataAsOf");
-  exactKeys(value.mainArticle, PUBLIC_MAIN_KEYS, PUBLIC_MAIN_KEYS, documentId, "mainArticle");
+  const publicMainKeys = Object.hasOwn(value.mainArticle, "investmentStrategyPreview") ? PUBLIC_MAIN_KEYS : PUBLIC_MAIN_KEYS.filter((key) => key !== "investmentStrategyPreview");
+  exactKeys(value.mainArticle, publicMainKeys, PUBLIC_MAIN_KEYS, documentId, "mainArticle");
   stringValue(value.mainArticle.title, documentId, "mainArticle.title", { max: 200 });
   stringValue(value.mainArticle.dek, documentId, "mainArticle.dek", { max: 500 });
   stringValue(value.mainArticle.conclusion, documentId, "mainArticle.conclusion", { max: 1200 });
@@ -525,6 +533,22 @@ export function validateGlobalMarketBriefPublicDto(value) {
     for (const key of ["from", "relation", "to"]) stringValue(edge[key], documentId, `${edgePath}.${key}`, { max: 160 });
     enumValue(edge.evidenceStatus, EVIDENCE_STATUSES, documentId, `${edgePath}.evidenceStatus`);
   });
+  if (Object.hasOwn(value.mainArticle, "investmentStrategyPreview")) {
+    const preview = value.mainArticle.investmentStrategyPreview;
+    exactKeys(preview, ["modelStatus", "overallStance", "recommendations", "signalOrigin", "summary"], ["modelStatus", "overallStance", "recommendations", "signalOrigin", "summary"], documentId, "mainArticle.investmentStrategyPreview");
+    stringValue(preview.summary, documentId, "mainArticle.investmentStrategyPreview.summary", { max: 900 });
+    enumValue(preview.overallStance, new Set(["risk_on", "neutral", "risk_off"]), documentId, "mainArticle.investmentStrategyPreview.overallStance");
+    enumValue(preview.signalOrigin, new Set(["model_plus_writer", "writer_only"]), documentId, "mainArticle.investmentStrategyPreview.signalOrigin");
+    enumValue(preview.modelStatus, new Set(["published", "abstained", "unavailable"]), documentId, "mainArticle.investmentStrategyPreview.modelStatus");
+    if (!Array.isArray(preview.recommendations) || preview.recommendations.length < 1 || preview.recommendations.length > 3) fail("INVALID_ARRAY", documentId, "mainArticle.investmentStrategyPreview.recommendations", "one to three strategy recommendations required");
+    preview.recommendations.forEach((item, index) => {
+      exactKeys(item, ["action", "conviction", "direction", "label"], ["action", "conviction", "direction", "label"], documentId, `mainArticle.investmentStrategyPreview.recommendations[${index}]`);
+      stringValue(item.label, documentId, `mainArticle.investmentStrategyPreview.recommendations[${index}].label`, { max: 120 });
+      enumValue(item.action, new Set(["increase", "hold", "reduce"]), documentId, `mainArticle.investmentStrategyPreview.recommendations[${index}].action`);
+      enumValue(item.direction, new Set(["bullish", "neutral", "bearish"]), documentId, `mainArticle.investmentStrategyPreview.recommendations[${index}].direction`);
+      if (!Number.isInteger(item.conviction) || item.conviction < 1 || item.conviction > 5) fail("INVALID_TYPE", documentId, `mainArticle.investmentStrategyPreview.recommendations[${index}].conviction`, "integer 1–5 required");
+    });
+  }
   if (!Array.isArray(value.specialReports) || value.specialReports.length > 2) fail("SPECIAL_REPORT_LIMIT", documentId, "specialReports", "zero to two special reports are allowed");
   value.specialReports.forEach((report, index) => {
     const reportPath = `specialReports[${index}]`;

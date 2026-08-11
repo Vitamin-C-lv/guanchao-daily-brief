@@ -9,6 +9,7 @@ import { gunzipSync, gzipSync } from "node:zlib";
 import { canonicalize, canonicalJson, sha256Canonical } from "./research-contract.mjs";
 import { validateGlobalMarketBrief } from "./global-market-brief-contract.mjs";
 import { listGlobalMarketBriefHistory, writeGlobalMarketBrief } from "./global-market-brief-storage.mjs";
+import { validateInvestmentStrategy } from "./investment-strategy-contract.mjs";
 import { enforceFreshEditionContent } from "./editorial-freshness.mjs";
 import {
   GLOBAL_MARKET_BRIEF_MODE,
@@ -820,6 +821,13 @@ export function validateResult(rootDir, request, result) {
 
 function validatePayload(rootDir, target, payload) {
   if (target.contentType === "global-market-brief") {
+    try {
+      // Existing immutable historical fixtures remain readable.  Every new
+      // formal Daily publication from this convergence date is strict.
+      validateGlobalMarketBrief(payload, { requireInvestmentStrategy: payload?.editionDate >= "2026-08-12" });
+    } catch (cause) {
+      error(cause?.code ?? "INVESTMENT_STRATEGY_INVALID", cause?.path ?? "investmentStrategy", cause instanceof Error ? cause.message : "global investment strategy is invalid");
+    }
     const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "writer-global-validator-"));
     try {
       const candidate = path.join(temporary, "candidate.json");
@@ -831,7 +839,14 @@ function validatePayload(rootDir, target, payload) {
     }
     return;
   }
-  if (target.contentType === "weekly-report") return;
+  if (target.contentType === "weekly-report") {
+    try {
+      validateInvestmentStrategy(payload?.investmentStrategy, { sourceIds: (payload?.sources ?? []).map((source) => source.id), requireStrategy: payload?.report?.weekEnd >= "2026-08-12", edition: "weekly" });
+    } catch (cause) {
+      error(cause?.code ?? "INVESTMENT_STRATEGY_INVALID", cause?.path ?? "investmentStrategy", cause instanceof Error ? cause.message : "weekly investment strategy is invalid");
+    }
+    return;
+  }
   if (target.contentType !== "daily-brief") error("TARGET_SCHEMA_UNKNOWN", "contentType", "unknown target content type");
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "writer-job-validator-"));
   try {

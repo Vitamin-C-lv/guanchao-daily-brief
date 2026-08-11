@@ -87,6 +87,12 @@ function visibleParagraphs(edition, payload) {
       pushText(paragraphs, signal.label);
       pushText(paragraphs, signal.value);
     }
+    const strategy = payload.investmentStrategy ?? {};
+    for (const key of ["title", "summary"]) pushText(paragraphs, strategy[key]);
+    for (const item of strategy.recommendations ?? []) {
+      if (!object(item)) continue;
+      for (const key of ["label", "whyNow", "modelEvidence", "writerOverlay", "trigger", "invalidation", "overrideReason"]) pushText(paragraphs, item[key]);
+    }
     const fed = payload.federalReserve ?? {};
     pushText(paragraphs, fed.takeaway);
     for (const article of fed.articles ?? []) pushArticle(paragraphs, article);
@@ -111,6 +117,14 @@ function visibleParagraphs(edition, payload) {
       if (!object(item)) continue;
       pushText(paragraphs, item.title);
       pushText(paragraphs, item.summary);
+    }
+    const strategy = payload.investmentStrategy ?? {};
+    for (const key of ["title", "summary"]) pushText(paragraphs, strategy[key]);
+    const model = strategy.modelContext ?? {};
+    pushText(paragraphs, model.readerCopy);
+    for (const item of strategy.recommendations ?? []) {
+      if (!object(item)) continue;
+      for (const key of ["label", "whyNow", "modelEvidence", "writerOverlay", "trigger", "invalidation", "overrideReason"]) pushText(paragraphs, item[key]);
     }
     for (const event of payload.majorEvents ?? []) {
       if (!object(event)) continue;
@@ -201,6 +215,11 @@ function globalArticleText(article) {
   for (const item of [article.outlook?.nextSession, article.outlook?.oneWeek]) if (object(item)) pushText(text, item.statement);
   for (const condition of article.invalidationConditions ?? []) if (object(condition)) pushText(text, condition.condition);
   for (const watch of article.watchItems ?? []) if (object(watch)) for (const key of ["item", "whyItMatters"]) pushText(text, watch[key]);
+  const strategy = article.investmentStrategy;
+  if (object(strategy)) {
+    for (const key of ["title", "summary"]) pushText(text, strategy[key]);
+    for (const item of strategy.recommendations ?? []) if (object(item)) for (const key of ["label", "whyNow", "modelEvidence", "writerOverlay", "trigger", "invalidation", "overrideReason"]) pushText(text, item[key]);
+  }
   return text;
 }
 
@@ -211,7 +230,7 @@ function lintGlobalEditorial(payload) {
   const errors = [];
   const fixedThreeMarketDraft = Array.isArray(payload.markets) && payload.markets.length === 3;
   if (fixedThreeMarketDraft) errors.push("global writer must not emit the fixed three-market draft");
-  const machinePattern = /模型(?:尚未训练|未训练)|\bprovider\b|\bcoverage\b|gateFailures?|gate failures|机器状态|not[_ -]?trained|productionApply|writerPacketId|contextId|internalLineage/i;
+  const machinePattern = /模型(?:尚未训练|未训练)|\b(?:provider|coverage|insufficient|unavailable|partial|abstained|schema|artifact|lineage|packet|automation)\b|evidence observation|published model prediction|publicationStatus|modelAvailability|gateFailures?|gate failures|sourceAsOf|authorityLevel|documentType|implementationStage|coverage contract|internalLineage|规则观察|合法边界|本地归档为0个独立日期|模型门禁|生产门禁|机器状态|not[_ -]?trained|productionApply|writerPacketId|contextId|market-date-contract/i;
   const machineText = entries.filter(({ text }) => machinePattern.test(text)).map(({ article, text }) => `${article.id}: machine diagnostic text`);
   if (machineText.length) errors.push(`machine diagnostic text entered article: ${machineText.join(", ")}`);
   const highImpactPattern = /确认|转向|重估|系统性|显著|决定|冲击|主线|风险偏好|会传导|成为起点|大幅/u;

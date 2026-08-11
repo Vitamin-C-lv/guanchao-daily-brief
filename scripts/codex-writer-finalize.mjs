@@ -91,7 +91,7 @@ function assessLegacyFreshness(packageValue, request, payload, { maintenanceProj
     fail("FRESH_EDITION_CONTENT_REQUIRED", "result.payload", "new edition editorial content is unchanged after runtime/date/visual normalization");
   }
   if (request.edition === "daily" && !maintenanceProjection) {
-    fail("CANONICAL_EDITION_REQUIRED", "result.payload", "formal Daily publication requires global_market_brief canonical output");
+    fail("LEGACY_ONLY_DAILY_PUBLICATION_FORBIDDEN", "result.payload", "formal Daily publication requires global_market_brief canonical output");
   }
   return {
     previousEdition,
@@ -416,7 +416,7 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
     const editorialFreshness = assessEditorialFreshness(root, result.payload, { correction });
     const replacement = explicitGlobalReplacement(root, result.payload, { correction });
     const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root, replacement });
-    const approvedFiles = new Set(["content/global-market-brief-public.json", `content/global-market-briefs/${result.payload.editionDate}.json`]);
+    const approvedFiles = new Set(["content/global-market-brief-public.json", "content/global-market-brief-index.json", `content/global-market-briefs/${result.payload.editionDate}.json`]);
     for (const file of [...simulation.files, ...(simulation.wouldWrite ?? [])]) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer may only write history and latest public DTO");
     let applied = simulation;
     let targetValidation = null;

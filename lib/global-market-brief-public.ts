@@ -29,6 +29,14 @@ export interface LogicChainSummary {
   evidenceStatus: GlobalLogicStatus;
 }
 
+export interface InvestmentStrategyPreview {
+  summary: string;
+  overallStance: "risk_on" | "neutral" | "risk_off";
+  signalOrigin: "model_plus_writer" | "writer_only";
+  modelStatus: "published" | "abstained" | "unavailable";
+  recommendations: Array<{ label: string; action: "increase" | "hold" | "reduce"; direction: "bullish" | "neutral" | "bearish"; conviction: number }>;
+}
+
 export interface GlobalMainBriefPublic {
   title: string;
   dek: string;
@@ -38,6 +46,7 @@ export interface GlobalMainBriefPublic {
   dataAsOf: string;
   sourceCount: number;
   articleUrl: string;
+  investmentStrategyPreview?: InvestmentStrategyPreview;
 }
 
 export interface GlobalSpecialReportPublic {
@@ -70,7 +79,7 @@ export class GlobalMarketBriefPublicDecodeError extends Error {
   }
 }
 
-const MAIN_KEYS = ["articleUrl", "conclusion", "dataAsOf", "dek", "logicChain", "marketTags", "sourceCount", "title"] as const;
+const MAIN_KEYS = ["articleUrl", "conclusion", "dataAsOf", "dek", "investmentStrategyPreview", "logicChain", "marketTags", "sourceCount", "title"] as const;
 const SPECIAL_KEYS = ["articleUrl", "conclusion", "marketTags", "title", "triggerType"] as const;
 const LOGIC_KEYS = ["evidenceStatus", "from", "relation", "to"] as const;
 const TOP_KEYS = ["dataAsOf", "mainArticle", "schemaVersion", "specialReports"] as const;
@@ -182,9 +191,34 @@ function logicChain(value: unknown, fieldPath: string): LogicChainSummary[] {
   });
 }
 
+function strategyPreview(value: unknown, fieldPath: string): InvestmentStrategyPreview {
+  const source = record(value, fieldPath);
+  exactKeys(source, ["modelStatus", "overallStance", "recommendations", "signalOrigin", "summary"], fieldPath);
+  const recommendations = source.recommendations;
+  if (!Array.isArray(recommendations) || recommendations.length < 1 || recommendations.length > 3) fail(`${fieldPath}.recommendations`, "one to three recommendations required");
+  return {
+    summary: string(source.summary, `${fieldPath}.summary`, 900),
+    overallStance: oneOf(source.overallStance, `${fieldPath}.overallStance`, ["risk_on", "neutral", "risk_off"]),
+    signalOrigin: oneOf(source.signalOrigin, `${fieldPath}.signalOrigin`, ["model_plus_writer", "writer_only"]),
+    modelStatus: oneOf(source.modelStatus, `${fieldPath}.modelStatus`, ["published", "abstained", "unavailable"]),
+    recommendations: recommendations.map((item, index) => {
+      const recommendation = record(item, `${fieldPath}.recommendations[${index}]`);
+      exactKeys(recommendation, ["action", "conviction", "direction", "label"], `${fieldPath}.recommendations[${index}]`);
+      if (typeof recommendation.conviction !== "number" || !Number.isInteger(recommendation.conviction) || recommendation.conviction < 1 || recommendation.conviction > 5) fail(`${fieldPath}.recommendations[${index}].conviction`, "integer 1–5 required");
+      return {
+        label: string(recommendation.label, `${fieldPath}.recommendations[${index}].label`, 120),
+        action: oneOf(recommendation.action, `${fieldPath}.recommendations[${index}].action`, ["increase", "hold", "reduce"]),
+        direction: oneOf(recommendation.direction, `${fieldPath}.recommendations[${index}].direction`, ["bullish", "neutral", "bearish"]),
+        conviction: recommendation.conviction,
+      };
+    }),
+  };
+}
+
 function mainArticle(value: unknown): GlobalMainBriefPublic {
   const source = record(value, "mainArticle");
-  exactKeys(source, MAIN_KEYS, "mainArticle");
+  const keys = Object.hasOwn(source, "investmentStrategyPreview") ? MAIN_KEYS : MAIN_KEYS.filter((key) => key !== "investmentStrategyPreview");
+  exactKeys(source, keys, "mainArticle");
   return {
     title: string(source.title, "mainArticle.title", 200),
     dek: string(source.dek, "mainArticle.dek", 500),
@@ -197,6 +231,7 @@ function mainArticle(value: unknown): GlobalMainBriefPublic {
       return source.sourceCount as number;
     })(),
     articleUrl: articleUrl(source.articleUrl, "mainArticle.articleUrl"),
+    ...(Object.hasOwn(source, "investmentStrategyPreview") ? { investmentStrategyPreview: strategyPreview(source.investmentStrategyPreview, "mainArticle.investmentStrategyPreview") } : {}),
   };
 }
 

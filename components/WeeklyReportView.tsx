@@ -1,6 +1,7 @@
 import { ArrowLeft, CalendarDays, ExternalLink, Gauge, Layers3, ShieldCheck, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { GeneratedEditorialVisualFigure } from "@/components/ArticleEnhancements";
+import InvestmentStrategyCard from "@/components/InvestmentStrategyCard";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import { SourceMeta, sourceMetaLabel } from "@/components/SourceLink";
 import StructuredChart from "@/components/StructuredChart";
@@ -45,6 +46,8 @@ export default function WeeklyReportView({ data }: { data: WeeklyReport }) {
             <div className="weekly-score"><span>编辑重要度</span><strong>{data.executiveSummary.editorialScore}</strong><small>/ 100</small></div>
             <div><span className="eyebrow">EXECUTIVE SUMMARY</span><h2>一周核心判断</h2><p>{data.executiveSummary.weekVerdict}</p></div>
           </section>
+
+          {data.investmentStrategy ? <InvestmentStrategyCard strategy={data.investmentStrategy} /> : null}
 
           <section className="weekly-takeaways">
             {data.executiveSummary.keyTakeaways.map((item, index) => <article key={item.id}><span>{String(index + 1).padStart(2, "0")}</span><div><strong>{item.title}</strong><p>{item.summary}<SourceRefs ids={item.sourceIds} report={data} /></p></div><b>{item.importance}</b></article>)}

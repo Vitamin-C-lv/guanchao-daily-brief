@@ -68,10 +68,40 @@ export interface ArticleWatchItem {
   sources: ArticleSource[];
 }
 
+export interface InvestmentStrategyRecommendation {
+  market: string;
+  targetType: string;
+  targetId: string;
+  label: string;
+  action: "increase" | "hold" | "reduce";
+  direction: "bullish" | "neutral" | "bearish";
+  conviction: number;
+  horizon: string;
+  whyNow: string;
+  modelEvidence: string;
+  writerOverlay: string;
+  supportingSourceIds: string[];
+  predictionIds: string[];
+  trigger: string;
+  invalidation: string;
+  modelAgreement: "agree" | "override" | "not_applicable";
+  overrideReason: string | null;
+}
+
+export interface InvestmentStrategyArticleData {
+  title: string;
+  summary: string;
+  overallStance: "risk_on" | "neutral" | "risk_off";
+  signalOrigin: "model_plus_writer" | "writer_only";
+  modelContext: { status: "published" | "abstained" | "unavailable"; signalAvailable: boolean; probability: number | null; horizonSessions: number; sourcePredictionIds: string[] };
+  recommendations: InvestmentStrategyRecommendation[];
+}
+
 export interface GlobalArticlePage {
   kind: GlobalArticleKind;
   id: string;
   articleUrl: string;
+  editionDate: string;
   title: string;
   dek: string;
   conclusion: string;
@@ -88,6 +118,7 @@ export interface GlobalArticlePage {
   outlook: { nextSession: ArticleOutlookItem; oneWeek: ArticleOutlookItem };
   invalidationConditions: ArticleInvalidation[];
   watchItems: ArticleWatchItem[];
+  investmentStrategy: InvestmentStrategyArticleData | null;
   sources: ArticleSource[];
 }
 
@@ -196,6 +227,62 @@ function analysisSections(value: unknown, field: string, resolveSources: (ids: u
   });
 }
 
+export interface GlobalMarketBriefArchiveArticle {
+  id: string;
+  kind: GlobalArticleKind;
+  editionDate: string;
+  dataAsOf: string;
+  title: string;
+  dek: string;
+  conclusion: string;
+  marketTags: string[];
+  articleUrl: string;
+  sourceCount: number;
+  investmentStrategyPreview: { summary: string; overallStance: string; modelStatus: string; signalOrigin: string; recommendations: Array<{ label: string; action: string; direction: string; conviction: number }> } | null;
+}
+
+function investmentStrategy(value: unknown): InvestmentStrategyArticleData | null {
+  if (value === undefined || value === null) return null;
+  const item = record(value, "investmentStrategy");
+  const model = record(item.modelContext, "investmentStrategy.modelContext");
+  const recommendations = Array.isArray(item.recommendations) ? item.recommendations : [];
+  return {
+    title: string(item.title, "investmentStrategy.title"),
+    summary: string(item.summary, "investmentStrategy.summary"),
+    overallStance: string(item.overallStance, "investmentStrategy.overallStance") as InvestmentStrategyArticleData["overallStance"],
+    signalOrigin: string(item.signalOrigin, "investmentStrategy.signalOrigin") as InvestmentStrategyArticleData["signalOrigin"],
+    modelContext: {
+      status: string(model.status, "investmentStrategy.modelContext.status") as InvestmentStrategyArticleData["modelContext"]["status"],
+      signalAvailable: model.signalAvailable === true,
+      probability: typeof model.probability === "number" ? model.probability : null,
+      horizonSessions: typeof model.horizonSessions === "number" ? model.horizonSessions : 0,
+      sourcePredictionIds: stringArray(model.sourcePredictionIds, "investmentStrategy.modelContext.sourcePredictionIds"),
+    },
+    recommendations: recommendations.map((value, index) => {
+      const recommendation = record(value, `investmentStrategy.recommendations[${index}]`);
+      return {
+        market: string(recommendation.market, "investmentStrategy.recommendations.market"),
+        targetType: string(recommendation.targetType, "investmentStrategy.recommendations.targetType"),
+        targetId: string(recommendation.targetId, "investmentStrategy.recommendations.targetId"),
+        label: string(recommendation.label, "investmentStrategy.recommendations.label"),
+        action: string(recommendation.action, "investmentStrategy.recommendations.action") as InvestmentStrategyRecommendation["action"],
+        direction: string(recommendation.direction, "investmentStrategy.recommendations.direction") as InvestmentStrategyRecommendation["direction"],
+        conviction: typeof recommendation.conviction === "number" ? recommendation.conviction : 0,
+        horizon: string(recommendation.horizon, "investmentStrategy.recommendations.horizon"),
+        whyNow: string(recommendation.whyNow, "investmentStrategy.recommendations.whyNow"),
+        modelEvidence: string(recommendation.modelEvidence, "investmentStrategy.recommendations.modelEvidence"),
+        writerOverlay: string(recommendation.writerOverlay, "investmentStrategy.recommendations.writerOverlay"),
+        supportingSourceIds: stringArray(recommendation.supportingSourceIds, "investmentStrategy.recommendations.supportingSourceIds"),
+        predictionIds: stringArray(recommendation.predictionIds, "investmentStrategy.recommendations.predictionIds"),
+        trigger: string(recommendation.trigger, "investmentStrategy.recommendations.trigger"),
+        invalidation: string(recommendation.invalidation, "investmentStrategy.recommendations.invalidation"),
+        modelAgreement: string(recommendation.modelAgreement, "investmentStrategy.recommendations.modelAgreement") as InvestmentStrategyRecommendation["modelAgreement"],
+        overrideReason: recommendation.overrideReason === null ? null : string(recommendation.overrideReason, "investmentStrategy.recommendations.overrideReason"),
+      };
+    }),
+  };
+}
+
 function projectArticle(brief: Record<string, unknown>, article: Record<string, unknown>, kind: GlobalArticleKind, resolveSources: (ids: unknown, field: string) => ArticleSource[]): GlobalArticlePage {
   const field = kind === "global_main" ? "mainArticle" : "specialReport";
   const sourceLinks = resolveSources(article.sourceIds, `${field}.sourceIds`);
@@ -204,6 +291,7 @@ function projectArticle(brief: Record<string, unknown>, article: Record<string, 
     kind,
     id: string(article.id, `${field}.id`),
     articleUrl: articleUrl(article.articleUrl, `${field}.articleUrl`),
+    editionDate: date(brief.editionDate, "editionDate"),
     title: string(article.title, `${field}.title`),
     dek: string(article.dek, `${field}.dek`),
     conclusion: string(article.conclusion, `${field}.conclusion`),
@@ -241,6 +329,7 @@ function projectArticle(brief: Record<string, unknown>, article: Record<string, 
       const item = record(value, `${field}.watchItems[${index}]`);
       return { item: string(item.item, "watch.item"), whyItMatters: string(item.whyItMatters, "watch.whyItMatters"), expectedAt: nullableDate(item.expectedAt, "watch.expectedAt"), sources: resolveSources(item.sourceIds, "watch.sourceIds") };
     }) : [],
+    investmentStrategy: kind === "global_main" ? investmentStrategy(article.investmentStrategy) : null,
     sources: sourceLinks,
   };
   return projected;
@@ -261,6 +350,28 @@ export function loadGlobalMarketBriefArticles(root = process.cwd()): GlobalArtic
     const value = JSON.parse(readFileSync(path.join(directory, name), "utf8")) as unknown;
     return projectGlobalMarketBriefForArticle(value);
   });
+}
+
+export function projectGlobalMarketBriefArchive(articles: GlobalArticlePage[]): GlobalMarketBriefArchiveArticle[] {
+  return articles.map((article) => ({
+    id: article.id,
+    kind: article.kind,
+    editionDate: article.editionDate,
+    dataAsOf: article.dataAsOf,
+    title: article.title,
+    dek: article.dek,
+    conclusion: article.conclusion,
+    marketTags: [...article.marketTags],
+    articleUrl: article.articleUrl,
+    sourceCount: article.sourceCount,
+    investmentStrategyPreview: article.investmentStrategy ? {
+      summary: article.investmentStrategy.summary,
+      overallStance: article.investmentStrategy.overallStance,
+      modelStatus: article.investmentStrategy.modelContext.status,
+      signalOrigin: article.investmentStrategy.signalOrigin,
+      recommendations: article.investmentStrategy.recommendations.slice(0, 3).map((item) => ({ label: item.label, action: item.action, direction: item.direction, conviction: item.conviction })),
+    } : null,
+  })).sort((left, right) => right.editionDate.localeCompare(left.editionDate) || (left.kind === right.kind ? left.id.localeCompare(right.id) : left.kind === "global_main" ? -1 : 1));
 }
 
 export function findGlobalMarketBriefArticle(articles: GlobalArticlePage[], id: string): GlobalArticlePage | null {

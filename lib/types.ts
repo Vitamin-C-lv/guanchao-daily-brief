@@ -1045,10 +1045,40 @@ export interface WeeklyReportIndex {
   reports: WeeklyReportIndexEntry[];
 }
 
+export interface InvestmentStrategy {
+  schemaVersion: "investment-strategy-v1";
+  asOf: string;
+  title: "本期配置建议" | "下周配置建议";
+  summary: string;
+  overallStance: "risk_on" | "neutral" | "risk_off";
+  signalOrigin: "model_plus_writer" | "writer_only";
+  modelContext: { status: "published" | "abstained" | "unavailable"; signalAvailable: boolean; probability: number | null; horizonSessions: number; sourcePredictionIds: string[] };
+  recommendations: Array<{
+    market: string;
+    targetType: string;
+    targetId: string;
+    label: string;
+    action: "increase" | "hold" | "reduce";
+    direction: "bullish" | "neutral" | "bearish";
+    conviction: number;
+    horizon: string;
+    whyNow: string;
+    modelEvidence: string;
+    writerOverlay: string;
+    supportingSourceIds: string[];
+    predictionIds: string[];
+    trigger: string;
+    invalidation: string;
+    modelAgreement: "agree" | "override" | "not_applicable";
+    overrideReason: string | null;
+  }>;
+}
+
 export interface WeeklyReport {
   schemaVersion: 1;
   visual?: GeneratedEditorialVisual;
   charts?: StructuredChart[];
+  investmentStrategy?: InvestmentStrategy;
   report: {
     id: string;
     revision: number;
