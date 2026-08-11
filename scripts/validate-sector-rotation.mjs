@@ -1,4 +1,3 @@
-import { readFileSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import path from "node:path";
@@ -38,45 +37,6 @@ function canonicalJson(value) {
     return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
   }
   return JSON.stringify(value);
-}
-
-function latestCompleteASession(now = new Date()) {
-  // Latest complete A-share trading session from the frozen CN calendar. A session is
-  // complete only after the 15:00 Asia/Shanghai close plus a conservative data
-  // publication buffer (17:00); before that the latest complete session is the previous
-  // trading day. Non-trading days are never treated as trading days.
-  // Returns null when the calendar is unavailable.
-  let closed;
-  try {
-    const calendar = JSON.parse(readFileSync(aShareCalendarPath, "utf8"));
-    closed = new Set(calendar.closedWeekdays ?? []);
-  } catch {
-    return null;
-  }
-  const shanghai = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Shanghai", year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false }).format(now);
-  const [datePart, timePart] = shanghai.split(/[\s,]+/);
-  const [hour, minute] = timePart.split(":").map(Number);
-  const currentMinutes = hour * 60 + minute;
-  const isTrading = (iso) => {
-    const weekday = new Date(`${iso}T00:00:00.000Z`).getUTCDay();
-    return weekday !== 0 && weekday !== 6 && !closed.has(iso);
-  };
-  let candidate = new Date(`${datePart}T00:00:00.000Z`);
-  let trading = null;
-  while (!trading) {
-    trading = isTrading(candidate.toISOString().slice(0, 10)) ? candidate.toISOString().slice(0, 10) : null;
-    if (!trading) candidate.setUTCDate(candidate.getUTCDate() - 1);
-  }
-  if (trading === datePart && currentMinutes < 17 * 60) {
-    candidate = new Date(`${datePart}T00:00:00.000Z`);
-    candidate.setUTCDate(candidate.getUTCDate() - 1);
-    trading = null;
-    while (!trading) {
-      trading = isTrading(candidate.toISOString().slice(0, 10)) ? candidate.toISOString().slice(0, 10) : null;
-      if (!trading) candidate.setUTCDate(candidate.getUTCDate() - 1);
-    }
-  }
-  return trading;
 }
 
 function canonicalJsonSha256(value) {
@@ -765,7 +725,8 @@ try {
   featureSourceRegistry = JSON.parse(registryRaw);
   datasetIndex = JSON.parse(datasetIndexRaw);
   data = JSON.parse(raw);
-  marketDateContract = assertMarketDateContract(resolveMarketDateContract({ root, requestedDate: data.generatedAt?.slice?.(0, 10) ?? null }));
+  const generatedAt = data.generatedAt?.slice?.(0, 10) ?? null;
+  marketDateContract = assertMarketDateContract(resolveMarketDateContract({ root, requestedDate: generatedAt, now: data.generatedAt ? new Date(data.generatedAt) : null }));
 } catch (error) {
   console.error(`行业轮动数据无法读取或解析：${error.message}`);
   process.exit(1);
@@ -933,10 +894,10 @@ if (exactKeys(data, ["schemaVersion", "generatedAt", "model", "markets"], "rotat
       fail("A股冻结模型训练分类不完整时不得发布预测窗口");
     }
     const authoritativeDates = marketDateContract.marketDates ?? {};
-    const calendarASession = latestCompleteASession();
+    const calendarASession = authoritativeDates["a-share"] ?? null;
     data.markets.forEach((market) => {
       if (market.status !== "ready") return;
-      const expected = authoritativeDates[market.id];
+      const expected = market.id === "a-share" ? calendarASession : authoritativeDates[market.id];
       if (!requireDate(expected, `market-date-contract.${market.id}`)) return;
       if (market.asOf !== expected || market.horizons.current?.asOf !== expected) fail(`rotation.markets.${market.id} ready 数据必须与权威市场日期 ${expected} 精确一致（authority=${marketDateContract.authority}）`);
       if (market.id === "us") {

@@ -278,18 +278,19 @@ function parseIndexFact(facts, pattern) {
 function indexObservation(root, brief, { key, label, slug, factPattern, dataAsOf }) {
   const facts = brief?.value?.mainArticle?.keyFacts ?? [];
   const parsed = parseIndexFact(facts, factPattern);
-  const rows = historyBars(root, slug).filter((row) => typeof row?.time === "string" && row.time <= dataAsOf).sort((left, right) => left.time.localeCompare(right.time));
+  const rows = historyBars(root, slug).filter((row) => typeof row?.time === "string" && typeof dataAsOf === "string" && row.time <= dataAsOf).sort((left, right) => left.time.localeCompare(right.time));
   const current = rows.at(-1);
   const previous = rows.at(-2);
   const sameSession = current?.time === dataAsOf && Number.isFinite(current?.close);
   const historyValue = sameSession ? Number(current.close) : null;
-  const value = parsed?.value ?? historyValue;
+  const factMatchesSession = parsed?.fact?.asOf === dataAsOf;
+  const value = (factMatchesSession ? parsed?.value : null) ?? historyValue;
   const pointChange = sameSession && Number.isFinite(previous?.close) ? Number((current.close - previous.close).toFixed(6)) : null;
   const historyPercentChange = sameSession && Number.isFinite(previous?.close) && previous.close !== 0
     ? Number((((current.close / previous.close) - 1) * 100).toFixed(6))
     : null;
-  const percentChange = parsed?.percentChange ?? historyPercentChange;
-  const sourceId = parsed?.fact?.sourceIds?.[0] ?? (sameSession ? `market-history:${slug}` : null);
+  const percentChange = (factMatchesSession ? parsed?.percentChange : null) ?? historyPercentChange;
+  const sourceId = (factMatchesSession ? parsed?.fact?.sourceIds?.[0] : null) ?? (sameSession ? `market-history:${slug}` : null);
   const status = value !== null && Number.isFinite(value) ? "ready" : "unavailable";
   const crossCheckConflict = parsed?.value !== null && parsed?.value !== undefined && historyValue !== null
     && Math.abs(parsed.value - historyValue) > 0.01;
@@ -299,12 +300,12 @@ function indexObservation(root, brief, { key, label, slug, factPattern, dataAsOf
     value,
     pointChange,
     percentChange,
-    asOf: sameSession ? current.time : parsed?.fact?.asOf ?? dataAsOf,
+    asOf: sameSession ? current.time : factMatchesSession ? parsed.fact.asOf : dataAsOf,
     status,
     unit: "index_point",
     sourceId,
     sourceUrl: sourceUrlById(brief, sourceId),
-    evidenceStatus: parsed?.fact?.factStatus ?? (sameSession ? "derived" : null),
+    evidenceStatus: factMatchesSession ? parsed.fact.factStatus : (sameSession ? "derived" : null),
     crossCheck: sameSession ? {
       sourceId: `market-history:${slug}`,
       value: historyValue,
@@ -321,7 +322,7 @@ function unavailableMetric(key, label, asOf, reason) {
   return { key, label, value: null, pointChange: null, percentChange: null, asOf, status: "unavailable", unit: null, sourceId: null, sourceUrl: null, reason };
 }
 
-function buildCoreIndices(root, brief, dataAsOf) {
+function buildCoreIndices(root, brief, marketDates) {
   const specs = [
     ["aShare", "sse", "上证指数", "sse-composite", /上证指数(上涨|下跌)([\d.]+)%至([\d,.]+)点/],
     ["aShare", "szse", "深证成指", "szse-component", /深证成指(上涨|下跌)([\d.]+)%至([\d,.]+)点/],
@@ -334,7 +335,7 @@ function buildCoreIndices(root, brief, dataAsOf) {
     ["us", "sp500", "标普500", "sp500", /标普500(上涨|下跌)([\d.]+)%至([\d,.]+)点/],
   ];
   const result = { aShare: {}, hk: {}, us: {} };
-  for (const [market, key, label, slug, pattern] of specs) result[market][key] = indexObservation(root, brief, { key, label, slug, factPattern: pattern, dataAsOf });
+  for (const [market, key, label, slug, pattern] of specs) result[market][key] = indexObservation(root, brief, { key, label, slug, factPattern: pattern, dataAsOf: marketDates[market] ?? null });
   return result;
 }
 
@@ -395,11 +396,16 @@ export function buildDailyMarketPacket({ root = repositoryRoot, asOf = shanghaiD
   const rotation = sectorRotation ?? readJson(rotationPath, {});
   const hstech = readJson(historyPath, {});
   const aShare = rotation.markets?.find?.((market) => market.id === "a-share") ?? rotation.markets?.[0] ?? {};
-  const marketDates = packetSource.marketDates ?? {};
   const brief = latestGlobalBrief(root, asOf);
   const dateContract = resolveMarketDateContract({ root, requestedDate: asOf });
-  const dataAsOf = brief?.value?.dataAsOf ?? dateContract.dataAsOf ?? marketDates.aShare ?? asOf;
-  const coreIndices = buildCoreIndices(root, brief, dataAsOf);
+  const contractDates = dateContract.marketDates ?? {};
+  const marketDates = {
+    aShare: contractDates["a-share"] ?? null,
+    hk: contractDates.hk ?? null,
+    us: contractDates.us ?? null,
+  };
+  const dataAsOf = dateContract.dataAsOf ?? asOf;
+  const coreIndices = buildCoreIndices(root, brief, marketDates);
   const allCoreIndices = Object.values(coreIndices).flatMap((group) => Object.values(group));
   const knownGaps = [...(packetSource.missingData ?? []), ...allCoreIndices.filter((item) => item.status === "unavailable").map((item) => `coreIndices.${item.key}`), ...(hstech.status !== "ready" ? ["HSTECH"] : [])].filter((value, index, array) => array.indexOf(value) === index).sort();
   const sourceIndex = [
@@ -420,14 +426,14 @@ export function buildDailyMarketPacket({ root = repositoryRoot, asOf = shanghaiD
     writerMayBrowse: true,
     browseTriggers: ["疑点", "缺失", "未更新", "数据和新闻冲突", "重大政策", "异常行情", "值得深入研究的话题", "18:20–20:00 新发生事件"],
     markets: {
-      aShare: { status: aShare.status ?? packetSource.marketSummary?.status ?? "partial", asOf: aShare.asOf ?? dataAsOf, modelFeatureIncluded: true },
-      hk: { status: hstech.status ?? "unavailable", asOf: hstech.asOf ?? null, hstechRows: Array.isArray(hstech.bars) ? hstech.bars.length : 0, modelFeatureIncluded: false },
-      us: { status: allCoreIndices.filter((item) => item.key === "dow" || item.key === "nasdaq" || item.key === "sp500").every((item) => item.status === "ready") ? "ready" : "partial", asOf: dataAsOf, modelFeatureIncluded: false },
+      aShare: { status: aShare.status ?? packetSource.marketSummary?.status ?? "partial", asOf: marketDates.aShare, modelFeatureIncluded: true },
+      hk: { status: hstech.status ?? "unavailable", asOf: marketDates.hk, hstechRows: Array.isArray(hstech.bars) ? hstech.bars.length : 0, modelFeatureIncluded: false },
+      us: { status: allCoreIndices.filter((item) => item.key === "dow" || item.key === "nasdaq" || item.key === "sp500").every((item) => item.status === "ready") ? "ready" : "partial", asOf: marketDates.us, modelFeatureIncluded: false },
     },
     coreIndices,
-    rates: buildRates(packetSource, dataAsOf),
-    volatility: { vix: { key: "vix", label: "CBOE VIX", value: null, unit: "index_point", asOf: dataAsOf, status: "unavailable", sourceId: null, sourceUrl: null, reason: "current validated packet has no VIX observation" } },
-    fx: { usdHkd: unavailableMetric("usdHkd", "USD/HKD", dataAsOf, "current validated packet has no USD/HKD observation"), usdCnh: unavailableMetric("usdCnh", "USD/CNH", dataAsOf, "current validated packet has no USD/CNH observation") },
+    rates: buildRates(packetSource, marketDates.us ?? dataAsOf),
+    volatility: { vix: { key: "vix", label: "CBOE VIX", value: null, unit: "index_point", asOf: marketDates.us, status: "unavailable", sourceId: null, sourceUrl: null, reason: "current validated packet has no VIX observation" } },
+    fx: { usdHkd: unavailableMetric("usdHkd", "USD/HKD", marketDates.hk, "current validated packet has no USD/HKD observation"), usdCnh: unavailableMetric("usdCnh", "USD/CNH", marketDates.aShare, "current validated packet has no USD/CNH observation") },
     marketBreadth: { status: "unavailable", asOf: dataAsOf, sourceId: null, sourceUrl: null, reason: "市场广度数据未取得；不得用缺失数据推断上涨家数、内部参与度或资金净流入" },
     aShareObservationBoard: buildObservationBoard(rotation),
     facts: Array.isArray(packetSource.facts) ? packetSource.facts.slice(0, 80).map((fact) => ({ factId: fact.factId, label: fact.label, market: fact.market, value: fact.value, unit: fact.unit, asOf: fact.asOf, status: fact.status, sourceId: fact.sourceId, sourceUrl: fact.sourceUrl })) : [],
@@ -440,7 +446,7 @@ export function buildDailyMarketPacket({ root = repositoryRoot, asOf = shanghaiD
     },
     newsCandidates: newsCandidates(root, asOf),
     sourceIndex,
-    sourceHealth: { writerPacket: packetSource.providerHealth ?? { status: "unavailable" }, hstech: { status: hstech.status ?? "unavailable", rows: Array.isArray(hstech.bars) ? hstech.bars.length : 0 }, dateContract: { authority: dateContract.authority, sourcePath: dateContract.sourcePath, dataAsOf: dateContract.dataAsOf } },
+    sourceHealth: { writerPacket: packetSource.providerHealth ?? { status: "unavailable" }, hstech: { status: hstech.status ?? "unavailable", rows: Array.isArray(hstech.bars) ? hstech.bars.length : 0 }, dateContract: { authority: dateContract.authority, sourcePath: dateContract.sourcePath, dataAsOf: dateContract.dataAsOf, marketDates: dateContract.marketDates, marketStatus: dateContract.marketStatus } },
     knownGaps,
     anomalies: [
       packetSource.providerHealth?.status === "partial" ? "writer-packet-provider-health-partial" : null,
