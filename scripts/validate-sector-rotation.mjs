@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import process from "node:process";
 import { assertMarketDateContract, resolveMarketDateContract } from "./market-date-contract.mjs";
+import { validateHkIndustryObservation } from "./hk-industry-date-contract.mjs";
 
 const root = process.cwd();
 const fileArgument = process.argv.indexOf("--file");
@@ -686,7 +687,6 @@ function validateMarket(market, label) {
       if (!Array.isArray(market.publicUniverse) || market.publicUniverse.length !== publicIds.length) fail(`${label}.publicUniverse 必须固定为4个公开对象`);
       else if (market.publicUniverse.map((item) => item?.id).join("|") !== publicIds.join("|")) fail(`${label}.publicUniverse 顺序或映射不符合HK公开视图契约`);
     }
-    if (market.horizons.current?.status === "ready" && market.horizons.current.items.length !== 12) fail(`${label}.horizons.current 必须完整覆盖12个恒生一级行业`);
   } else if (market.id === "us") {
     if (market.mode !== "major-index") fail(`${label}.mode 必须是 major-index，美股不得作为行业轮动模型`);
     validateUsItems(market.horizons.current, `${label}.horizons.current`);
@@ -895,10 +895,15 @@ if (exactKeys(data, ["schemaVersion", "generatedAt", "model", "markets"], "rotat
     }
     const authoritativeDates = marketDateContract.marketDates ?? {};
     const calendarASession = authoritativeDates["a-share"] ?? null;
+    const editionDate = data.generatedAt?.slice?.(0, 10) ?? null;
     data.markets.forEach((market) => {
       if (market.status !== "ready") return;
       const expected = market.id === "a-share" ? calendarASession : authoritativeDates[market.id];
       if (!requireDate(expected, `market-date-contract.${market.id}`)) return;
+      if (market.id === "hk") {
+        for (const error of validateHkIndustryObservation({ market, marketDateContract, editionDate })) fail(error);
+        return;
+      }
       if (market.asOf !== expected || market.horizons.current?.asOf !== expected) fail(`rotation.markets.${market.id} ready 数据必须与权威市场日期 ${expected} 精确一致（authority=${marketDateContract.authority}）`);
       if (market.id === "us") {
         const dates = new Set([market.asOf, market.horizons.current?.asOf]);

@@ -6,6 +6,7 @@ data/model-research/**/*.json text eol=lf
 schemas/prediction-dataset.schema.json text eol=lf
 scripts/**/*.py text eol=lf
 scripts/**/*.mjs text eol=lf
+config/codex-writer-automation.json text eol=lf
 data/prediction-ledger/**/*.json text eol=lf
 data/prediction-ledger/**/*.json.gz binary
 public/data/prediction-history/**/*.json text eol=lf

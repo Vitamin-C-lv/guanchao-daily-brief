@@ -4,6 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { sha256AutomationConfigBytes } from "./automation-config-hash.mjs";
 import { checkAutomationConsistency } from "./check-automation-consistency.mjs";
 
 const sha256 = (text) => createHash("sha256").update(Buffer.from(text, "utf8")).digest("hex");
@@ -29,7 +30,7 @@ function fixture({ scheduler = null, dailyRrule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH
   fs.writeFileSync(path.join(repo, "prompts", "codex-weekly-writer.md"), WEEKLY, "utf8");
   const automations = path.join(root, "automations");
   for (const [id, rule, prompt] of [["codex", nativeDailyRrule, dailyPrompt], ["codex-2", "FREQ=WEEKLY;BYDAY=SA;BYHOUR=10;BYMINUTE=0", WEEKLY]]) { fs.mkdirSync(path.join(automations, id), { recursive: true }); fs.writeFileSync(path.join(automations, id, "automation.toml"), toml(id, rule, prompt), "utf8"); }
-  const state = { dailyAutomationId: "codex", weeklyAutomationId: "codex-2", configSha256: sha256(fs.readFileSync(path.join(repo, "config", "codex-writer-automation.json"))), prompts: { daily: { sha256: sha256(dailyPrompt) }, weekly: { sha256: sha256(WEEKLY) } }, enabled: true, review: { handoverStatus: "production-cutover-active" }, runtime: { projectPath: "D:/Guanchao-Workspace/runtime/local-writer-runtime", repositoryPath: "D:/Guanchao-Workspace/repo/guanchao-daily-brief" } };
+  const state = { dailyAutomationId: "codex", weeklyAutomationId: "codex-2", configSha256: sha256AutomationConfigBytes(fs.readFileSync(path.join(repo, "config", "codex-writer-automation.json"))), prompts: { daily: { sha256: sha256(dailyPrompt) }, weekly: { sha256: sha256(WEEKLY) } }, enabled: true, review: { handoverStatus: "production-cutover-active" }, runtime: { projectPath: "D:/Guanchao-Workspace/runtime/local-writer-runtime", repositoryPath: "D:/Guanchao-Workspace/repo/guanchao-daily-brief" } };
   const stateFile = path.join(root, "automation-state.json"); fs.writeFileSync(stateFile, `${JSON.stringify(state, null, 2)}\n`, "utf8");
   const skillDirectory = path.join(root, "skills", "guanchao-financial-writer");
   if (skill) { fs.mkdirSync(path.join(skillDirectory, "references"), { recursive: true }); fs.mkdirSync(path.join(skillDirectory, "scripts"), { recursive: true }); fs.writeFileSync(path.join(skillDirectory, "SKILL.md"), "---\nname: guanchao-financial-writer\n---\n", "utf8"); }
@@ -39,6 +40,7 @@ function fixture({ scheduler = null, dailyRrule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH
 function check(value) { return checkAutomationConsistency({ configPath: path.join(value.repo, "config", "codex-writer-automation.json"), docsPath: path.join(value.repo, "docs", "CODEX_WRITER_AUTOMATION.md"), automationsRoot: value.automations, statePath: value.stateFile, skillDirectory: value.skillDirectory, scheduledTaskReader: () => value.scheduler(), runProductionPreflight: false }); }
 
 test("consistent fixture passes with scheduler prediction and Codex writers", () => { const value = fixture(); try { assert.equal(check(value).consistent, true); } finally { value.cleanup(); } });
+test("config identity ignores CRLF versus LF checkout bytes", () => { const value = fixture(); try { const file = path.join(value.repo, "config", "codex-writer-automation.json"); const lf = fs.readFileSync(file, "utf8").replace(/\r\n?/g, "\n"); fs.writeFileSync(file, lf.replace(/\n/g, "\r\n"), "utf8"); assert.equal(check(value).consistent, true); } finally { value.cleanup(); } });
 test("prediction scheduler action mismatch fails closed", () => { const value = fixture({ scheduler: () => ({ exists: true, taskName: "Guanchao Prediction Publisher (18:20)", status: "Ready", taskToRun: "powershell invoke-agent.ps1", schedule: "Daily 18:20" }) }); try { assert.equal(check(value).consistent, false); assert.equal(check(value).checks.find((item) => item.name === "prediction.scheduler task action is deterministic").passed, false); } finally { value.cleanup(); } });
 test("daily schedule mismatch fails closed", () => { const value = fixture({ handoverDailyRrule: "FREQ=DAILY;BYHOUR=19;BYMINUTE=0" }); try { assert.equal(check(value).consistent, false); } finally { value.cleanup(); } });
 test("missing skill fails closed", () => { const value = fixture({ skill: false }); try { assert.equal(check(value).consistent, false); } finally { value.cleanup(); } });

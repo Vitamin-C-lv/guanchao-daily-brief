@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { resolveAutomationPaths, resolveConfiguredPath, toConfigPath } from "./automation-paths.mjs";
+import { sha256AutomationConfigBytes } from "./automation-config-hash.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(moduleFile), "..");
@@ -35,7 +36,7 @@ const state = {
   predictionAutomationId: config.handover?.activeProduction?.prediction?.automationId ?? config.schedules.find((schedule) => schedule.key === "prediction")?.legacyAutomationId ?? "guanchao-prediction-publisher",
   predictionTaskName: config.schedules.find((schedule) => schedule.key === "prediction")?.taskName ?? "Guanchao Prediction Publisher 18-20",
   predictionExecutor: "windows-task-scheduler",
-  configSha256: hash(fs.readFileSync(configPath)),
+  configSha256: sha256AutomationConfigBytes(fs.readFileSync(configPath)),
   promptSha256: hash(fs.readFileSync(path.join(root, "prompts", "codex-daily-writer.md"))),
   prompts: {
     daily: { path: "prompts/codex-daily-writer.md", sha256: promptHash("codex") },

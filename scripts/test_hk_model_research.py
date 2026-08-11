@@ -152,7 +152,7 @@ class PublicContractTests(unittest.TestCase):
         content_path = Path(__file__).resolve().parents[1] / "content" / "sector-rotation.json"
         payload = json.loads(content_path.read_text(encoding="utf-8"))
         hk = next(market for market in payload["markets"] if market["id"] == "hk")
-        self.assertEqual(hk["sourceAsOf"], "2026-08-06")
+        self.assertEqual(hk["sourceAsOf"], "2026-08-11")
         self.assertEqual(
             [item["id"] for item in hk["publicUniverse"]],
             ["hsi", "hstech", "hk_innovative_drug", "hk_tech_internet"],
