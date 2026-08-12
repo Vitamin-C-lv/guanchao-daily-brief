@@ -22,7 +22,8 @@ const DEFAULT_TASK_NAME = "Guanchao Prediction Publisher 18-20";
 const REQUIRED_PROMPT_FRAGMENTS = {
   prediction: ["run-prediction-publisher.mjs", "18:20", "禁止训练", "禁止激活 shadow candidate", "SUNDAY_NO_RUN", "AUTOMATION_DRIFT"],
   daily: ["publicationEnabled=true", "观潮每日晚报", "writerMayBrowse=true", "writer-ready.mjs", "investmentStrategy", "publish-writer-result.mjs", "--production"],
-  weekly: ["publicationEnabled=true", "观潮周报", "writerMayBrowse=true", "writer-ready.mjs", "investmentStrategy", "publish-writer-result.mjs", "--production"]
+  weekly: ["publicationEnabled=true", "观潮周报", "writerMayBrowse=true", "writer-ready.mjs", "investmentStrategy", "publish-writer-result.mjs", "--production"],
+  guardian: ["PUBLISHER_GUARDIAN", "MAX_GUARDIAN_PUBLISHER_RETRY=1", "PUBLISHER_STILL_RUNNING", "publisher-guardian.mjs", "SUNDAY_NO_RUN"]
 };
 const FORBIDDEN_PROMPT_FRAGMENTS = ["publicationEnabled=false", "仅 dry-run", "Writer 禁止浏览", "禁止浏览、搜索", "LUNA_API_KEY"];
 
@@ -50,20 +51,26 @@ export function readScheduledTask(taskName = DEFAULT_TASK_NAME) {
     const command = text.match(/<Command>([\s\S]*?)<\/Command>/i)?.[1]?.trim() ?? null;
     const argumentsValue = text.match(/<Arguments>([\s\S]*?)<\/Arguments>/i)?.[1]?.trim() ?? "";
     const startBoundary = text.match(/<StartBoundary>([\s\S]*?)<\/StartBoundary>/i)?.[1]?.trim() ?? null;
+    const lastRunTime = text.match(/<LastRunTime>([\s\S]*?)<\/LastRunTime>/i)?.[1]?.trim() ?? null;
+    const lastTaskResult = text.match(/<LastTaskResult>([\s\S]*?)<\/LastTaskResult>/i)?.[1]?.trim() ?? null;
     const enabled = text.match(/<Enabled>(true|false)<\/Enabled>/i)?.[1] !== "false";
     const weekBody = text.match(/<ScheduleByWeek>[\s\S]*?<DaysOfWeek>([\s\S]*?)<\/DaysOfWeek>[\s\S]*?<\/ScheduleByWeek>/i)?.[1] ?? "";
     const dayNames = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     const shortDays = dayNames.filter((day) => new RegExp(`<${day}\\s*/>`, "i").test(weekBody)).map((day) => day.slice(0, 3));
     const time = startBoundary ? startBoundary.slice(11, 16) : null;
     const schedule = shortDays.length ? `Weekly ${shortDays.join(",")} ${time ?? ""}`.trim() : time ? `Daily ${time}` : null;
-    return { exists: true, taskName, status: enabled ? "Ready" : "Disabled", taskToRun: command ? `${command} ${argumentsValue}`.trim() : null, schedule, raw: null };
-  } catch { return { exists: false, taskName, status: null, taskToRun: null, schedule: null, raw: null }; }
+    return { exists: true, taskName, status: enabled ? "Ready" : "Disabled", taskToRun: command ? `${command} ${argumentsValue}`.trim() : null, schedule, lastRunTime, lastTaskResult, raw: null };
+  } catch { return { exists: false, taskName, status: null, taskToRun: null, schedule: null, lastRunTime: null, lastTaskResult: null, raw: null }; }
 }
 
 export function checkAutomationConsistency({ configPath = path.join(repositoryRoot, "config", "codex-writer-automation.json"), docsPath = path.join(repositoryRoot, "docs", "CODEX_WRITER_AUTOMATION.md"), automationsRoot = DEFAULT_AUTOMATIONS_ROOT, statePath = DEFAULT_STATE, skillDirectory = path.join(os.homedir(), ".codex", "skills", "guanchao-financial-writer"), scheduledTaskReader = readScheduledTask, productionPreflight = null, runProductionPreflight = true } = {}) {
   const checks = [];
   const add = (name, passed, detail = "") => checks.push({ name, passed: Boolean(passed), detail });
   const config = readJson(configPath, "config");
+  const availabilityPath = path.join(path.dirname(configPath), "report-availability.json");
+  let availabilityConfig = null;
+  try { availabilityConfig = readJson(availabilityPath, "report availability config"); } catch (error) { add("report availability config valid", false, error instanceof Error ? error.message : String(error)); }
+  if (availabilityConfig) add("report availability is long-lived availability_first", availabilityConfig.schemaVersion === "guanchao-report-availability-v1" && availabilityConfig.enabled === true && availabilityConfig.mode === "availability_first" && availabilityConfig.manualDisableOnly === true && !Object.hasOwn(availabilityConfig, "expiresAt"), JSON.stringify(availabilityConfig));
   const docs = fs.existsSync(docsPath) ? fs.readFileSync(docsPath, "utf8") : null;
   const state = fs.existsSync(statePath) ? readJson(statePath, "automation state") : null;
   const handoverStatus = config.handover?.status;
@@ -99,7 +106,7 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
   add("config.publicationEnabled", config.publicationEnabled === true, String(config.publicationEnabled));
   add("config.productionApplyRequiresExplicitWrite", config.productionApplyRequiresExplicitWrite === true, String(config.productionApplyRequiresExplicitWrite));
   add("config.prediction.normalPathUsesLlm=false", config.prediction?.normalPathUsesLlm === false && config.prediction?.normalPathLlmTokens === 0, JSON.stringify({ usesLlm: config.prediction?.normalPathUsesLlm, tokens: config.prediction?.normalPathLlmTokens }));
-  add("config.schedules include prediction/daily/weekly", ["prediction", "daily", "weekly"].every((key) => config.schedules?.some((schedule) => schedule.key === key)), JSON.stringify(config.schedules?.map((schedule) => schedule.key)));
+  add("config.schedules include prediction/daily/weekly/guardian", ["prediction", "daily", "weekly", "guardian"].every((key) => config.schedules?.some((schedule) => schedule.key === key)), JSON.stringify(config.schedules?.map((schedule) => schedule.key)));
   if (docs === null) add("docs exists", false, docsPath);
   else {
     add("docs do not state fixed false", !/publicationEnabled\s*(?:=|固定为)\s*`?false/.test(docs) && !/仅 dry-run/.test(docs), "false/dry-run fragments");
@@ -107,7 +114,7 @@ export function checkAutomationConsistency({ configPath = path.join(repositoryRo
     add("docs state 18:20/20:00", docs.includes("18:20") && docs.includes("20:00"), "schedule");
   }
   for (const schedule of config.schedules ?? []) {
-    if (!["prediction", "daily", "weekly"].includes(schedule.key)) continue;
+    if (!["prediction", "daily", "weekly", "guardian"].includes(schedule.key)) continue;
     const key = schedule.key;
     const promptPath = path.join(path.dirname(configPath), "..", ...String(schedule.promptFile).split("/"));
     const prompt = fs.existsSync(promptPath) ? fs.readFileSync(promptPath, "utf8") : null;

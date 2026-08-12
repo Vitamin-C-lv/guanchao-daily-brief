@@ -15,7 +15,9 @@
     "contentPublisher": "scripts/publish-writer-result.mjs",
     "predictionPublisher": "scripts/run-prediction-publisher.mjs",
     "predictionTaskLauncher": "scripts/run-prediction-publisher-task.ps1",
-    "consistencyCheck": "scripts/check-automation-consistency.mjs"
+    "consistencyCheck": "scripts/check-automation-consistency.mjs",
+    "reportAvailabilityConfig": "config/report-availability.json",
+    "publisherGuardian": "scripts/publisher-guardian.mjs"
   },
   "writer": {
     "model": "gpt-5.6-luna",
@@ -70,6 +72,17 @@
       "edition": "prediction"
     },
     {
+      "key": "guardian",
+      "label": "Guanchao Publisher Guardian",
+      "executor": "codex-automation",
+      "automationId": "guanchao-publisher-guardian-mon-sat-18-30",
+      "enabled": true,
+      "rrule": "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA;BYHOUR=18;BYMINUTE=30",
+      "timezone": "Asia/Shanghai",
+      "promptFile": "prompts/codex-publisher-guardian.md",
+      "edition": "guardian"
+    },
+    {
       "key": "daily",
       "label": "观潮每日晚报 Writer",
       "executor": "codex-automation",
@@ -97,6 +110,7 @@
     "candidateSchedulesAreNotProductionActive": false,
     "activeProduction": {
       "prediction": {"automationId":"Guanchao Prediction Publisher 18-20","rrule":"FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA;BYHOUR=18;BYMINUTE=20","timezone":"Asia/Shanghai","mode":"write-capable","source":"merged origin/main runtime"},
+      "guardian": {"automationId":"guanchao-publisher-guardian-mon-sat-18-30","rrule":"FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA;BYHOUR=18;BYMINUTE=30","timezone":"Asia/Shanghai","mode":"bounded-repair-only","source":"merged origin/main runtime"},
       "daily": {"automationId":"codex","rrule":"FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR,SA;BYHOUR=20;BYMINUTE=0","timezone":"Asia/Shanghai","mode":"write-capable","source":"merged origin/main runtime"},
       "weekly": {"automationId":"codex-2","rrule":"FREQ=WEEKLY;BYDAY=SA;BYHOUR=10;BYMINUTE=0","timezone":"Asia/Shanghai","mode":"write-capable","source":"merged origin/main runtime"}
     },

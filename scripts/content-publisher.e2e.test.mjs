@@ -138,6 +138,9 @@ test("publishWriterResult actual full E2E publishes a real strategy and is idemp
     const receipt = publishWriterResult({ packageDirectory: rehearsal.executionPackage, resultFile: path.join(rehearsalRoot, "writer-result.json"), root: rehearsal.isolationRoot, production: true, automationPaths, productionRemote: remote });
     assert.equal(receipt.publicationStatus, "pushed");
     assert.equal(receipt.runtimeSyncStatus, "synced");
+    assert.ok(["degraded", "writer_only"].includes(receipt.availabilityReceipt.publicationQuality));
+    assert.ok(["partial", "missing"].includes(receipt.availabilityReceipt.reviewStatus));
+    assert.equal(fs.existsSync(receipt.availabilityReceipt.path), true);
     const history = JSON.parse(fs.readFileSync(path.join(rehearsal.isolationRoot, "content", "global-market-briefs", `${payload.editionDate}.json`), "utf8"));
     const publicDto = JSON.parse(fs.readFileSync(path.join(rehearsal.isolationRoot, "content", "global-market-brief-public.json"), "utf8"));
     const index = JSON.parse(fs.readFileSync(path.join(rehearsal.isolationRoot, "content", "global-market-brief-index.json"), "utf8"));

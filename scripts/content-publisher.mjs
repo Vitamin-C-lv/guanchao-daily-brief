@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { canonicalJson } from "./research-contract.mjs";
 import { resolveAutomationPaths } from "./automation-paths.mjs";
 import { finalizeCodexWriter } from "./codex-writer-finalize.mjs";
+import { buildReportAvailabilityReceipt, writeReportAvailabilityReceipt } from "./report-availability.mjs";
 import { runWriterProductionPreflight } from "./writer-production-preflight.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
@@ -70,6 +71,33 @@ function assertFixtureTarget(root, paths) {
   if (resolvedRoot === canonicalRoot || relative === "" || relative.startsWith("..") || path.isAbsolute(relative)) {
     fail("PUBLISHER_FIXTURE_ROOT", "root", "fixture writes are allowed only below the operating-system temporary directory");
   }
+}
+
+function writeAvailabilityReceipt({ paths, packageDirectory, finalization, published }) {
+  const packageRoot = path.resolve(packageDirectory);
+  const packet = (name) => {
+    const file = path.join(packageRoot, name);
+    if (!fs.existsSync(file)) return { status: "missing" };
+    try {
+      const value = JSON.parse(fs.readFileSync(file, "utf8"));
+      return { status: value.status === "partial" ? "partial" : "valid" };
+    } catch { return { status: "invalid" }; }
+  };
+  const daily = packet("DAILY_MARKET_PACKET.json");
+  const review = packet("PREDICTION_REVIEW_PACKET.json");
+  const quality = review.status !== "valid" ? "writer_only" : daily.status === "valid" ? "normal" : "degraded";
+  const editionDate = finalization.requestedAsOf;
+  const reportType = finalization.edition === "weekly" ? "weekly" : "daily";
+  const receipt = buildReportAvailabilityReceipt({
+    editionDate, reportType, publicationQuality: quality, guardianStatus: process.env.GUANCHAO_GUARDIAN_STATUS ?? "UNKNOWN",
+    packetStatus: daily.status, reviewStatus: review.status, writerAttemptCount: Math.min(2, Math.max(0, Number(process.env.GUANCHAO_WRITER_ATTEMPT_COUNT ?? 1) || 1)),
+    writerSucceeded: true, fallbackRendererUsed: process.env.GUANCHAO_FALLBACK_RENDERER === "true", publicationRetryCount: Math.max(0, Number(process.env.GUANCHAO_PUBLICATION_RETRY_COUNT ?? 0) || 0),
+    published, degradationReasons: [daily.status !== "valid" ? `DAILY_PACKET_${daily.status.toUpperCase()}` : null, review.status !== "valid" ? `REVIEW_PACKET_${review.status.toUpperCase()}` : null].filter(Boolean),
+  });
+  const runsRoot = paths.runsRoot ?? path.join(paths.guanchaoHome ?? path.dirname(paths.repositoryPath), "runs");
+  const target = path.join(runsRoot, editionDate, reportType, "REPORT_AVAILABILITY_RECEIPT.json");
+  writeReportAvailabilityReceipt(target, receipt);
+  return { path: target, ...receipt };
 }
 
 function allowedChangedFiles(report) {
@@ -153,6 +181,7 @@ export function publishWriterResult({ packageDirectory, resultFile, root = repos
         localHead,
         idempotent: true,
         finalization: { noOp: true, reason: "same canonical article already published" },
+        availabilityReceipt: writeAvailabilityReceipt({ paths, packageDirectory, finalization: { edition: packageRequest.edition, requestedAsOf: existingEditionDate }, published: true }),
       };
     }
   }
@@ -224,5 +253,6 @@ export function publishWriterResult({ packageDirectory, resultFile, root = repos
   if (git(publicationRoot, ["rev-parse", "HEAD"]) !== receipt.commitSha) fail("PUBLISHER_CANONICAL_VERIFY_FAILED", "root", "canonical repository moved after push");
   if (git(publicationRoot, ["status", "--porcelain=v1"])) fail("PUBLISHER_CANONICAL_DIRTY", "root", "canonical repository remains dirty after publication");
   receipt.productionPreflight = preflight;
+  receipt.availabilityReceipt = writeAvailabilityReceipt({ paths, packageDirectory, finalization, published: true });
   return receipt;
 }
