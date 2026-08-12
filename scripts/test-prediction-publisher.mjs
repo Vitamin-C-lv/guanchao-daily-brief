@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
+import { pushCurrentHeadToMain } from "./publisher-git-sync.mjs";
 import { runPredictionPublisher } from "./run-prediction-publisher.mjs";
 
 function write(root, relative, text) {
@@ -255,6 +256,38 @@ function fixture({ rotationStatus = "published", rotationMode = "probability", a
   };
 }
 
+function detachedPushFixture() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "prediction-detached-push-"));
+  const bare = path.join(root, "remote.git");
+  const worktree = path.join(root, "runtime");
+  fs.mkdirSync(worktree, { recursive: true });
+  git(worktree, "init");
+  git(worktree, "branch", "-M", "main");
+  git(worktree, "config", "user.email", "test@example.com");
+  git(worktree, "config", "user.name", "Test");
+  write(worktree, "README.md", "A\n");
+  git(worktree, "add", ".");
+  git(worktree, "commit", "-m", "base");
+  spawnSync("git", ["init", "--bare", bare], { encoding: "utf8" });
+  git(worktree, "remote", "add", "origin", bare);
+  git(worktree, "push", "-u", "origin", "HEAD:main");
+  spawnSync("git", ["--git-dir", bare, "symbolic-ref", "HEAD", "refs/heads/main"], { encoding: "utf8" });
+  const base = git(worktree, "rev-parse", "HEAD").stdout.trim();
+  git(worktree, "checkout", "--detach", base);
+  write(worktree, "README.md", "B\n");
+  git(worktree, "add", "README.md");
+  git(worktree, "commit", "-m", "publish detached HEAD");
+  const head = git(worktree, "rev-parse", "HEAD").stdout.trim();
+  return {
+    root,
+    bare,
+    worktree,
+    base,
+    head,
+    cleanup: () => fs.rmSync(root, { recursive: true, force: true })
+  };
+}
+
 test("prediction publisher publishes a probability ranking and pushes main", async () => {
   const value = fixture();
   try {
@@ -273,6 +306,55 @@ test("prediction publisher publishes a probability ranking and pushes main", asy
   } finally {
     value.cleanup();
   }
+});
+
+test("Publisher must push detached HEAD, not stale local main", () => {
+  const value = detachedPushFixture();
+  try {
+    assert.equal(git(value.worktree, "rev-parse", "refs/heads/main").stdout.trim(), value.base);
+    assert.equal(git(value.worktree, "rev-parse", "HEAD").stdout.trim(), value.head);
+    git(value.worktree, "push", "origin", "main");
+    assert.equal(git(value.bare, "rev-parse", "refs/heads/main").stdout.trim(), value.base);
+    const result = pushCurrentHeadToMain({ root: value.worktree });
+    assert.equal(result.ok, true);
+    assert.equal(result.target, "HEAD:main");
+    assert.equal(result.currentHead, value.head);
+    assert.equal(git(value.bare, "rev-parse", "refs/heads/main").stdout.trim(), value.head);
+    assert.notEqual(git(value.bare, "rev-parse", "refs/heads/main").stdout.trim(), value.base);
+  } finally { value.cleanup(); }
+});
+
+test("Publisher rejects a successful push command when remote does not converge", () => {
+  const value = detachedPushFixture();
+  try {
+    const realCommand = (command, args, options) => {
+      if (command === "git" && args.includes("push")) return { ok: true, status: 0, stdout: "Everything up-to-date\n", stderr: "", detail: "Everything up-to-date" };
+      const result = spawnSync(command, args, { ...options, encoding: "utf8", windowsHide: true });
+      return { ...result, ok: result.status === 0, detail: String(result.stderr || result.stdout || "").trim() };
+    };
+    const result = pushCurrentHeadToMain({ root: value.worktree, command: realCommand });
+    assert.equal(result.ok, false);
+    assert.equal(result.errorCode, "PUSH_NOT_CONVERGED");
+    assert.equal(git(value.bare, "rev-parse", "refs/heads/main").stdout.trim(), value.base);
+  } finally { value.cleanup(); }
+});
+
+test("Publisher refuses a remote-diverged detached HEAD", () => {
+  const value = detachedPushFixture();
+  const racer = path.join(value.root, "racer");
+  try {
+    spawnSync("git", ["clone", value.bare, racer], { encoding: "utf8" });
+    git(racer, "config", "user.email", "racer@example.com");
+    git(racer, "config", "user.name", "Racer");
+    write(racer, "REMOTE.md", "remote\n");
+    git(racer, "add", "REMOTE.md");
+    git(racer, "commit", "-m", "remote diverged");
+    git(racer, "push", "origin", "HEAD:main");
+    const result = pushCurrentHeadToMain({ root: value.worktree });
+    assert.equal(result.ok, false);
+    assert.equal(result.errorCode, "REMOTE_DIVERGED");
+    assert.notEqual(git(value.bare, "rev-parse", "refs/heads/main").stdout.trim(), value.head);
+  } finally { value.cleanup(); }
 });
 
 test("abstention publishes the evidence observation board", async () => {

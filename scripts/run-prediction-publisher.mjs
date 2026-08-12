@@ -23,6 +23,7 @@ import { checkAutomationConsistency } from "./check-automation-consistency.mjs";
 import { resolveAutomationPaths } from "./automation-paths.mjs";
 import { sealEveningPackets } from "./evening-packet-storage.mjs";
 import { validateEveningPacket } from "./validate-evening-packets.mjs";
+import { pushCurrentHeadToMain } from "./publisher-git-sync.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
@@ -514,18 +515,18 @@ export async function runPredictionPublisher({
     git(root, "add", "--", ...changes.map(changedRelative));
     const commit = run("git", ["-C", root, "commit", "-m", commitMessage], { cwd: root, allowFailure: true, env });
     if (!commit.ok) fail("COMMIT_FAILED", commit.detail.slice(0, 1200));
-    report.commit = { message: commitMessage, ok: true };
+    report.commit = { message: commitMessage, ok: true, sha: gitHead(root) };
     report.writeApplied = true;
     report.workspaceRestored = false;
     report.headUnchanged = false;
     report.cleanupAttempted = false;
     step("commit", { ok: true, message: commitMessage });
 
-    // 19. push main (never force)
-    const push = run("git", ["-C", root, "push", "origin", "main"], { cwd: root, allowFailure: true, env });
-    if (!push.ok) fail("PUSH_FAILED", push.detail.slice(0, 1200));
-    report.push = { ok: true, remote: "origin/main" };
-    step("push", { ok: true });
+    // 19. push the committed production HEAD (never a local branch ref or force push)
+    const push = pushCurrentHeadToMain({ root, env });
+    report.push = push;
+    step("push", { ok: push.ok, ...push });
+    if (!push.ok) fail(push.errorCode ?? "PUSH_FAILED", push.detail?.slice(0, 1200) ?? "production HEAD push failed");
 
     // 20. Vercel verification (failure writes a report but does not repeat the commit)
     report.status = "published";
