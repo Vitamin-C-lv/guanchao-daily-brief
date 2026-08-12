@@ -1053,7 +1053,7 @@ export interface InvestmentStrategy {
   allocationPreference: { preferredTargetIds: string[]; underweightTargetIds: string[] };
   overallStance: "risk_on" | "neutral" | "risk_off";
   signalOrigin: "model_plus_writer" | "writer_only";
-  modelContext: { status: "published" | "abstained" | "unavailable"; signalAvailable: boolean; probability: number | null; horizonSessions: number; sourcePredictionIds: string[] };
+  modelContext: { status: "published" | "abstained" | "unavailable"; signalAvailable: boolean; horizonSessions: number; sourcePredictionIds: string[] };
   recommendations: Array<{
     market: string;
     targetType: string;

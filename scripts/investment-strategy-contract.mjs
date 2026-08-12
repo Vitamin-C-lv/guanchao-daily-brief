@@ -103,42 +103,40 @@ function sourcePredictionId(record) {
 
 function predictionTargetId(record) {
   if (typeof record?.predictionTargetId === "string") return record.predictionTargetId;
+  if (typeof record?.sectorId === "string" && typeof record?.market === "string") return `sector:${record.market}:${record.sectorId}`;
   if (typeof record?.sector_id === "string" && typeof record?.market === "string") return `sector:${record.market}:${record.sector_id}`;
   if (typeof record?.target_id === "string") return record.target_id;
   return null;
 }
 
 function predictionStatus(record) {
-  if (record?.publication_status === "published" || record?.prediction_status === "published" || record?.status === "published") return "published";
+  if (record?.classification === "published_model_prediction") return "published";
+  if (record?.classification === "abstained") return "abstained";
+  if (record?.publication_status === "published" || record?.prediction_status === "published" || record?.status === "published" || record?.modelPublicationStatus === "published") return "published";
   if (record?.publication_status === "abstained" || record?.prediction_status === "model-abstained" || record?.status === "abstained") return "abstained";
   if (record?.publication_status === "unavailable" || record?.status === "unavailable") return "unavailable";
   return null;
 }
 
 function sourceProbability(record, target) {
-  const key = `${target}_probability`;
-  const value = record?.[key];
-  return typeof value === "number" && Number.isFinite(value) ? value / 100 : null;
+  // PREDICTION_REVIEW_PACKET rows are the compact, already-normalized output of
+  // build-market-packets.normalizePublishedProbability; formal strategy binding
+  // never reads the raw prediction ledger or applies a second normalization.
+  if (typeof record?.probability === "number") {
+    return record.probability;
+  }
+  return null;
 }
 
 function predictionRecordsMap(predictionRecords) {
   if (!predictionRecords) return null;
-  const records = Array.isArray(predictionRecords) ? predictionRecords : predictionRecords.records;
-  if (!Array.isArray(records)) fail("STRATEGY_PREDICTION_SOURCE", "predictionRecords", "immutable prediction records array required");
-  return new Map(records.map((record) => [sourcePredictionId(record), record]).filter(([id]) => typeof id === "string"));
+  const packet = Array.isArray(predictionRecords) ? null : predictionRecords;
+  const records = packet?.rows ?? packet?.records;
+  if (!packet || !Array.isArray(records) || typeof packet.asOfDate !== "string") fail("STRATEGY_PREDICTION_SOURCE", "predictionRecords", "sealed PREDICTION_REVIEW_PACKET rows with asOfDate required");
+  return { asOfDate: packet.asOfDate, records: new Map(records.map((record) => [sourcePredictionId(record), record]).filter(([id]) => typeof id === "string")) };
 }
 
-function loadDefaultPredictionRecords(root) {
-  const file = path.join(root, "content", "prediction-history.json");
-  if (!fs.existsSync(file)) return null;
-  try {
-    return JSON.parse(fs.readFileSync(file, "utf8"));
-  } catch {
-    fail("STRATEGY_PREDICTION_SOURCE", file, "immutable prediction ledger is invalid JSON");
-  }
-}
-
-function validateModelSignal(signal, item, field, records, modelContext) {
+function validateModelSignal(signal, item, field, packet, modelContext, strategyAsOf) {
   exactKeys(signal, ["horizonSessions", "market", "predictionIds", "predictionTargetId", "probability", "probabilityTarget", "probabilityUnit", "status"], `${field}.modelSignal`);
   if (!modelStatuses.has(signal.status)) fail("STRATEGY_MODEL_SIGNAL_STATUS", `${field}.modelSignal.status`, "invalid model signal status");
   predictionIds(signal.predictionIds, `${field}.modelSignal.predictionIds`);
@@ -156,15 +154,17 @@ function validateModelSignal(signal, item, field, records, modelContext) {
     if (signal.predictionIds.length || signal.probability !== null) fail("STRATEGY_MODEL_ABSENT", `${field}.modelSignal`, "non-published signal cannot expose IDs or probability");
     return;
   }
-  if (!records) fail("STRATEGY_PREDICTION_SOURCE_REQUIRED", `${field}.modelSignal.predictionIds`, "published strategy requires immutable prediction review records");
+  if (!packet) fail("STRATEGY_PREDICTION_SOURCE_REQUIRED", `${field}.modelSignal.predictionIds`, "published strategy requires sealed PREDICTION_REVIEW_PACKET records");
   if (typeof signal.probability !== "number" || signal.probability <= 0 || signal.probability >= 1) fail("STRATEGY_PREDICTION_PROBABILITY_MISMATCH", `${field}.modelSignal.probability`, "published probability must be decimal between 0 and 1");
   if (signal.predictionIds.length !== 1) fail("STRATEGY_PREDICTION_BINDING", `${field}.modelSignal.predictionIds`, "each recommendation must bind exactly one prediction");
-  const record = records.get(signal.predictionIds[0]);
-  if (!record) fail("STRATEGY_PREDICTION_ID_UNKNOWN", `${field}.modelSignal.predictionIds`, "prediction ID is absent from immutable review packet/ledger");
+  const record = packet.records.get(signal.predictionIds[0]);
+  if (!record) fail("STRATEGY_PREDICTION_ID_UNKNOWN", `${field}.modelSignal.predictionIds`, "prediction ID is absent from the sealed review packet");
+  if (record.classification !== "published_model_prediction") fail("STRATEGY_LEGACY_PREDICTION_FORBIDDEN", `${field}.modelSignal.predictionIds`, "only current sealed published_model_prediction records may bind");
+  if (typeof record.predictionDate !== "string" || record.predictionDate > strategyAsOf || record.predictionDate > packet.asOfDate) fail("STRATEGY_PREDICTION_DATE_MISMATCH", `${field}.modelSignal.predictionIds`, "prediction date must not be later than strategy or packet asOf");
   if (predictionStatus(record) !== "published") fail("STRATEGY_PREDICTION_STATUS_MISMATCH", `${field}.modelSignal.status`, "strategy status differs from immutable prediction status");
   if (record.market !== signal.market) fail("STRATEGY_PREDICTION_MARKET_MISMATCH", `${field}.modelSignal.market`, "prediction market differs from immutable record");
-  if (Number(record.horizon) !== signal.horizonSessions) fail("STRATEGY_PREDICTION_HORIZON_MISMATCH", `${field}.modelSignal.horizonSessions`, "horizon differs from immutable record");
-  if (record.probability_target !== signal.probabilityTarget) fail("STRATEGY_PREDICTION_TARGET_SEMANTICS_MISMATCH", `${field}.modelSignal.probabilityTarget`, "probability target semantics differ from immutable record");
+  if (Number(record.horizonSessions ?? record.horizon) !== signal.horizonSessions) fail("STRATEGY_PREDICTION_HORIZON_MISMATCH", `${field}.modelSignal.horizonSessions`, "horizon differs from immutable record");
+  if ((record.probabilityTarget ?? record.probability_target) !== signal.probabilityTarget) fail("STRATEGY_PREDICTION_TARGET_SEMANTICS_MISMATCH", `${field}.modelSignal.probabilityTarget`, "probability target semantics differ from immutable record");
   if (predictionTargetId(record) !== signal.predictionTargetId) fail("STRATEGY_PREDICTION_TARGET_MISMATCH", `${field}.modelSignal.predictionTargetId`, "prediction target differs from immutable record");
   const expectedProbability = sourceProbability(record, signal.probabilityTarget);
   if (expectedProbability === null || Math.abs(expectedProbability - signal.probability) > 1e-12) fail("STRATEGY_PREDICTION_PROBABILITY_MISMATCH", `${field}.modelSignal.probability`, "probability differs from immutable record or is unavailable");
@@ -176,7 +176,7 @@ export function validateInvestmentStrategy(value, { sourceIds = null, requireStr
     return null;
   }
   const sourceSet = sourceIds ? new Set(sourceIds) : null;
-  const records = predictionRecordsMap(predictionRecords ?? loadDefaultPredictionRecords(root));
+  const packet = predictionRecordsMap(predictionRecords);
   exactKeys(value, ["allocationPreference", "asOf", "modelContext", "overallStance", "recommendations", "schemaVersion", "signalOrigin", "summary", "title"], "investmentStrategy");
   if (value.schemaVersion !== INVESTMENT_STRATEGY_SCHEMA_VERSION) fail("STRATEGY_SCHEMA", "investmentStrategy.schemaVersion", `${INVESTMENT_STRATEGY_SCHEMA_VERSION} required`);
   if (typeof value.asOf !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value.asOf)) fail("STRATEGY_DATE", "investmentStrategy.asOf", "YYYY-MM-DD required");
@@ -187,17 +187,15 @@ export function validateInvestmentStrategy(value, { sourceIds = null, requireStr
   if (!stances.has(value.overallStance)) fail("STRATEGY_STANCE", "investmentStrategy.overallStance", "risk_on, neutral, or risk_off required");
   if (!["model_plus_writer", "writer_only"].includes(value.signalOrigin)) fail("STRATEGY_ORIGIN", "investmentStrategy.signalOrigin", "model_plus_writer or writer_only required");
 
-  exactKeys(value.modelContext, ["horizonSessions", "probability", "signalAvailable", "sourcePredictionIds", "status"], "investmentStrategy.modelContext");
+  exactKeys(value.modelContext, ["horizonSessions", "signalAvailable", "sourcePredictionIds", "status"], "investmentStrategy.modelContext");
   if (!strategyModelStatuses.has(value.modelContext.status)) fail("STRATEGY_MODEL_STATUS", "investmentStrategy.modelContext.status", "published, abstained, or unavailable required");
   if (typeof value.modelContext.signalAvailable !== "boolean") fail("STRATEGY_MODEL_SIGNAL", "investmentStrategy.modelContext.signalAvailable", "boolean required");
   if (!Number.isInteger(value.modelContext.horizonSessions) || value.modelContext.horizonSessions < 1 || value.modelContext.horizonSessions > 30) fail("STRATEGY_HORIZON", "investmentStrategy.modelContext.horizonSessions", "integer 1–30 required");
   predictionIds(value.modelContext.sourcePredictionIds, "investmentStrategy.modelContext.sourcePredictionIds");
   if (value.modelContext.status === "published") {
-    if (typeof value.modelContext.probability !== "number" || value.modelContext.probability <= 0 || value.modelContext.probability >= 1) fail("STRATEGY_PUBLISHED_PROBABILITY", "investmentStrategy.modelContext.probability", "published model signal requires a decimal probability between 0 and 1");
     if (!value.modelContext.signalAvailable || value.modelContext.sourcePredictionIds.length < 1) fail("STRATEGY_PUBLISHED_SIGNAL", "investmentStrategy.modelContext", "published model signal requires availability and prediction IDs");
     if (value.signalOrigin !== "model_plus_writer") fail("STRATEGY_PUBLISHED_ORIGIN", "investmentStrategy.signalOrigin", "published model signal must remain model_plus_writer");
   } else {
-    if (value.modelContext.probability !== null) fail("STRATEGY_PROBABILITY_FABRICATION", "investmentStrategy.modelContext.probability", "abstained or unavailable model must preserve probability as null");
     if (value.modelContext.signalAvailable || value.modelContext.sourcePredictionIds.length !== 0) fail("STRATEGY_MODEL_ABSENT", "investmentStrategy.modelContext", "non-published model cannot expose a signal or prediction IDs");
     if (value.signalOrigin !== "writer_only") fail("STRATEGY_WRITER_ONLY", "investmentStrategy.signalOrigin", "abstained or unavailable model requires writer_only");
   }
@@ -229,7 +227,7 @@ export function validateInvestmentStrategy(value, { sourceIds = null, requireStr
     readerCopy(item.whyNow, `${field}.whyNow`); readerCopy(item.modelEvidence, `${field}.modelEvidence`); readerCopy(item.writerOverlay, `${field}.writerOverlay`); readerCopy(item.trigger, `${field}.trigger`); readerCopy(item.invalidation, `${field}.invalidation`);
     ids(item.supportingSourceIds, `${field}.supportingSourceIds`, sourceSet, { min: item.conviction >= 4 ? 2 : 1 });
     predictionIds(item.predictionIds, `${field}.predictionIds`);
-    validateModelSignal(item.modelSignal, item, field, records, value.modelContext);
+    validateModelSignal(item.modelSignal, item, field, packet, value.modelContext, value.asOf);
     if (JSON.stringify(item.predictionIds) !== JSON.stringify(item.modelSignal.predictionIds)) fail("STRATEGY_PREDICTION_BINDING", `${field}.predictionIds`, "legacy predictionIds must equal modelSignal.predictionIds");
     if (item.modelSignal.status === "published") publishedSignalIds.push(...item.modelSignal.predictionIds);
     if (item.modelAgreement === "override") {

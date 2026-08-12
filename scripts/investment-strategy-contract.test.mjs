@@ -5,16 +5,20 @@ import { InvestmentStrategyContractError, validateInvestmentStrategy } from "./i
 
 const sources = new Set(["market-price", "rates", "breadth"]);
 const prediction = {
-  prediction_id: "prediction-1",
+  predictionId: "prediction-1",
+  predictionDate: "2026-08-11",
   market: "a-share",
-  sector_id: "000986",
-  horizon: 5,
-  publication_status: "published",
-  prediction_status: "published",
+  sectorId: "000986",
+  horizonSessions: 5,
+  classification: "published_model_prediction",
+  modelPublicationStatus: "published",
+  publicationStatus: "published",
   probability_target: "absolute_up",
-  absolute_up_probability: 61,
+  probabilityTarget: "absolute_up",
+  probabilityUnit: "decimal_0_1",
+  probability: 0.61,
 };
-const records = { records: [prediction] };
+const records = { asOfDate: "2026-08-12", rows: [prediction] };
 
 function recommendation(overrides = {}) {
   const direct = overrides.__direct === true || overrides.modelSignal?.status === "published";
@@ -62,7 +66,6 @@ function strategy(status = "published", overrides = {}) {
     modelContext: {
       status,
       signalAvailable: published,
-      probability: published ? 0.61 : null,
       horizonSessions: 5,
       sourcePredictionIds: published ? ["prediction-1"] : [],
     },
@@ -94,7 +97,7 @@ test("published recommendation binds to immutable ledger ID, status, target, hor
   }
 });
 
-test("published recommendation binds against the repository prediction ledger record", () => {
+test("legacy historical prediction cannot bind as a current strategy signal", () => {
   const value = strategy();
   const real = "fr-a-20260721-h1-000986-f39443581583";
   value.modelContext.horizonSessions = 1;
@@ -103,7 +106,7 @@ test("published recommendation binds against the repository prediction ledger re
   value.recommendations[0].modelSignal.predictionIds = [real];
   value.recommendations[0].modelSignal.horizonSessions = 1;
   value.recommendations[0].modelSignal.probability = 0.501;
-  assert.doesNotThrow(() => validateInvestmentStrategy(value, { sourceIds: sources, edition: "daily" }));
+  assert.throws(() => validateInvestmentStrategy(value, { sourceIds: sources, edition: "daily", predictionRecords: { asOfDate: "2026-08-12", rows: [{ predictionId: real, predictionDate: "2026-07-21", market: "a-share", sectorId: "000986", horizonSessions: 1, classification: "evidence_observation", modelPublicationStatus: "published", probabilityTarget: "absolute_up", probability: 0.501, probabilityUnit: "decimal_0_1" }] } }), (error) => error instanceof InvestmentStrategyContractError && error.code === "STRATEGY_LEGACY_PREDICTION_FORBIDDEN");
 });
 
 test("writer override needs a reason and two independent sources", () => {
@@ -124,8 +127,8 @@ test("model abstain still requires writer action when evidence is usable", () =>
   unavailable.recommendations[0].direction = "neutral";
   assert.doesNotThrow(() => validate(unavailable, { sourceIds: null }));
   const fabricated = strategy("abstained");
-  fabricated.modelContext.probability = 0.5;
-  assert.throws(() => validate(fabricated), (error) => error.code === "STRATEGY_PROBABILITY_FABRICATION");
+  fabricated.modelContext.sourcePredictionIds = ["forbidden"];
+  assert.throws(() => validate(fabricated), (error) => error.code === "STRATEGY_MODEL_ABSENT");
 });
 
 test("sector taxonomy rejects generic and fake targets, and individual stocks", () => {

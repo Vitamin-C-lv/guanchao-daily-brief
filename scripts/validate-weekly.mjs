@@ -178,7 +178,7 @@ function validateReport(data, entry, fileSize) {
   });
   const usedSources = new Set();
   try {
-    validateInvestmentStrategy(data.investmentStrategy, { sourceIds: data.sources.map((source) => source.id), requireStrategy: report.weekEnd >= "2026-08-08", edition: "weekly" });
+    validateInvestmentStrategy(data.investmentStrategy, { sourceIds: data.sources.map((source) => source.id), requireStrategy: report.weekEnd >= "2026-08-12", edition: "weekly" });
   } catch (error) {
     fail(`${label}.investmentStrategy 无效：${error?.code ?? error?.message ?? "unknown error"}`);
   }

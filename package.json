@@ -100,6 +100,7 @@
     "test:codex-writer": "node --test scripts/codex-writer.test.mjs",
     "test:writer-ready": "node --test scripts/writer-ready.test.mjs",
     "test:content-publisher": "node --test scripts/content-publisher.test.mjs",
+    "test:content-publisher-e2e": "node --test scripts/content-publisher.e2e.test.mjs",
     "test:investment-strategy": "node --test scripts/investment-strategy-contract.test.mjs",
     "test:investment-strategy-ui": "node --test scripts/investment-strategy-ui.test.mjs",
     "test:policy-state-selector": "node --test scripts/policy-state-target-selector.test.mjs",

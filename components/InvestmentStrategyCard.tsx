@@ -3,7 +3,7 @@ type StrategyCardData = {
   summary: string;
   overallStance: "risk_on" | "neutral" | "risk_off";
   signalOrigin: "model_plus_writer" | "writer_only";
-  modelContext: { status: "published" | "abstained" | "unavailable"; probability: number | null };
+  modelContext: { status: "published" | "abstained" | "unavailable" };
   recommendations: Array<{
     label: string;
     action: "increase" | "hold" | "reduce";
@@ -16,6 +16,7 @@ type StrategyCardData = {
     invalidation: string;
     modelAgreement: "agree" | "override" | "not_applicable";
     overrideReason: string | null;
+    modelSignal: { status: "published" | "abstained" | "unavailable" | "no_direct_model_signal"; probability: number | null; probabilityTarget: string | null; probabilityUnit: string | null };
   }>;
 };
 
@@ -24,11 +25,12 @@ const directionLabels = { bullish: "偏多", neutral: "中性", bearish: "偏空
 const stanceLabels = { risk_on: "偏进取", neutral: "中性", risk_off: "偏防御" } as const;
 
 export default function InvestmentStrategyCard({ strategy }: { strategy: StrategyCardData }) {
-  const modelLine = strategy.modelContext.status === "published"
-    ? `模型信号已发布${strategy.modelContext.probability === null ? "" : `：${Math.round(strategy.modelContext.probability * 100)}%`}；主笔判断${strategy.signalOrigin === "model_plus_writer" ? "结合模型信号形成" : "独立形成"}。`
-    : strategy.modelContext.status === "abstained"
-      ? "模型本期没有给出概率，本节由主笔结合市场数据给出方向判断。"
-      : "模型本期没有可用信号，本节由主笔结合市场数据给出方向判断。";
+  const directSignals = strategy.recommendations.filter((item) => item.modelSignal.status === "published");
+  const modelLine = directSignals.length > 1
+    ? `本期包含 ${directSignals.length} 条已发布模型信号。`
+    : directSignals.length === 1
+      ? "本期包含 1 条已发布模型信号，概率仅显示在对应配置上。"
+      : "模型本期没有给出可直接用于该配置的概率。";
   return (
     <section className="investment-strategy-card" aria-label={strategy.title} data-strategy-placement="after-intro">
       <div className="investment-strategy-heading"><div><span>MARKET ALLOCATION</span><h2>{strategy.title}</h2></div><b>{stanceLabels[strategy.overallStance]}</b></div>
@@ -41,6 +43,7 @@ export default function InvestmentStrategyCard({ strategy }: { strategy: Strateg
             <p>{item.whyNow}</p>
             <dl>
               <div><dt>模型与主笔</dt><dd>{item.modelEvidence} {item.writerOverlay}</dd></div>
+              {item.modelSignal.status === "published" ? <div><dt>模型概率</dt><dd>{Math.round((item.modelSignal.probability ?? 0) * 100)}%（{item.modelSignal.probabilityTarget === "absolute_up" ? "绝对上涨" : item.modelSignal.probabilityTarget === "relative_outperformance" ? "相对跑赢" : "进入前四分位"}）</dd></div> : null}
               {item.modelAgreement === "override" && item.overrideReason ? <div><dt>分歧原因</dt><dd>{item.overrideReason}</dd></div> : null}
               <div><dt>下一步确认</dt><dd>{item.trigger}</dd></div>
               <div><dt>失效条件</dt><dd>{item.invalidation}</dd></div>

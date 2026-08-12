@@ -405,23 +405,26 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
   if (dryRun === write) fail("MODE", "mode", "exactly one of dryRun or write is required");
   if (typeof packageDirectory !== "string" || typeof resultFile !== "string") fail("ARGUMENT", "arguments", "packageDirectory and resultFile are required");
   const packageValue = readGlobalExecutionPackage(packageDirectory) ?? readPackage(packageDirectory);
+  const predictionRecords = packageValue.files.has("PREDICTION_REVIEW_PACKET.json")
+    ? JSON.parse(packageValue.files.get("PREDICTION_REVIEW_PACKET.json").toString("utf8"))
+    : null;
   const request = JSON.parse(packageValue.files.get("REQUEST.json").toString("utf8"));
   validateRequest(request, { rootDir: root });
   const result = readJson(path.resolve(resultFile));
   if (request.mode === "global_market_brief") {
     const beforeProtected = protectedFiles(root);
-    validateResult(root, request, result);
+    validateResult(root, request, result, { predictionRecords });
     const lint = lintEditorial({ mode: "global_market_brief", value: result.payload, result, style: {} });
     if (!lint.passed) fail("EDITORIAL_LINT", "result.payload", lint.errors.join("; "));
     const editorialFreshness = assessEditorialFreshness(root, result.payload, { correction });
     const replacement = explicitGlobalReplacement(root, result.payload, { correction });
-    const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root, replacement });
+    const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root, replacement, predictionRecords });
     const approvedFiles = new Set(["content/global-market-brief-public.json", "content/global-market-brief-index.json", `content/global-market-briefs/${result.payload.editionDate}.json`]);
     for (const file of [...simulation.files, ...(simulation.wouldWrite ?? [])]) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer may only write history and latest public DTO");
     let applied = simulation;
     let targetValidation = null;
     if (write) {
-      applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root, replacement });
+      applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root, replacement, predictionRecords });
       for (const file of applied.files) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer wrote an unapproved file");
       targetValidation = validateGlobalPublication(root, applied);
     }
@@ -468,19 +471,19 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
   if (hashBytes(packageValue.files.get("EDITORIAL_STYLE.json")) !== hashBytes(fs.readFileSync(path.join(root, "config", "editorial-style.json")))) fail("STYLE_SHA", "EDITORIAL_STYLE.json", "package style differs from repository style");
   if (JSON.stringify(style) !== JSON.stringify(baselineStyle)) fail("STYLE_CONTENT", "EDITORIAL_STYLE.json", "package style content differs from repository style");
   const beforeProtected = protectedFiles(root);
-  validateResult(root, request, result);
+  validateResult(root, request, result, { predictionRecords });
   const lint = lintEditorial({ edition: request.edition, value: result.payload, style, result });
   if (!lint.passed) fail("EDITORIAL_LINT", "result.payload", lint.errors.join("; "));
   const visualBundle = JSON.parse(packageValue.files.get("ARTICLE_VISUAL_BUNDLE.json").toString("utf8"));
   const depthRules = JSON.parse(packageValue.files.get("ARTICLE_DEPTH_RULES.json").toString("utf8"));
   const depthAndVisuals = validateDepthAndVisuals({ edition: request.edition, payload: result.payload, result, visualBundle, depthRules });
   const editorialFreshness = assessLegacyFreshness(packageValue, request, result.payload, { maintenanceProjection });
-  const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root });
+  const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root, predictionRecords });
   for (const file of simulation.files) if (!allowedApplyFile(file, request, root)) fail("APPLY_BOUNDARY", file, "production apply proposed an unapproved file");
   let applied = simulation;
   let targetValidation = null;
   if (write) {
-    applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root });
+    applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root, predictionRecords });
     for (const file of applied.files) if (!allowedApplyFile(file, request, root)) fail("APPLY_BOUNDARY", file, "production apply wrote an unapproved file");
     injectVisuals(path.join(root, ...request.targetOutputs[0].targetPath.split("/")), resolveVisuals(result, visualBundle), root);
     targetValidation = validateTargetAfterApply(root, request);

@@ -21,7 +21,9 @@ test("Weekly placement is immediately after the weekly verdict and before core t
 
 test("strategy card keeps reader wording for abstained and published model paths", () => {
   const source = read("components/InvestmentStrategyCard.tsx");
-  assert.match(source, /模型本期没有给出概率/);
+  assert.match(source, /模型本期没有给出可直接用于该配置的概率/);
+  assert.match(source, /本期包含 \$\{directSignals\.length\} 条已发布模型信号/);
+  assert.doesNotMatch(source, /modelContext\.probability/);
   assert.match(source, /模型信号/);
   assert.match(source, /非个性化市场策略/);
 });

@@ -663,9 +663,9 @@ function normalizedFactId(value) {
   return String(value ?? "").replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
 }
 
-export function validateGlobalWriterPayload(request, inputs, payload) {
+export function validateGlobalWriterPayload(request, inputs, payload, { predictionRecords = null } = {}) {
   try {
-    validateGlobalMarketBrief(payload);
+    validateGlobalMarketBrief(payload, { predictionRecords });
   } catch (cause) {
     error("GLOBAL_BRIEF_INVALID", "payload", cause instanceof Error ? cause.message : "global market brief is invalid");
   }
@@ -733,7 +733,7 @@ function validateGlobalClaimBindings(bindings, request) {
   }
 }
 
-export function validateResult(rootDir, request, result) {
+export function validateResult(rootDir, request, result, { predictionRecords = null } = {}) {
   validateRequest(request, { rootDir });
   const loaded = contextReference(rootDir, request.context.artifactPath);
   const inputs = validateWriterContextArtifacts(loaded.context, { root: rootDir, registry: loaded.registry });
@@ -779,7 +779,7 @@ export function validateResult(rootDir, request, result) {
   if (global) {
     if (!Object.hasOwn(result.claimBindings, "global")) error("CLAIM_BINDINGS", "claimBindings.global", "global bindings array is required");
     validateGlobalClaimBindings(result.claimBindings.global, request);
-    validateGlobalWriterPayload(request, inputs, result.payload);
+    validateGlobalWriterPayload(request, inputs, result.payload, { predictionRecords });
     validHash(result.resultId, "resultId");
     const expectedGlobalId = hash(resultBusinessView(result));
     if (result.resultId !== expectedGlobalId) error("RESULT_INTEGRITY", "resultId", "result ID mismatch");
@@ -819,12 +819,12 @@ export function validateResult(rootDir, request, result) {
   return result;
 }
 
-function validatePayload(rootDir, target, payload) {
+function validatePayload(rootDir, target, payload, { predictionRecords = null } = {}) {
   if (target.contentType === "global-market-brief") {
     try {
       // Existing immutable historical fixtures remain readable.  Every new
       // formal Daily publication from this convergence date is strict.
-      validateGlobalMarketBrief(payload, { requireInvestmentStrategy: payload?.editionDate >= "2026-08-12" });
+      validateGlobalMarketBrief(payload, { requireInvestmentStrategy: payload?.editionDate >= "2026-08-12", predictionRecords });
     } catch (cause) {
       error(cause?.code ?? "INVESTMENT_STRATEGY_INVALID", cause?.path ?? "investmentStrategy", cause instanceof Error ? cause.message : "global investment strategy is invalid");
     }
@@ -841,7 +841,7 @@ function validatePayload(rootDir, target, payload) {
   }
   if (target.contentType === "weekly-report") {
     try {
-      validateInvestmentStrategy(payload?.investmentStrategy, { sourceIds: (payload?.sources ?? []).map((source) => source.id), requireStrategy: payload?.report?.weekEnd >= "2026-08-12", edition: "weekly" });
+      validateInvestmentStrategy(payload?.investmentStrategy, { sourceIds: (payload?.sources ?? []).map((source) => source.id), requireStrategy: payload?.report?.weekEnd >= "2026-08-12", edition: "weekly", predictionRecords });
     } catch (cause) {
       error(cause?.code ?? "INVESTMENT_STRATEGY_INVALID", cause?.path ?? "investmentStrategy", cause instanceof Error ? cause.message : "weekly investment strategy is invalid");
     }
@@ -910,11 +910,11 @@ function validateWeeklyPublication(rootDir, target, payload, publication) {
   }
 }
 
-export function apply({ request, result, dryRun = false, write = false, rootDir = root, failAt = null, replacement = null } = {}) {
+export function apply({ request, result, dryRun = false, write = false, rootDir = root, failAt = null, replacement = null, predictionRecords = null } = {}) {
   if (dryRun === write) error("APPLY_MODE", "mode", "exactly one of dryRun or write is required");
-  validateResult(rootDir, request, result);
+  validateResult(rootDir, request, result, { predictionRecords });
   const target = request.targetOutputs[0];
-  validatePayload(rootDir, target, result.payload);
+  validatePayload(rootDir, target, result.payload, { predictionRecords });
   if (request.mode === GLOBAL_MARKET_BRIEF_MODE) {
     const editorialFreshness = assessEditorialFreshness(rootDir, result.payload, { correction: replacement?.mode === "explicit-replace" });
     const storage = writeGlobalMarketBrief({
@@ -951,7 +951,7 @@ export function apply({ request, result, dryRun = false, write = false, rootDir 
   let resultForPublication = result;
   if (fs.existsSync(accepted)) {
     const existing = gunzipJson(accepted);
-    validateResult(rootDir, request, existing);
+    validateResult(rootDir, request, existing, { predictionRecords });
     if (canonicalJson(resultStableView(existing)) !== canonicalJson(resultStableView(result))) error("ACCEPTED_CONFLICT", relative(rootDir, accepted), "accepted result conflicts with stable result identity");
     acceptedAlready = true;
     resultForPublication = existing;

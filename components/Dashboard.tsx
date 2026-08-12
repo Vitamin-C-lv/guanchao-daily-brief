@@ -459,7 +459,8 @@ export default function Dashboard({
       .filter((article) => !normalizedQuery || `${article.title} ${article.dek} ${article.conclusion} ${article.marketTags.join(" ")}`.toLowerCase().includes(normalizedQuery));
   }, [currentGlobalBrief, globalArchive, globalBrief, query, selectedMarket]);
   const canonicalIds = useMemo(() => new Set(globalArchive.map((article) => article.id)), [globalArchive]);
-  const legacyArchive = useMemo(() => articles.filter(({ article }) => !canonicalIds.has(article.id) && (!currentGlobalBrief || !globalBrief || article.publishedAt <= globalBrief.dataAsOf)), [articles, canonicalIds, currentGlobalBrief, globalBrief]);
+  const canonicalEditionDate = globalBrief?.mainArticle?.articleUrl?.match(/^\/articles\/global-market-brief-(\d{4}-\d{2}-\d{2})\/$/)?.[1] ?? null;
+  const legacyArchive = useMemo(() => articles.filter(({ article }) => !canonicalIds.has(article.id) && (!currentGlobalBrief || !canonicalEditionDate || article.publishedAt < canonicalEditionDate)), [articles, canonicalEditionDate, canonicalIds, currentGlobalBrief]);
 
   const filteredHotspots = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();

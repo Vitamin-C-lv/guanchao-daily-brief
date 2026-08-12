@@ -103,7 +103,7 @@ export interface InvestmentStrategyArticleData {
   summary: string;
   overallStance: "risk_on" | "neutral" | "risk_off";
   signalOrigin: "model_plus_writer" | "writer_only";
-  modelContext: { status: "published" | "abstained" | "unavailable"; signalAvailable: boolean; probability: number | null; horizonSessions: number; sourcePredictionIds: string[] };
+  modelContext: { status: "published" | "abstained" | "unavailable"; signalAvailable: boolean; horizonSessions: number; sourcePredictionIds: string[] };
   allocationPreference: { preferredTargetIds: string[]; underweightTargetIds: string[] };
   recommendations: InvestmentStrategyRecommendation[];
 }
@@ -269,7 +269,6 @@ function investmentStrategy(value: unknown): InvestmentStrategyArticleData | nul
     modelContext: {
       status: string(model.status, "investmentStrategy.modelContext.status") as InvestmentStrategyArticleData["modelContext"]["status"],
       signalAvailable: model.signalAvailable === true,
-      probability: typeof model.probability === "number" ? model.probability : null,
       horizonSessions: typeof model.horizonSessions === "number" ? model.horizonSessions : 0,
       sourcePredictionIds: stringArray(model.sourcePredictionIds, "investmentStrategy.modelContext.sourcePredictionIds"),
     },
