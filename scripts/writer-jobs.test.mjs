@@ -215,7 +215,7 @@ function setup({ edition = "daily", status = "ready", evidenceState = "confirmed
     "data/writer-contexts/contract.json", "data/research-bundles/contract.json", "data/writer-jobs/contract.json", "data/writer-jobs/index.json",
     "content/writer-jobs/daily-pending.json", "content/writer-jobs/weekly-pending.json", "content/daily-brief.json",
     "content/weekly-reports/weekly-2026-W29.json", "content/weekly-reports/weekly-2026-W31.json", "content/weekly-reports/index.json", "public/update-notices.json",
-    "prompts/luna-daily-brief.md", "prompts/luna-weekly-brief.md", "scripts/validate-brief.mjs", "scripts/validate-weekly.mjs", "scripts/weekly-schedule.mjs"
+    "prompts/luna-daily-brief.md", "prompts/luna-weekly-brief.md", "scripts/validate-brief.mjs", "scripts/validate-weekly.mjs", "scripts/weekly-schedule.mjs", "scripts/investment-strategy-contract.mjs"
   ]) copy(repo, relative);
   if (edition === "weekly") {
     const indexPath = path.join(repo, "content/weekly-reports/index.json");

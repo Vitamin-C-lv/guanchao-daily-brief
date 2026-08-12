@@ -6,12 +6,15 @@ const inputIndex = process.argv.indexOf("--input");
 const briefPath = inputIndex >= 0 ? path.resolve(process.argv[inputIndex + 1] ?? "") : path.resolve(process.cwd(), "content", "daily-brief.json");
 const modeIndex = process.argv.indexOf("--mode");
 const mode = modeIndex >= 0 ? process.argv[modeIndex + 1] : null;
+const reviewPacketIndex = process.argv.indexOf("--prediction-review-packet");
+const reviewPacketPath = reviewPacketIndex >= 0 ? path.resolve(process.argv[reviewPacketIndex + 1] ?? "") : null;
 
 if (mode === "global_market_brief") {
   try {
     const { validateGlobalMarketBrief } = await import("./global-market-brief-contract.mjs");
     const value = JSON.parse(await readFile(briefPath, "utf8"));
-    validateGlobalMarketBrief(value);
+    const predictionRecords = reviewPacketPath ? JSON.parse(await readFile(reviewPacketPath, "utf8")) : null;
+    validateGlobalMarketBrief(value, { predictionRecords });
     console.log(`全球整合简报校验通过：${value.editionDate}，global_main=1，specialReports=${value.specialReports.length}。`);
     process.exit(0);
   } catch (cause) {

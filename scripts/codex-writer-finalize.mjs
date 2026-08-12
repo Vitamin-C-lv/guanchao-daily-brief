@@ -19,7 +19,7 @@ import {
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
-const PACKAGE_FILES = [
+const REQUIRED_PACKAGE_FILES = [
   "ARTICLE_DEPTH_RULES.json",
   "ARTICLE_VISUAL_BUNDLE.json",
   "BASELINE_CONTENT.json",
@@ -31,11 +31,12 @@ const PACKAGE_FILES = [
   "REQUEST.json",
   "RESEARCH_BUNDLE.json",
   "RESULT_TEMPLATE.json",
-  "PREDICTION_REVIEW_PACKET.json",
   "TARGET_SCHEMA.json",
   "WRITER_CONTEXT.json",
   "WRITER_MEMORY_CONTEXT.json"
 ];
+const OPTIONAL_PACKAGE_FILES = ["PREDICTION_REVIEW_PACKET.json"];
+const PACKAGE_FILES = [...REQUIRED_PACKAGE_FILES, ...OPTIONAL_PACKAGE_FILES];
 
 export class CodexWriterFinalizeError extends Error {
   constructor(code, errorPath, message) {
@@ -91,7 +92,7 @@ function assessLegacyFreshness(packageValue, request, payload, { maintenanceProj
     fail("FRESH_EDITION_CONTENT_REQUIRED", "result.payload", "new edition editorial content is unchanged after runtime/date/visual normalization");
   }
   if (request.edition === "daily" && !maintenanceProjection) {
-    fail("CANONICAL_EDITION_REQUIRED", "result.payload", "formal Daily publication requires global_market_brief canonical output");
+    fail("LEGACY_ONLY_DAILY_PUBLICATION_FORBIDDEN", "result.payload", "formal Daily publication requires global_market_brief canonical output");
   }
   return {
     previousEdition,
@@ -123,8 +124,8 @@ function readPackage(directory) {
   if (unexpected.length) fail("PACKAGE_DIRECTORY", root, `unrelated files: ${unexpected.join(", ")}`);
   const manifest = readJson(path.join(root, "MANIFEST.json"));
   if (manifest.schemaVersion !== "codex-writer-execution-package-v1") fail("PACKAGE_SCHEMA", "MANIFEST.json", "execution package manifest schema mismatch");
-  if (!Array.isArray(manifest.files) || manifest.files.length !== PACKAGE_FILES.length) fail("PACKAGE_MANIFEST", "MANIFEST.json.files", "manifest file set mismatch");
-  const expectedNames = [...PACKAGE_FILES].sort();
+  if (!Array.isArray(manifest.files)) fail("PACKAGE_MANIFEST", "MANIFEST.json.files", "manifest file set mismatch");
+  const expectedNames = [...REQUIRED_PACKAGE_FILES, ...(fs.existsSync(path.join(root, "PREDICTION_REVIEW_PACKET.json")) ? OPTIONAL_PACKAGE_FILES : [])].sort();
   const actualNames = manifest.files.map((entry) => entry.path).sort();
   if (actualNames.length !== expectedNames.length || actualNames.some((name, index) => name !== expectedNames[index])) fail("PACKAGE_MANIFEST", "MANIFEST.json.files", "manifest file set mismatch");
   const files = new Map();
@@ -143,7 +144,7 @@ function readPackage(directory) {
     if (!match) fail("PACKAGE_SUMS", "SHA256SUMS.txt", "invalid checksum line");
     sums.set(match[2], match[1]);
   }
-  const sumNames = [...PACKAGE_FILES, "MANIFEST.json"].sort();
+  const sumNames = [...actualNames, "MANIFEST.json"].sort();
   if (sums.size !== sumNames.length || [...sums.keys()].sort().some((name, index) => name !== sumNames[index])) fail("PACKAGE_SUMS", "SHA256SUMS.txt", "checksum file set mismatch");
   for (const name of sumNames) {
     const bytes = name === "MANIFEST.json" ? fs.readFileSync(path.join(root, name)) : files.get(name);
@@ -164,6 +165,10 @@ function readGlobalExecutionPackage(directory) {
     const file = path.join(root, name);
     if (!fs.existsSync(file)) fail("PACKAGE_MISSING", name, "global writer execution package file is missing");
     files.set(name, fs.readFileSync(file));
+  }
+  for (const name of ["DAILY_MARKET_PACKET.json", "PREDICTION_REVIEW_PACKET.json"]) {
+    const file = path.join(root, name);
+    if (fs.existsSync(file)) files.set(name, fs.readFileSync(file));
   }
   return { root, manifest, files };
 }
@@ -214,7 +219,7 @@ function allowedApplyFile(file, request, root) {
   return false;
 }
 
-function validateGlobalPublication(root, storage) {
+function validateGlobalPublication(root, storage, { predictionRecords = null } = {}) {
   const historyPath = storage.allowedFiles.find((file) => file.startsWith("content/global-market-briefs/"));
   const publicPath = "content/global-market-brief-public.json";
   if (historyPath === undefined || !storage.allowedFiles.includes(publicPath)) fail("GLOBAL_PUBLICATION", "files", "global storage did not return the two approved content files");
@@ -223,7 +228,7 @@ function validateGlobalPublication(root, storage) {
   const history = readJson(historyFile);
   const publicDto = readJson(publicFile);
   try {
-    validateGlobalMarketBrief(history);
+    validateGlobalMarketBrief(history, { predictionRecords });
     validateGlobalMarketBriefPublicDto(publicDto);
   } catch (cause) {
     fail("GLOBAL_PUBLICATION", historyPath, cause instanceof Error ? cause.message : "global publication validation failed");
@@ -405,25 +410,28 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
   if (dryRun === write) fail("MODE", "mode", "exactly one of dryRun or write is required");
   if (typeof packageDirectory !== "string" || typeof resultFile !== "string") fail("ARGUMENT", "arguments", "packageDirectory and resultFile are required");
   const packageValue = readGlobalExecutionPackage(packageDirectory) ?? readPackage(packageDirectory);
+  const predictionRecords = packageValue.files.has("PREDICTION_REVIEW_PACKET.json")
+    ? JSON.parse(packageValue.files.get("PREDICTION_REVIEW_PACKET.json").toString("utf8"))
+    : null;
   const request = JSON.parse(packageValue.files.get("REQUEST.json").toString("utf8"));
   validateRequest(request, { rootDir: root });
   const result = readJson(path.resolve(resultFile));
   if (request.mode === "global_market_brief") {
     const beforeProtected = protectedFiles(root);
-    validateResult(root, request, result);
+    validateResult(root, request, result, { predictionRecords });
     const lint = lintEditorial({ mode: "global_market_brief", value: result.payload, result, style: {} });
     if (!lint.passed) fail("EDITORIAL_LINT", "result.payload", lint.errors.join("; "));
-    const editorialFreshness = assessEditorialFreshness(root, result.payload, { correction });
+    const editorialFreshness = assessEditorialFreshness(root, result.payload, { correction, predictionRecords });
     const replacement = explicitGlobalReplacement(root, result.payload, { correction });
-    const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root, replacement });
-    const approvedFiles = new Set(["content/global-market-brief-public.json", `content/global-market-briefs/${result.payload.editionDate}.json`]);
+    const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root, replacement, predictionRecords });
+    const approvedFiles = new Set(["content/global-market-brief-public.json", "content/global-market-brief-index.json", `content/global-market-briefs/${result.payload.editionDate}.json`]);
     for (const file of [...simulation.files, ...(simulation.wouldWrite ?? [])]) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer may only write history and latest public DTO");
     let applied = simulation;
     let targetValidation = null;
     if (write) {
-      applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root, replacement });
+      applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root, replacement, predictionRecords });
       for (const file of applied.files) if (!approvedFiles.has(file)) fail("APPLY_BOUNDARY", file, "global writer wrote an unapproved file");
-      targetValidation = validateGlobalPublication(root, applied);
+      targetValidation = validateGlobalPublication(root, applied, { predictionRecords });
     }
     const afterProtected = protectedFiles(root);
     assertProtectedEqual(beforeProtected, afterProtected);
@@ -468,19 +476,19 @@ export function finalizeCodexWriter({ packageDirectory, resultFile, dryRun = fal
   if (hashBytes(packageValue.files.get("EDITORIAL_STYLE.json")) !== hashBytes(fs.readFileSync(path.join(root, "config", "editorial-style.json")))) fail("STYLE_SHA", "EDITORIAL_STYLE.json", "package style differs from repository style");
   if (JSON.stringify(style) !== JSON.stringify(baselineStyle)) fail("STYLE_CONTENT", "EDITORIAL_STYLE.json", "package style content differs from repository style");
   const beforeProtected = protectedFiles(root);
-  validateResult(root, request, result);
+  validateResult(root, request, result, { predictionRecords });
   const lint = lintEditorial({ edition: request.edition, value: result.payload, style, result });
   if (!lint.passed) fail("EDITORIAL_LINT", "result.payload", lint.errors.join("; "));
   const visualBundle = JSON.parse(packageValue.files.get("ARTICLE_VISUAL_BUNDLE.json").toString("utf8"));
   const depthRules = JSON.parse(packageValue.files.get("ARTICLE_DEPTH_RULES.json").toString("utf8"));
   const depthAndVisuals = validateDepthAndVisuals({ edition: request.edition, payload: result.payload, result, visualBundle, depthRules });
   const editorialFreshness = assessLegacyFreshness(packageValue, request, result.payload, { maintenanceProjection });
-  const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root });
+  const simulation = applyWriterResult({ request, result, dryRun: true, write: false, rootDir: root, predictionRecords });
   for (const file of simulation.files) if (!allowedApplyFile(file, request, root)) fail("APPLY_BOUNDARY", file, "production apply proposed an unapproved file");
   let applied = simulation;
   let targetValidation = null;
   if (write) {
-    applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root });
+    applied = applyWriterResult({ request, result, dryRun: false, write: true, rootDir: root, predictionRecords });
     for (const file of applied.files) if (!allowedApplyFile(file, request, root)) fail("APPLY_BOUNDARY", file, "production apply wrote an unapproved file");
     injectVisuals(path.join(root, ...request.targetOutputs[0].targetPath.split("/")), resolveVisuals(result, visualBundle), root);
     targetValidation = validateTargetAfterApply(root, request);

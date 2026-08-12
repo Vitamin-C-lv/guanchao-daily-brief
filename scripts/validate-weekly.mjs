@@ -2,6 +2,7 @@ import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { isUsFridayCloseAllowed } from "./weekly-schedule.mjs";
+import { validateInvestmentStrategy } from "./investment-strategy-contract.mjs";
 
 const root = process.cwd();
 const candidatePath = (flag) => { const index = process.argv.indexOf(flag); return index >= 0 ? path.resolve(process.argv[index + 1] ?? "") : null; };
@@ -176,6 +177,11 @@ function validateReport(data, entry, fileSize) {
     requireIso(source.accessedAt, `${sourceLabel}.accessedAt`);
   });
   const usedSources = new Set();
+  try {
+    validateInvestmentStrategy(data.investmentStrategy, { sourceIds: data.sources.map((source) => source.id), requireStrategy: report.weekEnd >= "2026-08-12", edition: "weekly" });
+  } catch (error) {
+    fail(`${label}.investmentStrategy 无效：${error?.code ?? error?.message ?? "unknown error"}`);
+  }
   const refs = (ids, refLabel, min = 1) => {
     if (!Array.isArray(ids) || ids.length < min) { fail(`${refLabel} 至少需要 ${min} 个引用`); return; }
     for (const id of ids) { if (!sourceMap.has(id)) fail(`${refLabel} 含未知来源 ${id}`); else usedSources.add(id); }

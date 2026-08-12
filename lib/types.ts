@@ -1045,10 +1045,51 @@ export interface WeeklyReportIndex {
   reports: WeeklyReportIndexEntry[];
 }
 
+export interface InvestmentStrategy {
+  schemaVersion: "investment-strategy-v1";
+  asOf: string;
+  title: "本期配置建议" | "下周配置建议";
+  summary: string;
+  allocationPreference: { preferredTargetIds: string[]; underweightTargetIds: string[] };
+  overallStance: "risk_on" | "neutral" | "risk_off";
+  signalOrigin: "model_plus_writer" | "writer_only";
+  modelContext: { status: "published" | "abstained" | "unavailable"; signalAvailable: boolean; horizonSessions: number; sourcePredictionIds: string[] };
+  recommendations: Array<{
+    market: string;
+    targetType: string;
+    targetId: string;
+    label: string;
+    action: "increase" | "hold" | "reduce";
+    direction: "bullish" | "neutral" | "bearish";
+    conviction: number;
+    horizon: string;
+    whyNow: string;
+    modelEvidence: string;
+    writerOverlay: string;
+    supportingSourceIds: string[];
+    predictionIds: string[];
+    trigger: string;
+    invalidation: string;
+    modelAgreement: "agree" | "override" | "not_applicable";
+    overrideReason: string | null;
+    modelSignal: {
+      status: "published" | "abstained" | "unavailable" | "no_direct_model_signal";
+      predictionIds: string[];
+      probability: number | null;
+      probabilityTarget: string | null;
+      probabilityUnit: string | null;
+      horizonSessions: number;
+      market: string;
+      predictionTargetId: string;
+    };
+  }>;
+}
+
 export interface WeeklyReport {
   schemaVersion: 1;
   visual?: GeneratedEditorialVisual;
   charts?: StructuredChart[];
+  investmentStrategy?: InvestmentStrategy;
   report: {
     id: string;
     revision: number;

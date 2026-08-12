@@ -690,6 +690,46 @@ export function sealCodexResearch(candidate, { now = new Date(), contract = load
   return sealed;
 }
 
+/**
+ * Creates a sealed, deliberately empty research run when the daily packet
+ * already contains the needed market facts.  The retained official reference
+ * keeps source lineage real without inventing observations or facts.
+ */
+export function sealNoResearchBundle({ edition, asOf, root = repositoryRoot, now = new Date() } = {}) {
+  if (!DATE.test(asOf ?? "")) fail("DATE", "asOf", "asOf must be YYYY-MM-DD");
+  if (!new Set(["daily", "weekly"]).has(edition)) fail("EDITION", "edition", "daily or weekly required");
+  const reference = scanRunArtifacts(root)
+    .flatMap(({ run }) => run.documents)
+    .filter((document) => document.evidenceClass === "official-primary" && String(document.publishedAt ?? document.publishedDate ?? "").slice(0, 10) <= asOf)
+    .sort((left, right) => String(right.publishedAt ?? right.publishedDate).localeCompare(String(left.publishedAt ?? left.publishedDate)) || left.sourceId.localeCompare(right.sourceId))
+    .at(0);
+  if (!reference) fail("NO_RESEARCH_REFERENCE", "documents", "an existing official reference is required to seal an empty research bundle");
+  const generatedAt = normalizeTimestamp(now.toISOString());
+  return sealCodexResearch({
+    schemaVersion: "codex-research-v1",
+    edition,
+    asOf,
+    window: { start: asOf, end: asOf, timezone: "Asia/Shanghai" },
+    documents: [{
+      sourceId: reference.sourceId,
+      sourceUrl: reference.sourceUrl,
+      publisherId: reference.publisherId,
+      publisher: reference.publisher,
+      title: reference.title,
+      publishedAt: reference.publishedAt,
+      publishedDate: reference.publishedDate,
+      accessedAt: generatedAt,
+      contentSha256: reference.contentSha256,
+      evidenceClass: reference.evidenceClass,
+      evidenceExcerpt: reference.evidenceExcerpt,
+      marketScopes: reference.marketScopes,
+      topics: reference.topics
+    }],
+    facts: [],
+    observations: []
+  }, { now });
+}
+
 function validateCodexDocument(document, sourceRuns, contract, index) {
   const errorPath = `documents[${index}]`;
   assertKeys(document, DOCUMENT_KEYS, DOCUMENT_KEYS, errorPath);

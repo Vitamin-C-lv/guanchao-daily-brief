@@ -1,6 +1,7 @@
 import { ArrowLeft, ArrowRight, ExternalLink, FileText, Sparkles } from "lucide-react";
 import Link from "next/link";
 import MobileBottomNav from "./MobileBottomNav";
+import InvestmentStrategyCard from "./InvestmentStrategyCard";
 import GlobalMainBriefCard from "./GlobalMainBriefCard";
 import SpecialReportSection from "./SpecialReportSection";
 import type { GlobalMarketBriefPublic, GlobalPublicArticle, GlobalSpecialReportPublic } from "@/lib/global-market-brief-public";
@@ -187,6 +188,7 @@ function FullGlobalArticle({ article, relatedSpecialReports }: { article: Global
             <div className="global-full-section-heading"><span>02</span><h2 id="global-full-introduction-title">引言</h2></div>
             <p>{article.conclusion}</p>
           </section>
+          {article.investmentStrategy ? <InvestmentStrategyCard strategy={article.investmentStrategy} /> : null}
           {renderTransmission("03")}
           {renderAnalysisSections("04")}
           {renderFacts("05")}

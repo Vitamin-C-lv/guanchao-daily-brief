@@ -8,8 +8,8 @@ import { sha256AutomationConfigBytes } from "./automation-config-hash.mjs";
 import { checkAutomationConsistency } from "./check-automation-consistency.mjs";
 
 const sha256 = (text) => createHash("sha256").update(Buffer.from(text, "utf8")).digest("hex");
-const DAILY = "publicationEnabled=true\n观潮每日晚报\nwriterMayBrowse=true\nmemory:search\nMEMORY_DELTA\nWRITER_SKILL_MISSING\nfinalize\n--write\nSTALE_WRITER_PACKET\nSUNDAY_NO_REPORT";
-const WEEKLY = "publicationEnabled=true\nwriterMayBrowse=true\n20D Brier calibration abstention\nMEMORY_DELTA\nWRITER_SKILL_MISSING\nfinalize\n--write";
+const DAILY = "publicationEnabled=true\n观潮每日晚报\nwriterMayBrowse=true\nwriter-ready.mjs\ninvestmentStrategy\npublish-writer-result.mjs\n--production";
+const WEEKLY = "publicationEnabled=true\n观潮周报\nwriterMayBrowse=true\nwriter-ready.mjs\ninvestmentStrategy\npublish-writer-result.mjs\n--production";
 const PREDICTION = "run-prediction-publisher.mjs 18:20 禁止训练 禁止激活 shadow candidate SUNDAY_NO_RUN AUTOMATION_DRIFT";
 
 function toml(id, rrule, prompt) {

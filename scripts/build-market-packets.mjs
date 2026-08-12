@@ -161,6 +161,7 @@ function compactPrediction(record, asOf) {
     probabilityRaw: modelStatus === "published" ? probability.raw : null,
     probabilityUnit: modelStatus === "published" ? probability.unit : null,
     probability: modelStatus === "published" ? probability.probability : null,
+    probabilityTarget: modelStatus === "published" ? record.probability_target ?? null : null,
     targetOutcome: record.realized_top_quartile ?? null,
     evaluation: evaluationFor(record, asOf),
     sourceRecordIds: [record?.prediction_id].filter(Boolean),

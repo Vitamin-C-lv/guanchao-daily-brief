@@ -6,6 +6,10 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { buildPredictionReviewPacket } from "./build-market-packets.mjs";
+import { predictionReviewRecords } from "./investment-strategy-contract.mjs";
+import { resolveWeeklyPredictionReviewPacket } from "./codex-writer-prepare.mjs";
+import { canonicalJson } from "./research-contract.mjs";
 import { isSaturdayWeekly, isUsFridayCloseAllowed, shouldIncludeDailyEdition, weeklyRunGuard } from "./weekly-schedule.mjs";
 
 const root = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -41,4 +45,39 @@ test("Saturday weekly does not require the Saturday 20:00 Daily edition", () => 
 test("US Friday close is valid for a Saturday weekly but not a Friday weekly", () => {
   assert.equal(isUsFridayCloseAllowed({ weekEnd: "2026-08-08", sessionEnd: "2026-08-08" }), true);
   assert.equal(isUsFridayCloseAllowed({ weekEnd: "2026-08-07", sessionEnd: "2026-08-07" }), false);
+});
+
+test("weekly Review Packet resolver binds Friday, omits absent/future/fake packets", () => {
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "guanchao-weekly-review-"));
+  try {
+    const packetRoot = path.join(temp, "packets");
+    const friday = buildPredictionReviewPacket({
+      root,
+      asOf: "2026-08-07",
+      generatedAt: "2026-08-07T10:20:00.000Z",
+      records: [{ prediction_id: "weekly-friday-review", prediction_date: "2026-08-07", market: "a-share", sector_id: "000986", horizon: 5, publication_status: "published", probability_target: "absolute_up", absolute_up_probability: 61, probability_unit: "percent" }],
+    });
+    const fridayFile = path.join(packetRoot, "2026-08-07", "PREDICTION_REVIEW_PACKET.json");
+    fs.mkdirSync(path.dirname(fridayFile), { recursive: true });
+    fs.writeFileSync(fridayFile, `${canonicalJson(friday)}\n`, "utf8");
+    const paths = { eveningPacketsRoot: packetRoot, guanchaoHome: temp, repositoryPath: root };
+    const resolved = resolveWeeklyPredictionReviewPacket({ root, editionDate: "2026-08-08", automationPaths: paths });
+    assert.equal(resolved?.packet.packetId, friday.packetId);
+    assert.equal(predictionReviewRecords(resolved.packet).records.has("weekly-friday-review"), true);
+
+    const future = buildPredictionReviewPacket({ root, asOf: "2026-08-08", generatedAt: "2026-08-08T10:20:00.000Z", records: [] });
+    const futureFile = path.join(packetRoot, "2026-08-08", "PREDICTION_REVIEW_PACKET.json");
+    fs.mkdirSync(path.dirname(futureFile), { recursive: true });
+    fs.writeFileSync(futureFile, `${canonicalJson(future)}\n`, "utf8");
+    fs.rmSync(path.join(packetRoot, "2026-08-07"), { recursive: true, force: true });
+    assert.equal(resolveWeeklyPredictionReviewPacket({ root, editionDate: "2026-08-08", automationPaths: paths }), null);
+
+    const fakeFile = path.join(packetRoot, "2026-08-07", "PREDICTION_REVIEW_PACKET.json");
+    fs.mkdirSync(path.dirname(fakeFile), { recursive: true });
+    fs.writeFileSync(fakeFile, `${JSON.stringify({ schemaVersion: "weekly-no-evening-packet-v1", packetId: "weekly-fake", editionDate: "2026-08-08", status: "not-required" })}\n`, "utf8");
+    fs.rmSync(futureFile, { force: true });
+    assert.equal(resolveWeeklyPredictionReviewPacket({ root, editionDate: "2026-08-08", automationPaths: paths }), null);
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
 });

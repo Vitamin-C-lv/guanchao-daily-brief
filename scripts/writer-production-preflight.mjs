@@ -125,6 +125,7 @@ export function runWriterProductionPreflight({
   predictionReviewPacketPath = null,
   editionDate = null,
   editionPath = null,
+  allowMissingReviewPacket = false,
   git = defaultGit,
   packetValidator = validateEveningPacket,
 } = {}) {
@@ -174,7 +175,7 @@ export function runWriterProductionPreflight({
   else if (!repository.matchesProduction) result.errorCode = "CANONICAL_REPOSITORY_HEAD_MISMATCH";
   else if (!runtime.matchesProduction) result.errorCode = "CANONICAL_RUNTIME_HEAD_MISMATCH";
   else if (editionExists === true) result.errorCode = "DUPLICATE_EDITION_NO_OP";
-  else if (daily.status === "missing" || review.status === "missing") result.errorCode = "PACKET_MISSING";
+    else if (daily.status === "missing" || (!allowMissingReviewPacket && review.status === "missing")) result.errorCode = "PACKET_MISSING";
   else if (daily.status === "invalid" || review.status === "invalid") result.errorCode = "PACKET_INVALID";
   else {
     result.status = "READY";

@@ -11,6 +11,8 @@
     "nativeAutomationsRoot": "${CODEX_HOME}/automations",
     "writerPrepare": "scripts/codex-writer-prepare.mjs",
     "writerFinalize": "scripts/codex-writer-finalize.mjs",
+    "writerReady": "scripts/writer-ready.mjs",
+    "contentPublisher": "scripts/publish-writer-result.mjs",
     "predictionPublisher": "scripts/run-prediction-publisher.mjs",
     "predictionTaskLauncher": "scripts/run-prediction-publisher-task.ps1",
     "consistencyCheck": "scripts/check-automation-consistency.mjs"

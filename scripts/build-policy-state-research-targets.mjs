@@ -66,4 +66,41 @@ export function buildPolicyStateResearchTargets({ root = repositoryRoot, checked
   };
 }
 
+function text(value) {
+  return JSON.stringify(value ?? "").toLowerCase();
+}
+
+/** Selects only evidence targets that the current brief can actually use. */
+export function selectRelevantPolicyStateResearchTargets({ root = repositoryRoot, checkedAt = null, packet = null, articleTopics = [], entities = [], strategyTargets = [], limit = 8 } = {}) {
+  if (!Number.isInteger(limit) || limit < 1 || limit > 8) throw new Error("RESEARCH_TARGET_LIMIT must be an integer from 1 to 8");
+  const all = buildPolicyStateResearchTargets({ root, checkedAt });
+  const haystack = text({ packet, articleTopics, entities, strategyTargets });
+  const packetMarkets = Array.isArray(packet?.marketScopes) ? packet.marketScopes : Array.isArray(packet?.markets) ? packet.markets : [];
+  const markets = new Set(packetMarkets.map((value) => String(value).toUpperCase()));
+  const relevance = (target) => {
+    const words = [target.issuer, target.subject, target.issuerId, target.subjectId, ...(target.query ?? [])]
+      .filter(Boolean)
+      .map((value) => String(value).toLowerCase())
+      .filter((value) => value.length >= 2);
+    const direct = words.some((value) => haystack.includes(value));
+    const topicMatch = /政策|监管|央行|回购|增持|国家队|etf|医疗|支付|流动性|货币/.test(haystack)
+      && (target.targetId.startsWith("policy:") || target.targetId.startsWith("state-capital:"));
+    const marketMatch = (markets.has("A_SHARE") || markets.has("HK")) && target.relatedThreadIds.length > 0 && /a.?share|hk|a股|港股/.test(haystack);
+    return { direct, topicMatch, marketMatch, score: (direct ? 8 : 0) + (topicMatch ? 3 : 0) + (marketMatch ? 1 : 0) + (target.priority === "high" ? 0.25 : 0) };
+  };
+  const selected = [...all.policyResearchTargets, ...all.stateCapitalResearchTargets]
+    .map((target) => ({ target, ...relevance(target) }))
+    .filter((item) => item.direct || item.topicMatch || item.marketMatch)
+    .sort((left, right) => right.score - left.score || left.target.targetId.localeCompare(right.target.targetId))
+    .slice(0, limit)
+    .map(({ target }) => target);
+  return {
+    schemaVersion: "relevant-policy-state-research-targets-v1",
+    selected,
+    selectedCount: selected.length,
+    maximumCount: limit,
+    selectionReason: "Only packet/topic/entity/strategy-matched policy and state-capital targets are provided to the Writer; an empty list is valid when the brief has no such topic."
+  };
+}
+
 if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) console.log(JSON.stringify(buildPolicyStateResearchTargets({ root: repositoryRoot, checkedAt: new Date().toISOString() }), null, 2));

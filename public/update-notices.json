@@ -1,1 +1,21 @@
-{"daily":null,"schemaVersion":1,"weekly":{"ctaLabel":"查看本周周报","expiresAt":null,"highlights":["周五美股收盘进入周六周报边界，但折现率约束仍在","A/H先保留数据缺口，不把缺失写成轮动","正式披露增多，但市场影响要等待定价证据"],"href":"/weekly/weekly-2026-W32/","importance":100,"kind":"weekly","noticeId":"weekly-2026-W32-r1","publishedAt":"2026-08-08T10:00:00+08:00","selectionReason":"这是固定周报发布提醒，汇总本周经核验的重要变化。","summary":"本周最重要的事实不是某个市场出现单日强弱，而是美国周五完整收盘已经进入周六上午周报的合法边界，利率条件仍需与风险偏好同时观察。8月7日美国国","title":"观潮本周市场周报已更新"}}
+{
+  "daily": null,
+  "schemaVersion": 1,
+  "weekly": {
+    "ctaLabel": "查看本周周报",
+    "expiresAt": null,
+    "highlights": [
+      "周五美股收盘进入周六周报边界，但折现率约束仍在",
+      "A/H先保留数据缺口，不把缺失写成轮动",
+      "正式披露增多，但市场影响要等待定价证据"
+    ],
+    "href": "/weekly/weekly-2026-W32/",
+    "importance": 100,
+    "kind": "weekly",
+    "noticeId": "weekly-2026-W32-r2",
+    "publishedAt": "2026-08-12T00:00:00+08:00",
+    "selectionReason": "这是固定周报发布提醒，汇总本周经核验的重要变化。",
+    "summary": "本周最重要的事实不是某个市场出现单日强弱，而是美国周五完整收盘已经进入周六上午周报的可用范围，利率条件仍需与风险偏好同时观察。8月7日美国国",
+    "title": "观潮本周市场周报已更新"
+  }
+}

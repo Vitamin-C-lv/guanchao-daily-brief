@@ -35,8 +35,9 @@ import PredictionRankingPreview from "./PredictionRankingPreview";
 import SectorRotationIndex from "./SectorRotationIndex";
 import SpecialReportSection from "./SpecialReportSection";
 import WeeklyTeaser from "./WeeklyTeaser";
-import { isGlobalBriefForEdition, shouldShowLegacyHomeNarrative } from "@/lib/dashboard-visibility";
+import { isGlobalBriefCurrentOrNewer, shouldShowLegacyHomeNarrative } from "@/lib/dashboard-visibility";
 import type { GlobalMarketBriefPublic } from "@/lib/global-market-brief-public";
+import type { GlobalMarketBriefArchiveArticle } from "@/lib/global-market-brief-article";
 import { findMarketInstrumentForIndex, marketInstrumentPath } from "@/lib/market-instruments";
 import { formatMarketChange, getMarketDirection, marketDirectionClass, type MarketDirection } from "@/lib/market-direction";
 import { desktopNavItems } from "@/lib/site-navigation";
@@ -255,6 +256,22 @@ function ArticleCard({ article, label, featured = false }: { article: BriefArtic
   );
 }
 
+function GlobalArchiveCard({ article, featured = false }: { article: GlobalMarketBriefArchiveArticle; featured?: boolean }) {
+  const strategy = article.investmentStrategyPreview;
+  return (
+    <article className={`brief-card ${featured ? "brief-card-featured" : ""}`} data-canonical-archive="true" data-article-id={article.id}>
+      <div className="brief-date"><span>{formatCompactDate(article.editionDate).slice(5)}</span><small>{article.kind === "global_main" ? "全球主线" : "重大专项"}</small></div>
+      <div className="brief-content">
+        <div className="brief-title-row"><Link className="brief-title-link" href={article.articleUrl}><h3>{article.title}</h3><ChevronRight size={17} aria-hidden="true" /></Link><span className="source-count">{article.sourceCount} 个来源</span></div>
+        <p>{article.dek}</p>
+        {strategy ? <div className="impact-note"><Sparkles size={15} /><span><b>本期配置：</b>{strategy.summary}</span></div> : null}
+        <div className="tag-row">{article.marketTags.map((tag) => <span key={tag}>#{tag === "A_SHARE" ? "A股" : tag === "US" ? "美股" : tag === "HK" ? "港股" : "全球"}</span>)}</div>
+        <Link className="article-read-link" href={article.articleUrl}>阅读全文 <ChevronRight size={14} /></Link>
+      </div>
+    </article>
+  );
+}
+
 function HotspotCard({ item, rank }: { item: DailyBrief["hotspots"][number]; rank: number }) {
   return (
     <article className="hotspot-card">
@@ -287,6 +304,7 @@ export default function Dashboard({
   sectorDetailKeys,
   marketObserver,
   globalBrief,
+  globalArchive = [],
 }: {
   data: DailyBrief;
   view: DashboardView;
@@ -295,6 +313,7 @@ export default function Dashboard({
   sectorDetailKeys?: string[];
   marketObserver?: MarketObserverSnapshot;
   globalBrief?: GlobalMarketBriefPublic | null;
+  globalArchive?: GlobalMarketBriefArchiveArticle[];
 }) {
   const [query, setQuery] = useState("");
   const [selectedMarket, setSelectedMarket] = useState("all");
@@ -308,9 +327,9 @@ export default function Dashboard({
   const showMarkets = isOverview || view === "markets";
   const showPredictions = view === "predictions";
   const showBriefs = isOverview || view === "briefs";
-  const currentGlobalBrief = isGlobalBriefForEdition(globalBrief, data.meta.editionDate);
+  const currentGlobalBrief = isGlobalBriefCurrentOrNewer(globalBrief, data.meta.editionDate);
   const showGlobalHomeBrief = isOverview && currentGlobalBrief;
-  const showLegacyHomeNarrative = shouldShowLegacyHomeNarrative({ view, editionDate: data.meta.editionDate, globalBrief });
+  const showLegacyHomeNarrative = !currentGlobalBrief && shouldShowLegacyHomeNarrative({ view, editionDate: data.meta.editionDate, globalBrief });
   const marketOverviewOnly = isOverview && currentGlobalBrief;
   const showLegacyBriefs = showBriefs && !(isOverview && currentGlobalBrief);
   const showHotspots = isOverview || view === "hotspots";
@@ -429,6 +448,19 @@ export default function Dashboard({
       })
       .sort((left, right) => right.article.publishedAt.localeCompare(left.article.publishedAt));
   }, [currentGlobalBrief, data, query, selectedMarket, view]);
+
+  const canonicalArchive = useMemo(() => {
+    const currentArticleIds = new Set(currentGlobalBrief && globalBrief ? [globalBrief.mainArticle, ...globalBrief.specialReports].map((article) => article.articleUrl.split("/").filter(Boolean).at(-1)) : []);
+    const normalizedQuery = query.trim().toLowerCase();
+    const marketTag = selectedMarket === "a-share" ? "A_SHARE" : selectedMarket === "hk" ? "HK" : selectedMarket === "us" ? "US" : null;
+    return globalArchive
+      .filter((article) => !currentArticleIds.has(article.id))
+      .filter((article) => selectedMarket === "all" || (selectedMarket === "fed" ? article.marketTags.includes("US") : marketTag !== null && article.marketTags.includes(marketTag)))
+      .filter((article) => !normalizedQuery || `${article.title} ${article.dek} ${article.conclusion} ${article.marketTags.join(" ")}`.toLowerCase().includes(normalizedQuery));
+  }, [currentGlobalBrief, globalArchive, globalBrief, query, selectedMarket]);
+  const canonicalIds = useMemo(() => new Set(globalArchive.map((article) => article.id)), [globalArchive]);
+  const canonicalEditionDate = globalBrief?.mainArticle?.articleUrl?.match(/^\/articles\/global-market-brief-(\d{4}-\d{2}-\d{2})\/$/)?.[1] ?? null;
+  const legacyArchive = useMemo(() => articles.filter(({ article }) => !canonicalIds.has(article.id) && (!currentGlobalBrief || !canonicalEditionDate || article.publishedAt < canonicalEditionDate)), [articles, canonicalEditionDate, canonicalIds, currentGlobalBrief]);
 
   const filteredHotspots = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -610,9 +642,9 @@ export default function Dashboard({
           <div className={`content-grid ${isOverview ? "" : "single-panel"}`}>
             {showLegacyBriefs ? (
             <section id="briefs" className="briefs-panel">
-              {globalBrief && view === "briefs" ? <SectionHeading eyebrow="WEEKLY JUDGMENT" title="每周判断" description="先看今日全球判断，再按需回查历史市场简报。" /> : <SectionHeading eyebrow="CURATED BRIEFS" title="今日精选简报" description="只保留会改变政策预期、风险偏好或行业定价的信息。" />}
+              {globalBrief && currentGlobalBrief && view === "briefs" ? <SectionHeading eyebrow="WEEKLY JUDGMENT" title="每周判断" description="先看今日全球判断，再按需回查历史市场简报。" /> : <SectionHeading eyebrow="CURATED BRIEFS" title="今日精选简报" description="只保留会改变政策预期、风险偏好或行业定价的信息。" />}
               {weeklyIndex ? <WeeklyTeaser index={weeklyIndex} /> : null}
-              {globalBrief && view === "briefs" ? (
+              {globalBrief && currentGlobalBrief && view === "briefs" ? (
                 <>
                   <GlobalMainBriefCard brief={globalBrief.mainArticle} />
                   <SpecialReportSection reports={globalBrief.specialReports} />
@@ -622,7 +654,7 @@ export default function Dashboard({
                 </>
               ) : null}
               {view === "briefs" ? <MarketObserver data={marketObserver} mode="daily-macro" /> : null}
-              <div className="filter-row" role="tablist" aria-label={globalBrief && view === "briefs" ? "历史简报市场筛选" : "简报市场筛选"}>
+              <div className="filter-row" role="tablist" aria-label={globalBrief && currentGlobalBrief && view === "briefs" ? "历史简报市场筛选" : "简报市场筛选"}>
                 {[
                   ["all", "全部"],
                   ["fed", "美联储"],
@@ -634,7 +666,10 @@ export default function Dashboard({
                 ))}
               </div>
               <div className="brief-list">
-                {articles.length ? articles.map(({ article, label }, index) => <ArticleCard key={article.id} article={article} label={label} featured={index === 0} />) : <div className="empty-state"><Search size={22} /><strong>没有找到相关简报</strong><p>换一个关键词或清除筛选条件。</p></div>}
+                {canonicalArchive.length || legacyArchive.length ? <>
+                  {canonicalArchive.map((article, index) => <GlobalArchiveCard key={`canonical-${article.id}`} article={article} featured={index === 0} />)}
+                  {legacyArchive.map(({ article, label }, index) => <ArticleCard key={`legacy-${article.id}`} article={article} label={label} featured={canonicalArchive.length === 0 && index === 0} />)}
+                </> : <div className="empty-state"><Search size={22} /><strong>没有找到相关简报</strong><p>换一个关键词或清除筛选条件。</p></div>}
               </div>
             </section>
             ) : null}

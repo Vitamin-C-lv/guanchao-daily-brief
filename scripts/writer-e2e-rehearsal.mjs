@@ -211,6 +211,7 @@ export function runGlobalMarketBriefDryRun({ outputDirectory, sourceHead }) {
     "schemas/global-market-brief-writer-output-v1.schema.json",
     "scripts/editorial-lint.mjs",
     "scripts/global-market-brief-contract.mjs",
+    "scripts/investment-strategy-contract.mjs",
     "scripts/research-contract.mjs",
     "scripts/validate-brief.mjs",
     "scripts/validate-writer-packet.mjs",

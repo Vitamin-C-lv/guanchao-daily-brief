@@ -1,1 +1,855 @@
-{"crossMarketThemes":[{"causalChain":["美国周五完整收盘进入上海周六上午信息边界","名义与实际长端收益率仍提供估值约束","美股指数层的风险偏好修复需要盈利或现金流继续确认","A/H只能在本地行业成交与广度补齐后判断传导"],"confidence":"high","counterEvidence":"若长端收益率同步回落、指数保持强势且A/H广度扩散，当前跨市场链条才会由时间边界变成定价确认。","id":"w32-theme-discount-rate","nextSignal":"观察10年期、实际10年期、三大指数与A/H首个完整交易日广度是否同向。","sourceIds":["treasury-nominal","treasury-real","csindex","hkex"],"thesis":"周六发布边界允许把美国周五完整收盘纳入周报，但实际10年期2.40%和名义10年期4.65%说明折现约束仍在。A/H若要接力，需要本地成交和广度证据，而不是凭外盘收盘推断。","title":"美股周五收盘与高位实际利率必须同时看"},{"causalChain":["正式页面记录文件发布","文件状态需要区分拟议、批准和生效","制度观察先进入研究清单","只有定价和执行证据同步出现才提高市场影响等级"],"confidence":"high","counterEvidence":"若后续文件进入生效阶段并伴随可复核的保证金、交易或风险管理行为变化，制度影响的权重才会上升。","id":"w32-theme-document-stage","nextSignal":"逐项回查原始文件的authorityLevel、documentType、publishedAt、effectiveAt和implementationStage。","sourceIds":["fed-orders-20260804","federal-register-cme","federal-register-nasdaq","fed-calendar"],"thesis":"联储审批记录与联邦公报的拟议规则为制度研究提供新材料，但其发布、备案、批准和生效属于不同阶段，市场方向还需要价格、成交与参与者行为交叉验证。","title":"监管文件先改变制度观察，不直接改变资产方向"}],"executiveSummary":{"editorialScore":76,"keyTakeaways":[{"id":"w32-rate-boundary","importance":96,"sourceIds":["treasury-nominal","treasury-real","fed-calendar"],"summary":"美国周五完整收盘可在上海周六上午使用；8月7日名义与实际收益率仍处高位，风险偏好修复不能直接等同于估","title":"周五美股收盘进入周六周报边界，但折现率约束仍在"},{"id":"w32-a-h-gap","importance":92,"sourceIds":["csindex","hkex"],"summary":"本周本地日报归档没有可用独立日期，A/H行业量价、广度和资金字段无法完成同口径复核；当前只有规则观察","title":"A/H先保留数据缺口，不把缺失写成轮动"},{"id":"w32-formal-filings","importance":84,"sourceIds":["fed-orders-20260804","federal-register-cme","federal-register-nasdaq"],"summary":"本周联储正式页面与美国联邦公报继续产生可核验记录；文件发布本身不等于政策已经落地，更不等于资金方向已","title":"正式披露增多，但市场影响要等待定价证据"}],"weekVerdict":"本周最重要的事实不是某个市场出现单日强弱，而是美国周五完整收盘已经进入周六上午周报的合法边界，利率条件仍需与风险偏好同时观察。8月7日美国国"},"highValueInsights":[{"basisSourceIds":["treasury-nominal","treasury-real"],"confidence":"high","counterEvidence":[{"sourceIds":["treasury-nominal","treasury-real","csindex"],"text":"如果后续名义与实际长端收益率同步下行，同时企业现金流与市场广度改善，指数收盘才可能得到更广泛的基本面确认。"}],"evidence":[{"sourceIds":["treasury-nominal","treasury-real"],"text":"美国财政部8月7日名义与实际收益率数据均已进入截至周六10:00的可用范围。"}],"id":"w32-insight-rate-index","insight":"周六10:00周报可以合法使用美国周五完整收盘，这是时间边界的改变，不是市场逻辑的改变。8月7日10年期4.65%、实际10年期2.40%，与指数价格应放在同一条证据链上。","title":"周五美股收盘可用，不代表估值约束已解除","watchNext":"同时观察10年期、实际10年期、美国指数收盘以及A/H行业成交和上涨广度；任一条件缺失都保留条件式判断。","whyHighValue":"它把发布时刻与资产定价条件分开，避免把技术性收盘边界迁移误写成风险偏好趋势反转。"},{"basisSourceIds":["fed-orders-20260804","federal-register-cme","federal-register-nasdaq"],"confidence":"high","counterEvidence":[{"sourceIds":["fed-calendar","federal-register-cme"],"text":"只有在文件明确进入批准、生效或执行阶段，并出现市场参与者的可复核行为变化时，才可提高定价影响的判断等级。"}],"evidence":[{"sourceIds":["fed-orders-20260804","federal-register-cme","federal-register-nasdaq"],"text":"8月4日联储官网有正式审批记录，8月7日联邦公报有两项市场基础设施相关文件。"}],"id":"w32-insight-formal-not-effective","insight":"联储审批记录与联邦公报的CME、Nasdaq文件都能确认‘文件已发布或收录’，但不得将备案、拟议规则和市场影响混为一谈。","title":"正式文件的增加不等于政策已经生效","watchNext":"回到原始文件检查后续批准、生效和实施时间，不用媒体标题替代法律状态。","whyHighValue":"区分authorityLevel、documentType和implementationStage，可以减少把会议表态、拟议规则或单一文件写成已落地政策的错误。"},{"basisSourceIds":["csindex","hkex"],"confidence":"high","counterEvidence":[{"sourceIds":["csindex","hkex"],"text":"若下周至少出现两个独立行业的量价、广度和相对强度连续改善，再重新评估是否从insufficient进入可观察状态。"}],"evidence":[{"sourceIds":["csindex","hkex"],"text":"中证指数和港交所保留了官方市场数据入口，但本期可复核的本地连续序列不足。"}],"id":"w32-insight-ah-abstain","insight":"本周本地日报归档为0个独立日期，A/H行业量价、广度和资金字段没有满足同口径周度复核条件。报告仍可说明观察方法，但不能将观察分转成概率，更不能据ETF成交量推断国家队资金已入场。","title":"A/H的正确动作是弃权，而不是补齐缺失数据","watchNext":"先补齐本周及下周首个完整交易日的日期一致数据，再判断板块轮动与资金路径。","whyHighValue":"对信息不足明确弃权，能保留下一周验证接口，也避免把缺失当成中性或默认值。"}],"localSynthesis":{"archiveSnapshots":0,"continuities":["本期不把周六晚间日报当作前置条件；周六10:00只使用已完成的周五A/H交易数据、美国周五完整收盘和边界前正式来源。"],"coverageGaps":["本地周内日报归档为0个独立日期，未使用8月8日20:00之后的日报内容补写本期。","A/H行业量价、广度和资金路径没有连续同口径快照，相关判断保持insufficient。"],"editionDates":[],"note":"本地上下文用于确认覆盖缺口；所有事实、数值和制度文件均回到截至2026-08-08 10:00 Asia/Shanghai已发布的来源或8月7日完整交易数据。"},"majorEvents":[{"affectedMarkets":["us","hk","a-share"],"basisSourceIds":["treasury-nominal","treasury-real"],"categories":["利率","风险偏好","跨市场"],"confidence":"high","date":"2026-08-07","facts":[{"sourceIds":["treasury-nominal"],"text":"8月7日美国国债2年期、10年期、30年期名义收益率分别为4.19%、4.65%、5.19%。"},{"sourceIds":["treasury-real","treasury-nominal"],"text":"8月7日美国实际10年期收益率为2.40%，2s10s名义利差为46个基点。"}],"id":"w32-treasury-curve","importance":100,"title":"美国国债收益率曲线仍处高位，周五收盘成为周六周报可用边界","whyItMatters":"周五美股收盘在上海时间周六早晨已完成，因而可以纳入本期；但收益率水平仍提供估值约束，不能用指数收盘单独推出风险偏好已进入新阶段。"},{"affectedMarkets":["us"],"basisSourceIds":["fed-orders-20260804","fed-rss-order"],"categories":["美联储","金融监管","正式披露"],"confidence":"high","date":"2026-08-04","facts":[{"sourceIds":["fed-orders-20260804","fed-rss-order"],"text":"联储官网8月4日发布银行申请审批记录；这是正式页面中的监管披露，不是新的利率决定。"}],"id":"w32-fed-formal-record","importance":86,"title":"联储正式页面继续披露银行申请审批记录","whyItMatters":"监管记录可以作为金融体系制度背景，但其本身不构成货币政策转向或市场资金流向证据。"},{"affectedMarkets":["us"],"basisSourceIds":["federal-register-cme","fed-calendar"],"categories":["金融监管","衍生品","市场结构"],"confidence":"high","date":"2026-08-07","facts":[{"sourceIds":["federal-register-cme"],"text":"美国联邦公报8月7日收录CME Securities Clearing关于保证金政策的拟议规则变更文件。"}],"id":"w32-cme-margin-filing","importance":84,"title":"美国联邦公报收录CME清算保证金政策拟议变更","whyItMatters":"文件是拟议变更的正式记录，后续仍需区分征求意见、批准与生效阶段，不得将公告直接当作已经落地的市场制度。"},{"affectedMarkets":["us"],"basisSourceIds":["federal-register-nasdaq","federal-register-cme"],"categories":["金融监管","交易所","市场结构"],"confidence":"high","date":"2026-08-07","facts":[{"sourceIds":["federal-register-nasdaq"],"text":"美国联邦公报8月7日收录Nasdaq关于规则文本与信息分发的拟议变更文件。"}],"id":"w32-nasdaq-filing","importance":80,"title":"美国联邦公报收录Nasdaq规则分发机制拟议变更","whyItMatters":"交易所规则文件有助于识别市场基础设施变化，但文件状态仍是拟议或备案阶段，不能直接推导指数方向。"},{"affectedMarkets":["a-share","hk"],"basisSourceIds":["csindex","hkex"],"categories":["A股","港股","数据质量"],"confidence":"high","date":"2026-08-07","facts":[{"sourceIds":["csindex","hkex"],"text":"中证指数与港交所页面是本期回查A/H市场数据口径的官方入口，但本地周内独立日报归档为空，无法形成连续行业序列。"},{"sourceIds":["csindex","hkex"],"text":"本期因此保留insufficient，不把缺失字段填为0、50%或任意资金方向。"}],"id":"w32-ah-coverage-gap","importance":78,"title":"A/H行业量价和广度未达到本周可复核门槛","whyItMatters":"数据边界本身决定结论边界；没有连续口径时，判断应停留在观察条件，而不是补写一条看似完整的板块轮动故事。"}],"markets":[{"capitalFlow":"没有可复核的行业资金流序列，不把ETF成交、单一席位或媒体叙事写成国家队、主力或机构持仓。","confidence":"low","coverageStatus":"insufficient","id":"a-share","invalidation":"数据继续缺失，或指数变化与成交、广度不一致。","label":"A股","nextWeekScenario":"若至少两个非同源行业的成交、上涨广度和相对强度同步改善，再把结构性修复列入观察；若只有指数变化而广度不动，仍维持数据不足。","rotation":"规则观察分，不是概率。由于本地连续数据不足，本期不输出板块排名、明显放量或轮动强弱的确定结论。","sessionEnd":"2026-08-07","sessionStart":"2026-08-03","sourceIds":["csindex","treasury-nominal"],"summary":"本期没有足够的本地日报与固定口径行业数据完成周度量价、上涨广度和集中度复核。中证指数页面作为官方入口保留，但缺口不作方向性解释。","trigger":"两个以上行业连续出现同口径成交、上涨广度与相对强度改善，并能回查官方或独立数据来源。","weeklyPerformance":"不编造本周指数或行业周涨跌幅；只确认周度区间和最后完整交易日为8月7日。"},{"capitalFlow":"没有南向、ETF或行业资金的同口径交叉证据，不把单一成交放量写成机构资金流入。","confidence":"low","coverageStatus":"insufficient","id":"hk","invalidation":"行业序列仍不完整，或外部实际利率重新上行而科技估值承压。","label":"港股","nextWeekScenario":"若港股成交与科技行业广度同步改善，才重新评估风险偏好扩散；若只看到个别标的异动，维持insufficient。","rotation":"规则观察分，不是概率。恒生科技、互联网和AI相关线索可以列为研究对象，但本期不把相对强弱写成已确认轮动。","sessionEnd":"2026-08-07","sessionStart":"2026-08-03","sourceIds":["hkex","treasury-real"],"summary":"港交所市场数据入口已回查，但本期本地日报归档为空，恒生一级行业的周度成交、轮动与资金路径没有达到可发布门槛。","trigger":"恒生一级行业的固定口径成交、广度与相对强度连续改善，且由港交所或第二独立来源核验。","weeklyPerformance":"不编造恒生指数或恒生科技周度表现；最后完整交易日按8月7日记录，量价结果留空。"},{"capitalFlow":"没有独立、可复核的本周机构持仓流向证据，不把指数成交或ETF成交写成确定资金流。","confidence":"medium","coverageStatus":"complete","id":"us","invalidation":"实际收益率重新上行、指数跌破修复结构，或市场表现只集中在少数成分而非三大指数。","label":"美股","nextWeekScenario":"若指数在名义与实际长端收益率不再上行的条件下保持强势，风险偏好修复更有证据；若收益率抬升而指数走弱，折现率约束重新成为主导。","rotation":"美股只做纳斯达克、道琼斯和标普500的指数层复核，不混入A/H行业模型，也不把单日强弱外推成持续趋势。","sessionEnd":"2026-08-07","sessionStart":"2026-08-03","sourceIds":["treasury-nominal","treasury-real","fed-calendar"],"summary":"美国周五完整收盘在上海周六上午已经完成，因此可作为本期最新完整美股session；但收益率条件仍需同步观察。","trigger":"指数收盘、10年期和实际10年期收益率出现同向改善，并得到后续企业现金流或盈利信息配合。","weeklyPerformance":"本期不从单一收盘价重算未经封存的完整周涨跌幅；仅使用8月7日国债收益率和周五收盘已完成这一边界事实。"}],"methodology":{"deduplication":"同一制度文件按原始发布方去重；官方数据页作为数据口径入口，不把同一页面重复计数为多个独立事实。","limitations":["本期是周六10:00 recovery，新闻与政策截止2026-08-08 10:00 Asia/Shanghai，不使用其后的日报或周日信息。","本地日报归档为0个独立日期，A/H行业量价与资金字段不足，相关段落明确弃权。","规则观察分不是概率；本报告不提供目标价、买卖建议或收益承诺。"],"selection":"优先收录会改变政策预期、风险偏好、市场结构或行业定价边界的事实；发布时刻与交易时段分别记录。","sourcePolicy":"政策与制度文件优先官方原文；收益率使用美国财政部；A/H仅使用官方数据入口说明数据边界。"},"nextWeekCalendar":[{"id":"w33-us-rate-update","importance":"high","markets":["us","hk","a-share"],"sourceIds":["treasury-nominal","treasury-real"],"startsAt":"2026-08-10T20:00:00+08:00","title":"美国财政部新交易日收益率更新窗口","whyWatch":"新一交易日名义与实际收益率的方向决定本周折现率约束是缓和还是延续。"},{"id":"w33-bls-release-window","importance":"high","markets":["us","hk","a-share"],"sourceIds":["bls-schedule","treasury-nominal"],"startsAt":"2026-08-12T20:30:00+08:00","title":"美国劳工统计局发布日程中的宏观数据窗口","whyWatch":"正式发布后的数据会通过收益率、美元和风险偏好影响三地资产，但发布前不把预期写成事实。"},{"id":"w33-ah-recheck","importance":"high","markets":["a-share","hk"],"sourceIds":["csindex","hkex"],"startsAt":"2026-08-10T09:30:00+08:00","title":"A/H首个完整交易日量价与广度复核","whyWatch":"本期A/H为insufficient，下周先补齐固定口径成交、广度与行业数据，再判断是否出现轮动扩散。"}],"report":{"coverage":[{"dataThrough":"2026-08-07","note":"截至周六10:00已核对本周联储正式发布、收益率与公开日程页面。","scope":"fed","status":"complete"},{"dataThrough":"2026-08-07","note":"本地周内日报归档为空，A股行业量价与广度未形成可复核的完整周度序列。","scope":"a-share","status":"insufficient"},{"dataThrough":"2026-08-07","note":"本地周内日报归档为空，港股行业量价与资金字段未形成可复核的完整周度序列。","scope":"hk","status":"insufficient"},{"dataThrough":"2026-08-07","note":"美国周五完整收盘在上海时间周六上午可用；本文不把周末信息倒灌入结论。","scope":"us","status":"complete"}],"generatedAt":"2026-08-08T10:00:00+08:00","id":"weekly-2026-W32","model":"gpt-5.6-terra","revision":1,"status":"complete","subtitle":"2026年8月3日至8日发布边界：美股周五收盘可用，A/H行业量价保留缺口","timezone":"Asia/Shanghai","title":"观潮市场｜利率约束未消，A/H数据边界先于轮动结论","weekEnd":"2026-08-08","weekStart":"2026-08-03"},"schemaVersion":1,"sources":[{"accessedAt":"2026-08-09T07:20:00.000Z","id":"fed-orders-20260804","name":"Federal Reserve approval order published August 4, 2026","publishedAt":"2026-08-04T20:30:00.000Z","publisher":"Federal Reserve","tier":"official","url":"https://www.federalreserve.gov/newsevents/pressreleases/orders20260804c.htm"},{"accessedAt":"2026-08-09T07:20:00.000Z","id":"fed-calendar","name":"FOMC calendars and information","publishedAt":"2026-08-07T00:00:00+08:00","publisher":"Federal Reserve","tier":"official","url":"https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"},{"accessedAt":"2026-08-09T07:20:00.000Z","id":"treasury-nominal","name":"Daily Treasury par yield curve rates","publishedAt":"2026-08-07T17:00:00+08:00","publisher":"U.S. Department of the Treasury","tier":"official","url":"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026"},{"accessedAt":"2026-08-09T07:20:00.000Z","id":"treasury-real","name":"Daily Treasury real yield curve rates","publishedAt":"2026-08-07T17:00:00+08:00","publisher":"U.S. Department of the Treasury","tier":"official","url":"https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_real_yield_curve&field_tdr_date_value=2026"},{"accessedAt":"2026-08-09T07:20:00.000Z","id":"federal-register-cme","name":"CME Securities Clearing proposed margin policy filing","publishedAt":"2026-08-07T00:00:00+08:00","publisher":"Office of the Federal Register","tier":"official","url":"https://www.federalregister.gov/documents/2026/08/07/2026-16098/self-regulatory-organizations-cme-securities-clearing-inc-notice-of-filing-of-proposed-rule-change"},{"accessedAt":"2026-08-09T07:20:00.000Z","id":"federal-register-nasdaq","name":"Nasdaq proposed rule change filing","publishedAt":"2026-08-07T00:00:00+08:00","publisher":"Office of the Federal Register","tier":"official","url":"https://www.federalregister.gov/documents/2026/08/07/2026-16097/self-regulatory-organizations-the-nasdaq-stock-market-llc-notice-of-filing-and-immediate"},{"accessedAt":"2026-08-09T07:20:00.000Z","id":"csindex","name":"CSI index information and constituent data page","publishedAt":"2026-08-07T15:00:00+08:00","publisher":"中证指数有限公司","tier":"official","url":"https://www.csindex.com.cn/csindex-home/indexInfo/index-details-data"},{"accessedAt":"2026-08-09T07:20:00.000Z","id":"hkex","name":"HKEX equity securities market data","publishedAt":"2026-08-07T16:10:00+08:00","publisher":"香港交易及结算所有限公司","tier":"official","url":"https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities?sc_lang=zh-HK"},{"accessedAt":"2026-08-09T07:20:00.000Z","id":"bls-schedule","name":"Employment situation and release schedule","publishedAt":"2026-08-07T08:30:00-04:00","publisher":"U.S. Bureau of Labor Statistics","tier":"official","url":"https://www.bls.gov/schedule/news_release/empsit.htm"},{"accessedAt":"2026-08-09T07:20:00.000Z","id":"fed-rss-order","name":"Federal Reserve press release feed item for August 4","publishedAt":"2026-08-04T20:30:00.000Z","publisher":"Federal Reserve","tier":"official","url":"https://www.federalreserve.gov/newsevents/pressreleases/orders20260804c.htm"}],"visuals":[{"dataThrough":"2026-08-07","explanation":"周六发布边界允许把美国周五完整收盘纳入周报","kind":"yield_curve","notes":[],"placement":"weekly-w32-1","points":[{"seriesId":"2026-08-07","x":"2Y","y":4.19},{"seriesId":"2026-08-07","x":"10Y","y":4.65},{"seriesId":"2026-08-07","x":"30Y","y":5.19},{"seriesId":"2026-08-06","x":"2Y","y":4.25},{"seriesId":"2026-08-06","x":"10Y","y":4.69},{"seriesId":"2026-08-06","x":"30Y","y":5.22}],"series":[{"id":"2026-08-07","label":"08-07 曲线","unit":"percent"},{"id":"2026-08-06","label":"08-06 曲线","unit":"percent"}],"sourceIndexes":[0],"takeaway":"曲线整体下移，短端与长端同步回落。","title":"收益率曲线：2026-08-07 vs 2026-08-06","unit":"percent","visualId":"v-yield-curve"},{"dataThrough":"2026-08-07","explanation":"实际10年期2.40%和名义10年期4.65%说明折现约束仍在","kind":"grouped_bar","notes":["10Y breakeven（nominal minus real）≈ 2.25%","nominal/real 单位为 %，2s10s 单位为 bp"],"placement":"weekly-w32-2","points":[{"seriesId":"nominal10y","x":"2026-08-07","y":4.65},{"seriesId":"real10y","x":"2026-08-07","y":2.4},{"seriesId":"spread2s10s","x":"2026-08-07","y":46},{"seriesId":"nominal10y","x":"2026-08-06","y":4.69},{"seriesId":"real10y","x":"2026-08-06","y":2.43},{"seriesId":"spread2s10s","x":"2026-08-06","y":44}],"series":[{"id":"nominal10y","label":"10Y 名义收益率","unit":"percent"},{"id":"real10y","label":"10Y 实际收益率","unit":"percent"},{"id":"spread2s10s","label":"2s10s 利差","unit":"bp"}],"sourceIndexes":[0,1],"takeaway":"名义与实际收益率同步回落，利差收窄。","title":"名义与实际收益率、期限利差","unit":"mixed","visualId":"v-nominal-real-spread"},{"dataThrough":"2026-08-06","explanation":"规则观察分，不是概率","kind":"bar","notes":["规则观察分，不构成概率","数据来自固定观察池 a-core12-v2"],"placement":"weekly-w32-3","points":[{"seriesId":"change5d","x":"通信服务","y":12.5},{"seriesId":"change5d","x":"原材料","y":7.13},{"seriesId":"change5d","x":"移动互联网","y":9.42},{"seriesId":"change5d","x":"主要消费","y":-3.96},{"seriesId":"change5d","x":"可选消费","y":-0.49},{"seriesId":"change5d","x":"能源","y":0.6},{"seriesId":"change5d","x":"金融地产","y":-2.97},{"seriesId":"change5d","x":"工业","y":3.1},{"seriesId":"change5d","x":"公用事业","y":-1.59},{"seriesId":"change5d","x":"医药医疗","y":0.92},{"seriesId":"change5d","x":"军工","y":6.11},{"seriesId":"change5d","x":"信息技术","y":11.11}],"series":[{"id":"change5d","label":"5日涨跌","unit":"percent"}],"sourceIndexes":[2],"takeaway":"相对强弱来自量价规则观察分，不是概率。","title":"A股板块相对强度（5日，规则观察分）","unit":"percent","visualId":"v-sector-relative"},{"dataThrough":"2026-08-07","explanation":"文件状态需要区分拟议、批准和生效","kind":"timeline","notes":["时间点仅表示文件发布或收录，不表示批准或生效","后续阶段需回查原始文件"],"placement":"weekly-w32-4","points":[{"seriesId":"published","x":"2026-08-07 Self-Regulatory Organiza","y":null},{"seriesId":"published","x":"2026-08-07 Self-Regulatory Organiza","y":null},{"seriesId":"published","x":"2026-08-07 Self-Regulatory Organiza","y":null}],"series":[{"id":"published","label":"正式发布记录","unit":"date"}],"sourceIndexes":[1,2],"takeaway":"发布记录与实施阶段需要分开核验。","title":"正式文件发布时间线","unit":"date","visualId":"v-official-document-timeline"}]}
+{
+  "crossMarketThemes": [
+    {
+      "causalChain": [
+        "美国周五完整收盘进入上海周六上午信息边界",
+        "名义与实际长端收益率仍提供估值约束",
+        "美股指数层的风险偏好修复需要盈利或现金流继续确认",
+        "A/H只能在本地行业成交与广度补齐后判断传导"
+      ],
+      "confidence": "high",
+      "counterEvidence": "若长端收益率同步回落、指数保持强势且A/H广度扩散，当前跨市场链条才会由时间边界变成定价确认。",
+      "id": "w32-theme-discount-rate",
+      "nextSignal": "观察10年期、实际10年期、三大指数与A/H首个完整交易日广度是否同向。",
+      "sourceIds": [
+        "treasury-nominal",
+        "treasury-real",
+        "csindex",
+        "hkex"
+      ],
+      "thesis": "周六发布边界允许把美国周五完整收盘纳入周报，但实际10年期2.40%和名义10年期4.65%说明折现约束仍在。A/H若要接力，需要本地成交和广度证据，而不是凭外盘收盘推断。",
+      "title": "美股周五收盘与高位实际利率必须同时看"
+    },
+    {
+      "causalChain": [
+        "正式页面记录文件发布",
+        "文件状态需要区分拟议、批准和生效",
+        "制度观察先进入研究清单",
+        "只有定价和执行证据同步出现才提高市场影响等级"
+      ],
+      "confidence": "high",
+      "counterEvidence": "若后续文件进入生效阶段并伴随可复核的保证金、交易或风险管理行为变化，制度影响的权重才会上升。",
+      "id": "w32-theme-document-stage",
+    "nextSignal": "逐项回查原始文件的发布方级别、文件类型、发布时间、生效时间和实施阶段。",
+      "sourceIds": [
+        "fed-orders-20260804",
+        "federal-register-cme",
+        "federal-register-nasdaq",
+        "fed-calendar"
+      ],
+      "thesis": "联储审批记录与联邦公报的拟议规则为制度研究提供新材料，但其发布、备案、批准和生效属于不同阶段，市场方向还需要价格、成交与参与者行为交叉验证。",
+      "title": "监管文件先改变制度观察，不直接改变资产方向"
+    }
+  ],
+  "executiveSummary": {
+    "editorialScore": 76,
+    "keyTakeaways": [
+      {
+        "id": "w32-rate-boundary",
+        "importance": 96,
+        "sourceIds": [
+          "treasury-nominal",
+          "treasury-real",
+          "fed-calendar"
+        ],
+        "summary": "美国周五完整收盘可在上海周六上午使用；8月7日名义与实际收益率仍处高位，风险偏好修复不能直接等同于估值压力已经解除。",
+        "title": "周五美股收盘进入周六周报边界，但折现率约束仍在"
+      },
+      {
+        "id": "w32-a-h-gap",
+        "importance": 92,
+        "sourceIds": [
+          "csindex",
+          "hkex"
+        ],
+        "summary": "本周连续日报记录不完整，A/H行业量价、广度和资金字段无法完成同口径复核；目前只能确认已有市场表现，暂不足以形成板块轮动判断。",
+        "title": "A/H连续数据不足，本周暂不判断板块轮动"
+      },
+      {
+        "id": "w32-formal-filings",
+        "importance": 84,
+        "sourceIds": [
+          "fed-orders-20260804",
+          "federal-register-cme",
+          "federal-register-nasdaq"
+        ],
+        "summary": "本周联储正式页面与美国联邦公报继续产生可核验记录；文件发布本身不等于政策已经落地，更不等于资金方向已经确认。",
+        "title": "正式披露增多，但市场影响要等待定价证据"
+      }
+    ],
+    "weekVerdict": "本周最重要的事实不是某个市场出现单日强弱，而是美国周五完整收盘已经进入周六上午周报的可用范围，利率条件仍需与风险偏好同时观察。8月7日美国国"
+  },
+  "highValueInsights": [
+    {
+      "basisSourceIds": [
+        "treasury-nominal",
+        "treasury-real"
+      ],
+      "confidence": "high",
+      "counterEvidence": [
+        {
+          "sourceIds": [
+            "treasury-nominal",
+            "treasury-real",
+            "csindex"
+          ],
+          "text": "如果后续名义与实际长端收益率同步下行，同时企业现金流与市场广度改善，指数收盘才可能得到更广泛的基本面确认。"
+        }
+      ],
+      "evidence": [
+        {
+          "sourceIds": [
+            "treasury-nominal",
+            "treasury-real"
+          ],
+          "text": "美国财政部8月7日名义与实际收益率数据均已进入截至周六10:00的可用范围。"
+        }
+      ],
+      "id": "w32-insight-rate-index",
+      "insight": "周六10:00周报可以合法使用美国周五完整收盘，这是时间边界的改变，不是市场逻辑的改变。8月7日10年期4.65%、实际10年期2.40%，与指数价格应放在同一条证据链上。",
+      "title": "周五美股收盘可用，不代表估值约束已解除",
+      "watchNext": "同时观察10年期、实际10年期、美国指数收盘以及A/H行业成交和上涨广度；任一条件缺失都保留条件式判断。",
+      "whyHighValue": "它把发布时刻与资产定价条件分开，避免把技术性收盘边界迁移误写成风险偏好趋势反转。"
+    },
+    {
+      "basisSourceIds": [
+        "fed-orders-20260804",
+        "federal-register-cme",
+        "federal-register-nasdaq"
+      ],
+      "confidence": "high",
+      "counterEvidence": [
+        {
+          "sourceIds": [
+            "fed-calendar",
+            "federal-register-cme"
+          ],
+          "text": "只有在文件明确进入批准、生效或执行阶段，并出现市场参与者的可复核行为变化时，才可提高定价影响的判断等级。"
+        }
+      ],
+      "evidence": [
+        {
+          "sourceIds": [
+            "fed-orders-20260804",
+            "federal-register-cme",
+            "federal-register-nasdaq"
+          ],
+          "text": "8月4日联储官网有正式审批记录，8月7日联邦公报有两项市场基础设施相关文件。"
+        }
+      ],
+      "id": "w32-insight-formal-not-effective",
+      "insight": "联储审批记录与联邦公报的CME、Nasdaq文件都能确认‘文件已发布或收录’，但不得将备案、拟议规则和市场影响混为一谈。",
+      "title": "正式文件的增加不等于政策已经生效",
+      "watchNext": "回到原始文件检查后续批准、生效和实施时间，不用媒体标题替代法律状态。",
+      "whyHighValue": "区分发布方级别、文件类型和实施阶段，可以减少把会议表态、拟议规则或单一文件写成已落地政策的错误。"
+    },
+    {
+      "basisSourceIds": [
+        "csindex",
+        "hkex"
+      ],
+      "confidence": "high",
+      "counterEvidence": [
+        {
+          "sourceIds": [
+            "csindex",
+            "hkex"
+          ],
+          "text": "若下周至少出现两个独立行业的量价、广度和相对强度连续改善，再重新评估是否从数据不足进入可观察状态。"
+        }
+      ],
+      "evidence": [
+        {
+          "sourceIds": [
+            "csindex",
+            "hkex"
+          ],
+          "text": "中证指数和港交所保留了官方市场数据入口，但本期可复核的本地连续序列不足。"
+        }
+      ],
+      "id": "w32-insight-ah-abstain",
+      "insight": "本周连续日报记录不完整，A/H行业量价、广度和资金字段没有满足同口径周度复核条件。报告仍可说明观察方法，但不能将观察分转成概率，更不能据ETF成交量推断国家队资金已入场。",
+      "title": "A/H的正确动作是弃权，而不是补齐缺失数据",
+      "watchNext": "先补齐本周及下周首个完整交易日的日期一致数据，再判断板块轮动与资金路径。",
+      "whyHighValue": "对信息不足明确弃权，能保留下一周验证接口，也避免把缺失当成中性或默认值。"
+    }
+  ],
+  "localSynthesis": {
+    "archiveSnapshots": 0,
+    "continuities": [
+      "本期不把周六晚间日报当作前置条件；周六10:00只使用已完成的周五A/H交易数据、美国周五完整收盘和边界前正式来源。"
+    ],
+    "coverageGaps": [
+      "本地周内日报归档为0个独立日期，未使用8月8日20:00之后的日报内容补写本期。",
+      "A/H行业量价、广度和资金路径没有连续同口径快照，相关判断保持数据不足。"
+    ],
+    "editionDates": [],
+    "note": "本地上下文用于确认覆盖缺口；所有事实、数值和制度文件均回到截至2026-08-08 10:00 Asia/Shanghai已发布的来源或8月7日完整交易数据。"
+  },
+  "majorEvents": [
+    {
+      "affectedMarkets": [
+        "us",
+        "hk",
+        "a-share"
+      ],
+      "basisSourceIds": [
+        "treasury-nominal",
+        "treasury-real"
+      ],
+      "categories": [
+        "利率",
+        "风险偏好",
+        "跨市场"
+      ],
+      "confidence": "high",
+      "date": "2026-08-07",
+      "facts": [
+        {
+          "sourceIds": [
+            "treasury-nominal"
+          ],
+          "text": "8月7日美国国债2年期、10年期、30年期名义收益率分别为4.19%、4.65%、5.19%。"
+        },
+        {
+          "sourceIds": [
+            "treasury-real",
+            "treasury-nominal"
+          ],
+          "text": "8月7日美国实际10年期收益率为2.40%，2s10s名义利差为46个基点。"
+        }
+      ],
+      "id": "w32-treasury-curve",
+      "importance": 100,
+      "title": "美国国债收益率曲线仍处高位，周五收盘成为周六周报可用边界",
+      "whyItMatters": "周五美股收盘在上海时间周六早晨已完成，因而可以纳入本期；但收益率水平仍提供估值约束，不能用指数收盘单独推出风险偏好已进入新阶段。"
+    },
+    {
+      "affectedMarkets": [
+        "us"
+      ],
+      "basisSourceIds": [
+        "fed-orders-20260804",
+        "fed-rss-order"
+      ],
+      "categories": [
+        "美联储",
+        "金融监管",
+        "正式披露"
+      ],
+      "confidence": "high",
+      "date": "2026-08-04",
+      "facts": [
+        {
+          "sourceIds": [
+            "fed-orders-20260804",
+            "fed-rss-order"
+          ],
+          "text": "联储官网8月4日发布银行申请审批记录；这是正式页面中的监管披露，不是新的利率决定。"
+        }
+      ],
+      "id": "w32-fed-formal-record",
+      "importance": 86,
+      "title": "联储正式页面继续披露银行申请审批记录",
+      "whyItMatters": "监管记录可以作为金融体系制度背景，但其本身不构成货币政策转向或市场资金流向证据。"
+    },
+    {
+      "affectedMarkets": [
+        "us"
+      ],
+      "basisSourceIds": [
+        "federal-register-cme",
+        "fed-calendar"
+      ],
+      "categories": [
+        "金融监管",
+        "衍生品",
+        "市场结构"
+      ],
+      "confidence": "high",
+      "date": "2026-08-07",
+      "facts": [
+        {
+          "sourceIds": [
+            "federal-register-cme"
+          ],
+          "text": "美国联邦公报8月7日收录CME Securities Clearing关于保证金政策的拟议规则变更文件。"
+        }
+      ],
+      "id": "w32-cme-margin-filing",
+      "importance": 84,
+      "title": "美国联邦公报收录CME清算保证金政策拟议变更",
+      "whyItMatters": "文件是拟议变更的正式记录，后续仍需区分征求意见、批准与生效阶段，不得将公告直接当作已经落地的市场制度。"
+    },
+    {
+      "affectedMarkets": [
+        "us"
+      ],
+      "basisSourceIds": [
+        "federal-register-nasdaq",
+        "federal-register-cme"
+      ],
+      "categories": [
+        "金融监管",
+        "交易所",
+        "市场结构"
+      ],
+      "confidence": "high",
+      "date": "2026-08-07",
+      "facts": [
+        {
+          "sourceIds": [
+            "federal-register-nasdaq"
+          ],
+          "text": "美国联邦公报8月7日收录Nasdaq关于规则文本与信息分发的拟议变更文件。"
+        }
+      ],
+      "id": "w32-nasdaq-filing",
+      "importance": 80,
+      "title": "美国联邦公报收录Nasdaq规则分发机制拟议变更",
+      "whyItMatters": "交易所规则文件有助于识别市场基础设施变化，但文件状态仍是拟议或备案阶段，不能直接推导指数方向。"
+    },
+    {
+      "affectedMarkets": [
+        "a-share",
+        "hk"
+      ],
+      "basisSourceIds": [
+        "csindex",
+        "hkex"
+      ],
+      "categories": [
+        "A股",
+        "港股",
+        "数据质量"
+      ],
+      "confidence": "high",
+      "date": "2026-08-07",
+      "facts": [
+        {
+          "sourceIds": [
+            "csindex",
+            "hkex"
+          ],
+          "text": "中证指数与港交所页面是本期回查A/H市场数据口径的官方入口，但本地周内独立日报归档为空，无法形成连续行业序列。"
+        },
+        {
+          "sourceIds": [
+            "csindex",
+            "hkex"
+          ],
+          "text": "本期因此保留数据不足，不把缺失字段填为0、50%或任意资金方向。"
+        }
+      ],
+      "id": "w32-ah-coverage-gap",
+      "importance": 78,
+      "title": "A/H行业量价和广度未达到本周可复核门槛",
+      "whyItMatters": "数据边界本身决定结论边界；没有连续口径时，判断应停留在观察条件，而不是补写一条看似完整的板块轮动故事。"
+    }
+  ],
+  "markets": [
+    {
+      "capitalFlow": "没有可复核的行业资金流序列，不把ETF成交、单一席位或媒体叙事写成国家队、主力或机构持仓。",
+      "confidence": "low",
+      "coverageStatus": "insufficient",
+      "id": "a-share",
+      "invalidation": "数据继续缺失，或指数变化与成交、广度不一致。",
+      "label": "A股",
+      "nextWeekScenario": "若至少两个非同源行业的成交、上涨广度和相对强度同步改善，再把结构性修复列入观察；若只有指数变化而广度不动，仍维持数据不足。",
+      "rotation": "当前只描述已确认的市场表现，不形成概率判断。由于本地连续数据不足，本期不输出板块排名、明显放量或轮动强弱的确定结论。",
+      "sessionEnd": "2026-08-07",
+      "sessionStart": "2026-08-03",
+      "sourceIds": [
+        "csindex",
+        "treasury-nominal"
+      ],
+      "summary": "本期没有足够的本地日报与固定口径行业数据完成周度量价、上涨广度和集中度复核。中证指数页面作为官方入口保留，但缺口不作方向性解释。",
+      "trigger": "两个以上行业连续出现同口径成交、上涨广度与相对强度改善，并能回查官方或独立数据来源。",
+      "weeklyPerformance": "不编造本周指数或行业周涨跌幅；只确认周度区间和最后完整交易日为8月7日。"
+    },
+    {
+      "capitalFlow": "没有南向、ETF或行业资金的同口径交叉证据，不把单一成交放量写成机构资金流入。",
+      "confidence": "low",
+      "coverageStatus": "insufficient",
+      "id": "hk",
+      "invalidation": "行业序列仍不完整，或外部实际利率重新上行而科技估值承压。",
+      "label": "港股",
+      "nextWeekScenario": "若港股成交与科技行业广度同步改善，才重新评估风险偏好扩散；若只看到个别标的异动，维持数据不足。",
+      "rotation": "当前只描述已确认的市场表现，不形成概率判断。恒生科技、互联网和AI相关线索可以列为研究对象，但本期不把相对强弱写成已确认轮动。",
+      "sessionEnd": "2026-08-07",
+      "sessionStart": "2026-08-03",
+      "sourceIds": [
+        "hkex",
+        "treasury-real"
+      ],
+      "summary": "港交所市场数据入口已回查，但本期本地日报归档为空，恒生一级行业的周度成交、轮动与资金路径没有达到可发布门槛。",
+      "trigger": "恒生一级行业的固定口径成交、广度与相对强度连续改善，且由港交所或第二独立来源核验。",
+      "weeklyPerformance": "不编造恒生指数或恒生科技周度表现；最后完整交易日按8月7日记录，量价结果留空。"
+    },
+    {
+      "capitalFlow": "没有独立、可复核的本周机构持仓流向证据，不把指数成交或ETF成交写成确定资金流。",
+      "confidence": "medium",
+      "coverageStatus": "complete",
+      "id": "us",
+      "invalidation": "实际收益率重新上行、指数跌破修复结构，或市场表现只集中在少数成分而非三大指数。",
+      "label": "美股",
+      "nextWeekScenario": "若指数在名义与实际长端收益率不再上行的条件下保持强势，风险偏好修复更有证据；若收益率抬升而指数走弱，折现率约束重新成为主导。",
+      "rotation": "美股只做纳斯达克、道琼斯和标普500的指数层复核，不混入A/H行业模型，也不把单日强弱外推成持续趋势。",
+      "sessionEnd": "2026-08-07",
+      "sessionStart": "2026-08-03",
+      "sourceIds": [
+        "treasury-nominal",
+        "treasury-real",
+        "fed-calendar"
+      ],
+      "summary": "美国周五完整收盘在上海周六上午已经完成，因此可作为本期最新完整美股交易日；但收益率条件仍需同步观察。",
+      "trigger": "指数收盘、10年期和实际10年期收益率出现同向改善，并得到后续企业现金流或盈利信息配合。",
+      "weeklyPerformance": "本期不从单一收盘价重算未经封存的完整周涨跌幅；仅使用8月7日国债收益率和周五收盘已完成这一边界事实。"
+    }
+  ],
+  "methodology": {
+    "deduplication": "同一制度文件按原始发布方去重；官方数据页作为数据口径入口，不把同一页面重复计数为多个独立事实。",
+    "limitations": [
+    "本期为周六10:00复核，新闻与政策截止2026-08-08 10:00 Asia/Shanghai，不使用其后的日报或周日信息。",
+      "本周连续日报记录不完整，A/H行业量价与资金字段不足，相关段落明确弃权。",
+      "市场表现观察不是概率；本报告不提供目标价、买卖建议或收益承诺。"
+    ],
+    "selection": "优先收录会改变政策预期、风险偏好、市场结构或行业定价边界的事实；发布时刻与交易时段分别记录。",
+    "sourcePolicy": "政策与制度文件优先官方原文；收益率使用美国财政部；A/H仅使用官方数据入口说明数据边界。"
+  },
+  "nextWeekCalendar": [
+    {
+      "id": "w33-us-rate-update",
+      "importance": "high",
+      "markets": [
+        "us",
+        "hk",
+        "a-share"
+      ],
+      "sourceIds": [
+        "treasury-nominal",
+        "treasury-real"
+      ],
+      "startsAt": "2026-08-10T20:00:00+08:00",
+      "title": "美国财政部新交易日收益率更新窗口",
+      "whyWatch": "新一交易日名义与实际收益率的方向决定本周折现率约束是缓和还是延续。"
+    },
+    {
+      "id": "w33-bls-release-window",
+      "importance": "high",
+      "markets": [
+        "us",
+        "hk",
+        "a-share"
+      ],
+      "sourceIds": [
+        "bls-schedule",
+        "treasury-nominal"
+      ],
+      "startsAt": "2026-08-12T20:30:00+08:00",
+      "title": "美国劳工统计局发布日程中的宏观数据窗口",
+      "whyWatch": "正式发布后的数据会通过收益率、美元和风险偏好影响三地资产，但发布前不把预期写成事实。"
+    },
+    {
+      "id": "w33-ah-recheck",
+      "importance": "high",
+      "markets": [
+        "a-share",
+        "hk"
+      ],
+      "sourceIds": [
+        "csindex",
+        "hkex"
+      ],
+      "startsAt": "2026-08-10T09:30:00+08:00",
+      "title": "A/H首个完整交易日量价与广度复核",
+      "whyWatch": "本期A/H为数据不足，下周先补齐固定口径成交、广度与行业数据，再判断是否出现轮动扩散。"
+    }
+  ],
+  "report": {
+    "coverage": [
+      {
+        "dataThrough": "2026-08-07",
+        "note": "截至周六10:00已核对本周联储正式发布、收益率与公开日程页面。",
+        "scope": "fed",
+        "status": "complete"
+      },
+      {
+        "dataThrough": "2026-08-07",
+        "note": "本周连续日报记录不完整，A股行业量价与广度未形成可复核的完整周度序列。",
+        "scope": "a-share",
+        "status": "insufficient"
+      },
+      {
+        "dataThrough": "2026-08-07",
+        "note": "本周连续日报记录不完整，港股行业量价与资金字段未形成可复核的完整周度序列。",
+        "scope": "hk",
+        "status": "insufficient"
+      },
+      {
+        "dataThrough": "2026-08-07",
+        "note": "美国周五完整收盘在上海时间周六上午可用；本文不把周末信息倒灌入结论。",
+        "scope": "us",
+        "status": "complete"
+      }
+    ],
+    "generatedAt": "2026-08-12T00:00:00+08:00",
+    "id": "weekly-2026-W32",
+    "model": "gpt-5.6-terra",
+    "revision": 2,
+    "status": "complete",
+    "subtitle": "2026年8月3日至8日：周五美股完整收盘可纳入本期，A/H连续行业数据尚未闭合",
+    "timezone": "Asia/Shanghai",
+    "title": "观潮市场｜利率约束仍在，A/H连续数据不足暂不判断轮动",
+    "weekEnd": "2026-08-08",
+    "weekStart": "2026-08-03"
+  },
+  "schemaVersion": 1,
+  "sources": [
+    {
+      "accessedAt": "2026-08-09T07:20:00.000Z",
+      "id": "fed-orders-20260804",
+      "name": "Federal Reserve approval order published August 4, 2026",
+      "publishedAt": "2026-08-04T20:30:00.000Z",
+      "publisher": "Federal Reserve",
+      "tier": "official",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/orders20260804c.htm"
+    },
+    {
+      "accessedAt": "2026-08-09T07:20:00.000Z",
+      "id": "fed-calendar",
+      "name": "FOMC calendars and information",
+      "publishedAt": "2026-08-07T00:00:00+08:00",
+      "publisher": "Federal Reserve",
+      "tier": "official",
+      "url": "https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm"
+    },
+    {
+      "accessedAt": "2026-08-09T07:20:00.000Z",
+      "id": "treasury-nominal",
+      "name": "Daily Treasury par yield curve rates",
+      "publishedAt": "2026-08-07T17:00:00+08:00",
+      "publisher": "U.S. Department of the Treasury",
+      "tier": "official",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_yield_curve&field_tdr_date_value=2026"
+    },
+    {
+      "accessedAt": "2026-08-09T07:20:00.000Z",
+      "id": "treasury-real",
+      "name": "Daily Treasury real yield curve rates",
+      "publishedAt": "2026-08-07T17:00:00+08:00",
+      "publisher": "U.S. Department of the Treasury",
+      "tier": "official",
+      "url": "https://home.treasury.gov/resource-center/data-chart-center/interest-rates/pages/xml?data=daily_treasury_real_yield_curve&field_tdr_date_value=2026"
+    },
+    {
+      "accessedAt": "2026-08-09T07:20:00.000Z",
+      "id": "federal-register-cme",
+      "name": "CME Securities Clearing proposed margin policy filing",
+      "publishedAt": "2026-08-07T00:00:00+08:00",
+      "publisher": "Office of the Federal Register",
+      "tier": "official",
+      "url": "https://www.federalregister.gov/documents/2026/08/07/2026-16098/self-regulatory-organizations-cme-securities-clearing-inc-notice-of-filing-of-proposed-rule-change"
+    },
+    {
+      "accessedAt": "2026-08-09T07:20:00.000Z",
+      "id": "federal-register-nasdaq",
+      "name": "Nasdaq proposed rule change filing",
+      "publishedAt": "2026-08-07T00:00:00+08:00",
+      "publisher": "Office of the Federal Register",
+      "tier": "official",
+      "url": "https://www.federalregister.gov/documents/2026/08/07/2026-16097/self-regulatory-organizations-the-nasdaq-stock-market-llc-notice-of-filing-and-immediate"
+    },
+    {
+      "accessedAt": "2026-08-09T07:20:00.000Z",
+      "id": "csindex",
+      "name": "CSI index information and constituent data page",
+      "publishedAt": "2026-08-07T15:00:00+08:00",
+      "publisher": "中证指数有限公司",
+      "tier": "official",
+      "url": "https://www.csindex.com.cn/csindex-home/indexInfo/index-details-data"
+    },
+    {
+      "accessedAt": "2026-08-09T07:20:00.000Z",
+      "id": "hkex",
+      "name": "HKEX equity securities market data",
+      "publishedAt": "2026-08-07T16:10:00+08:00",
+      "publisher": "香港交易及结算所有限公司",
+      "tier": "official",
+      "url": "https://www.hkex.com.hk/Market-Data/Securities-Prices/Equities?sc_lang=zh-HK"
+    },
+    {
+      "accessedAt": "2026-08-09T07:20:00.000Z",
+      "id": "bls-schedule",
+      "name": "Employment situation and release schedule",
+      "publishedAt": "2026-08-07T08:30:00-04:00",
+      "publisher": "U.S. Bureau of Labor Statistics",
+      "tier": "official",
+      "url": "https://www.bls.gov/schedule/news_release/empsit.htm"
+    },
+    {
+      "accessedAt": "2026-08-09T07:20:00.000Z",
+      "id": "fed-rss-order",
+      "name": "Federal Reserve press release feed item for August 4",
+      "publishedAt": "2026-08-04T20:30:00.000Z",
+      "publisher": "Federal Reserve",
+      "tier": "official",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/orders20260804c.htm"
+    }
+  ],
+  "visuals": [
+    {
+      "dataThrough": "2026-08-07",
+      "explanation": "周六发布边界允许把美国周五完整收盘纳入周报",
+      "kind": "yield_curve",
+      "notes": [],
+      "placement": "weekly-w32-1",
+      "points": [
+        {
+          "seriesId": "2026-08-07",
+          "x": "2Y",
+          "y": 4.19
+        },
+        {
+          "seriesId": "2026-08-07",
+          "x": "10Y",
+          "y": 4.65
+        },
+        {
+          "seriesId": "2026-08-07",
+          "x": "30Y",
+          "y": 5.19
+        },
+        {
+          "seriesId": "2026-08-06",
+          "x": "2Y",
+          "y": 4.25
+        },
+        {
+          "seriesId": "2026-08-06",
+          "x": "10Y",
+          "y": 4.69
+        },
+        {
+          "seriesId": "2026-08-06",
+          "x": "30Y",
+          "y": 5.22
+        }
+      ],
+      "series": [
+        {
+          "id": "2026-08-07",
+          "label": "08-07 曲线",
+          "unit": "percent"
+        },
+        {
+          "id": "2026-08-06",
+          "label": "08-06 曲线",
+          "unit": "percent"
+        }
+      ],
+      "sourceIndexes": [
+        0
+      ],
+      "takeaway": "曲线整体下移，短端与长端同步回落。",
+      "title": "收益率曲线：2026-08-07 vs 2026-08-06",
+      "unit": "percent",
+      "visualId": "v-yield-curve"
+    },
+    {
+      "dataThrough": "2026-08-07",
+      "explanation": "实际10年期2.40%和名义10年期4.65%说明折现约束仍在",
+      "kind": "grouped_bar",
+      "notes": [
+        "10Y breakeven（nominal minus real）≈ 2.25%",
+        "nominal/real 单位为 %，2s10s 单位为 bp"
+      ],
+      "placement": "weekly-w32-2",
+      "points": [
+        {
+          "seriesId": "nominal10y",
+          "x": "2026-08-07",
+          "y": 4.65
+        },
+        {
+          "seriesId": "real10y",
+          "x": "2026-08-07",
+          "y": 2.4
+        },
+        {
+          "seriesId": "spread2s10s",
+          "x": "2026-08-07",
+          "y": 46
+        },
+        {
+          "seriesId": "nominal10y",
+          "x": "2026-08-06",
+          "y": 4.69
+        },
+        {
+          "seriesId": "real10y",
+          "x": "2026-08-06",
+          "y": 2.43
+        },
+        {
+          "seriesId": "spread2s10s",
+          "x": "2026-08-06",
+          "y": 44
+        }
+      ],
+      "series": [
+        {
+          "id": "nominal10y",
+          "label": "10Y 名义收益率",
+          "unit": "percent"
+        },
+        {
+          "id": "real10y",
+          "label": "10Y 实际收益率",
+          "unit": "percent"
+        },
+        {
+          "id": "spread2s10s",
+          "label": "2s10s 利差",
+          "unit": "bp"
+        }
+      ],
+      "sourceIndexes": [
+        0,
+        1
+      ],
+      "takeaway": "名义与实际收益率同步回落，利差收窄。",
+      "title": "名义与实际收益率、期限利差",
+      "unit": "mixed",
+      "visualId": "v-nominal-real-spread"
+    },
+    {
+      "dataThrough": "2026-08-06",
+      "explanation": "当前只描述已确认的市场表现，不形成概率判断",
+      "kind": "bar",
+      "notes": [
+        "市场表现观察，不构成概率",
+        "数据来自固定的A/H行业观察池"
+      ],
+      "placement": "weekly-w32-3",
+      "points": [
+        {
+          "seriesId": "change5d",
+          "x": "通信服务",
+          "y": 12.5
+        },
+        {
+          "seriesId": "change5d",
+          "x": "原材料",
+          "y": 7.13
+        },
+        {
+          "seriesId": "change5d",
+          "x": "移动互联网",
+          "y": 9.42
+        },
+        {
+          "seriesId": "change5d",
+          "x": "主要消费",
+          "y": -3.96
+        },
+        {
+          "seriesId": "change5d",
+          "x": "可选消费",
+          "y": -0.49
+        },
+        {
+          "seriesId": "change5d",
+          "x": "能源",
+          "y": 0.6
+        },
+        {
+          "seriesId": "change5d",
+          "x": "金融地产",
+          "y": -2.97
+        },
+        {
+          "seriesId": "change5d",
+          "x": "工业",
+          "y": 3.1
+        },
+        {
+          "seriesId": "change5d",
+          "x": "公用事业",
+          "y": -1.59
+        },
+        {
+          "seriesId": "change5d",
+          "x": "医药医疗",
+          "y": 0.92
+        },
+        {
+          "seriesId": "change5d",
+          "x": "军工",
+          "y": 6.11
+        },
+        {
+          "seriesId": "change5d",
+          "x": "信息技术",
+          "y": 11.11
+        }
+      ],
+      "series": [
+        {
+          "id": "change5d",
+          "label": "5日涨跌",
+          "unit": "percent"
+        }
+      ],
+      "sourceIndexes": [
+        2
+      ],
+      "takeaway": "相对强弱来自量价当前只描述已确认的市场表现，不形成概率判断。",
+      "title": "A股板块相对强度（5日，市场表现观察）",
+      "unit": "percent",
+      "visualId": "v-sector-relative"
+    },
+    {
+      "dataThrough": "2026-08-07",
+      "explanation": "文件状态需要区分拟议、批准和生效",
+      "kind": "timeline",
+      "notes": [
+        "时间点仅表示文件发布或收录，不表示批准或生效",
+        "后续阶段需回查原始文件"
+      ],
+      "placement": "weekly-w32-4",
+      "points": [
+        {
+          "seriesId": "published",
+          "x": "2026-08-07 Self-Regulatory Organiza",
+          "y": null
+        },
+        {
+          "seriesId": "published",
+          "x": "2026-08-07 Self-Regulatory Organiza",
+          "y": null
+        },
+        {
+          "seriesId": "published",
+          "x": "2026-08-07 Self-Regulatory Organiza",
+          "y": null
+        }
+      ],
+      "series": [
+        {
+          "id": "published",
+          "label": "正式发布记录",
+          "unit": "date"
+        }
+      ],
+      "sourceIndexes": [
+        1,
+        2
+      ],
+      "takeaway": "发布记录与实施阶段需要分开核验。",
+      "title": "正式文件发布时间线",
+      "unit": "date",
+      "visualId": "v-official-document-timeline"
+    }
+  ]
+}
