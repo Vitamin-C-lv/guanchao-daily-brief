@@ -27,7 +27,11 @@ function sha256(value) {
 }
 
 function git(root, args) {
-  return execFileSync("git", ["-C", root, ...args], { encoding: "utf8", windowsHide: true }).trim();
+  const output = execFileSync("git", ["-C", root, ...args], { encoding: "utf8", windowsHide: true });
+  // Preserve the two-column porcelain status prefix.  Trimming leading spaces
+  // turns " M path" into "M path", so the boundary parser drops the first
+  // character of modified filenames.
+  return args[0] === "status" ? output.trimEnd() : output.trim();
 }
 
 export function classifyPublisherRemoteError(cause) {
