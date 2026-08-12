@@ -97,6 +97,7 @@ export function publishWriterResult({ packageDirectory, resultFile, root = repos
   if (!finalization.wrote) fail("PUBLISHER_NO_PUBLICATION", "finalization", "production publisher requires a canonical editorial publication");
   const changed = assertDiffBoundary(root, allowedChangedFiles(finalization));
   if (!changed.length) fail("PUBLISHER_NO_CHANGES", "git", "publisher expected validated content changes");
+  if (remoteHeadBefore && remoteMainHead(root) !== remoteHeadBefore) fail("PUBLISHER_REMOTE_ADVANCED", "origin/main", "origin/main advanced before the production commit; no commit or push was attempted");
   git(root, ["add", "--", ...changed]);
   git(root, ["commit", "-m", `publish: ${finalization.edition} ${finalization.requestedAsOf}`]);
   receipt.commitSha = git(root, ["rev-parse", "HEAD"]);
