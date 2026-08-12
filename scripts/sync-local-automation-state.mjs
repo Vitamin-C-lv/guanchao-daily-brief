@@ -33,6 +33,7 @@ const state = {
   schemaVersion: "guanchao-automation-state-v3",
   dailyAutomationId: config.schedules.find((schedule) => schedule.key === "daily")?.automationId ?? "codex",
   weeklyAutomationId: config.schedules.find((schedule) => schedule.key === "weekly")?.automationId ?? "codex-2",
+  guardianAutomationId: config.schedules.find((schedule) => schedule.key === "guardian")?.automationId ?? "codex-3",
   predictionAutomationId: config.handover?.activeProduction?.prediction?.automationId ?? config.schedules.find((schedule) => schedule.key === "prediction")?.legacyAutomationId ?? "guanchao-prediction-publisher",
   predictionTaskName: config.schedules.find((schedule) => schedule.key === "prediction")?.taskName ?? "Guanchao Prediction Publisher 18-20",
   predictionExecutor: "windows-task-scheduler",
@@ -41,6 +42,7 @@ const state = {
   prompts: {
     daily: { path: "prompts/codex-daily-writer.md", sha256: promptHash("codex") },
     weekly: { path: "prompts/codex-weekly-writer.md", sha256: promptHash("codex-2") },
+    guardian: { path: "prompts/codex-publisher-guardian.md", sha256: promptHash(config.schedules.find((schedule) => schedule.key === "guardian")?.automationId ?? "codex-3") },
     prediction: { path: "prompts/codex-prediction-publisher.md", sha256: hash(fs.readFileSync(path.join(root, "prompts", "codex-prediction-publisher.md"))) }
   },
   installedAt: "2026-08-07T18:00:00+08:00",

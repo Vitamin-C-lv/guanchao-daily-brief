@@ -7,6 +7,7 @@ import { resolveAutomationPaths } from "./automation-paths.mjs";
 import { validateEveningPacket } from "./validate-evening-packets.mjs";
 import { validatePacket } from "./validate-writer-packet.mjs";
 import { runWriterProductionPreflight } from "./writer-production-preflight.mjs";
+import { assessReportAvailability, buildDegradedWriterContext, loadAvailabilityConfig } from "./report-availability.mjs";
 
 const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
@@ -56,6 +57,19 @@ function validateSameDayInputs({ root, edition, editionDate, paths }) {
   return { marketPacket: packets.marketPacket, reviewPacket: packets.reviewPacket, writerInput };
 }
 
+function optionalPacket(file, kind, editionDate) {
+  if (!fs.existsSync(file)) return { file, packet: null, valid: false, status: "missing", error: "missing" };
+  try {
+    const packet = JSON.parse(fs.readFileSync(file, "utf8"));
+    validateEveningPacket(packet, kind);
+    if (kind === "DAILY_MARKET_PACKET.json" && packet.editionDate !== editionDate) return { file, packet, valid: false, status: "stale", error: "stale daily packet" };
+    if (kind === "PREDICTION_REVIEW_PACKET.json" && packet.asOfDate > editionDate) return { file, packet, valid: false, status: "future", error: "future review" };
+    return { file, packet, valid: true, status: packet.status === "partial" ? "partial" : "valid", error: null };
+  } catch (error) {
+    return { file, packet: null, valid: false, status: "invalid", error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 function diagnosticPath(paths, editionDate, edition) {
   return path.join(paths.recoveryRoot, "logs", "writer-ready", editionDate, `${edition}.json`);
 }
@@ -73,13 +87,26 @@ export function writerReady({ edition, editionDate = null, root = repositoryRoot
   try {
     if (edition === "daily" && isSunday(date)) fail("SUNDAY_NO_REPORT", "Sunday Daily editions are not published");
     const packet = packetPaths(paths, date);
-    const production = preflight({ repositoryPath: paths.repositoryPath, runtimePath: paths.runtimePath, dailyPacketPath: edition === "daily" ? packet.marketPacket : null, predictionReviewPacketPath: edition === "daily" ? packet.reviewPacket : null, editionDate: date });
-    if (production.status !== "READY") fail(production.errorCode ?? "WRITER_PRODUCTION_BLOCKED", "writer production preflight is not ready");
+    const availability = loadAvailabilityConfig(path.join(root, "config", "report-availability.json"));
+    const production = preflight({ repositoryPath: paths.repositoryPath, runtimePath: paths.runtimePath, dailyPacketPath: edition === "daily" ? packet.marketPacket : null, predictionReviewPacketPath: edition === "daily" ? packet.reviewPacket : null, editionDate: date, allowMissingDailyPacket: availability.enabled, allowMissingReviewPacket: availability.enabled, allowInvalidDailyPacket: availability.enabled, allowInvalidReviewPacket: availability.enabled });
+    if (production.status !== "READY" && !["PACKET_MISSING", "PACKET_INVALID"].includes(production.errorCode)) fail(production.errorCode ?? "WRITER_PRODUCTION_BLOCKED", "writer production preflight is not ready");
     const consistency = automationCheck({ productionPreflight: production, runProductionPreflight: false });
     if (!consistency.consistent) fail("AUTOMATION_DRIFT", "automation consistency is not ready");
-    const inputs = edition === "daily" ? validateSameDayInputs({ root, edition, editionDate: date, paths }) : { marketPacket: null, reviewPacket: null, writerInput: path.join(root, "content", "writer-packets", "weekly-latest.json") };
-    if (edition === "weekly" && !fs.existsSync(inputs.writerInput)) fail("WRITER_INPUT_MISSING", "weekly writer input is missing");
-    const compact = { ready: true, edition, editionDate: date, marketPacket: inputs.marketPacket, reviewPacket: inputs.reviewPacket, writerInput: inputs.writerInput, memoryContext: path.join(paths.runtimePath, "memory"), researchBundle: path.join(paths.runtimePath, "research-bundles", date) };
+    const inputs = edition === "daily"
+      ? { market: optionalPacket(packet.marketPacket, "DAILY_MARKET_PACKET.json", date), review: optionalPacket(packet.reviewPacket, "PREDICTION_REVIEW_PACKET.json", date), writerInput: path.join(root, "content", "writer-packets", "daily-latest.json") }
+      : { market: { packet: null, valid: false, status: "unavailable" }, review: { packet: null, valid: false, status: "missing" }, writerInput: path.join(root, "content", "writer-packets", "weekly-latest.json") };
+    const writerInputExists = fs.existsSync(inputs.writerInput);
+    if (edition === "daily" && inputs.market.valid && inputs.review.valid && writerInputExists) {
+      const normal = validateSameDayInputs({ root, edition, editionDate: date, paths });
+      const compact = { ready: true, availability: "normal", edition, editionDate: date, marketPacket: normal.marketPacket, reviewPacket: normal.reviewPacket, writerInput: normal.writerInput, memoryContext: path.join(paths.runtimePath, "memory"), researchBundle: path.join(paths.runtimePath, "research-bundles", date) };
+      if (writeDiagnostics) writeDiagnostic(logFile, { ...compact, production, consistency: { consistent: true } });
+      return compact;
+    }
+    const assessment = assessReportAvailability({ editionDate: date, reportType: edition, dailyPacket: inputs.market.packet, reviewPacket: inputs.review.packet, dailyPacketValid: inputs.market.valid, reviewPacketValid: inputs.review.valid });
+    const degradedContextPath = path.join(paths.recoveryRoot, "runs", date, edition, "DEGRADED_WRITER_CONTEXT.json");
+    const degradedContext = buildDegradedWriterContext({ editionDate: date, reportType: edition, dailyPacket: inputs.market.packet, reviewPacket: inputs.review.packet, sourceHealth: inputs.market.packet?.sourceHealth, knownGaps: [inputs.market.status, inputs.review.status, ...(writerInputExists ? [] : ["WRITER_INPUT_MISSING"])] });
+    writeDiagnostic(degradedContextPath, degradedContext);
+    const compact = { ready: true, availability: assessment.publicationQuality === "writer_only" ? "writer_only" : "degraded", edition, editionDate: date, marketPacket: inputs.market.valid ? inputs.market.file : null, reviewPacket: inputs.review.valid ? inputs.review.file : null, writerInput: writerInputExists ? inputs.writerInput : null, degradedContext: degradedContextPath, memoryContext: path.join(paths.runtimePath, "memory"), researchBundle: path.join(paths.runtimePath, "research-bundles", date), packetStatus: { daily: inputs.market.status, review: inputs.review.status } };
     if (writeDiagnostics) writeDiagnostic(logFile, { ...compact, production, consistency: { consistent: true } });
     return compact;
   } catch (cause) {
@@ -106,7 +133,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === moduleFile) {
     console.log(`WRITER_BLOCKED ${result.code}`);
     process.exitCode = 1;
   } else {
-    console.log("WRITER_READY");
+    console.log(result.availability === "normal" ? "WRITER_READY" : result.availability === "writer_only" ? "WRITER_ONLY" : "WRITER_DEGRADED");
     console.log(JSON.stringify(result));
   }
 }

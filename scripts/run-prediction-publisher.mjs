@@ -328,9 +328,19 @@ export async function runPredictionPublisher({
   const effectiveEveningPacketsRoot = eveningPacketsRoot ?? automationPaths.eveningPacketsRoot;
   const runDirectory = path.join(effectiveRunsRoot, effectiveEditionDate, "prediction");
   fs.mkdirSync(runDirectory, { recursive: true });
+  const executionReceiptPath = path.join(runDirectory, "prediction-publisher-report.json");
   const release = acquireLock(lockFile ?? path.join(effectiveRunsRoot, "..", ".guanchao-automation.lock"));
-  const report = { schemaVersion: "prediction-publisher-report-v1", editionDate: effectiveEditionDate, dryRun, status: "pending", writeApplied: false, steps: [] };
+  const report = { schemaVersion: "prediction-publisher-report-v1", editionDate: effectiveEditionDate, dryRun, status: "pending", writeApplied: false, executionReceiptPath, steps: [] };
   const step = (name, value) => report.steps.push({ name, ...value });
+  const persistExecutionReceipt = () => {
+    try {
+      const temporary = `${executionReceiptPath}.tmp-${process.pid}`;
+      fs.writeFileSync(temporary, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+      fs.renameSync(temporary, executionReceiptPath);
+    } catch (error) {
+      report.executionReceiptWriteError = String(error?.message ?? error).slice(0, 500);
+    }
+  };
   let headBefore = null;
   let cleanup = null;
   try {
@@ -547,6 +557,7 @@ export async function runPredictionPublisher({
     report.steps.push({ name: "failure", ok: false, detail: report.error });
     return report;
   } finally {
+    persistExecutionReceipt();
     release();
   }
 }

@@ -1,0 +1,6 @@
+{
+  "schemaVersion": "guanchao-report-availability-v1",
+  "enabled": true,
+  "mode": "availability_first",
+  "manualDisableOnly": true
+}

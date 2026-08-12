@@ -1,11 +1,22 @@
 # 本机自动化与 Writer 记忆
 
 `config/codex-writer-automation.json` 是仓库内契约，`publicationEnabled=true`。生产自动化已经完成切换：
-Prediction/Data Pipeline 为周一至周六 18:20，Daily Writer 为周一至周六 20:00，Weekly 为周六 10:00，全部
+Prediction/Data Pipeline 为周一至周六 18:20，Publisher Guardian 为周一至周六 18:30，Daily Writer 为周一至周六 20:00，Weekly 为周六 10:00，全部
 Asia/Shanghai。legacy 06:45 Prediction 保持 OFF；周日 Prediction 与 Daily 分别由 launcher/prepare 的
 `SUNDAY_NO_RUN`、`SUNDAY_NO_REPORT` 双重保护。Prediction 正常路径只调用确定性脚本，不启动 AI Agent，正常路径
 LLM token 为 0。Daily Writer 产品名为“观潮每日晚报”；生产路径只允许 `${GUANCHAO_HOME}` 下的 canonical
 repository/runtime，不得使用 `D:/周报个人网站`。
+
+## Availability-First 长期模式
+
+`config/report-availability.json` 固定为 `guanchao-report-availability-v1`、`enabled=true`、
+`mode=availability_first`、`manualDisableOnly=true`。它没有 expiresAt、自动恢复或 timeout；只有未来用户明确要求
+才可手工关闭。普通运行错误允许 Daily/Weekly 使用 `degraded`、`writer_only` 或 deterministic fallback 继续产出，
+但错误数据、future Review、arbitrary probability、ledger conflict 和 stale-as-current 仍 fail closed。
+
+18:30 Guardian 只检查真实 execution receipt/封存 Packet/Task/进程锁；正常日立即 `HEALTHY_NO_ACTION`，活跃 Publisher
+返回 `PUBLISHER_STILL_RUNNING`，异常安全修复后最多补跑 Publisher 一次。Guardian 不是 18:20 Publisher 或 20:00/周六
+10:00 Writer 的主流程依赖。
 
 ## 一致性门禁
 
