@@ -37,6 +37,12 @@ function fail(code, field, message) {
   throw new InvestmentStrategyContractError(code, field, message);
 }
 
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(",")}}`;
+  return JSON.stringify(value);
+}
+
 function object(value, field) {
   if (!value || typeof value !== "object" || Array.isArray(value)) fail("STRATEGY_TYPE", field, "object required");
   return value;
@@ -128,12 +134,30 @@ function sourceProbability(record, target) {
   return null;
 }
 
+export function predictionReviewRecords(packet) {
+  if (!packet || typeof packet !== "object" || Array.isArray(packet)) fail("STRATEGY_PREDICTION_SOURCE", "predictionRecords", "sealed PREDICTION_REVIEW_PACKET object required");
+  if (packet.schemaVersion !== "prediction-review-packet-v1") fail("STRATEGY_PREDICTION_SOURCE", "predictionRecords.schemaVersion", "prediction-review-packet-v1 required");
+  if (typeof packet.asOfDate !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(packet.asOfDate) || Number.isNaN(new Date(`${packet.asOfDate}T00:00:00.000Z`).getTime())) {
+    fail("STRATEGY_PREDICTION_SOURCE", "predictionRecords.asOfDate", "valid sealed packet asOfDate required");
+  }
+  const records = new Map();
+  for (const horizon of ["1d", "5d", "20d"]) {
+    const rows = packet.horizons?.[horizon]?.rows;
+    if (!Array.isArray(rows)) fail("STRATEGY_PREDICTION_SOURCE", `predictionRecords.horizons.${horizon}.rows`, "sealed review packet horizon rows required");
+    for (const row of rows) {
+      const id = sourcePredictionId(row);
+      if (typeof id !== "string" || !id.trim()) fail("STRATEGY_PREDICTION_ROW", `predictionRecords.horizons.${horizon}.rows`, "every sealed review row requires predictionId");
+      const existing = records.get(id);
+      if (existing && canonicalJson(existing) !== canonicalJson(row)) fail("STRATEGY_PREDICTION_DUPLICATE_CONFLICT", `predictionRecords.${id}`, "duplicate predictionId has conflicting sealed rows");
+      if (!existing) records.set(id, row);
+    }
+  }
+  return { asOfDate: packet.asOfDate, records };
+}
+
 function predictionRecordsMap(predictionRecords) {
   if (!predictionRecords) return null;
-  const packet = Array.isArray(predictionRecords) ? null : predictionRecords;
-  const records = packet?.rows ?? packet?.records;
-  if (!packet || !Array.isArray(records) || typeof packet.asOfDate !== "string") fail("STRATEGY_PREDICTION_SOURCE", "predictionRecords", "sealed PREDICTION_REVIEW_PACKET rows with asOfDate required");
-  return { asOfDate: packet.asOfDate, records: new Map(records.map((record) => [sourcePredictionId(record), record]).filter(([id]) => typeof id === "string")) };
+  return predictionReviewRecords(predictionRecords);
 }
 
 function validateModelSignal(signal, item, field, packet, modelContext, strategyAsOf) {

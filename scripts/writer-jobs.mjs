@@ -475,9 +475,9 @@ function isShanghaiSunday(editionDate) {
   return new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Shanghai", weekday: "short" }).format(new Date(`${editionDate}T12:00:00+08:00`)) === "Sun";
 }
 
-export function assessEditorialFreshness(rootDir, payload, { correction = false } = {}) {
+export function assessEditorialFreshness(rootDir, payload, { correction = false, predictionRecords = null } = {}) {
   if (isShanghaiSunday(payload.editionDate)) error("SUNDAY_NO_REPORT", "payload.editionDate", "Sunday Daily editions are not published");
-  const history = listGlobalMarketBriefHistory(rootDir).sort((left, right) => left.editionDate.localeCompare(right.editionDate));
+  const history = listGlobalMarketBriefHistory(rootDir, { predictionRecords }).sort((left, right) => left.editionDate.localeCompare(right.editionDate));
   const existing = history.find((item) => item.editionDate === payload.editionDate) ?? null;
   if (existing && !correction) error("CORRECTION_MODE_REQUIRED", "payload.editionDate", "same-edition replacement requires explicit correction mode");
   const later = history.find((item) => item.editionDate > payload.editionDate);
@@ -706,12 +706,14 @@ export function validateGlobalWriterPayload(request, inputs, payload, { predicti
     for (const section of article.analysisSections ?? []) for (const sourceId of section.sourceIds ?? []) if (!frozenSources.has(sourceId)) error("GLOBAL_ANALYSIS_SCOPE", `payload.${article.id}.analysisSections`, "analysis evidence is outside the frozen source scope");
   }
   const numericValues = [];
-  const collectNumbers = (value) => {
-    if (Array.isArray(value)) return value.forEach(collectNumbers);
+  const collectNumbers = (value, currentPath = "$") => {
+    if (currentPath === "$.mainArticle.investmentStrategy") return;
+    if (Array.isArray(value)) return value.forEach((item, index) => collectNumbers(item, `${currentPath}[${index}]`));
     if (!object(value)) return;
-    for (const child of Object.values(value)) {
+    for (const [key, child] of Object.entries(value)) {
+      const childPath = `${currentPath}.${key}`;
       if (typeof child === "number") numericValues.push(child);
-      else collectNumbers(child);
+      else collectNumbers(child, childPath);
     }
   };
   collectNumbers(payload);
@@ -832,7 +834,13 @@ function validatePayload(rootDir, target, payload, { predictionRecords = null } 
     try {
       const candidate = path.join(temporary, "candidate.json");
       writeJson(candidate, payload);
-      const run = spawnSync(process.execPath, [path.join(rootDir, "scripts", "validate-brief.mjs"), "--mode", GLOBAL_MARKET_BRIEF_MODE, "--input", candidate], { cwd: rootDir, encoding: "utf8" });
+      const validatorArgs = [path.join(rootDir, "scripts", "validate-brief.mjs"), "--mode", GLOBAL_MARKET_BRIEF_MODE, "--input", candidate];
+      if (predictionRecords) {
+        const packetFile = path.join(temporary, "PREDICTION_REVIEW_PACKET.json");
+        writeJson(packetFile, predictionRecords);
+        validatorArgs.push("--prediction-review-packet", packetFile);
+      }
+      const run = spawnSync(process.execPath, validatorArgs, { cwd: rootDir, encoding: "utf8" });
       if (run.status !== 0) error("TARGET_SCHEMA_INVALID", target.targetPath, (run.stderr || run.stdout || "global target validator failed").trim());
     } finally {
       fs.rmSync(temporary, { recursive: true, force: true });
@@ -916,7 +924,7 @@ export function apply({ request, result, dryRun = false, write = false, rootDir 
   const target = request.targetOutputs[0];
   validatePayload(rootDir, target, result.payload, { predictionRecords });
   if (request.mode === GLOBAL_MARKET_BRIEF_MODE) {
-    const editorialFreshness = assessEditorialFreshness(rootDir, result.payload, { correction: replacement?.mode === "explicit-replace" });
+    const editorialFreshness = assessEditorialFreshness(rootDir, result.payload, { correction: replacement?.mode === "explicit-replace", predictionRecords });
     const storage = writeGlobalMarketBrief({
       rootDir,
       brief: result.payload,
@@ -925,6 +933,7 @@ export function apply({ request, result, dryRun = false, write = false, rootDir 
       failAt,
       replaceExisting: replacement?.mode === "explicit-replace",
       expectedExistingBusinessSha256: replacement?.expectedExistingBusinessSha256 ?? null,
+      predictionRecords,
     });
     return {
       mode: GLOBAL_MARKET_BRIEF_MODE,

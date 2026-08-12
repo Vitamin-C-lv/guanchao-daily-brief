@@ -41,10 +41,23 @@ function remoteMainHead(root) {
   return output.split(/\s+/u)[0] ?? "";
 }
 
-function assertProductionTarget(root, paths, expectedRemote) {
+function assertProductionTarget(root, paths, expectedRemote, { packageDirectory, requestedAsOf, edition } = {}) {
   if (path.resolve(root) !== path.resolve(paths.repositoryPath)) fail("PUBLISHER_CANONICAL_REPOSITORY_REQUIRED", "root", "production publishing requires the canonical repository");
-  const preflight = runWriterProductionPreflight({ repositoryPath: paths.repositoryPath, runtimePath: paths.runtimePath, expectedRemote });
-  if (preflight.status !== "READY") fail(preflight.errorCode ?? "PUBLISHER_PREFLIGHT", "production", "canonical production preflight is not ready");
+  const packetPath = (name) => {
+    const file = path.join(path.resolve(packageDirectory), name);
+    return fs.existsSync(file) ? file : null;
+  };
+  const preflight = runWriterProductionPreflight({
+    repositoryPath: paths.repositoryPath,
+    runtimePath: paths.runtimePath,
+    expectedRemote,
+    dailyPacketPath: packetPath("DAILY_MARKET_PACKET.json"),
+    predictionReviewPacketPath: packetPath("PREDICTION_REVIEW_PACKET.json"),
+    editionDate: edition === "global_market_brief" ? null : requestedAsOf,
+    editionPath: requestedAsOf ? path.join(paths.repositoryPath, "content", "global-market-briefs", `${requestedAsOf}.json`) : null,
+    allowMissingReviewPacket: edition === "weekly" || !packetPath("PREDICTION_REVIEW_PACKET.json"),
+  });
+  if (preflight.status !== "READY") fail(preflight.errorCode ?? "PUBLISHER_PREFLIGHT", "production", `canonical production preflight is not ready: ${JSON.stringify(preflight.packetAudit)}`, { preflight });
   if (git(root, ["branch", "--show-current"]) !== "main") fail("PUBLISHER_MAIN_REQUIRED", "branch", "production publishing requires main, never a feature worktree");
   return preflight;
 }
@@ -60,13 +73,21 @@ function assertFixtureTarget(root, paths) {
 }
 
 function allowedChangedFiles(report) {
-  if (report.mode === "global_market_brief") return new Set([`content/global-market-briefs/${report.requestedAsOf}.json`, "content/global-market-brief-public.json", "content/global-market-brief-index.json"]);
+  if (report.mode === "global_market_brief") return new Set([report.featureBranchWrite?.storage?.historyPath ?? `content/global-market-briefs/${report.requestedAsOf}.json`, report.featureBranchWrite?.storage?.editionDate ? `content/global-market-briefs/${report.featureBranchWrite.storage.editionDate}.json` : null, "content/global-market-brief-public.json", "content/global-market-brief-index.json"].filter(Boolean));
   if (report.edition === "weekly") return new Set(report.productionApply?.files ?? []);
   return new Set();
 }
 
 function assertDiffBoundary(root, allowed) {
-  const changed = git(root, ["status", "--porcelain=v1"]).split(/\r?\n/).filter(Boolean).map((line) => line.slice(3).replaceAll("\\", "/"));
+  const changed = [];
+  const addPath = (relative) => {
+    const normalized = relative.replaceAll("\\", "/");
+    const full = path.join(root, ...normalized.split("/"));
+    if (fs.existsSync(full) && fs.statSync(full).isDirectory()) {
+      for (const entry of fs.readdirSync(full, { withFileTypes: true })) addPath(path.posix.join(normalized, entry.name));
+    } else changed.push(normalized);
+  };
+  for (const line of git(root, ["status", "--porcelain=v1"]).split(/\r?\n/).filter(Boolean)) addPath(line.slice(3));
   for (const file of changed) if (!allowed.has(file)) fail("PUBLISHER_DIFF_BOUNDARY", file, "publisher attempted to include a file outside its validated boundary");
   return changed;
 }
@@ -89,9 +110,54 @@ export function publishWriterResult({ packageDirectory, resultFile, root = repos
   const publicationRoot = production ? paths.repositoryPath : root;
   if (fixtureWrite) assertFixtureTarget(publicationRoot, paths);
   const expectedRemote = productionRemote ?? undefined;
-  const preflight = production ? assertProductionTarget(publicationRoot, paths, expectedRemote) : null;
-  const remoteHeadBefore = production ? remoteMainHead(publicationRoot) : null;
   const writerResult = JSON.parse(fs.readFileSync(resultFile, "utf8"));
+  let packageRequest = null;
+  try { packageRequest = JSON.parse(fs.readFileSync(path.join(path.resolve(packageDirectory), "REQUEST.json"), "utf8")); } catch { /* finalize reports the authoritative package error */ }
+  const existingEditionDate = packageRequest?.mode === "global_market_brief" ? writerResult?.payload?.editionDate ?? packageRequest.requestedAsOf : packageRequest?.requestedAsOf;
+  const existingHistory = production && packageRequest?.mode === "global_market_brief" && existingEditionDate
+    ? path.join(publicationRoot, "content", "global-market-briefs", `${existingEditionDate}.json`)
+    : null;
+  if (production && existingHistory && fs.existsSync(existingHistory)) {
+    const existing = JSON.parse(fs.readFileSync(existingHistory, "utf8"));
+    const existingBusiness = structuredClone(existing);
+    const resultBusiness = structuredClone(writerResult.payload);
+    delete existingBusiness.generatedAt;
+    delete resultBusiness.generatedAt;
+    const sameStablePayload = existing.mainArticle?.id === writerResult.payload?.mainArticle?.id;
+    if (canonicalJson(existingBusiness) === canonicalJson(resultBusiness) || sameStablePayload) {
+      const remoteHead = remoteMainHead(publicationRoot);
+      const localHead = git(publicationRoot, ["rev-parse", "HEAD"]);
+      const runtimeHead = git(paths.runtimePath, ["rev-parse", "HEAD"]);
+      if (localHead !== remoteHead || runtimeHead !== remoteHead || git(publicationRoot, ["status", "--porcelain=v1"]) || git(paths.runtimePath, ["status", "--porcelain=v1"])) {
+        fail("PUBLISHER_IDEMPOTENT_STATE_MISMATCH", "git", "same result is already published but canonical/runtime are not at the same clean remote head");
+      }
+      return {
+        schemaVersion: "content-publication-receipt-v1",
+        edition: packageRequest.edition,
+        editionDate: existingEditionDate,
+        articleId: writerResult?.payload?.mainArticle?.id ?? null,
+        historyPath: `content/global-market-briefs/${existingEditionDate}.json`,
+        publicPath: "content/global-market-brief-public.json",
+        archiveIndexPath: "content/global-market-brief-index.json",
+        businessSha256: sha256({ edition: packageRequest.edition, editionDate: existingEditionDate, requestId: packageRequest.requestId, resultId: writerResult.resultId, publication: null, storage: null }),
+        commitSha: localHead,
+        pushStatus: "not-attempted-idempotent",
+        publicationStatus: "no-op",
+        runtimeSyncStatus: "already-synced",
+        contentWritten: false,
+        localCommitCreated: false,
+        remotePushed: false,
+        runtimeSynced: false,
+        remoteHeadBefore: remoteHead,
+        remoteHeadAfter: remoteHead,
+        localHead,
+        idempotent: true,
+        finalization: { noOp: true, reason: "same canonical article already published" },
+      };
+    }
+  }
+  const preflight = production ? assertProductionTarget(publicationRoot, paths, expectedRemote, { packageDirectory, requestedAsOf: packageRequest?.requestedAsOf, edition: packageRequest?.mode ?? packageRequest?.edition }) : null;
+  const remoteHeadBefore = production ? remoteMainHead(publicationRoot) : null;
   if (production && remoteHeadBefore && remoteMainHead(publicationRoot) !== remoteHeadBefore) fail("PUBLISHER_REMOTE_ADVANCED", "origin/main", "origin/main advanced before filesystem write; no write was attempted", { recoveryEvidence: { contentWritten: false, localCommitCreated: false, remotePushed: false, runtimeSynced: false, remoteHeadBefore, remoteHeadAfter: remoteMainHead(publicationRoot), localHead: git(publicationRoot, ["rev-parse", "HEAD"]) } });
   const finalization = finalizeCodexWriter({ packageDirectory, resultFile, root: publicationRoot, dryRun, write: production || fixtureWrite, correction, maintenanceProjection });
   const businessSha256 = sha256({ edition: finalization.edition, editionDate: finalization.requestedAsOf, requestId: finalization.requestId, resultId: finalization.resultId, publication: finalization.publication ?? null, storage: finalization.featureBranchWrite?.storage ?? null });

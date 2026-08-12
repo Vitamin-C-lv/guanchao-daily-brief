@@ -236,7 +236,9 @@ function scanForbiddenKeys(value, articleId, errorPath = "$") {
   }
   if (!isObject(value)) return;
   for (const [key, child] of Object.entries(value)) {
-    if (FORBIDDEN_KEYS.has(key) || NORMALIZED_FORBIDDEN_KEYS.has(key.toLowerCase().replaceAll("_", "").replaceAll("-", ""))) {
+    const strategyProbabilityPath = key === "probability"
+      && /^\$\.mainArticle\.investmentStrategy\.recommendations\[\d+\]\.modelSignal$/u.test(errorPath);
+    if (!strategyProbabilityPath && (FORBIDDEN_KEYS.has(key) || NORMALIZED_FORBIDDEN_KEYS.has(key.toLowerCase().replaceAll("_", "").replaceAll("-", "")))) {
       fail("FORBIDDEN_FIELD", articleId, `${errorPath}.${key}`, "provider/internal/model diagnostic or numeric probability field is forbidden");
     }
     scanForbiddenKeys(child, articleId, `${errorPath}.${key}`);

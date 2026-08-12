@@ -1,24 +1,27 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { buildPredictionReviewPacket, repositoryRoot as marketRepositoryRoot } from "./build-market-packets.mjs";
 import { InvestmentStrategyContractError, validateInvestmentStrategy } from "./investment-strategy-contract.mjs";
 
 const sources = new Set(["market-price", "rates", "breadth"]);
-const prediction = {
-  predictionId: "prediction-1",
-  predictionDate: "2026-08-11",
-  market: "a-share",
-  sectorId: "000986",
-  horizonSessions: 5,
-  classification: "published_model_prediction",
-  modelPublicationStatus: "published",
-  publicationStatus: "published",
-  probability_target: "absolute_up",
-  probabilityTarget: "absolute_up",
-  probabilityUnit: "decimal_0_1",
-  probability: 0.61,
-};
-const records = { asOfDate: "2026-08-12", rows: [prediction] };
+const records = buildPredictionReviewPacket({
+  root: marketRepositoryRoot,
+  asOf: "2026-08-12",
+  generatedAt: "2026-08-12T08:00:00.000Z",
+  records: [{
+    prediction_id: "prediction-1",
+    prediction_date: "2026-08-11",
+    market: "a-share",
+    sector_id: "000986",
+    horizon: 5,
+    publication_status: "published",
+    probability_target: "absolute_up",
+    absolute_up_probability: 61,
+    probability_unit: "percent",
+    model_version: "current-model-test",
+  }],
+});
 
 function recommendation(overrides = {}) {
   const direct = overrides.__direct === true || overrides.modelSignal?.status === "published";
@@ -106,7 +109,8 @@ test("legacy historical prediction cannot bind as a current strategy signal", ()
   value.recommendations[0].modelSignal.predictionIds = [real];
   value.recommendations[0].modelSignal.horizonSessions = 1;
   value.recommendations[0].modelSignal.probability = 0.501;
-  assert.throws(() => validateInvestmentStrategy(value, { sourceIds: sources, edition: "daily", predictionRecords: { asOfDate: "2026-08-12", rows: [{ predictionId: real, predictionDate: "2026-07-21", market: "a-share", sectorId: "000986", horizonSessions: 1, classification: "evidence_observation", modelPublicationStatus: "published", probabilityTarget: "absolute_up", probability: 0.501, probabilityUnit: "decimal_0_1" }] } }), (error) => error instanceof InvestmentStrategyContractError && error.code === "STRATEGY_LEGACY_PREDICTION_FORBIDDEN");
+  const legacyPacket = { ...records, horizons: { ...records.horizons, "1d": { ...records.horizons["1d"], rows: [{ predictionId: real, predictionDate: "2026-07-21", market: "a-share", sectorId: "000986", horizonSessions: 1, classification: "evidence_observation", modelPublicationStatus: "published", probabilityTarget: "absolute_up", probability: 0.501, probabilityUnit: "fraction" }] } } };
+  assert.throws(() => validateInvestmentStrategy(value, { sourceIds: sources, edition: "daily", predictionRecords: legacyPacket }), (error) => error instanceof InvestmentStrategyContractError && error.code === "STRATEGY_LEGACY_PREDICTION_FORBIDDEN");
 });
 
 test("writer override needs a reason and two independent sources", () => {

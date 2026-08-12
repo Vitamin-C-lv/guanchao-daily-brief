@@ -65,7 +65,7 @@ function businessSha256(value) {
   return sha256Canonical(businessView(value));
 }
 
-function publicDto(brief) {
+function publicDto(brief, { predictionRecords = null } = {}) {
   const dto = {
     schemaVersion: PUBLIC_DTO_SCHEMA_VERSION,
     dataAsOf: brief.dataAsOf,
@@ -83,7 +83,7 @@ function publicDto(brief) {
       dataAsOf: brief.dataAsOf,
       sourceCount: brief.mainArticle.sourceIds.length,
       articleUrl: brief.mainArticle.articleUrl,
-      ...(brief.mainArticle.investmentStrategy ? { investmentStrategyPreview: projectInvestmentStrategyPreview(brief.mainArticle.investmentStrategy) } : {}),
+      ...(brief.mainArticle.investmentStrategy ? { investmentStrategyPreview: projectInvestmentStrategyPreview(brief.mainArticle.investmentStrategy, { predictionRecords }) } : {}),
     },
     specialReports: brief.specialReports.map((report) => ({
       title: report.title,
@@ -101,7 +101,7 @@ function publicDto(brief) {
   return dto;
 }
 
-function indexArticle(article, editionDate, dataAsOf) {
+function indexArticle(article, editionDate, dataAsOf, { predictionRecords = null } = {}) {
   return {
     id: article.id,
     kind: article.contentKind,
@@ -113,16 +113,16 @@ function indexArticle(article, editionDate, dataAsOf) {
     marketTags: article.marketTags,
     articleUrl: article.articleUrl,
     sourceCount: article.sourceIds.length,
-    ...(article.investmentStrategy ? { investmentStrategyPreview: projectInvestmentStrategyPreview(article.investmentStrategy) } : {}),
+    ...(article.investmentStrategy ? { investmentStrategyPreview: projectInvestmentStrategyPreview(article.investmentStrategy, { predictionRecords }) } : {}),
   };
 }
 
-export function buildGlobalMarketBriefIndex(history) {
+export function buildGlobalMarketBriefIndex(history, { predictionRecords = null } = {}) {
   if (!Array.isArray(history) || history.length < 1) fail("GLOBAL_INDEX_EMPTY", GLOBAL_INDEX_PATH, "canonical history is required to derive an index");
   const ordered = [...history].sort((left, right) => right.editionDate.localeCompare(left.editionDate));
   const articles = ordered.flatMap((brief) => [
-    indexArticle(brief.mainArticle, brief.editionDate, brief.dataAsOf),
-    ...brief.specialReports.map((report) => indexArticle(report, brief.editionDate, brief.dataAsOf)),
+    indexArticle(brief.mainArticle, brief.editionDate, brief.dataAsOf, { predictionRecords }),
+    ...brief.specialReports.map((report) => indexArticle(report, brief.editionDate, brief.dataAsOf, { predictionRecords })),
   ]).sort((left, right) => right.editionDate.localeCompare(left.editionDate) || (left.kind === right.kind ? left.id.localeCompare(right.id) : left.kind === "global_main" ? -1 : 1));
   return {
     schemaVersion: "global-market-brief-index-v1",
@@ -219,23 +219,23 @@ function commit(entries, failAt = null) {
   return written;
 }
 
-export function projectGlobalMarketBriefPublicDto(brief) {
+export function projectGlobalMarketBriefPublicDto(brief, { predictionRecords = null } = {}) {
   try {
-    validateGlobalMarketBrief(brief);
+    validateGlobalMarketBrief(brief, { predictionRecords });
   } catch (cause) {
     fail("GLOBAL_BRIEF_INVALID", "brief", cause instanceof Error ? cause.message : "global brief failed validation");
   }
-  return publicDto(brief);
+  return publicDto(brief, { predictionRecords });
 }
 
-export function planGlobalMarketBriefWrite({ rootDir, brief, replaceExisting = false, expectedExistingBusinessSha256 = null }) {
+export function planGlobalMarketBriefWrite({ rootDir, brief, replaceExisting = false, expectedExistingBusinessSha256 = null, predictionRecords = null }) {
   const root = path.resolve(rootDir);
   try {
-    validateGlobalMarketBrief(brief);
+    validateGlobalMarketBrief(brief, { predictionRecords });
   } catch (cause) {
     fail("GLOBAL_BRIEF_INVALID", "brief", cause instanceof Error ? cause.message : "global brief failed validation");
   }
-  const dto = publicDto(brief);
+  const dto = publicDto(brief, { predictionRecords });
   const historyPath = historyRelativePath(brief.editionDate);
   const historyFile = resolveRoot(root, historyPath);
   let historyExisting = null;
@@ -246,7 +246,7 @@ export function planGlobalMarketBriefWrite({ rootDir, brief, replaceExisting = f
   const publicEntry = planEntry(root, publicPath, jsonBytes(dto), "global-public-dto");
   const history = listGlobalMarketBriefHistory(root, { excludeEditionDate: brief.editionDate });
   history.push(historyExisting?.replaced ? brief : historyExisting?.existing ?? brief);
-  const index = buildGlobalMarketBriefIndex(history);
+  const index = buildGlobalMarketBriefIndex(history, { predictionRecords });
   validateGlobalMarketBriefIndex(index);
   const indexEntry = planEntry(root, GLOBAL_INDEX_PATH, jsonBytes(index), "global-index");
   const entries = [historyEntry, publicEntry, indexEntry];
@@ -270,9 +270,9 @@ export function planGlobalMarketBriefWrite({ rootDir, brief, replaceExisting = f
   };
 }
 
-export function writeGlobalMarketBrief({ rootDir, brief, dryRun = false, write = false, failAt = null, replaceExisting = false, expectedExistingBusinessSha256 = null }) {
+export function writeGlobalMarketBrief({ rootDir, brief, dryRun = false, write = false, failAt = null, replaceExisting = false, expectedExistingBusinessSha256 = null, predictionRecords = null }) {
   if (dryRun === write) fail("GLOBAL_STORAGE_MODE", "mode", "exactly one of dryRun or write is required");
-  const plan = planGlobalMarketBriefWrite({ rootDir, brief, replaceExisting, expectedExistingBusinessSha256 });
+  const plan = planGlobalMarketBriefWrite({ rootDir, brief, replaceExisting, expectedExistingBusinessSha256, predictionRecords });
   const written = write ? commit(plan.entries, failAt) : [];
   return {
     schemaVersion: "global-market-brief-storage-result-v1",
@@ -289,7 +289,7 @@ export function writeGlobalMarketBrief({ rootDir, brief, dryRun = false, write =
   };
 }
 
-export function listGlobalMarketBriefHistory(rootDir, { excludeEditionDate = null } = {}) {
+export function listGlobalMarketBriefHistory(rootDir, { excludeEditionDate = null, predictionRecords = null } = {}) {
   const directory = resolveRoot(rootDir, GLOBAL_HISTORY_DIRECTORY);
   if (!fs.existsSync(directory)) return [];
   return fs.readdirSync(directory)
@@ -298,7 +298,7 @@ export function listGlobalMarketBriefHistory(rootDir, { excludeEditionDate = nul
     const relativePath = `${GLOBAL_HISTORY_DIRECTORY}/${name}`;
     const value = readJson(resolveRoot(rootDir, relativePath), relativePath);
     try {
-      validateGlobalMarketBrief(value);
+      validateGlobalMarketBrief(value, { predictionRecords });
     } catch (cause) {
       fail("GLOBAL_HISTORY_CORRUPT", relativePath, cause instanceof Error ? cause.message : "history failed validation");
     }

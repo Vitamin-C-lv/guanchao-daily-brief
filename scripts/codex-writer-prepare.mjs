@@ -30,7 +30,7 @@ const moduleFile = fileURLToPath(import.meta.url);
 export const repositoryRoot = path.resolve(path.dirname(moduleFile), "..");
 const HASH = /^[a-f0-9]{64}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
-const PACKAGE_FILES = [
+const REQUIRED_PACKAGE_FILES = [
   "ARTICLE_DEPTH_RULES.json",
   "ARTICLE_VISUAL_BUNDLE.json",
   "BASELINE_CONTENT.json",
@@ -42,11 +42,12 @@ const PACKAGE_FILES = [
   "REQUEST.json",
   "RESEARCH_BUNDLE.json",
   "RESULT_TEMPLATE.json",
-  "PREDICTION_REVIEW_PACKET.json",
   "TARGET_SCHEMA.json",
   "WRITER_CONTEXT.json",
   "WRITER_MEMORY_CONTEXT.json"
 ];
+const OPTIONAL_PACKAGE_FILES = ["PREDICTION_REVIEW_PACKET.json"];
+const PACKAGE_FILES = [...REQUIRED_PACKAGE_FILES, ...OPTIONAL_PACKAGE_FILES];
 
 export class CodexWriterPrepareError extends Error {
   constructor(code, errorPath, message) {
@@ -213,6 +214,41 @@ function weeklyNoEveningPacket(name, editionDate) {
   };
 }
 
+function weeklyCutoffTimestamp(editionDate) {
+  return new Date(`${editionDate}T02:00:00.000Z`);
+}
+
+export function resolveWeeklyPredictionReviewPacket({ root, supplied = null, editionDate, automationPaths = resolveAutomationPaths() } = {}) {
+  const canonicalRoot = automationPaths.eveningPacketsRoot ?? path.join(automationPaths.guanchaoHome, "runtime", "packets");
+  const roots = [canonicalRoot, path.join(root, "runtime", "packets"), path.join(root, "packets")].filter((value, index, list) => value && list.indexOf(value) === index);
+  const explicit = supplied ? [path.isAbsolute(supplied) ? path.resolve(supplied) : path.resolve(root, ...supplied.split("/"))] : [];
+  const candidates = explicit.length ? explicit : roots.flatMap((base) => {
+    if (!fs.existsSync(base)) return [];
+    return fs.readdirSync(base, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory() && DATE.test(entry.name) && entry.name <= editionDate)
+      .map((entry) => path.join(base, entry.name, "PREDICTION_REVIEW_PACKET.json"));
+  }).filter((file, index, list) => list.indexOf(file) === index)
+    .sort((left, right) => right.localeCompare(left));
+  const cutoff = weeklyCutoffTimestamp(editionDate);
+  for (const file of candidates) {
+    if (!fs.existsSync(file)) continue;
+    let packet;
+    try {
+      packet = loadEveningPacket(file, "PREDICTION_REVIEW_PACKET.json", editionDate);
+    } catch (error) {
+      if (explicit.length) throw error;
+      continue;
+    }
+    const sealedAt = packet.sealedAt ?? packet.generatedAt;
+    if (typeof sealedAt !== "string" || Number.isNaN(new Date(sealedAt).getTime()) || new Date(sealedAt) >= cutoff) {
+      if (explicit.length) fail("EVENING_PACKET_FUTURE", "predictionReviewPacket.generatedAt", "Review Packet must be sealed before Saturday 10:00 cutoff");
+      continue;
+    }
+    return { file, packet };
+  }
+  return null;
+}
+
 export function packetArtifactPlan(packet, root) {
   const date = packet.marketDates?.aShare;
   if (typeof date !== "string" || !DATE.test(date)) fail("PACKET_DATE", "packet.marketDates.aShare", "valid A-share market date required");
@@ -263,7 +299,7 @@ function packageDirectoryIsValid(directory, requestId) {
   if (!fs.existsSync(manifestFile)) return false;
   try {
     const manifest = readJson(manifestFile);
-    return manifest.schemaVersion === "codex-writer-execution-package-v1" && manifest.requestId === requestId && PACKAGE_FILES.every((name) => fs.existsSync(path.join(directory, name))) && fs.existsSync(path.join(directory, "SHA256SUMS.txt"));
+    return manifest.schemaVersion === "codex-writer-execution-package-v1" && manifest.requestId === requestId && REQUIRED_PACKAGE_FILES.every((name) => fs.existsSync(path.join(directory, name))) && (!fs.existsSync(path.join(directory, "PREDICTION_REVIEW_PACKET.json")) || manifest.files?.some((entry) => entry.path === "PREDICTION_REVIEW_PACKET.json")) && fs.existsSync(path.join(directory, "SHA256SUMS.txt"));
   } catch {
     return false;
   }
@@ -283,19 +319,19 @@ function writeExecutionPackage({ directory, request, context, packet, bundle, ba
     ["PROMPT.md", promptBytes],
     ["TARGET_SCHEMA.json", jsonBytes(targetSchema)],
     ["RESULT_TEMPLATE.json", jsonBytes(resultTemplate)],
-    ["PREDICTION_REVIEW_PACKET.json", eveningPackets.review.bytes],
     ["CODEX_RESEARCH.json", jsonBytes(run)],
     ["EDITORIAL_STYLE.json", styleBytes],
     ["WRITER_MEMORY_CONTEXT.json", memoryContextBytes]
   ]);
+  if (eveningPackets.review) values.set("PREDICTION_REVIEW_PACKET.json", eveningPackets.review.bytes);
   const files = [...values.entries()].map(([name, bytes]) => ({ name, bytes }));
-  const manifest = packageManifest(request, context, packet, bundle, run, styleBytes, files, [eveningPackets.daily, eveningPackets.review]);
+  const manifest = packageManifest(request, context, packet, bundle, run, styleBytes, files, [eveningPackets.daily, eveningPackets.review].filter(Boolean));
   const manifestBytes = jsonBytes(manifest);
   const sumsBytes = Buffer.from(shaSums([...files, { name: "MANIFEST.json", bytes: manifestBytes }]), "utf8");
   for (const { name, bytes } of files) atomicBytes(path.join(directory, name), bytes);
   atomicBytes(path.join(directory, "MANIFEST.json"), manifestBytes);
   atomicBytes(path.join(directory, "SHA256SUMS.txt"), sumsBytes);
-  return { directory, manifest, files: [...PACKAGE_FILES, "MANIFEST.json", "SHA256SUMS.txt"].sort() };
+  return { directory, manifest, files: [...files.map(({ name }) => name), "MANIFEST.json", "SHA256SUMS.txt"].sort() };
 }
 
 function defaultBaselineSource(root, edition) {
@@ -377,9 +413,10 @@ export async function prepareCodexWriter({
   const freshness = assertPacketFreshness(packet, { edition, editionDate, baselineFile, now });
   if (edition === "weekly") {
     dailyEveningPacket = weeklyNoEveningPacket("DAILY_MARKET_PACKET.json", requestedEditionDate);
-    reviewEveningPacket = weeklyNoEveningPacket("PREDICTION_REVIEW_PACKET.json", requestedEditionDate);
+    const weeklyReview = resolveWeeklyPredictionReviewPacket({ root, supplied: predictionReviewPacketPath, editionDate: requestedEditionDate, automationPaths: resolvedAutomationPaths });
+    reviewEveningPacket = weeklyReview?.packet ?? null;
     dailyEveningFile = null;
-    reviewEveningFile = null;
+    reviewEveningFile = weeklyReview?.file ?? null;
   } else {
     dailyEveningFile = resolveEveningPacketPath({ root, supplied: dailyMarketPacketPath, editionDate: requestedEditionDate, name: "DAILY_MARKET_PACKET.json", errorPath: "dailyMarketPacket", automationPaths: resolvedAutomationPaths });
     reviewEveningFile = resolveEveningPacketPath({ root, supplied: predictionReviewPacketPath, editionDate: requestedEditionDate, name: "PREDICTION_REVIEW_PACKET.json", errorPath: "predictionReviewPacket", automationPaths: resolvedAutomationPaths });
@@ -496,7 +533,7 @@ export async function prepareCodexWriter({
   const memoryContextBytes = Buffer.from(`${canonicalJson(memoryContext)}\n`, "utf8");
   const eveningPackets = {
     daily: { name: "DAILY_MARKET_PACKET.json", packet: dailyEveningPacket, bytes: Buffer.from(`${canonicalJson(dailyEveningPacket)}\n`, "utf8") },
-    review: { name: "PREDICTION_REVIEW_PACKET.json", packet: reviewEveningPacket, bytes: Buffer.from(`${canonicalJson(reviewEveningPacket)}\n`, "utf8") },
+    review: reviewEveningPacket ? { name: "PREDICTION_REVIEW_PACKET.json", packet: reviewEveningPacket, bytes: Buffer.from(`${canonicalJson(reviewEveningPacket)}\n`, "utf8") } : null,
   };
   writeExecutionPackage({ directory: output, request, context, packet: packetValue, bundle, baseline: baselineValue, promptBytes, targetSchema: targetSchemaReference, resultTemplate, run, styleBytes, visualBundleBytes, depthRulesBytes, memoryContextBytes, eveningPackets });
   return {
@@ -511,7 +548,7 @@ export async function prepareCodexWriter({
     packetPath: relative(root, packetPlan.file),
     dailyMarketPacketPath: dailyEveningFile,
     predictionReviewPacketPath: reviewEveningFile,
-    eveningPacketIds: { daily: dailyEveningPacket.packetId, review: reviewEveningPacket.packetId },
+    eveningPacketIds: { daily: dailyEveningPacket.packetId, review: reviewEveningPacket?.packetId ?? null },
     bundlePath,
     outputDirectory: output,
       contextSummary,
@@ -520,7 +557,7 @@ export async function prepareCodexWriter({
     dryRun: false,
     wrote: true,
     noOp: false,
-    packageFiles: [...PACKAGE_FILES, "MANIFEST.json", "SHA256SUMS.txt"].sort()
+    packageFiles: [...(reviewEveningPacket ? PACKAGE_FILES : REQUIRED_PACKAGE_FILES), "MANIFEST.json", "SHA256SUMS.txt"].sort()
   };
 }
 
