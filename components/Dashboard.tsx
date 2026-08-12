@@ -35,7 +35,7 @@ import PredictionRankingPreview from "./PredictionRankingPreview";
 import SectorRotationIndex from "./SectorRotationIndex";
 import SpecialReportSection from "./SpecialReportSection";
 import WeeklyTeaser from "./WeeklyTeaser";
-import { isGlobalBriefForEdition, shouldShowLegacyHomeNarrative } from "@/lib/dashboard-visibility";
+import { isGlobalBriefCurrentOrNewer, shouldShowLegacyHomeNarrative } from "@/lib/dashboard-visibility";
 import type { GlobalMarketBriefPublic } from "@/lib/global-market-brief-public";
 import type { GlobalMarketBriefArchiveArticle } from "@/lib/global-market-brief-article";
 import { findMarketInstrumentForIndex, marketInstrumentPath } from "@/lib/market-instruments";
@@ -327,9 +327,9 @@ export default function Dashboard({
   const showMarkets = isOverview || view === "markets";
   const showPredictions = view === "predictions";
   const showBriefs = isOverview || view === "briefs";
-  const currentGlobalBrief = isGlobalBriefForEdition(globalBrief, data.meta.editionDate);
-  const showGlobalHomeBrief = isOverview && Boolean(globalBrief);
-  const showLegacyHomeNarrative = !globalBrief && shouldShowLegacyHomeNarrative({ view, editionDate: data.meta.editionDate, globalBrief });
+  const currentGlobalBrief = isGlobalBriefCurrentOrNewer(globalBrief, data.meta.editionDate);
+  const showGlobalHomeBrief = isOverview && currentGlobalBrief;
+  const showLegacyHomeNarrative = !currentGlobalBrief && shouldShowLegacyHomeNarrative({ view, editionDate: data.meta.editionDate, globalBrief });
   const marketOverviewOnly = isOverview && currentGlobalBrief;
   const showLegacyBriefs = showBriefs && !(isOverview && currentGlobalBrief);
   const showHotspots = isOverview || view === "hotspots";
@@ -450,16 +450,16 @@ export default function Dashboard({
   }, [currentGlobalBrief, data, query, selectedMarket, view]);
 
   const canonicalArchive = useMemo(() => {
-    const currentArticleIds = new Set(globalBrief ? [globalBrief.mainArticle, ...globalBrief.specialReports].map((article) => article.articleUrl.split("/").filter(Boolean).at(-1)) : []);
+    const currentArticleIds = new Set(currentGlobalBrief && globalBrief ? [globalBrief.mainArticle, ...globalBrief.specialReports].map((article) => article.articleUrl.split("/").filter(Boolean).at(-1)) : []);
     const normalizedQuery = query.trim().toLowerCase();
     const marketTag = selectedMarket === "a-share" ? "A_SHARE" : selectedMarket === "hk" ? "HK" : selectedMarket === "us" ? "US" : null;
     return globalArchive
       .filter((article) => !currentArticleIds.has(article.id))
       .filter((article) => selectedMarket === "all" || (selectedMarket === "fed" ? article.marketTags.includes("US") : marketTag !== null && article.marketTags.includes(marketTag)))
       .filter((article) => !normalizedQuery || `${article.title} ${article.dek} ${article.conclusion} ${article.marketTags.join(" ")}`.toLowerCase().includes(normalizedQuery));
-  }, [globalArchive, globalBrief, query, selectedMarket]);
+  }, [currentGlobalBrief, globalArchive, globalBrief, query, selectedMarket]);
   const canonicalIds = useMemo(() => new Set(globalArchive.map((article) => article.id)), [globalArchive]);
-  const legacyArchive = useMemo(() => articles.filter(({ article }) => !canonicalIds.has(article.id) && (!globalBrief || article.publishedAt <= globalBrief.dataAsOf)), [articles, canonicalIds, globalBrief]);
+  const legacyArchive = useMemo(() => articles.filter(({ article }) => !canonicalIds.has(article.id) && (!currentGlobalBrief || !globalBrief || article.publishedAt <= globalBrief.dataAsOf)), [articles, canonicalIds, currentGlobalBrief, globalBrief]);
 
   const filteredHotspots = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -641,9 +641,9 @@ export default function Dashboard({
           <div className={`content-grid ${isOverview ? "" : "single-panel"}`}>
             {showLegacyBriefs ? (
             <section id="briefs" className="briefs-panel">
-              {globalBrief && view === "briefs" ? <SectionHeading eyebrow="WEEKLY JUDGMENT" title="每周判断" description="先看今日全球判断，再按需回查历史市场简报。" /> : <SectionHeading eyebrow="CURATED BRIEFS" title="今日精选简报" description="只保留会改变政策预期、风险偏好或行业定价的信息。" />}
+              {globalBrief && currentGlobalBrief && view === "briefs" ? <SectionHeading eyebrow="WEEKLY JUDGMENT" title="每周判断" description="先看今日全球判断，再按需回查历史市场简报。" /> : <SectionHeading eyebrow="CURATED BRIEFS" title="今日精选简报" description="只保留会改变政策预期、风险偏好或行业定价的信息。" />}
               {weeklyIndex ? <WeeklyTeaser index={weeklyIndex} /> : null}
-              {globalBrief && view === "briefs" ? (
+              {globalBrief && currentGlobalBrief && view === "briefs" ? (
                 <>
                   <GlobalMainBriefCard brief={globalBrief.mainArticle} />
                   <SpecialReportSection reports={globalBrief.specialReports} />
@@ -653,7 +653,7 @@ export default function Dashboard({
                 </>
               ) : null}
               {view === "briefs" ? <MarketObserver data={marketObserver} mode="daily-macro" /> : null}
-              <div className="filter-row" role="tablist" aria-label={globalBrief && view === "briefs" ? "历史简报市场筛选" : "简报市场筛选"}>
+              <div className="filter-row" role="tablist" aria-label={globalBrief && currentGlobalBrief && view === "briefs" ? "历史简报市场筛选" : "简报市场筛选"}>
                 {[
                   ["all", "全部"],
                   ["fed", "美联储"],

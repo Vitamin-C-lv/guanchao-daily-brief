@@ -323,7 +323,7 @@ function validateOutlook(value, articleId, pathName, sourceIds, articleSourceIds
   }
 }
 
-function validateArticle(value, articleId, sourceIds, { special = false, dataAsOf = null, requireInvestmentStrategy = false } = {}) {
+function validateArticle(value, articleId, sourceIds, { special = false, dataAsOf = null, requireInvestmentStrategy = false, predictionRecords = null, root = undefined } = {}) {
   const keys = special ? SPECIAL_ARTICLE_KEYS : ARTICLE_KEYS;
   const expectedKeys = special
     ? keys.filter((key) => key !== "analysisSections" && key !== "investmentStrategy")
@@ -343,7 +343,7 @@ function validateArticle(value, articleId, sourceIds, { special = false, dataAsO
   stringArray(value.marketTags, articleId, `${articleId}.marketTags`, { min: 1, max: 4, itemMax: 20 });
   for (const tag of value.marketTags) if (!MARKETS.has(tag)) fail("INVALID_MARKET", articleId, `${articleId}.marketTags`, `market tag ${tag} is not supported`);
   stringArray(value.topicTags, articleId, `${articleId}.topicTags`, { min: 1, max: 20, itemMax: 80 });
-  if (!special) validateInvestmentStrategy(value.investmentStrategy, { sourceIds, requireStrategy: requireInvestmentStrategy, edition: "daily" });
+  if (!special) validateInvestmentStrategy(value.investmentStrategy, { sourceIds, requireStrategy: requireInvestmentStrategy, edition: "daily", predictionRecords, root });
 
   if (!Array.isArray(value.keyFacts) || value.keyFacts.length < 1) fail("INVALID_ARRAY", articleId, `${articleId}.keyFacts`, "at least one key fact is required");
   const factIds = new Set();
@@ -451,7 +451,7 @@ function validateTriggerCandidates(value, articleId, sourceIds) {
   return candidates;
 }
 
-export function validateGlobalMarketBrief(value, { requireInvestmentStrategy = false } = {}) {
+export function validateGlobalMarketBrief(value, { requireInvestmentStrategy = false, predictionRecords = null, root = undefined } = {}) {
   const documentId = "global-market-brief";
   scanForbiddenKeys(value, documentId);
   exactKeys(value, TOP_KEYS, TOP_KEYS, documentId, "$" );
@@ -465,7 +465,7 @@ export function validateGlobalMarketBrief(value, { requireInvestmentStrategy = f
   const sourceIds = validateSourceIndex(value.sourceIndex, documentId);
   const candidates = validateTriggerCandidates(value.specialTriggerCandidates, documentId, sourceIds);
   if (!isObject(value.mainArticle)) fail("MAIN_ARTICLE_COUNT", "mainArticle", "mainArticle", "exactly one mainArticle object is required");
-  validateArticle(value.mainArticle, value.mainArticle.id ?? "mainArticle", sourceIds, { dataAsOf: value.dataAsOf, requireInvestmentStrategy });
+  validateArticle(value.mainArticle, value.mainArticle.id ?? "mainArticle", sourceIds, { dataAsOf: value.dataAsOf, requireInvestmentStrategy, predictionRecords, root });
   if (value.mainArticle.contentKind !== "global_main") fail("CONTENT_KIND", value.mainArticle.id, "mainArticle.contentKind", "global_main required");
   if (!Array.isArray(value.specialReports) || value.specialReports.length > 2) fail("SPECIAL_REPORT_LIMIT", "global-market-brief", "specialReports", "zero to two special reports are allowed");
   const articleIds = new Set([value.mainArticle.id]);

@@ -30,7 +30,7 @@
       "confidence": "high",
       "counterEvidence": "若后续文件进入生效阶段并伴随可复核的保证金、交易或风险管理行为变化，制度影响的权重才会上升。",
       "id": "w32-theme-document-stage",
-      "nextSignal": "逐项回查原始文件的发布方级别、文件类型、publishedAt、effectiveAt和实施阶段。",
+    "nextSignal": "逐项回查原始文件的发布方级别、文件类型、发布时间、生效时间和实施阶段。",
       "sourceIds": [
         "fed-orders-20260804",
         "federal-register-cme",
@@ -856,7 +856,16 @@
     "schemaVersion": "investment-strategy-v1",
     "asOf": "2026-08-08",
     "title": "下周配置建议",
-    "summary": "下周先以大盘宽基为主：美股大盘维持，港股科技保持中性；A/H连续行业数据尚未闭合，暂不把高波动中盘成长作为主配置。",
+  "summary": "模型本期未发布概率；主笔当前仍偏大盘，美股大盘与沪深300优先于中盘成长，港股科技保持中性。",
+  "allocationPreference": {
+    "preferredTargetIds": [
+      "sp500",
+      "csi300"
+    ],
+    "underweightTargetIds": [
+      "csi500"
+    ]
+  },
     "modelContext": {
       "status": "abstained",
       "signalAvailable": false,
@@ -872,8 +881,8 @@
         "targetType": "broad_index_etf",
         "targetId": "sp500",
         "label": "S&P 500 / 美股大盘指数基金",
-        "action": "hold",
-        "direction": "neutral",
+      "action": "increase",
+      "direction": "bullish",
         "conviction": 3,
         "horizon": "next_week",
         "whyNow": "8月7日收益率曲线回落，但实际10年期仍在2.40%，风险偏好修复需要盈利和后续收盘确认。",
@@ -883,7 +892,17 @@
           "treasury-nominal",
           "treasury-real"
         ],
+      "predictionIds": [],
+      "modelSignal": {
+        "status": "no_direct_model_signal",
         "predictionIds": [],
+        "probability": null,
+        "probabilityTarget": null,
+        "probabilityUnit": null,
+        "horizonSessions": 5,
+        "market": "us",
+        "predictionTargetId": "sp500"
+      },
         "trigger": "名义与实际长端收益率继续回落，且指数强势扩散。",
         "invalidation": "实际收益率重新上行并伴随指数走弱。",
         "modelAgreement": "not_applicable",
@@ -900,12 +919,22 @@
         "horizon": "next_week",
         "whyNow": "港股行业成交与广度尚未形成连续同口径数据，当前不足以把局部价格线索升级为趋势。",
         "modelEvidence": "模型本期没有给出概率。",
-        "writerOverlay": "主笔维持中性，等待利率与成交同步改善后再评估。",
+      "writerOverlay": "港股科技维持中性，等待成交和利率同步改善后再评估。",
         "supportingSourceIds": [
           "hkex",
           "treasury-real"
         ],
+      "predictionIds": [],
+      "modelSignal": {
+        "status": "no_direct_model_signal",
         "predictionIds": [],
+        "probability": null,
+        "probabilityTarget": null,
+        "probabilityUnit": null,
+        "horizonSessions": 5,
+        "market": "hk",
+        "predictionTargetId": "hang_seng_tech"
+      },
         "trigger": "港股成交与科技行业广度连续改善。",
         "invalidation": "行业序列仍不完整，或实际利率重新上行。",
         "modelAgreement": "not_applicable",
@@ -916,18 +945,28 @@
         "targetType": "broad_index_etf",
         "targetId": "csi300",
         "label": "沪深300 / 大盘宽基ETF",
-        "action": "hold",
-        "direction": "neutral",
+      "action": "increase",
+      "direction": "bullish",
         "conviction": 2,
         "horizon": "next_week",
         "whyNow": "A股行业量价、广度和资金路径缺少连续同口径记录，当前先保留大盘宽基观察，不扩展到高波动中盘成长。",
         "modelEvidence": "模型本期没有给出概率。",
-        "writerOverlay": "主笔不主动增配，等待成交、广度和相对强度给出同向确认。",
+      "writerOverlay": "沪深300优先于中盘成长，等待成交、广度和相对强度给出同向确认。",
         "supportingSourceIds": [
           "csindex",
           "treasury-nominal"
         ],
+      "predictionIds": [],
+      "modelSignal": {
+        "status": "no_direct_model_signal",
         "predictionIds": [],
+        "probability": null,
+        "probabilityTarget": null,
+        "probabilityUnit": null,
+        "horizonSessions": 5,
+        "market": "a-share",
+        "predictionTargetId": "csi300"
+      },
         "trigger": "至少两个行业的成交、上涨广度与相对强度连续改善。",
         "invalidation": "连续数据仍未闭合，或指数变化与成交、广度不一致。",
         "modelAgreement": "not_applicable",

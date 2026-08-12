@@ -28,6 +28,18 @@ function git(root, args) {
   return execFileSync("git", ["-C", root, ...args], { encoding: "utf8", windowsHide: true }).trim();
 }
 
+export function classifyPublisherRemoteError(cause) {
+  const message = String(cause?.stderr ?? cause?.stdout ?? cause?.message ?? cause ?? "");
+  return /non-fast-forward|fetch first|remote contains work|rejected|updates were rejected/i.test(message)
+    ? "PUBLISHER_REMOTE_ADVANCED"
+    : "PUBLISHER_PUSH_FAILED";
+}
+
+function remoteMainHead(root) {
+  const output = git(root, ["ls-remote", "origin", "refs/heads/main"]);
+  return output.split(/\s+/u)[0] ?? "";
+}
+
 function assertProductionTarget(root, paths) {
   if (path.resolve(root) !== path.resolve(paths.repositoryPath)) fail("PUBLISHER_CANONICAL_REPOSITORY_REQUIRED", "root", "production publishing requires the canonical repository");
   const preflight = runWriterProductionPreflight({ repositoryPath: paths.repositoryPath, runtimePath: paths.runtimePath });
@@ -64,6 +76,7 @@ export function publishWriterResult({ packageDirectory, resultFile, root = repos
   const paths = resolveAutomationPaths();
   if (fixtureWrite) assertFixtureTarget(root, paths);
   const preflight = production ? assertProductionTarget(root, paths) : null;
+  const remoteHeadBefore = production ? remoteMainHead(root) : null;
   const writerResult = JSON.parse(fs.readFileSync(resultFile, "utf8"));
   const finalization = finalizeCodexWriter({ packageDirectory, resultFile, root, dryRun, write: production || fixtureWrite, correction, maintenanceProjection });
   const businessSha256 = sha256({ edition: finalization.edition, editionDate: finalization.requestedAsOf, requestId: finalization.requestId, resultId: finalization.resultId, publication: finalization.publication ?? null, storage: finalization.featureBranchWrite?.storage ?? null });
@@ -87,7 +100,13 @@ export function publishWriterResult({ packageDirectory, resultFile, root = repos
   git(root, ["add", "--", ...changed]);
   git(root, ["commit", "-m", `publish: ${finalization.edition} ${finalization.requestedAsOf}`]);
   receipt.commitSha = git(root, ["rev-parse", "HEAD"]);
-  git(root, ["push", "origin", "main"]);
+  const remoteHeadAtPush = remoteMainHead(root);
+  if (remoteHeadBefore && remoteHeadAtPush !== remoteHeadBefore) fail("PUBLISHER_REMOTE_ADVANCED", "origin/main", "origin/main advanced during one-shot publication; no push was attempted");
+  try {
+    git(root, ["push", "origin", "main"]);
+  } catch (cause) {
+    fail(classifyPublisherRemoteError(cause), "origin/main", "one-shot production push failed; inspect remote state before retrying");
+  }
   receipt.pushStatus = "pushed";
   receipt.productionPreflight = preflight;
   return receipt;

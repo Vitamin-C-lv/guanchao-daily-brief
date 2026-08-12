@@ -105,6 +105,8 @@
     "authorityLevel",
     "documentType",
     "implementationStage",
+    "publishedAt",
+    "effectiveAt",
     "coverage contract",
     "internalLineage",
       "packetId",

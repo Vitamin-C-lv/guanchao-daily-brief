@@ -86,6 +86,16 @@ export interface InvestmentStrategyRecommendation {
   invalidation: string;
   modelAgreement: "agree" | "override" | "not_applicable";
   overrideReason: string | null;
+  modelSignal: {
+    status: "published" | "abstained" | "unavailable" | "no_direct_model_signal";
+    predictionIds: string[];
+    probability: number | null;
+    probabilityTarget: string | null;
+    probabilityUnit: string | null;
+    horizonSessions: number;
+    market: string;
+    predictionTargetId: string;
+  };
 }
 
 export interface InvestmentStrategyArticleData {
@@ -94,6 +104,7 @@ export interface InvestmentStrategyArticleData {
   overallStance: "risk_on" | "neutral" | "risk_off";
   signalOrigin: "model_plus_writer" | "writer_only";
   modelContext: { status: "published" | "abstained" | "unavailable"; signalAvailable: boolean; probability: number | null; horizonSessions: number; sourcePredictionIds: string[] };
+  allocationPreference: { preferredTargetIds: string[]; underweightTargetIds: string[] };
   recommendations: InvestmentStrategyRecommendation[];
 }
 
@@ -251,6 +262,10 @@ function investmentStrategy(value: unknown): InvestmentStrategyArticleData | nul
     summary: string(item.summary, "investmentStrategy.summary"),
     overallStance: string(item.overallStance, "investmentStrategy.overallStance") as InvestmentStrategyArticleData["overallStance"],
     signalOrigin: string(item.signalOrigin, "investmentStrategy.signalOrigin") as InvestmentStrategyArticleData["signalOrigin"],
+    allocationPreference: {
+      preferredTargetIds: stringArray(record(item.allocationPreference, "investmentStrategy.allocationPreference").preferredTargetIds, "investmentStrategy.allocationPreference.preferredTargetIds"),
+      underweightTargetIds: stringArray(record(item.allocationPreference, "investmentStrategy.allocationPreference").underweightTargetIds, "investmentStrategy.allocationPreference.underweightTargetIds"),
+    },
     modelContext: {
       status: string(model.status, "investmentStrategy.modelContext.status") as InvestmentStrategyArticleData["modelContext"]["status"],
       signalAvailable: model.signalAvailable === true,
@@ -278,6 +293,19 @@ function investmentStrategy(value: unknown): InvestmentStrategyArticleData | nul
         invalidation: string(recommendation.invalidation, "investmentStrategy.recommendations.invalidation"),
         modelAgreement: string(recommendation.modelAgreement, "investmentStrategy.recommendations.modelAgreement") as InvestmentStrategyRecommendation["modelAgreement"],
         overrideReason: recommendation.overrideReason === null ? null : string(recommendation.overrideReason, "investmentStrategy.recommendations.overrideReason"),
+        modelSignal: (() => {
+          const signal = record(recommendation.modelSignal, `investmentStrategy.recommendations[${index}].modelSignal`);
+          return {
+            status: string(signal.status, "investmentStrategy.recommendations.modelSignal.status") as InvestmentStrategyRecommendation["modelSignal"]["status"],
+            predictionIds: stringArray(signal.predictionIds, "investmentStrategy.recommendations.modelSignal.predictionIds"),
+            probability: typeof signal.probability === "number" ? signal.probability : null,
+            probabilityTarget: signal.probabilityTarget === null ? null : string(signal.probabilityTarget, "investmentStrategy.recommendations.modelSignal.probabilityTarget"),
+            probabilityUnit: signal.probabilityUnit === null ? null : string(signal.probabilityUnit, "investmentStrategy.recommendations.modelSignal.probabilityUnit"),
+            horizonSessions: typeof signal.horizonSessions === "number" ? signal.horizonSessions : 0,
+            market: string(signal.market, "investmentStrategy.recommendations.modelSignal.market"),
+            predictionTargetId: string(signal.predictionTargetId, "investmentStrategy.recommendations.modelSignal.predictionTargetId"),
+          };
+        })(),
       };
     }),
   };

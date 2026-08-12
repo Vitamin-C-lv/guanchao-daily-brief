@@ -1050,6 +1050,7 @@ export interface InvestmentStrategy {
   asOf: string;
   title: "本期配置建议" | "下周配置建议";
   summary: string;
+  allocationPreference: { preferredTargetIds: string[]; underweightTargetIds: string[] };
   overallStance: "risk_on" | "neutral" | "risk_off";
   signalOrigin: "model_plus_writer" | "writer_only";
   modelContext: { status: "published" | "abstained" | "unavailable"; signalAvailable: boolean; probability: number | null; horizonSessions: number; sourcePredictionIds: string[] };
@@ -1071,6 +1072,16 @@ export interface InvestmentStrategy {
     invalidation: string;
     modelAgreement: "agree" | "override" | "not_applicable";
     overrideReason: string | null;
+    modelSignal: {
+      status: "published" | "abstained" | "unavailable" | "no_direct_model_signal";
+      predictionIds: string[];
+      probability: number | null;
+      probabilityTarget: string | null;
+      probabilityUnit: string | null;
+      horizonSessions: number;
+      market: string;
+      predictionTargetId: string;
+    };
   }>;
 }
 
