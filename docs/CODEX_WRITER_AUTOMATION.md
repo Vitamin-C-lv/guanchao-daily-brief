@@ -14,9 +14,12 @@ repository/runtime，不得使用 `D:/周报个人网站`。
 才可手工关闭。普通运行错误允许 Daily/Weekly 使用 `degraded`、`writer_only` 或 deterministic fallback 继续产出，
 但错误数据、future Review、arbitrary probability、ledger conflict 和 stale-as-current 仍 fail closed。
 
-18:30 Guardian 只检查真实 execution receipt/封存 Packet/Task/进程锁；正常日立即 `HEALTHY_NO_ACTION`，活跃 Publisher
-返回 `PUBLISHER_STILL_RUNNING`，异常安全修复后最多补跑 Publisher 一次。Guardian 不是 18:20 Publisher 或 20:00/周六
-10:00 Writer 的主流程依赖。
+18:30 Guardian 是独立 recovery layer，入口先执行 `publisher-guardian.mjs` 自己的 bounded `git fetch origin main`，再比较
+fresh remote、canonical repo 与 runtime；不能先被 `writer-production-preflight`、`writer-ready` 或 generic hard preflight
+拦截。正常日立即 `HEALTHY_NO_ACTION`，活跃 Publisher 返回 `PUBLISHER_STILL_RUNNING`，clean behind runtime 只允许既有
+`fetch + merge --ff-only` 同步，ahead race 最多一次短 grace refresh；不可修复状态仍 fail-closed 但必须写
+`PUBLISHER_GUARDIAN_RECEIPT.json`。一致性失败在 Guardian 中是诊断/repair signal，不是前置死门；异常安全修复后最多补跑
+Publisher 一次。Guardian 不是 18:20 Publisher 或 20:00/周六 10:00 Writer 的主流程依赖。
 
 ## 一致性门禁
 
