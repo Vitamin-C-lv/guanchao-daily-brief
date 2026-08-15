@@ -1,9 +1,9 @@
 {
   "contractVersion": "prediction-ledger-v1",
-  "currentRecordCount": 456,
+  "currentRecordCount": 498,
   "evaluationEventCount": 300,
   "firstPredictionDate": "2026-07-21",
-  "lastPredictionDate": "2026-08-13",
+  "lastPredictionDate": "2026-08-15",
   "legacyRecordCount": 36,
   "markets": [
     "a-share",
@@ -34,14 +34,14 @@
       "evaluationCount": 48,
       "evaluationEventCount": 48,
       "manifestPath": "manifests/2026/08.json",
-      "manifestSha256": "2af8cb896b042759030b16cbf193fcf47c08241a6fcd4ca0764abff4c76a0582",
+      "manifestSha256": "e86bbb0e25e951b2c50ac7bdd67c2dafcd67973b977e40f1d07a232d66c87668",
       "month": "2026-08",
-      "recordCount": 168,
-      "snapshotCount": 5,
+      "recordCount": 210,
+      "snapshotCount": 6,
       "stateCount": 15
     }
   ],
-  "predictionRecordCount": 492,
+  "predictionRecordCount": 534,
   "reviews": [
     {
       "path": "reviews/2026/2026-W30.json",
@@ -60,12 +60,12 @@
     }
   ],
   "schemaVersion": 1,
-  "snapshotCount": 14,
+  "snapshotCount": 15,
   "stateRecordCount": 15,
   "statusSummary": {
-    "abstained": 294,
+    "abstained": 330,
     "insufficient_data": 3,
-    "not_applicable": 168,
+    "not_applicable": 174,
     "published": 36,
     "unavailable": 6
   }

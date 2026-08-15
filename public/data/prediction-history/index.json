@@ -4,7 +4,7 @@
     "2026-08"
   ],
   "contractVersion": "prediction-ledger-v1",
-  "currentRecordCount": 471,
+  "currentRecordCount": 513,
   "evaluatedRecordCount": 300,
   "files": [
     {
@@ -15,14 +15,14 @@
     },
     {
       "path": "2026-08.json",
-      "recordCount": 183,
-      "sha256": "6e46249b77cb60eb33b1be4261155a504b3c86e7efadf86cb8260ce70306bdd6",
+      "recordCount": 225,
+      "sha256": "13d8614047c51335062d1fd62684481208e99c7d1096d6276111527b35565cd9",
       "yearMonth": "2026-08"
     }
   ],
   "firstDate": "2026-07-21",
-  "generatedAt": "2026-08-13T16:55:27+08:00",
-  "lastDate": "2026-08-13",
+  "generatedAt": "2026-08-15T18:20:52+08:00",
+  "lastDate": "2026-08-15",
   "latestReview": {
     "isoWeek": "2026-W32",
     "path": "reviews/2026-W32.json",
@@ -49,12 +49,12 @@
     "internalFieldsExcluded": true,
     "recordLimit": null
   },
-  "recordCount": 507,
+  "recordCount": 549,
   "schemaVersion": 1,
   "statusSummary": {
-    "abstained": 294,
+    "abstained": 330,
     "insufficient_data": 3,
-    "not_applicable": 168,
+    "not_applicable": 174,
     "published": 36,
     "unavailable": 6
   }

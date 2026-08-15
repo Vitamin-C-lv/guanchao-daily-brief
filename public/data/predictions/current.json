@@ -1,25 +1,25 @@
 {
   "schemaVersion": "public-prediction-view-v1",
   "contractVersion": "public-prediction-view-v1",
-  "generatedAt": "2026-08-07T04:00:00.000Z",
-  "asOf": "2026-08-06",
+  "generatedAt": "2026-08-15T04:00:00.000Z",
+  "asOf": "2026-08-14",
   "historyUrl": "/predictions/history/",
   "latestReview": {
-    "isoWeek": "2026-W31",
-    "path": "reviews/2026-W31.json",
-    "sha256": "d015f145d471a8577ad13ff06a913f9db02d0c4b817e3397a0a94383c3b85582"
+    "isoWeek": "2026-W32",
+    "path": "reviews/2026-W32.json",
+    "sha256": "b81c17b23dd3c927097a6cb9d5ba749107f33b06158900e04b37971c21f94db8"
   },
   "markets": [
     {
       "marketId": "a-share",
       "label": "A股",
       "datasetStatus": "ready",
-      "dataAsOf": "2026-08-06",
+      "dataAsOf": "2026-08-14",
       "datasetId": "a-share-2026-07-21-3448b55c8ae4",
       "sourceStatus": {
         "marketBreadth": {
           "status": "unavailable",
-          "reason": "暂无 2026-08-06 的不可变市场广度快照，市场广度不参与发布。"
+          "reason": "暂无 2026-08-14 的不可变市场广度快照，市场广度不参与发布。"
         }
       },
       "objects": [
@@ -45,96 +45,96 @@
               "evidenceScore": null,
               "claim": "基于资金可得性、相对强度与流动性证据排序；当前概率模型未通过样本外质量检验。观察分不是上涨概率。",
               "statusReason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
-              "asOf": "2026-08-06",
-              "dueDate": "2026-08-07",
+              "asOf": "2026-08-14",
+              "dueDate": "2026-08-17",
               "historyUrl": "/predictions/history/?month=&market=a-share&horizon=1",
               "observationItems": [
                 {
                   "rank": 1,
-                  "sector": "通信服务",
-                  "code": "000994",
+                  "sector": "医药医疗",
+                  "code": "000991",
                   "score": 100,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "leading"
                 },
                 {
                   "rank": 2,
-                  "sector": "原材料",
-                  "code": "000987",
+                  "sector": "通信服务",
+                  "code": "000994",
                   "score": 90.9,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "leading"
                 },
                 {
                   "rank": 3,
-                  "sector": "移动互联网",
-                  "code": "399970",
+                  "sector": "能源",
+                  "code": "000986",
                   "score": 81.8,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "leading"
                 },
                 {
                   "rank": 4,
-                  "sector": "主要消费",
-                  "code": "000990",
+                  "sector": "原材料",
+                  "code": "000987",
                   "score": 72.7,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "strengthening"
                 },
                 {
                   "rank": 5,
-                  "sector": "可选消费",
-                  "code": "000989",
+                  "sector": "军工",
+                  "code": "399967",
                   "score": 63.6,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "strengthening"
                 },
                 {
                   "rank": 6,
-                  "sector": "能源",
-                  "code": "000986",
+                  "sector": "工业",
+                  "code": "000988",
                   "score": 54.5,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "neutral"
                 },
                 {
                   "rank": 7,
-                  "sector": "金融地产",
-                  "code": "000992",
+                  "sector": "主要消费",
+                  "code": "000990",
                   "score": 45.5,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "neutral"
                 },
                 {
                   "rank": 8,
-                  "sector": "工业",
-                  "code": "000988",
+                  "sector": "可选消费",
+                  "code": "000989",
                   "score": 36.4,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "weakening"
                 },
                 {
                   "rank": 9,
-                  "sector": "公用事业",
-                  "code": "000995",
+                  "sector": "移动互联网",
+                  "code": "399970",
                   "score": 27.3,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "weakening"
                 },
                 {
                   "rank": 10,
-                  "sector": "医药医疗",
-                  "code": "000991",
+                  "sector": "公用事业",
+                  "code": "000995",
                   "score": 18.2,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "lagging"
                 },
                 {
                   "rank": 11,
-                  "sector": "军工",
-                  "code": "399967",
+                  "sector": "金融地产",
+                  "code": "000992",
                   "score": 9.1,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "lagging"
                 },
                 {
@@ -142,7 +142,7 @@
                   "sector": "信息技术",
                   "code": "000993",
                   "score": 0,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "lagging"
                 }
               ]
@@ -161,96 +161,96 @@
               "evidenceScore": null,
               "claim": "基于资金可得性、相对强度与流动性证据排序；当前概率模型未通过样本外质量检验。观察分不是上涨概率。",
               "statusReason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
-              "asOf": "2026-08-06",
-              "dueDate": "2026-08-13",
+              "asOf": "2026-08-14",
+              "dueDate": "2026-08-21",
               "historyUrl": "/predictions/history/?month=&market=a-share&horizon=5",
               "observationItems": [
                 {
                   "rank": 1,
-                  "sector": "通信服务",
-                  "code": "000994",
+                  "sector": "医药医疗",
+                  "code": "000991",
                   "score": 100,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "leading"
                 },
                 {
                   "rank": 2,
-                  "sector": "原材料",
-                  "code": "000987",
+                  "sector": "通信服务",
+                  "code": "000994",
                   "score": 90.9,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "leading"
                 },
                 {
                   "rank": 3,
-                  "sector": "移动互联网",
-                  "code": "399970",
+                  "sector": "能源",
+                  "code": "000986",
                   "score": 81.8,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "leading"
                 },
                 {
                   "rank": 4,
-                  "sector": "主要消费",
-                  "code": "000990",
+                  "sector": "原材料",
+                  "code": "000987",
                   "score": 72.7,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "strengthening"
                 },
                 {
                   "rank": 5,
-                  "sector": "可选消费",
-                  "code": "000989",
+                  "sector": "军工",
+                  "code": "399967",
                   "score": 63.6,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "strengthening"
                 },
                 {
                   "rank": 6,
-                  "sector": "能源",
-                  "code": "000986",
+                  "sector": "工业",
+                  "code": "000988",
                   "score": 54.5,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "neutral"
                 },
                 {
                   "rank": 7,
-                  "sector": "金融地产",
-                  "code": "000992",
+                  "sector": "主要消费",
+                  "code": "000990",
                   "score": 45.5,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "neutral"
                 },
                 {
                   "rank": 8,
-                  "sector": "工业",
-                  "code": "000988",
+                  "sector": "可选消费",
+                  "code": "000989",
                   "score": 36.4,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "weakening"
                 },
                 {
                   "rank": 9,
-                  "sector": "公用事业",
-                  "code": "000995",
+                  "sector": "移动互联网",
+                  "code": "399970",
                   "score": 27.3,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "weakening"
                 },
                 {
                   "rank": 10,
-                  "sector": "医药医疗",
-                  "code": "000991",
+                  "sector": "公用事业",
+                  "code": "000995",
                   "score": 18.2,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "lagging"
                 },
                 {
                   "rank": 11,
-                  "sector": "军工",
-                  "code": "399967",
+                  "sector": "金融地产",
+                  "code": "000992",
                   "score": 9.1,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "lagging"
                 },
                 {
@@ -258,7 +258,7 @@
                   "sector": "信息技术",
                   "code": "000993",
                   "score": 0,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "lagging"
                 }
               ]
@@ -277,96 +277,96 @@
               "evidenceScore": null,
               "claim": "基于资金可得性、相对强度与流动性证据排序；当前概率模型未通过样本外质量检验。观察分不是上涨概率。",
               "statusReason": "当前没有可靠的板块轮动概率信号，暂不发布概率排名。",
-              "asOf": "2026-08-06",
-              "dueDate": "2026-09-03",
+              "asOf": "2026-08-14",
+              "dueDate": "2026-09-11",
               "historyUrl": "/predictions/history/?month=&market=a-share&horizon=20",
               "observationItems": [
                 {
                   "rank": 1,
-                  "sector": "通信服务",
-                  "code": "000994",
+                  "sector": "医药医疗",
+                  "code": "000991",
                   "score": 100,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "leading"
                 },
                 {
                   "rank": 2,
-                  "sector": "原材料",
-                  "code": "000987",
+                  "sector": "通信服务",
+                  "code": "000994",
                   "score": 90.9,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "leading"
                 },
                 {
                   "rank": 3,
-                  "sector": "移动互联网",
-                  "code": "399970",
+                  "sector": "能源",
+                  "code": "000986",
                   "score": 81.8,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "leading"
                 },
                 {
                   "rank": 4,
-                  "sector": "主要消费",
-                  "code": "000990",
+                  "sector": "原材料",
+                  "code": "000987",
                   "score": 72.7,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "strengthening"
                 },
                 {
                   "rank": 5,
-                  "sector": "可选消费",
-                  "code": "000989",
+                  "sector": "军工",
+                  "code": "399967",
                   "score": 63.6,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "strengthening"
                 },
                 {
                   "rank": 6,
-                  "sector": "能源",
-                  "code": "000986",
+                  "sector": "工业",
+                  "code": "000988",
                   "score": 54.5,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "neutral"
                 },
                 {
                   "rank": 7,
-                  "sector": "金融地产",
-                  "code": "000992",
+                  "sector": "主要消费",
+                  "code": "000990",
                   "score": 45.5,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "neutral"
                 },
                 {
                   "rank": 8,
-                  "sector": "工业",
-                  "code": "000988",
+                  "sector": "可选消费",
+                  "code": "000989",
                   "score": 36.4,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "weakening"
                 },
                 {
                   "rank": 9,
-                  "sector": "公用事业",
-                  "code": "000995",
+                  "sector": "移动互联网",
+                  "code": "399970",
                   "score": 27.3,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "weakening"
                 },
                 {
                   "rank": 10,
-                  "sector": "医药医疗",
-                  "code": "000991",
+                  "sector": "公用事业",
+                  "code": "000995",
                   "score": 18.2,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "lagging"
                 },
                 {
                   "rank": 11,
-                  "sector": "军工",
-                  "code": "399967",
+                  "sector": "金融地产",
+                  "code": "000992",
                   "score": 9.1,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "lagging"
                 },
                 {
@@ -374,7 +374,7 @@
                   "sector": "信息技术",
                   "code": "000993",
                   "score": 0,
-                  "signal": "截至2026-08-06的量价相对强弱观察；不包含未来方向判断。",
+                  "signal": "截至2026-08-14的量价相对强弱观察；不包含未来方向判断。",
                   "direction": "lagging"
                 }
               ]
