@@ -90,7 +90,9 @@ function writeAvailabilityReceipt({ paths, packageDirectory, finalization, publi
   const daily = packet("DAILY_MARKET_PACKET.json");
   const review = packet("PREDICTION_REVIEW_PACKET.json");
   const quality = review.status !== "valid" ? "writer_only" : daily.status === "valid" ? "normal" : "degraded";
-  const editionDate = finalization.requestedAsOf;
+  const editionDate = finalization.mode === "global_market_brief"
+    ? finalization.featureBranchWrite?.storage?.editionDate ?? finalization.requestedAsOf
+    : finalization.requestedAsOf;
   const reportType = finalization.edition === "weekly" ? "weekly" : "daily";
   const receipt = buildReportAvailabilityReceipt({
     editionDate, reportType, publicationQuality: quality, guardianStatus: process.env.GUANCHAO_GUARDIAN_STATUS ?? "UNKNOWN",
@@ -189,15 +191,21 @@ export function publishWriterResult({ packageDirectory, resultFile, root = repos
       };
     }
   }
-  const preflight = production ? assertProductionTarget(publicationRoot, paths, expectedRemote, { packageDirectory, requestedAsOf: packageRequest?.requestedAsOf, edition: packageRequest?.mode ?? packageRequest?.edition }) : null;
+  const productionAsOf = packageRequest?.mode === "global_market_brief"
+    ? writerResult?.payload?.editionDate ?? packageRequest?.requestedAsOf
+    : packageRequest?.requestedAsOf;
+  const preflight = production ? assertProductionTarget(publicationRoot, paths, expectedRemote, { packageDirectory, requestedAsOf: productionAsOf, edition: packageRequest?.mode ?? packageRequest?.edition }) : null;
   const remoteHeadBefore = production ? remoteMainHead(publicationRoot) : null;
   if (production && remoteHeadBefore && remoteMainHead(publicationRoot) !== remoteHeadBefore) fail("PUBLISHER_REMOTE_ADVANCED", "origin/main", "origin/main advanced before filesystem write; no write was attempted", { recoveryEvidence: { contentWritten: false, localCommitCreated: false, remotePushed: false, runtimeSynced: false, remoteHeadBefore, remoteHeadAfter: remoteMainHead(publicationRoot), localHead: git(publicationRoot, ["rev-parse", "HEAD"]) } });
   const finalization = finalizeCodexWriter({ packageDirectory, resultFile, root: publicationRoot, dryRun, write: production || fixtureWrite, correction, maintenanceProjection });
-  const businessSha256 = sha256({ edition: finalization.edition, editionDate: finalization.requestedAsOf, requestId: finalization.requestId, resultId: finalization.resultId, publication: finalization.publication ?? null, storage: finalization.featureBranchWrite?.storage ?? null });
+  const publishedEditionDate = finalization.mode === "global_market_brief"
+    ? writerResult?.payload?.editionDate ?? finalization.requestedAsOf
+    : finalization.requestedAsOf;
+  const businessSha256 = sha256({ edition: finalization.edition, editionDate: publishedEditionDate, requestId: finalization.requestId, resultId: finalization.resultId, publication: finalization.publication ?? null, storage: finalization.featureBranchWrite?.storage ?? null });
   const receipt = {
     schemaVersion: "content-publication-receipt-v1",
     edition: finalization.edition,
-    editionDate: finalization.requestedAsOf,
+    editionDate: publishedEditionDate,
     articleId: finalization.mode === "global_market_brief" ? writerResult?.payload?.mainArticle?.id ?? null : writerResult?.payload?.report?.id ?? finalization.publication?.latestReportId ?? null,
     historyPath: finalization.mode === "global_market_brief" ? finalization.featureBranchWrite?.storage?.historyPath ?? null : null,
     publicPath: finalization.mode === "global_market_brief" ? "content/global-market-brief-public.json" : null,
