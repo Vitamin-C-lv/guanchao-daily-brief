@@ -728,6 +728,21 @@
       "runId": "prun-20260818-962c72594f174aec46d4",
       "sha256": "c11a2f76e14f09ac7f0a5d18b4d3e80fb46473ba237b1e65401e9e640ba56b4f",
       "size": 3785
+    },
+    {
+      "createdAt": "2026-08-20T23:14:19+08:00",
+      "dataAsOf": "2026-08-20",
+      "eventId": null,
+      "kind": "snapshot",
+      "modelVersions": [
+        "2026-07-21-relative-v2",
+        "hk-model-not-trained",
+        "us-model-not-implemented"
+      ],
+      "path": "snapshots/2026/08/prun-20260820-8d7916c6b83935ea6dbe.json.gz",
+      "runId": "prun-20260820-8d7916c6b83935ea6dbe",
+      "sha256": "1f9c12c393a433c3626a4fbd57a8394f84e2c109c9739844c940bd12ee74e344",
+      "size": 3765
     }
   ],
   "schemaVersion": 1,
