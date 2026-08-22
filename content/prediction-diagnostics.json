@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-20T23:14:19+08:00",
+  "generatedAt": "2026-08-22T18:20:41+08:00",
   "policy": {
     "immutableSnapshotLedger": "data/predictions/snapshots.jsonl.gz",
     "pageReadsDiagnostics": false,
@@ -68,11 +68,11 @@
   "sourceStatus": {
     "marketBreadth": {
       "status": "unavailable",
-      "reason": "no immutable market breadth snapshot for 2026-08-20"
+      "reason": "no immutable market breadth snapshot for 2026-08-21"
     }
   },
   "warnings": [
-    "marketBreadth snapshot unavailable for 2026-08-20"
+    "marketBreadth snapshot unavailable for 2026-08-21"
   ],
   "modelLineage": {
     "ok": true,
@@ -91,8 +91,8 @@
       "modelAvailability": "trained",
       "modelVersion": "2026-07-21-relative-v2",
       "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
-      "dataAsOf": "2026-08-20",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "dataAsOf": "2026-08-21",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "none",
       "probabilitySource": "none",
       "calibrationStatus": "not_applicable",
@@ -113,7 +113,7 @@
       "gateActuals": null,
       "gateFailures": [],
       "sourceFailures": [
-        "no immutable market breadth snapshot for 2026-08-20"
+        "no immutable market breadth snapshot for 2026-08-21"
       ],
       "warnings": [],
       "rawScoreDistribution": null,
@@ -125,8 +125,8 @@
       "modelAvailability": "trained",
       "modelVersion": "2026-07-21-relative-v2",
       "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
-      "dataAsOf": "2026-08-20",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "dataAsOf": "2026-08-21",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "top_quartile",
       "probabilitySource": "raw_model",
       "calibrationStatus": "disabled",
@@ -171,11 +171,11 @@
         "原始前四分位模型未满足概率校准启用条件"
       ],
       "sourceFailures": [
-        "no immutable market breadth snapshot for 2026-08-20"
+        "no immutable market breadth snapshot for 2026-08-21"
       ],
       "warnings": [
         "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。",
-        "marketBreadth snapshot unavailable for 2026-08-20"
+        "marketBreadth snapshot unavailable for 2026-08-21"
       ],
       "rawScoreDistribution": {
         "count": 12,
@@ -196,8 +196,8 @@
       "modelAvailability": "trained",
       "modelVersion": "2026-07-21-relative-v2",
       "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
-      "dataAsOf": "2026-08-20",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "dataAsOf": "2026-08-21",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "top_quartile",
       "probabilitySource": "raw_model",
       "calibrationStatus": "disabled",
@@ -241,11 +241,11 @@
         "原始前四分位模型未满足概率校准启用条件"
       ],
       "sourceFailures": [
-        "no immutable market breadth snapshot for 2026-08-20"
+        "no immutable market breadth snapshot for 2026-08-21"
       ],
       "warnings": [
         "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。",
-        "marketBreadth snapshot unavailable for 2026-08-20"
+        "marketBreadth snapshot unavailable for 2026-08-21"
       ],
       "rawScoreDistribution": {
         "count": 12,
@@ -266,8 +266,8 @@
       "modelAvailability": "trained",
       "modelVersion": "2026-07-21-relative-v2",
       "featureVersion": "a-core12-v2:price-volume-cross-section-interactions",
-      "dataAsOf": "2026-08-20",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "dataAsOf": "2026-08-21",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "top_quartile",
       "probabilitySource": "raw_model",
       "calibrationStatus": "disabled",
@@ -311,11 +311,11 @@
         "原始前四分位模型未满足概率校准启用条件"
       ],
       "sourceFailures": [
-        "no immutable market breadth snapshot for 2026-08-20"
+        "no immutable market breadth snapshot for 2026-08-21"
       ],
       "warnings": [
         "原始分数与概率仅用于机器诊断，页面不读取或展示被弃权概率。",
-        "marketBreadth snapshot unavailable for 2026-08-20"
+        "marketBreadth snapshot unavailable for 2026-08-21"
       ],
       "rawScoreDistribution": {
         "count": 12,
@@ -336,8 +336,8 @@
       "modelAvailability": "not_trained",
       "modelVersion": null,
       "featureVersion": null,
-      "dataAsOf": "2026-08-20",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "dataAsOf": "2026-08-21",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "none",
       "probabilitySource": "none",
       "calibrationStatus": "not_applicable",
@@ -370,8 +370,8 @@
       "modelAvailability": "not_trained",
       "modelVersion": null,
       "featureVersion": null,
-      "dataAsOf": "2026-08-20",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "dataAsOf": "2026-08-21",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "none",
       "probabilitySource": "none",
       "calibrationStatus": "not_applicable",
@@ -406,8 +406,8 @@
       "modelAvailability": "not_trained",
       "modelVersion": null,
       "featureVersion": null,
-      "dataAsOf": "2026-08-20",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "dataAsOf": "2026-08-21",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "none",
       "probabilitySource": "none",
       "calibrationStatus": "not_applicable",
@@ -442,8 +442,8 @@
       "modelAvailability": "not_trained",
       "modelVersion": null,
       "featureVersion": null,
-      "dataAsOf": "2026-08-20",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "dataAsOf": "2026-08-21",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "none",
       "probabilitySource": "none",
       "calibrationStatus": "not_applicable",
@@ -479,7 +479,7 @@
       "modelVersion": null,
       "featureVersion": null,
       "dataAsOf": "2026-08-05",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "none",
       "probabilitySource": "none",
       "calibrationStatus": "not_applicable",
@@ -513,7 +513,7 @@
       "modelVersion": null,
       "featureVersion": null,
       "dataAsOf": "2026-08-05",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "none",
       "probabilitySource": "none",
       "calibrationStatus": "not_applicable",
@@ -549,7 +549,7 @@
       "modelVersion": null,
       "featureVersion": null,
       "dataAsOf": "2026-08-05",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "none",
       "probabilitySource": "none",
       "calibrationStatus": "not_applicable",
@@ -585,7 +585,7 @@
       "modelVersion": null,
       "featureVersion": null,
       "dataAsOf": "2026-08-05",
-      "snapshotCreatedAt": "2026-08-20T23:14:19+08:00",
+      "snapshotCreatedAt": "2026-08-22T18:20:41+08:00",
       "probabilityTarget": "none",
       "probabilitySource": "none",
       "calibrationStatus": "not_applicable",
